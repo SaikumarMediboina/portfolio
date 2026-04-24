@@ -446,8 +446,8 @@ function App() {
           <SectionHeading
             eyebrow="Credentials"
             title="Education and certifications that support the engineering work."
-            description="This section stays focused on academic foundation and formal training, while recognition and awards live separately above."
-          />
+              description="This section brings together my education and certifications, while awards and recognition are highlighted separately above."
+            />
 
           <div className="credentials-grid">
             <div className="credential-panel">
