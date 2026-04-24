@@ -457,7 +457,7 @@ function App() {
                   <p className="credential-title">{item.degree}</p>
                   <p className="credential-subtitle">{item.school}</p>
                   <p className="credential-detail">
-                    {item.period} | {item.score}
+                    {item.score}
                   </p>
                 </article>
               ))}
