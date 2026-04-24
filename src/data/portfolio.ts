@@ -22,7 +22,7 @@ export const profile: Profile = {
   currentCompany: "Oracle, Bangalore",
   email: "msaikumar6789@gmail.com",
   phone: "+91 9133707661",
-  linkedin: "https://www.linkedin.com/in/saikumar-mediboina",
+  linkedin: "https://www.linkedin.com/in/saikumar-mediboina-1b8258136/",
   tagline:
     "I build high-throughput screening systems, search platforms, and AI-assisted backend services that turn complex compliance workloads into dependable products.",
   summary:
@@ -182,7 +182,7 @@ export const projects: Project[] = [
     impact: "Reduced real-time latency from roughly 2 seconds to 300 milliseconds.",
     summary:
       "Redesigned a synchronous screening path into an asynchronous pipeline to improve responsiveness under concurrent production traffic.",
-    stack: ["Java", "CompletableFuture", "Thread Pools", "Oracle"],
+    stack: ["Java", "Parallel Processing", "Thread Management", "Oracle"],
     highlights: [
       "Parallelized database work across dedicated thread pools.",
       "Removed JSON aggregation bottlenecks through incremental result streaming.",
@@ -194,7 +194,7 @@ export const projects: Project[] = [
     impact: "Improved precision when extracting candidate entities from noisy text.",
     summary:
       "Built an intelligent parser that tokenizes unstructured input and ranks candidate matches using configurable exact and fuzzy logic.",
-    stack: ["Java", "PL/SQL", "Regex", "Scoring Algorithms"],
+    stack: ["Java", "PL/SQL", "LLM Models", "Scoring Algorithms"],
     highlights: [
       "Scored candidates using match quality, token length, and gap penalties.",
       "Extracted best-match substrings before the main screening stage.",
@@ -315,13 +315,13 @@ export type EducationEntry = {
 
 export const education: EducationEntry[] = [
   {
-    degree: "M.Tech in Information Technology",
+    degree: "M.Tech",
     school: "NIT Karnataka",
     period: "Aug 2021 - Jul 2023",
     score: "CGPA: 8.96",
   },
   {
-    degree: "B.Tech in Information Technology",
+    degree: "B.Tech",
     school: "JNTU Vizianagaram",
     period: "Jun 2016 - Sep 2020",
     score: "CGPA: 8.36",
