@@ -355,4 +355,11 @@ export const certifications: Certification[] = [
     issuer: "Udemy",
     year: "2026",
   },
+  {
+    title: "Low-Level Design",
+    issuer: "takeUforward",
+    year: "Mar 2026",
+  },
 ];
+
+
