@@ -360,6 +360,11 @@ export const certifications: Certification[] = [
     issuer: "takeUforward",
     year: "Mar 2026",
   },
+  {
+    title: "Model Context Protocol: Introduction and Advanced Topics",
+    issuer: "Anthropic",
+    year: "2026",
+  },
 ];
 
 
