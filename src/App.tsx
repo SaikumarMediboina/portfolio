@@ -47,6 +47,51 @@ function getBlogArticleHref(slug: string) {
   return `/blog/${encodeURIComponent(slug)}`;
 }
 
+function getBlogAnchorId(slug: string) {
+  return `blog-${slug}`;
+}
+
+function getPortfolioBlogHref(slug?: string) {
+  return slug ? `/#${getBlogAnchorId(slug)}` : "/#blogs";
+}
+
+function returnToPortfolioBlog(slug?: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const portfolioHref = getPortfolioBlogHref(slug);
+  const targetId = slug ? getBlogAnchorId(slug) : "blogs";
+
+  try {
+    const portfolioWindow = window.opener as Window | null;
+
+    if (portfolioWindow && !portfolioWindow.closed) {
+      portfolioWindow.location.hash = targetId;
+      portfolioWindow.document.getElementById(targetId)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      portfolioWindow.focus();
+      window.close();
+
+      window.setTimeout(() => {
+        window.location.href = portfolioHref;
+      }, 150);
+
+      return;
+    }
+  } catch {
+    // If the browser blocks opener access, use the same-tab fallback below.
+  }
+
+  window.close();
+
+  window.setTimeout(() => {
+    window.location.href = portfolioHref;
+  }, 150);
+}
+
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
     return "light";
@@ -138,9 +183,13 @@ function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href="/#blogs">
+            <button
+              className="button button-secondary"
+              type="button"
+              onClick={() => returnToPortfolioBlog(post?.slug)}
+            >
               Back to portfolio
-            </a>
+            </button>
             <button
               className="theme-toggle"
               type="button"
@@ -527,7 +576,7 @@ function App() {
 
           <div className="blog-index">
             {featuredBlog ? (
-              <article className="blog-featured">
+              <article className="blog-featured" id={getBlogAnchorId(featuredBlog.slug)}>
                 <div className="blog-featured-copy">
                   <p className="eyebrow">Featured Article</p>
                   <div className="blog-meta">
@@ -539,7 +588,7 @@ function App() {
                     <a
                       href={getBlogArticleHref(featuredBlog.slug)}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="opener"
                     >
                       {featuredBlog.title}
                     </a>
@@ -554,7 +603,7 @@ function App() {
                     className="blog-featured-link"
                     href={getBlogArticleHref(featuredBlog.slug)}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="opener"
                     aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
                   >
                     Read full post
@@ -582,7 +631,11 @@ function App() {
             {remainingBlogPosts.length > 0 ? (
               <div className="blog-list" aria-label="Latest blog articles">
                 {remainingBlogPosts.map((post, index) => (
-                  <article className="blog-list-item" key={post.slug}>
+                  <article
+                    className="blog-list-item"
+                    id={getBlogAnchorId(post.slug)}
+                    key={post.slug}
+                  >
                     <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
                     <div className="blog-list-copy">
                       <div className="blog-meta">
@@ -594,7 +647,7 @@ function App() {
                         <a
                           href={getBlogArticleHref(post.slug)}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="opener"
                         >
                           {post.title}
                         </a>
@@ -605,7 +658,7 @@ function App() {
                       className="blog-list-link"
                       href={getBlogArticleHref(post.slug)}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="opener"
                       aria-label={`Read ${post.title}`}
                     >
                       Read full post

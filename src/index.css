@@ -447,7 +447,10 @@ dt {
   padding: 0.9rem 1.3rem;
   border: 1px solid transparent;
   border-radius: 999px;
+  font: inherit;
   font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -864,6 +867,10 @@ dt {
     radial-gradient(circle at top right, var(--accent-soft), transparent 34%),
     var(--panel-strong);
   box-shadow: var(--shadow-soft);
+  scroll-margin-top: 8rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .blog-featured-copy {
@@ -936,10 +943,18 @@ dt {
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
   background: var(--panel);
+  scroll-margin-top: 8rem;
   transition:
     transform 0.2s ease,
+    box-shadow 0.2s ease,
     border-color 0.2s ease,
     background-color 0.2s ease;
+}
+
+.blog-featured:target,
+.blog-list-item:target {
+  border-color: rgba(240, 100, 59, 0.55);
+  box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-soft);
 }
 
 .blog-list-item:hover {
