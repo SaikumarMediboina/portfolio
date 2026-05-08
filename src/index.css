@@ -43,9 +43,9 @@
   --text-md: 1rem;
   --text-lg: 1.08rem;
   --text-xl: 1.28rem;
-  --text-2xl: clamp(1.8rem, 3.2vw, 2.55rem);
-  --text-3xl: clamp(2.25rem, 5vw, 3.4rem);
-  --text-hero: clamp(2.85rem, 6vw, 4.9rem);
+  --text-2xl: 2.35rem;
+  --text-3xl: 3rem;
+  --text-hero: 4.35rem;
 }
 
 :root[data-theme="dark"] {
@@ -254,7 +254,7 @@ dt {
   font-family: "Outfit", sans-serif;
   font-size: 1rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .brand-copy span {
@@ -402,7 +402,8 @@ dt {
 .recognition-card h3 {
   color: var(--ink-strong);
   font-family: "Outfit", sans-serif;
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .hero h1 {
@@ -410,7 +411,8 @@ dt {
   margin-top: 1rem;
   font-size: var(--text-hero);
   font-weight: 800;
-  line-height: 0.98;
+  line-height: 1.08;
+  word-spacing: 0.04em;
 }
 
 .hero-lead {
@@ -419,7 +421,7 @@ dt {
   color: var(--ink-strong);
   font-size: var(--text-lg);
   font-weight: 500;
-  line-height: 1.55;
+  line-height: 1.72;
 }
 
 .hero-body {
@@ -427,7 +429,7 @@ dt {
   margin-top: 1rem;
   color: var(--ink-soft);
   font-size: var(--text-md);
-  line-height: 1.7;
+  line-height: 1.82;
 }
 
 .hero-actions,
@@ -530,14 +532,14 @@ dt {
   margin-top: 0.8rem;
   font-size: var(--text-2xl);
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1.18;
 }
 
 .hero-panel-primary p:last-child {
   margin-top: 0.9rem;
   color: var(--ink-soft);
   font-size: var(--text-lg);
-  line-height: 1.65;
+  line-height: 1.78;
 }
 
 .profile-facts {
@@ -579,10 +581,10 @@ dt {
 .metric-value {
   color: var(--ink-strong);
   font-family: "Outfit", sans-serif;
-  font-size: clamp(2.35rem, 4vw, 3rem);
+  font-size: 2.85rem;
   font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.04em;
+  line-height: 1.05;
+  letter-spacing: 0;
 }
 
 .metric-card h2 {
@@ -599,25 +601,28 @@ dt {
 }
 
 .section {
-  padding: 6.4rem 0 0;
+  padding: 6.8rem 0 0;
 }
 
 .section-heading {
-  max-width: 50rem;
+  max-width: 58rem;
 }
 
 .section-heading h2 {
-  margin-top: 0.8rem;
+  margin-top: 0.95rem;
   font-size: var(--text-3xl);
   font-weight: 800;
-  line-height: 1;
+  line-height: 1.14;
+  word-spacing: 0.04em;
 }
 
 .section-heading p:last-child {
-  margin-top: 1.15rem;
+  max-width: 62rem;
+  margin-top: 1.35rem;
   color: var(--ink-soft);
   font-size: var(--text-lg);
-  line-height: 1.7;
+  line-height: 1.9;
+  text-wrap: pretty;
 }
 
 .focus-grid,
@@ -650,7 +655,7 @@ dt {
   font-family: "Outfit", sans-serif;
   font-size: var(--text-xl);
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.42;
 }
 
 .focus-card p:last-child,
@@ -660,7 +665,8 @@ dt {
 .recognition-card p:last-child {
   color: var(--ink-soft);
   font-size: var(--text-md);
-  line-height: 1.7;
+  line-height: 1.82;
+  text-wrap: pretty;
 }
 
 .work-layout {
@@ -736,14 +742,15 @@ dt {
   margin-top: 0.8rem;
   font-size: var(--text-2xl);
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1.18;
 }
 
 .project-spotlight-heading p:last-child {
   margin-top: 1rem;
   color: var(--ink-soft);
   font-size: var(--text-md);
-  line-height: 1.7;
+  line-height: 1.84;
+  text-wrap: pretty;
 }
 
 .project-spotlight-grid {
@@ -785,7 +792,7 @@ dt {
   position: relative;
   color: var(--ink-soft);
   font-size: var(--text-md);
-  line-height: 1.7;
+  line-height: 1.82;
 }
 
 .bullet-list li::before {
@@ -900,8 +907,8 @@ dt {
   font-family: "Outfit", sans-serif;
   font-size: var(--text-2xl);
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.045em;
+  line-height: 1.18;
+  letter-spacing: 0;
 }
 
 .blog-reader-summary {
@@ -909,7 +916,8 @@ dt {
   margin-top: 1.1rem;
   color: var(--ink-soft);
   font-size: var(--text-lg);
-  line-height: 1.7;
+  line-height: 1.9;
+  text-wrap: pretty;
 }
 
 .blog-stat-grid {
@@ -960,7 +968,7 @@ dt {
   color: var(--ink-strong);
   font-family: "Outfit", sans-serif;
   font-size: var(--text-xl);
-  line-height: 1.25;
+  line-height: 1.38;
   margin: 0 0 0.7rem;
 }
 
@@ -968,7 +976,8 @@ dt {
   max-width: 68rem;
   color: var(--ink-soft);
   font-size: var(--text-md);
-  line-height: 1.75;
+  line-height: 1.9;
+  text-wrap: pretty;
 }
 
 .blog-article-section p + p {
@@ -1085,14 +1094,15 @@ dt {
   margin-top: 0.8rem;
   font-size: var(--text-3xl);
   font-weight: 800;
-  line-height: 1.02;
+  line-height: 1.15;
 }
 
 .contact-copy p:last-child {
   margin-top: 1rem;
   color: var(--ink-soft);
   font-size: var(--text-lg);
-  line-height: 1.7;
+  line-height: 1.9;
+  text-wrap: pretty;
 }
 
 .contact-actions {
@@ -1226,7 +1236,7 @@ section[id] {
 
   .hero h1 {
     max-width: 100%;
-    font-size: clamp(2.65rem, 13vw, 3.8rem);
+    font-size: 3.2rem;
   }
 
   .metric-grid,
