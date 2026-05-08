@@ -1,13 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sai Kumar Mediboina monogram">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sai Kumar Mediboina SK monogram">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#111c2b" />
+      <stop offset="55%" stop-color="#26364c" />
       <stop offset="100%" stop-color="#f0643b" />
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="18" fill="url(#g)" />
-  <path
-    d="M17 18h29v5H24v6h16v5H24v11h22v5H17zm29 32-10-13 5-3 12 16z"
+  <rect width="64" height="64" rx="18" fill="url(#bg)" />
+  <rect x="5" y="5" width="54" height="54" rx="15" fill="none" stroke="#fff8f0" stroke-opacity="0.24" stroke-width="2" />
+  <text
+    x="32"
+    y="40"
     fill="#fff8f0"
-  />
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="25"
+    font-weight="800"
+    letter-spacing="-1.5"
+    text-anchor="middle"
+  >SK</text>
 </svg>
