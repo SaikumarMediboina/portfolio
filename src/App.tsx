@@ -34,15 +34,6 @@ type SectionHeadingProps = {
 const THEME_STORAGE_KEY = "portfolio-theme";
 const ALL_BLOG_CATEGORIES = "All";
 
-function getBlogSlugFromHash() {
-  if (typeof window === "undefined") {
-    return "";
-  }
-
-  const match = window.location.hash.match(/^#blog\/(.+)$/);
-  return match?.[1] ?? "";
-}
-
 function getBlogSlugFromPathname() {
   if (typeof window === "undefined") {
     return "";
@@ -85,14 +76,11 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
 
 type BlogArticleBodyProps = {
   post: BlogPost;
-  showSummary?: boolean;
 };
 
-function BlogArticleBody({ post, showSummary = true }: BlogArticleBodyProps) {
+function BlogArticleBody({ post }: BlogArticleBodyProps) {
   return (
     <>
-      {showSummary ? <p className="blog-reader-summary">{post.summary}</p> : null}
-
       <div className="blog-stat-grid">
         {post.stats.map((stat) => (
           <div className="blog-stat" key={`${post.slug}-${stat.label}`}>
@@ -181,7 +169,7 @@ function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
               <p>{post.summary}</p>
             </div>
 
-            <BlogArticleBody post={post} showSummary={false} />
+            <BlogArticleBody post={post} />
           </article>
         ) : (
           <section className="standalone-blog standalone-blog-empty">
@@ -207,9 +195,6 @@ function App() {
   const [activeSection, setActiveSection] = useState("top");
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
-  const [selectedBlogSlug, setSelectedBlogSlug] = useState(
-    getBlogSlugFromHash() || blogPosts[0]?.slug || "",
-  );
 
   const selectedProject = projects[selectedProjectIndex];
   const selectedProjectNumber = String(selectedProjectIndex + 1).padStart(2, "0");
@@ -221,8 +206,8 @@ function App() {
     selectedBlogCategory === ALL_BLOG_CATEGORIES
       ? blogPosts
       : blogPosts.filter((post) => post.category === selectedBlogCategory);
-  const selectedBlog =
-    blogPosts.find((post) => post.slug === selectedBlogSlug) ?? visibleBlogPosts[0] ?? blogPosts[0];
+  const featuredBlog = visibleBlogPosts[0];
+  const remainingBlogPosts = visibleBlogPosts.slice(1);
   const standaloneBlogSlug = getBlogSlugFromPathname();
   const standaloneBlog = standaloneBlogSlug
     ? blogPosts.find((post) => post.slug === standaloneBlogSlug)
@@ -286,66 +271,7 @@ function App() {
   }, [theme]);
 
   const closeMenu = () => setMenuOpen(false);
-  const selectBlogPost = (post: BlogPost, shouldScroll = true, shouldSyncCategory = false) => {
-    setSelectedBlogSlug(post.slug);
-
-    if (shouldSyncCategory) {
-      setSelectedBlogCategory(post.category);
-    }
-
-    if (typeof window !== "undefined") {
-      window.history.pushState(null, "", `#blog/${post.slug}`);
-    }
-
-    if (shouldScroll) {
-      window.requestAnimationFrame(() => {
-        document.getElementById("blog-reader")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
-    }
-  };
-
-  const selectBlogCategory = (category: string) => {
-    setSelectedBlogCategory(category);
-
-    const firstPost =
-      category === ALL_BLOG_CATEGORIES
-        ? blogPosts[0]
-        : blogPosts.find((post) => post.category === category);
-
-    if (firstPost) {
-      setSelectedBlogSlug(firstPost.slug);
-
-      if (typeof window !== "undefined") {
-        window.history.replaceState(null, "", `#blog/${firstPost.slug}`);
-      }
-    }
-  };
-
-  useEffect(() => {
-    const syncBlogFromHash = () => {
-      const slug = getBlogSlugFromHash();
-      const post = blogPosts.find((item) => item.slug === slug);
-
-      if (post) {
-        selectBlogPost(post, false, true);
-
-        window.requestAnimationFrame(() => {
-          document.getElementById("blog-reader")?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        });
-      }
-    };
-
-    syncBlogFromHash();
-    window.addEventListener("hashchange", syncBlogFromHash);
-
-    return () => window.removeEventListener("hashchange", syncBlogFromHash);
-  }, []);
+  const selectBlogCategory = (category: string) => setSelectedBlogCategory(category);
 
   if (standaloneBlogSlug) {
     return (
@@ -578,79 +504,117 @@ function App() {
           <SectionHeading
             eyebrow="Blogs"
             title="Short engineering write-ups that turn resume bullets into clearer technical stories."
-            description="These featured posts are meant to show how I think through performance work, search migrations, and AI or LLM-oriented system design in a more practical way."
+            description="A compact article index keeps the writing easy to scan today and still works cleanly as the collection grows."
           />
 
-          <div className="blog-controls" aria-label="Blog categories">
-            {blogCategories.map((category) => (
-              <button
-                className={`blog-filter${selectedBlogCategory === category ? " is-active" : ""}`}
-                key={category}
-                type="button"
-                onClick={() => selectBlogCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          <div className="blog-grid">
-            {visibleBlogPosts.map((post) => (
-              <article
-                className={`blog-card${selectedBlog?.slug === post.slug ? " is-active" : ""}`}
-                key={post.slug}
-              >
-                <div className="blog-meta">
-                  <span>{post.category}</span>
-                  <span>{post.publishedAt}</span>
-                  <span>{post.readTime}</span>
-                </div>
-                <h3>{post.title}</h3>
-                <p>{post.summary}</p>
-                <ul className="bullet-list">
-                  {post.takeaways.map((takeaway) => (
-                    <li key={takeaway}>{takeaway}</li>
-                  ))}
-                </ul>
-                <a
-                  className="blog-card-action"
-                  href={getBlogArticleHref(post.slug)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Open ${post.title} as a standalone article in a new tab`}
+          <div className="blog-toolbar">
+            <div className="blog-controls" aria-label="Blog categories">
+              {blogCategories.map((category) => (
+                <button
+                  className={`blog-filter${selectedBlogCategory === category ? " is-active" : ""}`}
+                  key={category}
+                  type="button"
+                  onClick={() => selectBlogCategory(category)}
                 >
-                  Read full post
-                </a>
-              </article>
-            ))}
+                  {category}
+                </button>
+              ))}
+            </div>
+            <p className="blog-count">
+              {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
+            </p>
           </div>
 
-          {selectedBlog ? (
-            <article className="blog-reader" id="blog-reader">
-              <div className="blog-reader-header">
-                <div>
-                  <p className="eyebrow">Selected Article</p>
-                  <h3>{selectedBlog.title}</h3>
+          <div className="blog-index">
+            {featuredBlog ? (
+              <article className="blog-featured">
+                <div className="blog-featured-copy">
+                  <p className="eyebrow">Featured Article</p>
                   <div className="blog-meta">
-                    <span>{selectedBlog.category}</span>
-                    <span>{selectedBlog.publishedAt}</span>
-                    <span>{selectedBlog.readTime}</span>
+                    <span>{featuredBlog.category}</span>
+                    <span>{featuredBlog.publishedAt}</span>
+                    <span>{featuredBlog.readTime}</span>
                   </div>
+                  <h3>
+                    <a
+                      href={getBlogArticleHref(featuredBlog.slug)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {featuredBlog.title}
+                    </a>
+                  </h3>
+                  <p>{featuredBlog.summary}</p>
+                  <ul className="bullet-list">
+                    {featuredBlog.takeaways.map((takeaway) => (
+                      <li key={takeaway}>{takeaway}</li>
+                    ))}
+                  </ul>
+                  <a
+                    className="blog-featured-link"
+                    href={getBlogArticleHref(featuredBlog.slug)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
+                  >
+                    Read full post
+                  </a>
                 </div>
 
-                <a
-                  className="button button-tertiary"
-                  href={getBlogArticleHref(selectedBlog.slug)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open article in new tab
-                </a>
+                <aside className="blog-featured-aside" aria-label="Featured article metrics">
+                  <p className="impact-label">Key metrics</p>
+                  <div className="blog-stat-grid">
+                    {featuredBlog.stats.map((stat) => (
+                      <div className="blog-stat" key={`${featuredBlog.slug}-${stat.label}`}>
+                        <span>{stat.label}</span>
+                        <strong>{stat.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </aside>
+              </article>
+            ) : (
+              <div className="blog-empty">
+                <p>No articles are available for this category yet.</p>
               </div>
+            )}
 
-              <BlogArticleBody post={selectedBlog} />
-            </article>
-          ) : null}
+            {remainingBlogPosts.length > 0 ? (
+              <div className="blog-list" aria-label="Latest blog articles">
+                {remainingBlogPosts.map((post, index) => (
+                  <article className="blog-list-item" key={post.slug}>
+                    <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
+                    <div className="blog-list-copy">
+                      <div className="blog-meta">
+                        <span>{post.category}</span>
+                        <span>{post.publishedAt}</span>
+                        <span>{post.readTime}</span>
+                      </div>
+                      <h3>
+                        <a
+                          href={getBlogArticleHref(post.slug)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {post.title}
+                        </a>
+                      </h3>
+                      <p>{post.summary}</p>
+                    </div>
+                    <a
+                      className="blog-list-link"
+                      href={getBlogArticleHref(post.slug)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Read ${post.title}`}
+                    >
+                      Read full post
+                    </a>
+                  </article>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </section>
 
         <section className="section shell" id="recognition">
