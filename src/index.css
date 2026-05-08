@@ -997,6 +997,90 @@ dt {
   margin-top: 0.85rem;
 }
 
+.article-site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(22px);
+}
+
+.article-header-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 5.6rem;
+  gap: 1rem;
+}
+
+.article-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.article-page {
+  padding: 5rem 0 6rem;
+}
+
+.standalone-blog {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top right, var(--accent-soft), transparent 34%),
+    var(--panel-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.standalone-blog-hero {
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.standalone-blog-hero h1,
+.standalone-blog-empty h1 {
+  max-width: 15ch;
+  margin-top: 1rem;
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.standalone-blog-hero .blog-meta {
+  margin-top: 1rem;
+}
+
+.standalone-blog-hero p:last-child,
+.standalone-blog-empty p {
+  max-width: 62rem;
+  margin-top: 1.25rem;
+  color: var(--ink-soft);
+  font-size: var(--text-lg);
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.standalone-blog .blog-stat-grid {
+  margin-top: 1.8rem;
+}
+
+.standalone-blog-empty {
+  display: grid;
+  gap: 1rem;
+}
+
+.standalone-blog-empty .button {
+  justify-self: start;
+  margin-top: 0.5rem;
+}
+
 .recognition-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -1284,6 +1368,42 @@ section[id] {
 
   .blog-stat-grid {
     grid-template-columns: 1fr;
+  }
+
+  .article-header-shell,
+  .article-header-actions {
+    align-items: stretch;
+  }
+
+  .article-header-shell {
+    flex-direction: column;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .article-header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .article-header-actions .button,
+  .article-header-actions .theme-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .article-page {
+    padding-top: 2rem;
+  }
+
+  .standalone-blog {
+    padding: 1.35rem;
+  }
+
+  .standalone-blog-hero h1,
+  .standalone-blog-empty h1 {
+    max-width: 100%;
+    font-size: 2.45rem;
   }
 
   .footer-shell {

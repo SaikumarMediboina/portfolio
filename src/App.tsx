@@ -43,12 +43,17 @@ function getBlogSlugFromHash() {
   return match?.[1] ?? "";
 }
 
-function getBlogArticleHref(slug: string) {
+function getBlogSlugFromPathname() {
   if (typeof window === "undefined") {
-    return `#blog/${slug}`;
+    return "";
   }
 
-  return `${window.location.origin}${window.location.pathname}#blog/${slug}`;
+  const match = window.location.pathname.match(/^\/blog\/([^/]+)\/?$/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function getBlogArticleHref(slug: string) {
+  return `/blog/${encodeURIComponent(slug)}`;
 }
 
 function getInitialTheme(): Theme {
@@ -78,6 +83,124 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   );
 }
 
+type BlogArticleBodyProps = {
+  post: BlogPost;
+  showSummary?: boolean;
+};
+
+function BlogArticleBody({ post, showSummary = true }: BlogArticleBodyProps) {
+  return (
+    <>
+      {showSummary ? <p className="blog-reader-summary">{post.summary}</p> : null}
+
+      <div className="blog-stat-grid">
+        {post.stats.map((stat) => (
+          <div className="blog-stat" key={`${post.slug}-${stat.label}`}>
+            <span>{stat.label}</span>
+            <strong>{stat.value}</strong>
+          </div>
+        ))}
+      </div>
+
+      <div className="blog-article">
+        {post.sections.map((section) => (
+          <section className="blog-article-section" key={section.heading}>
+            <h4>{section.heading}</h4>
+            {section.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            {section.bullets ? (
+              <ul className="bullet-list">
+                {section.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+            ) : null}
+          </section>
+        ))}
+      </div>
+    </>
+  );
+}
+
+type BlogArticlePageProps = {
+  post?: BlogPost;
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to article
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/#top">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Engineering notes</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/#blogs">
+              Back to portfolio
+            </a>
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <span className="theme-toggle-indicator" aria-hidden="true" />
+              <span>{theme === "light" ? "Dark theme" : "Light theme"}</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="article-page shell" id="main-content">
+        {post ? (
+          <article className="standalone-blog">
+            <div className="standalone-blog-hero">
+              <p className="eyebrow">Standalone Article</p>
+              <h1>{post.title}</h1>
+              <div className="blog-meta">
+                <span>{post.category}</span>
+                <span>{post.publishedAt}</span>
+                <span>{post.readTime}</span>
+              </div>
+              <p>{post.summary}</p>
+            </div>
+
+            <BlogArticleBody post={post} showSummary={false} />
+          </article>
+        ) : (
+          <section className="standalone-blog standalone-blog-empty">
+            <p className="eyebrow">Article not found</p>
+            <h1>This blog post is not available.</h1>
+            <p>
+              The article link may have changed. You can go back to the portfolio blogs and
+              choose a post from the current list.
+            </p>
+            <a className="button button-primary" href="/#blogs">
+              View blogs
+            </a>
+          </section>
+        )}
+      </main>
+    </>
+  );
+}
+
 function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -100,6 +223,10 @@ function App() {
       : blogPosts.filter((post) => post.category === selectedBlogCategory);
   const selectedBlog =
     blogPosts.find((post) => post.slug === selectedBlogSlug) ?? visibleBlogPosts[0] ?? blogPosts[0];
+  const standaloneBlogSlug = getBlogSlugFromPathname();
+  const standaloneBlog = standaloneBlogSlug
+    ? blogPosts.find((post) => post.slug === standaloneBlogSlug)
+    : undefined;
 
   useEffect(() => {
     const sectionIds = ["top", ...navLinks.map((link) => link.id)];
@@ -219,6 +346,16 @@ function App() {
 
     return () => window.removeEventListener("hashchange", syncBlogFromHash);
   }, []);
+
+  if (standaloneBlogSlug) {
+    return (
+      <BlogArticlePage
+        post={standaloneBlog}
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
+    );
+  }
 
   return (
     <>
@@ -479,8 +616,8 @@ function App() {
                   className="blog-card-action"
                   href={getBlogArticleHref(post.slug)}
                   target="_blank"
-                  rel="noreferrer"
-                  aria-label={`Open ${post.title} in a new tab`}
+                  rel="noopener noreferrer"
+                  aria-label={`Open ${post.title} as a standalone article in a new tab`}
                 >
                   Read full post
                 </a>
@@ -505,40 +642,13 @@ function App() {
                   className="button button-tertiary"
                   href={getBlogArticleHref(selectedBlog.slug)}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   Open article in new tab
                 </a>
               </div>
 
-              <p className="blog-reader-summary">{selectedBlog.summary}</p>
-
-              <div className="blog-stat-grid">
-                {selectedBlog.stats.map((stat) => (
-                  <div className="blog-stat" key={`${selectedBlog.slug}-${stat.label}`}>
-                    <span>{stat.label}</span>
-                    <strong>{stat.value}</strong>
-                  </div>
-                ))}
-              </div>
-
-              <div className="blog-article">
-                {selectedBlog.sections.map((section) => (
-                  <section className="blog-article-section" key={section.heading}>
-                    <h4>{section.heading}</h4>
-                    {section.paragraphs.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
-                    ))}
-                    {section.bullets ? (
-                      <ul className="bullet-list">
-                        {section.bullets.map((bullet) => (
-                          <li key={bullet}>{bullet}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </section>
-                ))}
-              </div>
+              <BlogArticleBody post={selectedBlog} />
             </article>
           ) : null}
         </section>
