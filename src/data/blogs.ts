@@ -159,4 +159,82 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+  {
+    slug: "backend-throughput-database-cache-async-optimization",
+    title: "Improving backend throughput with database, cache, and async patterns",
+    category: "Performance",
+    publishedAt: "May 2026",
+    readTime: "5 min read",
+    summary:
+      "How moving work closer to the database, reducing cache overhead, and using asynchronous execution improved request flow efficiency.",
+    stats: [
+      { label: "Client pacing", value: "~320ms" },
+      { label: "Focus", value: "Throughput" },
+      { label: "Pattern", value: "Async + Cache" },
+    ],
+    takeaways: [
+      "Database-side processing reduced repeated application-to-database round-trips.",
+      "Targeted indexes and query caching improved access to frequently used data.",
+      "Asynchronous writes kept the main request path responsive under load.",
+    ],
+    sections: [
+      {
+        heading: "The performance problem",
+        paragraphs: [
+          "The request path had multiple areas where backend work was spending too much time on repeated data access, JSON handling, cache serialization, and blocking database operations. None of these issues looked dramatic in isolation, but together they added avoidable latency and server load.",
+          "The goal was not to rewrite the system. The goal was to identify the parts of the flow that created repeated work and move each responsibility to the layer where it could be handled most efficiently.",
+        ],
+      },
+      {
+        heading: "Moving heavy data work closer to the database",
+        paragraphs: [
+          "One improvement was to move JSON processing and event preparation into database-side procedures. This reduced the amount of back-and-forth communication between the application layer and the database, especially for flows that previously required multiple calls to assemble or transform the same request context.",
+          "I also introduced duplicate suppression logic closer to the data layer, so unnecessary event creation could be avoided earlier in the flow. Along with this, targeted indexes were added on frequently accessed paths to make lookups faster and more predictable.",
+        ],
+        bullets: [
+          "Moved repeated JSON processing into stored procedures.",
+          "Applied duplicate suppression before unnecessary downstream work was created.",
+          "Added indexes on high-access query paths to reduce lookup cost.",
+        ],
+      },
+      {
+        heading: "Reducing cache and query overhead",
+        paragraphs: [
+          "Another part of the optimization focused on cache efficiency. Distributed cache interactions can become expensive when serialization and deserialization add repeated overhead around otherwise fast lookups. Improving those object conversion paths helped reduce the extra cost around cached data access.",
+          "For read-heavy flows, frequently used select queries were cached strategically. This reduced database pressure and improved response consistency for data transformation and request-enrichment paths.",
+        ],
+        bullets: [
+          "Optimized serialization and deserialization around cached objects.",
+          "Cached frequently used read queries to reduce database load.",
+          "Kept caching selective so the system avoided unnecessary stale or low-value cache entries.",
+        ],
+      },
+      {
+        heading: "Keeping writes off the critical request path",
+        paragraphs: [
+          "For operations where database inserts did not need to block the immediate response, I used asynchronous execution patterns. By delegating possible insert work through executor-based processing, the main service flow could continue without waiting on every database write.",
+          "This improved throughput by separating user-facing response time from supporting persistence work, while still keeping the execution controlled and observable.",
+        ],
+        bullets: [
+          "Moved non-critical writes into asynchronous execution paths.",
+          "Reduced blocking work in the main request flow.",
+          "Used controlled background execution rather than unbounded parallelism.",
+        ],
+      },
+      {
+        heading: "What the measurements showed",
+        paragraphs: [
+          "During performance analysis, I noticed a consistent pacing pattern in client-side request posting. When a client posted a sequence of requests, the average gap between receiving one response and sending the next request was around 320ms.",
+          "That observation was important because it separated server-side optimization opportunities from client-side pacing behavior. It helped keep the tuning work focused on areas the backend could directly improve: round-trips, query cost, cache overhead, and blocking operations.",
+        ],
+      },
+      {
+        heading: "The broader pattern",
+        paragraphs: [
+          "The final optimization pattern combined several practical backend techniques: push suitable transformation work closer to the database, index the hot paths, cache only high-value reads, reduce cache conversion overhead, and keep non-critical writes out of the synchronous request path.",
+          "This kind of performance work is effective because it does not depend on one large change. It improves the system by removing repeated friction across the request lifecycle.",
+        ],
+      },
+    ],
+  },
 ];
