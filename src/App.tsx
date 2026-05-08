@@ -43,6 +43,14 @@ function getBlogSlugFromHash() {
   return match?.[1] ?? "";
 }
 
+function getBlogArticleHref(slug: string) {
+  if (typeof window === "undefined") {
+    return `#blog/${slug}`;
+  }
+
+  return `${window.location.origin}${window.location.pathname}#blog/${slug}`;
+}
+
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
     return "light";
@@ -467,13 +475,15 @@ function App() {
                     <li key={takeaway}>{takeaway}</li>
                   ))}
                 </ul>
-                <button
+                <a
                   className="blog-card-action"
-                  type="button"
-                  onClick={() => selectBlogPost(post)}
+                  href={getBlogArticleHref(post.slug)}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Open ${post.title} in a new tab`}
                 >
                   Read full post
-                </button>
+                </a>
               </article>
             ))}
           </div>
@@ -491,8 +501,13 @@ function App() {
                   </div>
                 </div>
 
-                <a className="button button-tertiary" href={`#blog/${selectedBlog.slug}`}>
-                  Article link
+                <a
+                  className="button button-tertiary"
+                  href={getBlogArticleHref(selectedBlog.slug)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open article in new tab
                 </a>
               </div>
 
