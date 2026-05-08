@@ -870,30 +870,23 @@ dt {
 .blog-card-action {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
   justify-self: start;
   margin-top: 1.2rem;
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--ink-strong);
+  color: var(--accent);
   font-weight: 800;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.28em;
   cursor: pointer;
 }
 
-.blog-card-action::after {
-  content: "open in new tab";
-  color: var(--accent);
-  font-family: "IBM Plex Mono", monospace;
-  font-size: var(--text-micro);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .blog-card-action:hover {
-  color: var(--accent);
+  color: var(--ink-strong);
+  text-decoration-color: currentColor;
 }
 
 .blog-reader {
