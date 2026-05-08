@@ -553,7 +553,7 @@ function App() {
           <SectionHeading
             eyebrow="Blogs"
             title="Short engineering write-ups that turn resume bullets into clearer technical stories."
-            description="A compact article index keeps the writing easy to scan today and still works cleanly as the collection grows."
+            description="Practical notes on performance engineering, search architecture, and AI-enabled backend systems."
           />
 
           <div className="blog-toolbar">
