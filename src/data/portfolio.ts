@@ -203,57 +203,6 @@ export const projects: Project[] = [
   },
 ];
 
-export type BlogPost = {
-  title: string;
-  category: string;
-  publishedAt: string;
-  readTime: string;
-  summary: string;
-  takeaways: string[];
-};
-
-export const blogPosts: BlogPost[] = [
-  {
-    title: "Cutting batch screening latency by 97 percent",
-    category: "Performance",
-    publishedAt: "April 2026",
-    readTime: "5 min read",
-    summary:
-      "A breakdown of how indexing, batching, and parallel processing turned a slow compliance workflow into a much faster screening run.",
-    takeaways: [
-      "Targeted indexing on hot paths reduced repeated query costs.",
-      "Aggregated queries replaced expensive N+1 access patterns.",
-      "Parallel processing improved throughput without sacrificing correctness.",
-    ],
-  },
-  {
-    title: "Migrating search-heavy screening from OpenSearch to Oracle Text",
-    category: "Architecture",
-    publishedAt: "April 2026",
-    readTime: "6 min read",
-    summary:
-      "Why moving the matching engine closer to the data layer improved scale, reduced infrastructure cost, and still kept the platform fast.",
-    takeaways: [
-      "Storage-level computation reduced operational overhead in the search path.",
-      "Migration strategy preserved throughput while simplifying heavy screening workloads.",
-      "The new approach supported enterprise volume without giving up reliability.",
-    ],
-  },
-  {
-    title: "Blending AI relevance, semantic search, and LLM workflow ideas",
-    category: "AI and LLM",
-    publishedAt: "March 2026",
-    readTime: "4 min read",
-    summary:
-      "Notes on combining deterministic scoring, AI-assisted similarity, and practical LLM-based workflows in enterprise backend systems.",
-    takeaways: [
-      "AI similarity helps where pure string matching becomes too brittle.",
-      "Semantic retrieval improves recall when watchlist data is noisy or transliterated.",
-      "LLM workflows are most useful when kept grounded in auditable backend controls.",
-    ],
-  },
-];
-
 export type Recognition = {
   title: string;
   issuer: string;

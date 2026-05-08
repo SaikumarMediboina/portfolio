@@ -1,0 +1,162 @@
+export type BlogStat = {
+  label: string;
+  value: string;
+};
+
+export type BlogSection = {
+  heading: string;
+  paragraphs: string[];
+  bullets?: string[];
+};
+
+export type BlogPost = {
+  slug: string;
+  title: string;
+  category: string;
+  publishedAt: string;
+  readTime: string;
+  summary: string;
+  stats: BlogStat[];
+  takeaways: string[];
+  sections: BlogSection[];
+};
+
+export const blogPosts: BlogPost[] = [
+  {
+    slug: "batch-screening-latency-97-percent",
+    title: "Cutting batch screening latency by 97 percent",
+    category: "Performance",
+    publishedAt: "April 2026",
+    readTime: "5 min read",
+    summary:
+      "How indexing, batching, and parallel processing turned a slow compliance workflow into a much faster screening run.",
+    stats: [
+      { label: "Latency reduction", value: "97%" },
+      { label: "Before", value: "2h 5m" },
+      { label: "After", value: "3m" },
+    ],
+    takeaways: [
+      "Targeted indexing on hot paths reduced repeated query costs.",
+      "Aggregated queries replaced expensive N+1 access patterns.",
+      "Parallel processing improved throughput without sacrificing correctness.",
+    ],
+    sections: [
+      {
+        heading: "The bottleneck",
+        paragraphs: [
+          "The batch screening path had to process a large number of transactions against heavy compliance data. The slowest parts were repeated database access, expensive query patterns, and processing that did not use parallel execution effectively.",
+          "Instead of treating the problem as one large rewrite, I broke it into measurable bottlenecks: query count, index usage, batching behavior, and transaction isolation during concurrent processing.",
+        ],
+      },
+      {
+        heading: "What changed",
+        paragraphs: [
+          "I added targeted database indexes for the hottest query paths, replaced repeated calls with aggregated query flows, and redesigned the batch execution path to process work in parallel while keeping transaction boundaries clear.",
+          "The biggest win came from removing N+1 style database access. A flow that previously issued hundreds of repeated calls was consolidated into a much smaller number of grouped queries.",
+        ],
+        bullets: [
+          "Reduced repeated database calls through aggregated query design.",
+          "Improved index coverage on expensive screening paths.",
+          "Used parallel processing with transaction isolation for safer throughput.",
+        ],
+      },
+      {
+        heading: "Result",
+        paragraphs: [
+          "The 5K transaction screening run dropped from 2 hours 5 minutes to 3 minutes, a 97 percent latency reduction. The same design direction also helped scale toward 25K transaction volumes with stable average latency.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "opensearch-to-oracle-text-migration",
+    title: "Migrating search-heavy screening from OpenSearch to Oracle Text",
+    category: "Architecture",
+    publishedAt: "April 2026",
+    readTime: "6 min read",
+    summary:
+      "Why moving matching closer to the data layer improved scale, reduced infrastructure cost, and kept screening workflows reliable.",
+    stats: [
+      { label: "Search layer", value: "Oracle Text" },
+      { label: "Throughput", value: "100+ TPS" },
+      { label: "Watchlists", value: "8 active" },
+    ],
+    takeaways: [
+      "Storage-level computation reduced operational overhead in the search path.",
+      "Migration strategy preserved throughput while simplifying heavy screening workloads.",
+      "The new approach supported enterprise volume without giving up reliability.",
+    ],
+    sections: [
+      {
+        heading: "Why migrate",
+        paragraphs: [
+          "The screening platform had search-heavy workloads that depended on fast matching, predictable latency, and operational simplicity. OpenSearch worked for search, but the architecture carried extra infrastructure cost and synchronization overhead.",
+          "Moving more matching logic into Oracle Text allowed the platform to keep search closer to the data and reduce the amount of work that had to move across service boundaries.",
+        ],
+      },
+      {
+        heading: "Migration approach",
+        paragraphs: [
+          "The migration focused on preserving correctness first. Search behavior, scoring behavior, and volume characteristics had to stay stable while the backend moved from a separate search layer into database-backed text matching.",
+          "I worked on the backend transition, query paths, indexing behavior, and production-scale validation so the system could handle real-time requests and nightly screening workloads without losing reliability.",
+        ],
+        bullets: [
+          "Moved matching work closer to the storage layer.",
+          "Kept high-volume screening paths measurable during migration.",
+          "Reduced infrastructure dependency while preserving search quality.",
+        ],
+      },
+      {
+        heading: "Result",
+        paragraphs: [
+          "The migrated path supported 100+ TPS with sub-2.5 second average latency across large volume runs and helped reduce infrastructure cost while keeping screening behavior dependable.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "ai-relevance-semantic-search-llm-workflows",
+    title: "Blending AI relevance, semantic search, and LLM workflow ideas",
+    category: "AI and LLM",
+    publishedAt: "March 2026",
+    readTime: "4 min read",
+    summary:
+      "Notes on combining deterministic scoring, AI-assisted similarity, and practical LLM workflows in enterprise backend systems.",
+    stats: [
+      { label: "Focus", value: "AI relevance" },
+      { label: "Search", value: "Semantic" },
+      { label: "Workflow", value: "LLM-assisted" },
+    ],
+    takeaways: [
+      "AI similarity helps where pure string matching becomes too brittle.",
+      "Semantic retrieval improves recall when watchlist data is noisy or transliterated.",
+      "LLM workflows are most useful when kept grounded in auditable backend controls.",
+    ],
+    sections: [
+      {
+        heading: "The practical goal",
+        paragraphs: [
+          "In enterprise screening, AI is useful only when it improves real workflows without making the system harder to explain. Matching behavior still needs clear controls, traceable decisions, and predictable operational behavior.",
+          "That is why I think of AI relevance as an addition to deterministic scoring, not a replacement for it.",
+        ],
+      },
+      {
+        heading: "Where it fits",
+        paragraphs: [
+          "Semantic search and AI similarity can help with noisy names, transliteration differences, abbreviations, and fuzzy entity matches. LLM workflows can help around the edges: summarizing review context, assisting internal operations, and helping teams move faster while keeping human review in the loop.",
+        ],
+        bullets: [
+          "Use deterministic rules for control and auditability.",
+          "Use semantic retrieval to improve recall on noisy data.",
+          "Use LLM workflows where the system can stay grounded and reviewable.",
+        ],
+      },
+      {
+        heading: "Result",
+        paragraphs: [
+          "The strongest pattern is hybrid: deterministic matching for trust, AI similarity for relevance, and LLM-assisted workflows for productivity where correctness and review still matter.",
+        ],
+      },
+    ],
+  },
+];

@@ -1,6 +1,6 @@
 import { startTransition, useEffect, useState } from "react";
+import { blogPosts, type BlogPost } from "./data/blogs";
 import {
-  blogPosts,
   certifications,
   currentFocus,
   education,
@@ -32,6 +32,16 @@ type SectionHeadingProps = {
 };
 
 const THEME_STORAGE_KEY = "portfolio-theme";
+const ALL_BLOG_CATEGORIES = "All";
+
+function getBlogSlugFromHash() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const match = window.location.hash.match(/^#blog\/(.+)$/);
+  return match?.[1] ?? "";
+}
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
@@ -65,9 +75,23 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
+  const [selectedBlogSlug, setSelectedBlogSlug] = useState(
+    getBlogSlugFromHash() || blogPosts[0]?.slug || "",
+  );
 
   const selectedProject = projects[selectedProjectIndex];
   const selectedProjectNumber = String(selectedProjectIndex + 1).padStart(2, "0");
+  const blogCategories = [
+    ALL_BLOG_CATEGORIES,
+    ...Array.from(new Set(blogPosts.map((post) => post.category))),
+  ];
+  const visibleBlogPosts =
+    selectedBlogCategory === ALL_BLOG_CATEGORIES
+      ? blogPosts
+      : blogPosts.filter((post) => post.category === selectedBlogCategory);
+  const selectedBlog =
+    blogPosts.find((post) => post.slug === selectedBlogSlug) ?? visibleBlogPosts[0] ?? blogPosts[0];
 
   useEffect(() => {
     const sectionIds = ["top", ...navLinks.map((link) => link.id)];
@@ -127,6 +151,66 @@ function App() {
   }, [theme]);
 
   const closeMenu = () => setMenuOpen(false);
+  const selectBlogPost = (post: BlogPost, shouldScroll = true, shouldSyncCategory = false) => {
+    setSelectedBlogSlug(post.slug);
+
+    if (shouldSyncCategory) {
+      setSelectedBlogCategory(post.category);
+    }
+
+    if (typeof window !== "undefined") {
+      window.history.pushState(null, "", `#blog/${post.slug}`);
+    }
+
+    if (shouldScroll) {
+      window.requestAnimationFrame(() => {
+        document.getElementById("blog-reader")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    }
+  };
+
+  const selectBlogCategory = (category: string) => {
+    setSelectedBlogCategory(category);
+
+    const firstPost =
+      category === ALL_BLOG_CATEGORIES
+        ? blogPosts[0]
+        : blogPosts.find((post) => post.category === category);
+
+    if (firstPost) {
+      setSelectedBlogSlug(firstPost.slug);
+
+      if (typeof window !== "undefined") {
+        window.history.replaceState(null, "", `#blog/${firstPost.slug}`);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const syncBlogFromHash = () => {
+      const slug = getBlogSlugFromHash();
+      const post = blogPosts.find((item) => item.slug === slug);
+
+      if (post) {
+        selectBlogPost(post, false, true);
+
+        window.requestAnimationFrame(() => {
+          document.getElementById("blog-reader")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      }
+    };
+
+    syncBlogFromHash();
+    window.addEventListener("hashchange", syncBlogFromHash);
+
+    return () => window.removeEventListener("hashchange", syncBlogFromHash);
+  }, []);
 
   return (
     <>
@@ -352,9 +436,25 @@ function App() {
             description="These featured posts are meant to show how I think through performance work, search migrations, and AI or LLM-oriented system design in a more practical way."
           />
 
+          <div className="blog-controls" aria-label="Blog categories">
+            {blogCategories.map((category) => (
+              <button
+                className={`blog-filter${selectedBlogCategory === category ? " is-active" : ""}`}
+                key={category}
+                type="button"
+                onClick={() => selectBlogCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
           <div className="blog-grid">
-            {blogPosts.map((post) => (
-              <article className="blog-card" key={post.title}>
+            {visibleBlogPosts.map((post) => (
+              <article
+                className={`blog-card${selectedBlog?.slug === post.slug ? " is-active" : ""}`}
+                key={post.slug}
+              >
                 <div className="blog-meta">
                   <span>{post.category}</span>
                   <span>{post.publishedAt}</span>
@@ -367,9 +467,65 @@ function App() {
                     <li key={takeaway}>{takeaway}</li>
                   ))}
                 </ul>
+                <button
+                  className="blog-card-action"
+                  type="button"
+                  onClick={() => selectBlogPost(post)}
+                >
+                  Read full post
+                </button>
               </article>
             ))}
           </div>
+
+          {selectedBlog ? (
+            <article className="blog-reader" id="blog-reader">
+              <div className="blog-reader-header">
+                <div>
+                  <p className="eyebrow">Selected Article</p>
+                  <h3>{selectedBlog.title}</h3>
+                  <div className="blog-meta">
+                    <span>{selectedBlog.category}</span>
+                    <span>{selectedBlog.publishedAt}</span>
+                    <span>{selectedBlog.readTime}</span>
+                  </div>
+                </div>
+
+                <a className="button button-tertiary" href={`#blog/${selectedBlog.slug}`}>
+                  Article link
+                </a>
+              </div>
+
+              <p className="blog-reader-summary">{selectedBlog.summary}</p>
+
+              <div className="blog-stat-grid">
+                {selectedBlog.stats.map((stat) => (
+                  <div className="blog-stat" key={`${selectedBlog.slug}-${stat.label}`}>
+                    <span>{stat.label}</span>
+                    <strong>{stat.value}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div className="blog-article">
+                {selectedBlog.sections.map((section) => (
+                  <section className="blog-article-section" key={section.heading}>
+                    <h4>{section.heading}</h4>
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                    {section.bullets ? (
+                      <ul className="bullet-list">
+                        {section.bullets.map((bullet) => (
+                          <li key={bullet}>{bullet}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </section>
+                ))}
+              </div>
+            </article>
+          ) : null}
         </section>
 
         <section className="section shell" id="recognition">
