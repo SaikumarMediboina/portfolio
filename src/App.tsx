@@ -14,11 +14,11 @@ import {
 
 const navLinks = [
   { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
   { id: "work", label: "Work" },
+  { id: "skills", label: "Skills" },
   { id: "blogs", label: "Blogs" },
   { id: "recognition", label: "Recognition" },
-  { id: "experience", label: "Experience" },
-  { id: "skills", label: "Skills" },
   { id: "credentials", label: "Credentials" },
   { id: "contact", label: "Contact" },
 ] as const;
@@ -481,6 +481,48 @@ function App() {
           </div>
         </section>
 
+        <section className="section shell" id="experience">
+          <SectionHeading
+            eyebrow="Experience"
+            title="Most of my recent experience is deep backend work inside high-volume compliance and intelligence systems."
+            description="The emphasis has been cloud-native platform work, search-heavy architectures, AI-assisted relevance, and latency reduction across both real-time and batch screening paths."
+          />
+
+          <div className="timeline">
+            {experience.map((item) => (
+              <article className="timeline-card" key={item.company}>
+                <div className="timeline-meta">
+                  <p className="timeline-company">{item.company}</p>
+                  <p>{item.employmentType}</p>
+                  <p>{item.location}</p>
+                </div>
+
+                <div className="timeline-body">
+                  <div className="role-stack" aria-label={`${item.company} role progression`}>
+                    {item.roles.map((role) => (
+                      <article className="role-entry" key={`${item.company}-${role.title}`}>
+                        <div className="role-entry-marker" aria-hidden="true" />
+                        <div>
+                          <p className="timeline-role">{role.title}</p>
+                          <p className="role-period">{role.period}</p>
+                          <p className="role-detail">{role.detail}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <p>{item.summary}</p>
+                  <ul className="bullet-list">
+                    {item.achievements.map((achievement) => (
+                      <li key={achievement}>{achievement}</li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="section shell" id="work">
           <SectionHeading
             eyebrow="Selected Work"
@@ -546,6 +588,27 @@ function App() {
                 </ul>
               </div>
             </article>
+          </div>
+        </section>
+
+        <section className="section shell" id="skills">
+          <SectionHeading
+            eyebrow="Skills"
+            title="The strongest part of my stack is where backend services meet search, databases, and AI-enabled workflows."
+            description="I work most comfortably in Java-based backend environments, Oracle-heavy systems, and product flows where scale, explainability, and delivery speed all need to stay aligned."
+          />
+
+          <div className="skill-grid">
+            {skills.map((group) => (
+              <article className="skill-card" key={group.title}>
+                <h3>{group.title}</h3>
+                <ul className="chip-list">
+                  {group.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -684,69 +747,6 @@ function App() {
                 <h3>{item.title}</h3>
                 <p className="recognition-issuer">{item.issuer}</p>
                 <p>{item.detail}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="section shell" id="experience">
-          <SectionHeading
-            eyebrow="Experience"
-            title="Most of my recent experience is deep backend work inside high-volume compliance and intelligence systems."
-            description="The emphasis has been cloud-native platform work, search-heavy architectures, AI-assisted relevance, and latency reduction across both real-time and batch screening paths."
-          />
-
-          <div className="timeline">
-            {experience.map((item) => (
-              <article className="timeline-card" key={item.company}>
-                <div className="timeline-meta">
-                  <p className="timeline-company">{item.company}</p>
-                  <p>{item.employmentType}</p>
-                  <p>{item.location}</p>
-                </div>
-
-                <div className="timeline-body">
-                  <div className="role-stack" aria-label={`${item.company} role progression`}>
-                    {item.roles.map((role) => (
-                      <article className="role-entry" key={`${item.company}-${role.title}`}>
-                        <div className="role-entry-marker" aria-hidden="true" />
-                        <div>
-                          <p className="timeline-role">{role.title}</p>
-                          <p className="role-period">{role.period}</p>
-                          <p className="role-detail">{role.detail}</p>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-
-                  <p>{item.summary}</p>
-                  <ul className="bullet-list">
-                    {item.achievements.map((achievement) => (
-                      <li key={achievement}>{achievement}</li>
-                    ))}
-                  </ul>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="section shell" id="skills">
-          <SectionHeading
-            eyebrow="Skills"
-            title="The strongest part of my stack is where backend services meet search, databases, and AI-enabled workflows."
-            description="I work most comfortably in Java-based backend environments, Oracle-heavy systems, and product flows where scale, explainability, and delivery speed all need to stay aligned."
-          />
-
-          <div className="skill-grid">
-            {skills.map((group) => (
-              <article className="skill-card" key={group.title}>
-                <h3>{group.title}</h3>
-                <ul className="chip-list">
-                  {group.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
               </article>
             ))}
           </div>
