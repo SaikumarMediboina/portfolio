@@ -398,59 +398,87 @@ function App() {
 
       <main id="main-content">
         <section className="hero shell" id="top">
-          <div className="hero-copy">
-            <p className="eyebrow">
-              {profile.currentTitle} at {profile.company}
-            </p>
-            <h1>Backend systems for search, AI, and LLM-enabled enterprise workflows.</h1>
-            <p className="hero-lead">{profile.tagline}</p>
-            <p className="hero-body">{profile.summary}</p>
+          <div className="hero-frame">
+            <div className="hero-copy">
+              <p className="hero-kicker">
+                <span>{profile.currentTitle}</span>
+                <span>{profile.company}</span>
+                <span>Search + AI Systems</span>
+              </p>
+              <h1>Backend systems for search, AI, and LLM-enabled enterprise workflows.</h1>
+              <p className="hero-lead">{profile.tagline}</p>
 
-            <div className="hero-actions">
-              <a className="button button-primary" href="#work">
-                Explore selected work
-              </a>
-              <a className="button button-secondary" href={`mailto:${profile.email}`}>
-                Contact me
-              </a>
+              <div className="hero-actions">
+                <a className="button button-primary" href="#work">
+                  Explore selected work
+                </a>
+                <a className="button button-secondary" href={`mailto:${profile.email}`}>
+                  Contact me
+                </a>
+              </div>
+
+              <ul className="hero-signal-list" aria-label="Core technology areas">
+                <li>Java</li>
+                <li>Oracle Text</li>
+                <li>Semantic Search</li>
+                <li>AI Scoring</li>
+                <li>LLM Workflows</li>
+                <li>OCI</li>
+              </ul>
             </div>
 
-            <ul className="hero-signal-list" aria-label="Core technology areas">
-              <li>Java</li>
-              <li>Oracle Text</li>
-              <li>Semantic Search</li>
-              <li>AI Scoring</li>
-              <li>LLM Workflows</li>
-              <li>OCI</li>
-            </ul>
+            <aside className="hero-dashboard" aria-label="Portfolio system preview">
+              <div className="dashboard-window">
+                <div className="dashboard-topbar">
+                  <span />
+                  <span />
+                  <span />
+                  <strong>portfolio-control-plane</strong>
+                </div>
+
+                <div className="dashboard-grid">
+                  <div className="dashboard-sidebar">
+                    <p>Services</p>
+                    <span className="is-live">Matching Engine</span>
+                    <span>Search Migration</span>
+                    <span>AI Scoring</span>
+                    <span>LLM Workflows</span>
+                  </div>
+
+                  <div className="dashboard-main">
+                    <div className="dashboard-status">
+                      <div>
+                        <p>Production focus</p>
+                        <h2>{profile.name}</h2>
+                      </div>
+                      <span>Available</span>
+                    </div>
+
+                    <div className="dashboard-metrics">
+                      {metrics.slice(0, 3).map((metric) => (
+                        <div key={metric.label}>
+                          <strong>{metric.value}</strong>
+                          <span>{metric.label}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="deployment-list" aria-label="Recent engineering outcomes">
+                      {projects.slice(0, 4).map((project) => (
+                        <div className="deployment-row" key={project.name}>
+                          <span />
+                          <div>
+                            <strong>{project.name}</strong>
+                            <p>{project.impact}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
           </div>
-
-          <aside className="hero-panel">
-            <div className="hero-panel-primary">
-              <p className="eyebrow">Profile Snapshot</p>
-              <h2>{profile.name}</h2>
-              <p>{profile.focus}</p>
-            </div>
-
-            <dl className="profile-facts">
-              <div>
-                <dt>Current role</dt>
-                <dd>{profile.currentTitle}</dd>
-              </div>
-              <div>
-                <dt>Company</dt>
-                <dd>{profile.currentCompany}</dd>
-              </div>
-              <div>
-                <dt>Core domains</dt>
-                <dd>Backend engineering, semantic search, AI relevance, and LLM workflows</dd>
-              </div>
-              <div>
-                <dt>Email</dt>
-                <dd>{profile.email}</dd>
-              </div>
-            </dl>
-          </aside>
         </section>
 
         <section className="shell metric-grid" aria-label="Key career metrics">

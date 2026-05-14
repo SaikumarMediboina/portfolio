@@ -4,9 +4,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"DM Sans"', "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ['"Outfit"', "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ['"IBM Plex Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
+        sans: ['"Inter"', "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ['"IBM Plex Serif"', "ui-serif", "Georgia", "serif"],
+        tight: ['"Inter Tight"', '"Inter"', "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
       },
       boxShadow: {
         glow: "0 0 80px rgba(43, 255, 136, 0.14)",
