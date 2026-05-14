@@ -647,6 +647,7 @@ dt {
 .focus-card h3,
 .skill-card h3,
 .timeline-role,
+.timeline-company,
 .credential-title,
 .recognition-card h3 {
   margin-top: 0.85rem;
@@ -664,6 +665,11 @@ dt {
   font-size: var(--text-md);
   line-height: 1.82;
   text-wrap: pretty;
+}
+
+.timeline-company {
+  margin-top: 0;
+  color: var(--ink-strong);
 }
 
 .work-layout {
@@ -1235,6 +1241,55 @@ dt {
 .timeline-body {
   display: grid;
   gap: 1rem;
+}
+
+.role-stack {
+  display: grid;
+  gap: 0.95rem;
+  padding-bottom: 0.25rem;
+}
+
+.role-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  gap: 0.8rem;
+}
+
+.role-entry:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 0.45rem;
+  top: 1.1rem;
+  bottom: -0.9rem;
+  width: 1px;
+  background: var(--line);
+}
+
+.role-entry-marker {
+  position: relative;
+  z-index: 1;
+  width: 0.62rem;
+  height: 0.62rem;
+  margin-top: 0.75rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.role-entry .timeline-role {
+  margin-top: 0;
+}
+
+.role-period {
+  margin-top: 0.2rem;
+  color: var(--ink-soft);
+  font-size: var(--text-md);
+  line-height: 1.5;
+}
+
+.role-detail {
+  margin-top: 0.55rem;
 }
 
 .skill-grid {

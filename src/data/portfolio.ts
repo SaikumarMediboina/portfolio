@@ -15,10 +15,10 @@ export type Profile = {
 
 export const profile: Profile = {
   name: "Sai Kumar Mediboina",
-  role: "Backend Engineer",
+  role: "Software Application Engineer",
   company: "Oracle",
   location: "Rajahmundry, Andhra Pradesh, India",
-  currentTitle: "Application Developer",
+  currentTitle: "Software Application Engineer",
   currentCompany: "Oracle, Bangalore",
   email: "msaikumar6789@gmail.com",
   phone: "+91 9133707661",
@@ -94,20 +94,37 @@ export const currentFocus: FocusArea[] = [
 ];
 
 export type ExperienceEntry = {
-  role: string;
   company: string;
-  period: string;
+  employmentType: string;
   location: string;
+  roles: {
+    title: string;
+    period: string;
+    detail: string;
+  }[];
   summary: string;
   achievements: string[];
 };
 
 export const experience: ExperienceEntry[] = [
   {
-    role: "Application Developer",
     company: "Oracle",
-    period: "Aug 2023 - Present",
-    location: "Bangalore, India",
+    employmentType: "Full-time",
+    location: "Bengaluru, Karnataka, India · Remote",
+    roles: [
+      {
+        title: "Software Application Engineer",
+        period: "May 2026 - Present",
+        detail:
+          "Current role focused on backend platform engineering, search architecture, performance optimization, and AI-enabled workflow design.",
+      },
+      {
+        title: "Application Developer",
+        period: "Aug 2023 - May 2026",
+        detail:
+          "Built and optimized high-throughput screening, matching, and transaction filtering capabilities across real-time and batch workloads.",
+      },
+    ],
     summary:
       "Architecting a scalable cloud-native compliance platform on OCI and Kubernetes for customer screening and transaction filtering. The platform combines OpenSearch, Oracle Text, AI-assisted search, and hybrid decision logic to support both real-time requests and high-volume nightly workloads.",
     achievements: [

@@ -698,15 +698,27 @@ function App() {
 
           <div className="timeline">
             {experience.map((item) => (
-              <article className="timeline-card" key={`${item.company}-${item.role}`}>
+              <article className="timeline-card" key={item.company}>
                 <div className="timeline-meta">
-                  <p className="timeline-role">{item.role}</p>
-                  <p>{item.company}</p>
-                  <p>{item.period}</p>
+                  <p className="timeline-company">{item.company}</p>
+                  <p>{item.employmentType}</p>
                   <p>{item.location}</p>
                 </div>
 
                 <div className="timeline-body">
+                  <div className="role-stack" aria-label={`${item.company} role progression`}>
+                    {item.roles.map((role) => (
+                      <article className="role-entry" key={`${item.company}-${role.title}`}>
+                        <div className="role-entry-marker" aria-hidden="true" />
+                        <div>
+                          <p className="timeline-role">{role.title}</p>
+                          <p className="role-period">{role.period}</p>
+                          <p className="role-detail">{role.detail}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
                   <p>{item.summary}</p>
                   <ul className="bullet-list">
                     {item.achievements.map((achievement) => (
