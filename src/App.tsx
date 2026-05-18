@@ -1936,6 +1936,7 @@ function App() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [readerMenuOpen, setReaderMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
+  const [headerDocked, setHeaderDocked] = useState(false);
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
   const [subscriberUser, setSubscriberUser] = useState<User | null>(null);
@@ -2030,6 +2031,29 @@ function App() {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("scroll", scheduleActiveSectionUpdate);
       window.removeEventListener("resize", scheduleActiveSectionUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    let frameId = 0;
+
+    const updateHeaderPosition = () => {
+      setHeaderDocked(window.scrollY > 24);
+    };
+
+    const scheduleHeaderPositionUpdate = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateHeaderPosition);
+    };
+
+    updateHeaderPosition();
+    window.addEventListener("scroll", scheduleHeaderPositionUpdate, { passive: true });
+    window.addEventListener("resize", scheduleHeaderPositionUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", scheduleHeaderPositionUpdate);
+      window.removeEventListener("resize", scheduleHeaderPositionUpdate);
     };
   }, []);
 
@@ -2450,7 +2474,7 @@ function App() {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="site-header">
+      <header className={`site-header${headerDocked ? " is-docked" : ""}`}>
         <div className="shell header-shell">
           <a className="brand" href="#top" onClick={closeMenu}>
             <span className="brand-mark">SK</span>
