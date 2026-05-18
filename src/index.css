@@ -295,6 +295,18 @@ dt {
   color: var(--ink);
 }
 
+.site-nav .nav-signin-link {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--soft-button-bg);
+  color: var(--ink);
+}
+
+.site-nav .nav-signin-link::after {
+  display: none;
+}
+
 .site-nav a:hover::after,
 .site-nav a.is-active::after {
   transform: scaleX(1);
@@ -1190,6 +1202,38 @@ dt {
   margin-top: 0.5rem;
 }
 
+.signin-page {
+  padding: 9rem 0 5rem;
+}
+
+.signin-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.75fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.signin-copy {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.signin-copy h1 {
+  max-width: 720px;
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.08em;
+}
+
+.signin-copy p:not(.eyebrow) {
+  max-width: 640px;
+  color: var(--ink-soft);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.8;
+}
+
 .updates-panel {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
@@ -1604,6 +1648,7 @@ section[id] {
   .hero,
   .work-layout,
   .updates-panel,
+  .signin-hero,
   .contact-panel {
     grid-template-columns: 1fr;
   }
@@ -1677,6 +1722,12 @@ section[id] {
   .site-nav a:hover,
   .site-nav a.is-active {
     background: var(--muted-button-bg);
+  }
+
+  .site-nav .nav-signin-link {
+    justify-content: center;
+    text-align: center;
+    background: var(--soft-button-bg);
   }
 
   .menu-toggle {

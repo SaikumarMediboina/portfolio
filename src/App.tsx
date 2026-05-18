@@ -1,6 +1,12 @@
 import { startTransition, useEffect, useState } from "react";
 import type { User } from "firebase/auth";
-import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import {
+  getRedirectResult,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+} from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import {
   certifications,
@@ -51,6 +57,14 @@ function getBlogSlugFromPathname() {
   return match ? decodeURIComponent(match[1]) : "";
 }
 
+function isSignInPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/signin";
+}
+
 function getBlogArticleHref(slug: string) {
   return `/blog/${encodeURIComponent(slug)}`;
 }
@@ -64,13 +78,14 @@ function getPortfolioBlogHref(slug?: string) {
 }
 
 function getSubscriptionErrorMessage(error: unknown) {
-  const code =
-    typeof error === "object" && error && "code" in error
-      ? String((error as { code?: unknown }).code)
-      : "";
+  const code = getFirebaseErrorCode(error);
 
   if (code === "auth/popup-closed-by-user") {
     return "Google sign-in was closed before it completed.";
+  }
+
+  if (code === "auth/popup-blocked") {
+    return "The browser blocked the Google sign-in popup. Please use the redirect sign-in flow.";
   }
 
   if (code === "auth/unauthorized-domain") {
@@ -86,6 +101,16 @@ function getSubscriptionErrorMessage(error: unknown) {
   }
 
   return "Something went wrong while updating the subscription. Please try again.";
+}
+
+function getFirebaseErrorCode(error: unknown) {
+  return typeof error === "object" && error && "code" in error
+    ? String((error as { code?: unknown }).code)
+    : "";
+}
+
+function shouldUseRedirectSignIn(error: unknown) {
+  return ["auth/popup-blocked", "auth/cancelled-popup-request"].includes(getFirebaseErrorCode(error));
 }
 
 function returnToPortfolioBlog(slug?: string) {
@@ -189,6 +214,124 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
   );
 }
 
+type SubscriptionAccessCardProps = {
+  canUseSubscriptions: boolean;
+  isSubscribed: boolean;
+  subscriberEmail: string;
+  subscriberInitial: string;
+  subscriberName: string;
+  subscriberUser: User | null;
+  subscriptionBusy: boolean;
+  subscriptionError: string;
+  subscriptionMessage: string;
+  onGoogleSignIn: () => void;
+  onSignOut: () => void;
+  onSubscribe: () => void;
+  onUnsubscribe: () => void;
+};
+
+function SubscriptionAccessCard({
+  canUseSubscriptions,
+  isSubscribed,
+  subscriberEmail,
+  subscriberInitial,
+  subscriberName,
+  subscriberUser,
+  subscriptionBusy,
+  subscriptionError,
+  subscriptionMessage,
+  onGoogleSignIn,
+  onSignOut,
+  onSubscribe,
+  onUnsubscribe,
+}: SubscriptionAccessCardProps) {
+  return (
+    <div className="updates-card">
+      <p className="impact-label">Subscriber Access</p>
+      <h3>{subscriberUser ? "Subscription preferences" : "Sign in with Google"}</h3>
+      <p>
+        This keeps updates permission-based and avoids collecting passwords or unnecessary
+        personal information.
+      </p>
+
+      {!canUseSubscriptions ? (
+        <p className="status-message is-warning">
+          Google sign-in is added in code. Add the Firebase environment variables in Vercel to
+          activate this panel online.
+        </p>
+      ) : null}
+
+      {subscriberUser ? (
+        <>
+          <div className="subscriber-card">
+            {subscriberUser.photoURL ? (
+              <img src={subscriberUser.photoURL} alt="" />
+            ) : (
+              <span className="subscriber-initial" aria-hidden="true">
+                {subscriberInitial}
+              </span>
+            )}
+            <div>
+              <strong>{subscriberName}</strong>
+              <span>{subscriberEmail}</span>
+            </div>
+            <span className={`subscription-badge${isSubscribed ? " is-active" : ""}`}>
+              {isSubscribed ? "Subscribed" : "Not subscribed"}
+            </span>
+          </div>
+
+          <div className="updates-actions">
+            <button
+              className="button button-primary"
+              type="button"
+              disabled={subscriptionBusy || isSubscribed}
+              onClick={onSubscribe}
+            >
+              {subscriptionBusy ? "Updating..." : "Subscribe"}
+            </button>
+            <button
+              className="button button-secondary"
+              type="button"
+              disabled={subscriptionBusy || !isSubscribed}
+              onClick={onUnsubscribe}
+            >
+              Unsubscribe
+            </button>
+            <button
+              className="button button-tertiary"
+              type="button"
+              disabled={subscriptionBusy}
+              onClick={onSignOut}
+            >
+              Sign out
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <button
+            className="button button-primary updates-button"
+            type="button"
+            disabled={subscriptionBusy || !canUseSubscriptions}
+            onClick={onGoogleSignIn}
+          >
+            {subscriptionBusy ? "Opening Google..." : "Sign in with Google"}
+          </button>
+          <p className="updates-footnote">
+            Google handles authentication securely. This website only stores your subscriber
+            preference.
+          </p>
+        </>
+      )}
+
+      {subscriptionMessage ? (
+        <p className="status-message is-success">{subscriptionMessage}</p>
+      ) : null}
+      {subscriptionError ? <p className="status-message is-error">{subscriptionError}</p> : null}
+    </div>
+  );
+}
+
 type BlogArticlePageProps = {
   post?: BlogPost;
   theme: Theme;
@@ -271,6 +414,68 @@ function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
   );
 }
 
+type SignInPageProps = SubscriptionAccessCardProps & {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function SignInPage({ theme, onThemeToggle, ...subscriptionProps }: SignInPageProps) {
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to sign in
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/#top">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Subscriber access</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/#updates">
+              Back to portfolio
+            </a>
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <span className="theme-toggle-indicator" aria-hidden="true" />
+              <span>{theme === "light" ? "Dark theme" : "Light theme"}</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="signin-page shell" id="main-content">
+        <section className="signin-hero">
+          <div className="signin-copy">
+            <p className="eyebrow">Subscriber Access</p>
+            <h1>Sign in to follow new engineering notes and portfolio updates.</h1>
+            <p>
+              Use Google sign-in to subscribe to new blogs, project write-ups, and selected
+              portfolio updates. The site stores only the details needed to manage your
+              subscription.
+            </p>
+          </div>
+
+          <SubscriptionAccessCard {...subscriptionProps} />
+        </section>
+      </main>
+    </>
+  );
+}
+
 function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -299,6 +504,7 @@ function App() {
   const standaloneBlog = standaloneBlogSlug
     ? blogPosts.find((post) => post.slug === standaloneBlogSlug)
     : undefined;
+  const isSignInPage = isSignInPathname();
   const canUseSubscriptions = isFirebaseConfigured && Boolean(auth && googleProvider);
   const subscriberName = subscriberUser?.displayName ?? "Signed-in reader";
   const subscriberEmail = subscriberUser?.email ?? "Email not shared";
@@ -409,6 +615,45 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!auth || !canUseSubscriptions) {
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (!result || !isMounted) {
+          return;
+        }
+
+        setSubscriptionBusy(true);
+        await saveSubscriber(result.user);
+
+        if (isMounted) {
+          setSubscriberUser(result.user);
+          setIsSubscribed(true);
+          setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
+          setSubscriptionError("");
+        }
+      })
+      .catch((error) => {
+        if (isMounted) {
+          setSubscriptionError(getSubscriptionErrorMessage(error));
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setSubscriptionBusy(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [canUseSubscriptions]);
+
   const closeMenu = () => setMenuOpen(false);
   const selectBlogCategory = (category: string) => setSelectedBlogCategory(category);
   const clearSubscriptionFeedback = () => {
@@ -428,6 +673,8 @@ function App() {
 
     setSubscriptionBusy(true);
 
+    let shouldResetBusy = true;
+
     try {
       const result = await signInWithPopup(auth, googleProvider);
       await saveSubscriber(result.user);
@@ -435,9 +682,18 @@ function App() {
       setIsSubscribed(true);
       setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
     } catch (error) {
+      if (shouldUseRedirectSignIn(error)) {
+        setSubscriptionMessage("Redirecting to Google sign-in...");
+        shouldResetBusy = false;
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
+
       setSubscriptionError(getSubscriptionErrorMessage(error));
     } finally {
-      setSubscriptionBusy(false);
+      if (shouldResetBusy) {
+        setSubscriptionBusy(false);
+      }
     }
   };
 
@@ -513,6 +769,28 @@ function App() {
     );
   }
 
+  if (isSignInPage) {
+    return (
+      <SignInPage
+        canUseSubscriptions={canUseSubscriptions}
+        isSubscribed={isSubscribed}
+        subscriberEmail={subscriberEmail}
+        subscriberInitial={subscriberInitial}
+        subscriberName={subscriberName}
+        subscriberUser={subscriberUser}
+        subscriptionBusy={subscriptionBusy}
+        subscriptionError={subscriptionError}
+        subscriptionMessage={subscriptionMessage}
+        theme={theme}
+        onGoogleSignIn={handleGoogleSignIn}
+        onSignOut={handleSignOut}
+        onSubscribe={handleSubscribe}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+        onUnsubscribe={handleUnsubscribe}
+      />
+    );
+  }
+
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -547,6 +825,9 @@ function App() {
                 {link.label}
               </a>
             ))}
+            <a className="nav-signin-link" href="/signin" onClick={closeMenu}>
+              {subscriberUser ? "Account" : "Sign In"}
+            </a>
           </nav>
 
           <div className="header-actions">
@@ -931,91 +1212,21 @@ function App() {
               </ul>
             </div>
 
-            <div className="updates-card">
-              <p className="impact-label">Subscriber Access</p>
-              <h3>{subscriberUser ? "Subscription preferences" : "Sign in with Google"}</h3>
-              <p>
-                This keeps updates permission-based and avoids collecting passwords or
-                unnecessary personal information.
-              </p>
-
-              {!canUseSubscriptions ? (
-                <p className="status-message is-warning">
-                  Google sign-in is added in code. Add the Firebase environment variables in
-                  Vercel to activate this panel online.
-                </p>
-              ) : null}
-
-              {subscriberUser ? (
-                <>
-                  <div className="subscriber-card">
-                    {subscriberUser.photoURL ? (
-                      <img src={subscriberUser.photoURL} alt="" />
-                    ) : (
-                      <span className="subscriber-initial" aria-hidden="true">
-                        {subscriberInitial}
-                      </span>
-                    )}
-                    <div>
-                      <strong>{subscriberName}</strong>
-                      <span>{subscriberEmail}</span>
-                    </div>
-                    <span className={`subscription-badge${isSubscribed ? " is-active" : ""}`}>
-                      {isSubscribed ? "Subscribed" : "Not subscribed"}
-                    </span>
-                  </div>
-
-                  <div className="updates-actions">
-                    <button
-                      className="button button-primary"
-                      type="button"
-                      disabled={subscriptionBusy || isSubscribed}
-                      onClick={handleSubscribe}
-                    >
-                      {subscriptionBusy ? "Updating..." : "Subscribe"}
-                    </button>
-                    <button
-                      className="button button-secondary"
-                      type="button"
-                      disabled={subscriptionBusy || !isSubscribed}
-                      onClick={handleUnsubscribe}
-                    >
-                      Unsubscribe
-                    </button>
-                    <button
-                      className="button button-tertiary"
-                      type="button"
-                      disabled={subscriptionBusy}
-                      onClick={handleSignOut}
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <button
-                    className="button button-primary updates-button"
-                    type="button"
-                    disabled={subscriptionBusy || !canUseSubscriptions}
-                    onClick={handleGoogleSignIn}
-                  >
-                    {subscriptionBusy ? "Opening Google..." : "Sign in with Google"}
-                  </button>
-                  <p className="updates-footnote">
-                    Google handles authentication securely. This website only stores your
-                    subscriber preference.
-                  </p>
-                </>
-              )}
-
-              {subscriptionMessage ? (
-                <p className="status-message is-success">{subscriptionMessage}</p>
-              ) : null}
-              {subscriptionError ? (
-                <p className="status-message is-error">{subscriptionError}</p>
-              ) : null}
-            </div>
+            <SubscriptionAccessCard
+              canUseSubscriptions={canUseSubscriptions}
+              isSubscribed={isSubscribed}
+              subscriberEmail={subscriberEmail}
+              subscriberInitial={subscriberInitial}
+              subscriberName={subscriberName}
+              subscriberUser={subscriberUser}
+              subscriptionBusy={subscriptionBusy}
+              subscriptionError={subscriptionError}
+              subscriptionMessage={subscriptionMessage}
+              onGoogleSignIn={handleGoogleSignIn}
+              onSignOut={handleSignOut}
+              onSubscribe={handleSubscribe}
+              onUnsubscribe={handleUnsubscribe}
+            />
           </div>
         </section>
 
