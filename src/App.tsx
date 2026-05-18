@@ -59,6 +59,7 @@ type SubscriberViewState =
   | "returningSignedOutUnsubscribed";
 
 const THEME_STORAGE_KEY = "portfolio-theme";
+const BLOG_UNLOCK_RETURN_STORAGE_KEY = "portfolio-unlock-return-blog";
 const ALL_BLOG_CATEGORIES = "All";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
 const LOCKED_BLOG_CAPTION =
@@ -100,7 +101,17 @@ function getSignInReturnBlogSlug() {
     return "";
   }
 
-  return new URLSearchParams(window.location.search).get("blog") ?? "";
+  const querySlug = new URLSearchParams(window.location.search).get("blog");
+
+  if (querySlug) {
+    return querySlug;
+  }
+
+  try {
+    return window.sessionStorage.getItem(BLOG_UNLOCK_RETURN_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
 }
 
 function isAdminUpdatePathname() {
@@ -119,12 +130,64 @@ function getSignInHref(slug?: string) {
   return slug ? `/signin?blog=${encodeURIComponent(slug)}` : "/signin";
 }
 
+function rememberBlogUnlockTarget(slug: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(BLOG_UNLOCK_RETURN_STORAGE_KEY, slug);
+  } catch {
+    // Session storage can be unavailable in strict privacy modes.
+  }
+}
+
+function clearBlogUnlockTarget() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.removeItem(BLOG_UNLOCK_RETURN_STORAGE_KEY);
+  } catch {
+    // Session storage can be unavailable in strict privacy modes.
+  }
+}
+
 function getBlogAnchorId(slug: string) {
   return `blog-${slug}`;
 }
 
 function getPortfolioBlogHref(slug?: string) {
   return slug ? `/#${getBlogAnchorId(slug)}` : "/#blogs";
+}
+
+function scrollToCurrentHash() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const rawHash = window.location.hash.replace(/^#/, "");
+
+  if (!rawHash) {
+    return;
+  }
+
+  let targetId = rawHash;
+
+  try {
+    targetId = decodeURIComponent(rawHash);
+  } catch {
+    targetId = rawHash;
+  }
+
+  window.requestAnimationFrame(() => {
+    const target = document.getElementById(targetId);
+
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
 }
 
 function getSubscriptionErrorMessage(error: unknown) {
@@ -553,7 +616,11 @@ function BlogArticlePage({
               If you are already signed in, the article will open as soon as your session is
               confirmed.
             </p>
-            <a className="button button-secondary" href={getSignInHref(post.slug)}>
+            <a
+              className="button button-secondary"
+              href={getSignInHref(post.slug)}
+              onClick={() => rememberBlogUnlockTarget(post.slug)}
+            >
               Open sign in
             </a>
           </section>
@@ -573,7 +640,11 @@ function BlogArticlePage({
             </div>
             <p>{post.summary}</p>
             <BlogLockNote />
-            <a className="button button-primary" href={getSignInHref(post.slug)}>
+            <a
+              className="button button-primary"
+              href={getSignInHref(post.slug)}
+              onClick={() => rememberBlogUnlockTarget(post.slug)}
+            >
               Sign in to unlock
             </a>
           </section>
@@ -693,7 +764,11 @@ function SignInPage({
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href={portfolioReturnHref}>
+            <a
+              className="button button-secondary"
+              href={portfolioReturnHref}
+              onClick={clearBlogUnlockTarget}
+            >
               Back to portfolio
             </a>
             <button
@@ -1015,6 +1090,23 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    if (standaloneBlogSlug || isSignInPage || isAdminUpdatePage) {
+      return undefined;
+    }
+
+    const scrollAfterRender = () => {
+      scrollToCurrentHash();
+      window.setTimeout(scrollToCurrentHash, 140);
+    };
+
+    scrollAfterRender();
+    clearBlogUnlockTarget();
+    window.addEventListener("hashchange", scrollAfterRender);
+
+    return () => window.removeEventListener("hashchange", scrollAfterRender);
+  }, [isAdminUpdatePage, isSignInPage, selectedBlogCategory, standaloneBlogSlug]);
+
+  useEffect(() => {
     if (!auth) {
       return undefined;
     }
@@ -1311,7 +1403,10 @@ function App() {
               href="/signin"
               aria-label={subscriberUser ? "Open subscriber account" : undefined}
               title={subscriberUser ? "Subscriber account" : undefined}
-              onClick={closeMenu}
+              onClick={() => {
+                clearBlogUnlockTarget();
+                closeMenu();
+              }}
             >
               {subscriberUser ? (
                 subscriberUser.photoURL ? (
@@ -1639,7 +1734,11 @@ function App() {
                     </ul>
                   )}
                   {featuredBlogIsLocked ? (
-                    <a className="blog-featured-link" href={getSignInHref(featuredBlog.slug)}>
+                    <a
+                      className="blog-featured-link"
+                      href={getSignInHref(featuredBlog.slug)}
+                      onClick={() => rememberBlogUnlockTarget(featuredBlog.slug)}
+                    >
                       Sign in to unlock
                     </a>
                   ) : (
@@ -1710,7 +1809,11 @@ function App() {
                         {isLocked ? <BlogLockNote /> : null}
                       </div>
                       {isLocked ? (
-                        <a className="blog-list-link" href={getSignInHref(post.slug)}>
+                        <a
+                          className="blog-list-link"
+                          href={getSignInHref(post.slug)}
+                          onClick={() => rememberBlogUnlockTarget(post.slug)}
+                        >
                           Unlock
                         </a>
                       ) : (
