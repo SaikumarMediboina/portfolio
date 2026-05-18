@@ -1848,31 +1848,39 @@ function App() {
 
   useEffect(() => {
     const sectionIds = ["top", ...navLinks.map((link) => link.id)];
-    const sections = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter((section): section is HTMLElement => Boolean(section));
+    let frameId = 0;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((left, right) => right.intersectionRatio - left.intersectionRatio);
+    const updateActiveSection = () => {
+      const activationLine = window.innerHeight * 0.78;
+      const sections = sectionIds
+        .map((id) => document.getElementById(id))
+        .filter((section): section is HTMLElement => Boolean(section));
+      const currentSection =
+        [...sections]
+          .reverse()
+          .find((section) => section.getBoundingClientRect().top <= activationLine) ?? sections[0];
 
-        if (visible[0]) {
-          startTransition(() => {
-            setActiveSection(visible[0].target.id);
-          });
-        }
-      },
-      {
-        rootMargin: "-22% 0px -56% 0px",
-        threshold: [0.2, 0.35, 0.55, 0.75],
-      },
-    );
+      if (currentSection) {
+        startTransition(() => {
+          setActiveSection(currentSection.id);
+        });
+      }
+    };
 
-    sections.forEach((section) => observer.observe(section));
+    const scheduleActiveSectionUpdate = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateActiveSection);
+    };
 
-    return () => observer.disconnect();
+    updateActiveSection();
+    window.addEventListener("scroll", scheduleActiveSectionUpdate, { passive: true });
+    window.addEventListener("resize", scheduleActiveSectionUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", scheduleActiveSectionUpdate);
+      window.removeEventListener("resize", scheduleActiveSectionUpdate);
+    };
   }, []);
 
   useEffect(() => {
