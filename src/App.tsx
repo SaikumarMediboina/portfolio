@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useState, type FormEvent } from "react";
+import { startTransition, useEffect, useRef, useState, type FormEvent } from "react";
 import type { User } from "firebase/auth";
 import {
   getRedirectResult,
@@ -21,7 +21,7 @@ import {
 } from "./data/portfolio";
 import { auth, googleProvider, isFirebaseConfigured } from "./lib/firebase";
 import {
-  getSubscriberStatus,
+  ensureSubscriberProfile,
   saveSubscriber,
   unsubscribeSubscriber,
 } from "./lib/subscribers";
@@ -45,7 +45,18 @@ type SectionHeadingProps = {
   description: string;
 };
 
-type SubscriberViewState = "guest" | "new" | "returning" | "paused";
+type SubscriberViewState =
+  | "guest"
+  | "newSignedIn"
+  | "newSubscribed"
+  | "newUnsubscribed"
+  | "newSignedOutSubscribed"
+  | "newSignedOutUnsubscribed"
+  | "returningSubscribed"
+  | "returningUnsubscribed"
+  | "returningResubscribed"
+  | "returningSignedOutSubscribed"
+  | "returningSignedOutUnsubscribed";
 
 const THEME_STORAGE_KEY = "portfolio-theme";
 const ALL_BLOG_CATEGORIES = "All";
@@ -121,6 +132,32 @@ function getFirebaseErrorCode(error: unknown) {
 
 function shouldUseRedirectSignIn(error: unknown) {
   return ["auth/popup-blocked", "auth/cancelled-popup-request"].includes(getFirebaseErrorCode(error));
+}
+
+function getSignedInSubscriberView(subscriber: { exists: boolean; subscribed: boolean }) {
+  if (!subscriber.exists) {
+    return "newSignedIn" as const;
+  }
+
+  return subscriber.subscribed ? ("returningSubscribed" as const) : ("returningUnsubscribed" as const);
+}
+
+function getSubscribedSubscriberView(currentView: SubscriberViewState) {
+  return currentView.startsWith("new") ? "newSubscribed" : "returningResubscribed";
+}
+
+function getUnsubscribedSubscriberView(currentView: SubscriberViewState) {
+  return currentView.startsWith("new") ? "newUnsubscribed" : "returningUnsubscribed";
+}
+
+function getSignedOutSubscriberView(currentView: SubscriberViewState, wasSubscribed: boolean) {
+  const isNewJourney = currentView.startsWith("new");
+
+  if (isNewJourney) {
+    return wasSubscribed ? "newSignedOutSubscribed" : "newSignedOutUnsubscribed";
+  }
+
+  return wasSubscribed ? "returningSignedOutSubscribed" : "returningSignedOutUnsubscribed";
 }
 
 function returnToPortfolioBlog(slug?: string) {
@@ -479,17 +516,45 @@ function SignInPage({
       title: "Sign in to follow new engineering notes and portfolio updates.",
       body: "Subscribe to practical notes on backend performance, search systems, AI and LLM workflows, and selected portfolio updates. You stay in control and can unsubscribe anytime.",
     },
-    new: {
-      title: "You're in. Thanks for joining the engineering notes list.",
-      body: `Welcome aboard, ${firstName}. Future write-ups and selected portfolio updates will land in your inbox. Only useful notes, no noisy inbox drama.`,
+    newSignedIn: {
+      title: "Nice, you made it in. Want the good stuff delivered?",
+      body: `Welcome, ${firstName}. You are signed in, but not subscribed yet. Tap subscribe if you want the useful engineering notes to find your inbox instead of playing hide-and-seek.`,
     },
-    returning: {
+    newSubscribed: {
+      title: "You joined the signal. The inbox just got smarter.",
+      body: `Welcome aboard, ${firstName}. Future write-ups and selected portfolio updates will land in your inbox. Useful notes only, no newsletter confetti cannon.`,
+    },
+    newUnsubscribed: {
+      title: "No worries. Your inbox gets a quiet little vacation.",
+      body: `You are unsubscribed, ${firstName}. No updates will be sent unless you subscribe again. The notes will be here, looking mildly dramatic, whenever you come back.`,
+    },
+    newSignedOutSubscribed: {
+      title: "Signed out, but the update bridge is still open.",
+      body: "See you around. Your subscription is active, so the next useful engineering note still knows where to go.",
+    },
+    newSignedOutUnsubscribed: {
+      title: "Signed out and off the list. The inbox rests.",
+      body: "No emails will be sent. The door stays open, the lights stay warm, and the engineering notes will behave until you return.",
+    },
+    returningSubscribed: {
       title: "Welcome back. Your update radar is still switched on.",
       body: `Good to see you again, ${firstName}. You are already subscribed, so new engineering notes and portfolio updates will keep finding their way to you.`,
     },
-    paused: {
-      title: "You're signed in, but updates are paused.",
-      body: "No emails will be sent while you are unsubscribed. If you want the next engineering note back in your inbox, you can subscribe again anytime.",
+    returningUnsubscribed: {
+      title: "Welcome back. Your updates are still paused.",
+      body: `Good to see you again, ${firstName}. Your inbox is safe from me for now. If curiosity starts tapping on the window, subscribe again anytime.`,
+    },
+    returningResubscribed: {
+      title: "Back on the list. The comeback arc begins.",
+      body: `Nice move, ${firstName}. Updates are active again, and the next useful engineering note gets a proper boarding pass to your inbox.`,
+    },
+    returningSignedOutSubscribed: {
+      title: "Signed out, but still on the good-stuff route.",
+      body: "You are logged out, but your subscription stays active. The portfolio will keep sending selected engineering notes when they are worth your time.",
+    },
+    returningSignedOutUnsubscribed: {
+      title: "Signed out and still unsubscribed. Peace restored.",
+      body: "No updates will be sent. Your inbox is now wearing noise-cancelling headphones, and we respect that.",
     },
   }[subscriberView];
 
@@ -734,6 +799,7 @@ function App() {
   const [subscriptionBusy, setSubscriptionBusy] = useState(false);
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [subscriptionError, setSubscriptionError] = useState("");
+  const manualSignOutViewRef = useRef<SubscriberViewState | null>(null);
 
   const selectedProject = projects[selectedProjectIndex];
   const selectedProjectNumber = String(selectedProjectIndex + 1).padStart(2, "0");
@@ -834,17 +900,18 @@ function App() {
 
       if (!user) {
         setIsSubscribed(false);
-        setSubscriberView("guest");
+        setSubscriberView(manualSignOutViewRef.current ?? "guest");
+        manualSignOutViewRef.current = null;
         setSubscriptionBusy(false);
         return;
       }
 
       setSubscriptionBusy(true);
-      getSubscriberStatus(user.uid)
-        .then((subscribed) => {
+      ensureSubscriberProfile(user)
+        .then((subscriber) => {
           if (isMounted) {
-            setIsSubscribed(subscribed);
-            setSubscriberView(subscribed ? "returning" : "paused");
+            setIsSubscribed(subscriber.subscribed);
+            setSubscriberView(getSignedInSubscriberView(subscriber));
           }
         })
         .catch((error) => {
@@ -879,14 +946,17 @@ function App() {
         }
 
         setSubscriptionBusy(true);
-        const wasSubscribed = await getSubscriberStatus(result.user.uid).catch(() => false);
-        await saveSubscriber(result.user);
+        const subscriber = await ensureSubscriberProfile(result.user);
 
         if (isMounted) {
           setSubscriberUser(result.user);
-          setIsSubscribed(true);
-          setSubscriberView(wasSubscribed ? "returning" : "new");
-          setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
+          setIsSubscribed(subscriber.subscribed);
+          setSubscriberView(getSignedInSubscriberView(subscriber));
+          setSubscriptionMessage(
+            subscriber.subscribed
+              ? "Welcome back. Your subscription is active."
+              : "You are signed in. Subscribe when you want updates in your inbox.",
+          );
           setSubscriptionError("");
         }
       })
@@ -929,12 +999,15 @@ function App() {
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const wasSubscribed = await getSubscriberStatus(result.user.uid).catch(() => false);
-      await saveSubscriber(result.user);
+      const subscriber = await ensureSubscriberProfile(result.user);
       setSubscriberUser(result.user);
-      setIsSubscribed(true);
-      setSubscriberView(wasSubscribed ? "returning" : "new");
-      setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
+      setIsSubscribed(subscriber.subscribed);
+      setSubscriberView(getSignedInSubscriberView(subscriber));
+      setSubscriptionMessage(
+        subscriber.subscribed
+          ? "Welcome back. Your subscription is active."
+          : "You are signed in. Subscribe when you want updates in your inbox.",
+      );
     } catch (error) {
       if (shouldUseRedirectSignIn(error)) {
         setSubscriptionMessage("Redirecting to Google sign-in...");
@@ -964,7 +1037,7 @@ function App() {
     try {
       await saveSubscriber(subscriberUser);
       setIsSubscribed(true);
-      setSubscriberView("new");
+      setSubscriberView(getSubscribedSubscriberView(subscriberView));
       setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
     } catch (error) {
       setSubscriptionError(getSubscriptionErrorMessage(error));
@@ -985,7 +1058,7 @@ function App() {
     try {
       await unsubscribeSubscriber(subscriberUser.uid);
       setIsSubscribed(false);
-      setSubscriberView("paused");
+      setSubscriberView(getUnsubscribedSubscriberView(subscriberView));
       setSubscriptionMessage("You have been unsubscribed from future portfolio updates.");
     } catch (error) {
       setSubscriptionError(getSubscriptionErrorMessage(error));
@@ -1002,12 +1075,14 @@ function App() {
     }
 
     const wasSubscribedBeforeSignOut = isSubscribed;
+    const signedOutView = getSignedOutSubscriberView(subscriberView, wasSubscribedBeforeSignOut);
 
     setSubscriptionBusy(true);
 
     try {
+      manualSignOutViewRef.current = signedOutView;
       await signOut(auth);
-      setSubscriberView("guest");
+      setSubscriberView(signedOutView);
       setSubscriptionMessage(
         wasSubscribedBeforeSignOut
           ? "You are signed out. Your subscription is still active, so the good engineering stuff can still find you."
