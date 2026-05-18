@@ -383,6 +383,130 @@ type SubscriptionAccessCardProps = {
   onUnsubscribe: () => void;
 };
 
+type ProfileMenuProps = SubscriptionAccessCardProps & {
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+function ProfileMenu({
+  canUseSubscriptions,
+  isOpen,
+  isSubscribed,
+  subscriberEmail,
+  subscriberInitial,
+  subscriberName,
+  subscriberUser,
+  subscriptionBusy,
+  subscriptionError,
+  subscriptionMessage,
+  onGoogleSignIn,
+  onSignOut,
+  onSubscribe,
+  onToggle,
+  onUnsubscribe,
+}: ProfileMenuProps) {
+  const triggerLabel = subscriberUser ? "Open subscriber profile menu" : "Open sign in menu";
+
+  return (
+    <div className={`profile-menu${isOpen ? " is-open" : ""}`}>
+      <button
+        className="profile-menu-trigger"
+        type="button"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        aria-label={triggerLabel}
+        onClick={onToggle}
+      >
+        {subscriberUser?.photoURL ? (
+          <img
+            className="nav-account-image"
+            src={subscriberUser.photoURL}
+            alt=""
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <span className="nav-account-fallback" aria-hidden="true">
+            {subscriberUser ? subscriberInitial : "SK"}
+          </span>
+        )}
+      </button>
+
+      <div className="profile-menu-panel" role="menu">
+        <div className="profile-menu-header">
+          <p className="impact-label">{subscriberUser ? "Profile" : "Subscriber Access"}</p>
+          <strong>{subscriberUser ? subscriberName : "Sign in to unlock reader access"}</strong>
+          <span>
+            {subscriberUser
+              ? subscriberEmail
+              : "Manage blog access and portfolio update preferences from one place."}
+          </span>
+        </div>
+
+        {subscriberUser ? (
+          <span className={`subscription-badge${isSubscribed ? " is-active" : ""}`}>
+            {isSubscribed ? "Subscribed" : "Not subscribed"}
+          </span>
+        ) : null}
+
+        {!canUseSubscriptions ? (
+          <p className="status-message is-warning">
+            Sign-in is configured in code. Add the Firebase environment variables in Vercel to
+            activate it online.
+          </p>
+        ) : null}
+
+        <div className="profile-menu-actions">
+          {subscriberUser ? (
+            <>
+              {isSubscribed ? (
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  disabled={subscriptionBusy}
+                  onClick={onUnsubscribe}
+                >
+                  {subscriptionBusy ? "Updating..." : "Unsubscribe"}
+                </button>
+              ) : (
+                <button
+                  className="button button-primary"
+                  type="button"
+                  disabled={subscriptionBusy}
+                  onClick={onSubscribe}
+                >
+                  {subscriptionBusy ? "Updating..." : "Subscribe"}
+                </button>
+              )}
+              <button
+                className="button button-tertiary"
+                type="button"
+                disabled={subscriptionBusy}
+                onClick={onSignOut}
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <button
+              className="button button-primary"
+              type="button"
+              disabled={subscriptionBusy || !canUseSubscriptions}
+              onClick={onGoogleSignIn}
+            >
+              {subscriptionBusy ? "Opening..." : "Sign in"}
+            </button>
+          )}
+        </div>
+
+        {subscriptionMessage ? (
+          <p className="status-message is-success">{subscriptionMessage}</p>
+        ) : null}
+        {subscriptionError ? <p className="status-message is-error">{subscriptionError}</p> : null}
+      </div>
+    </div>
+  );
+}
+
 function SubscriptionAccessCard({
   canUseSubscriptions,
   isSubscribed,
@@ -921,6 +1045,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
@@ -932,6 +1057,7 @@ function App() {
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [subscriptionError, setSubscriptionError] = useState("");
   const manualSignOutViewRef = useRef<SubscriberViewState | null>(null);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   const selectedProject = projects[selectedProjectIndex];
   const selectedProjectNumber = String(selectedProjectIndex + 1).padStart(2, "0");
@@ -1013,6 +1139,36 @@ function App() {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (!profileMenuOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        profileMenuRef.current &&
+        event.target instanceof Node &&
+        !profileMenuRef.current.contains(event.target)
+      ) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [profileMenuOpen]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -1124,7 +1280,10 @@ function App() {
     };
   }, [canUseSubscriptions]);
 
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setProfileMenuOpen(false);
+  };
   const selectBlogCategory = (category: string) => setSelectedBlogCategory(category);
   const clearSubscriptionFeedback = () => {
     setSubscriptionMessage("");
@@ -1322,30 +1481,25 @@ function App() {
                 {link.label}
               </a>
             ))}
-            <a
-              className={`nav-signin-link${subscriberUser ? " is-account-avatar" : ""}`}
-              href="/signin"
-              aria-label={subscriberUser ? "Open subscriber account" : undefined}
-              title={subscriberUser ? "Subscriber account" : undefined}
-              onClick={closeMenu}
-            >
-              {subscriberUser ? (
-                subscriberUser.photoURL ? (
-                  <img
-                    className="nav-account-image"
-                    src={subscriberUser.photoURL}
-                    alt={`${subscriberName} account`}
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <span className="nav-account-fallback" aria-hidden="true">
-                    {subscriberInitial}
-                  </span>
-                )
-              ) : (
-                "Sign In"
-              )}
-            </a>
+            <div ref={profileMenuRef}>
+              <ProfileMenu
+                canUseSubscriptions={canUseSubscriptions}
+                isOpen={profileMenuOpen}
+                isSubscribed={isSubscribed}
+                subscriberEmail={subscriberEmail}
+                subscriberInitial={subscriberInitial}
+                subscriberName={subscriberName}
+                subscriberUser={subscriberUser}
+                subscriptionBusy={subscriptionBusy}
+                subscriptionError={subscriptionError}
+                subscriptionMessage={subscriptionMessage}
+                onGoogleSignIn={handleGoogleSignIn}
+                onSignOut={handleSignOut}
+                onSubscribe={handleSubscribe}
+                onToggle={() => setProfileMenuOpen((open) => !open)}
+                onUnsubscribe={handleUnsubscribe}
+              />
+            </div>
           </nav>
 
           <div className="header-actions">
@@ -1365,7 +1519,10 @@ function App() {
               aria-controls="site-navigation"
               aria-expanded={menuOpen}
               aria-label="Toggle navigation"
-              onClick={() => setMenuOpen((open) => !open)}
+              onClick={() => {
+                setMenuOpen((open) => !open);
+                setProfileMenuOpen(false);
+              }}
             >
               <span />
               <span />

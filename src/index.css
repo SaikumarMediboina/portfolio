@@ -295,26 +295,6 @@ dt {
   color: var(--ink);
 }
 
-.site-nav .nav-signin-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.65rem;
-  padding: 0.6rem 0.85rem;
-  border: 1px solid var(--chip-border);
-  border-radius: 999px;
-  background: var(--soft-button-bg);
-  color: var(--ink);
-}
-
-.site-nav .nav-signin-link.is-account-avatar {
-  width: 3rem;
-  height: 3rem;
-  min-height: 3rem;
-  padding: 0.18rem;
-  overflow: hidden;
-}
-
 .nav-account-image,
 .nav-account-fallback {
   width: 100%;
@@ -338,13 +318,111 @@ dt {
   letter-spacing: 0.08em;
 }
 
-.site-nav .nav-signin-link::after {
-  display: none;
-}
-
 .site-nav a:hover::after,
 .site-nav a.is-active::after {
   transform: scaleX(1);
+}
+
+.profile-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.profile-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  min-height: 3rem;
+  padding: 0.18rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--soft-button-bg);
+  color: var(--ink);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.profile-menu-trigger:hover,
+.profile-menu.is-open .profile-menu-trigger {
+  transform: translateY(-1px);
+  border-color: rgba(240, 100, 59, 0.34);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.profile-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  z-index: 60;
+  display: grid;
+  width: min(21rem, calc(100vw - 2rem));
+  padding: 1rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 24px;
+  background: var(--menu-bg);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  visibility: hidden;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    visibility 0.18s ease;
+}
+
+.profile-menu.is-open .profile-menu-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.profile-menu-header {
+  display: grid;
+  gap: 0.24rem;
+  min-width: 0;
+}
+
+.profile-menu-header strong {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: var(--text-lg);
+  line-height: 1.25;
+}
+
+.profile-menu-header span {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.profile-menu .subscription-badge {
+  justify-self: start;
+  margin-top: 0.8rem;
+}
+
+.profile-menu-actions {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.profile-menu-actions .button {
+  width: 100%;
+  min-height: 2.85rem;
+}
+
+.profile-menu .status-message {
+  margin-top: 0.8rem;
 }
 
 .theme-toggle,
@@ -1923,10 +2001,24 @@ section[id] {
     background: var(--muted-button-bg);
   }
 
-  .site-nav .nav-signin-link {
-    justify-content: center;
-    text-align: center;
-    background: var(--soft-button-bg);
+  .profile-menu {
+    display: grid;
+    width: 100%;
+    justify-items: center;
+    padding: 0.55rem 0 0.3rem;
+  }
+
+  .profile-menu-panel {
+    position: static;
+    display: none;
+    width: 100%;
+    margin-top: 0.7rem;
+    transform: none;
+  }
+
+  .profile-menu.is-open .profile-menu-panel {
+    display: grid;
+    transform: none;
   }
 
   .menu-toggle {
