@@ -867,33 +867,6 @@ dt {
   border-radius: var(--radius-xl);
 }
 
-.profile-photo-card {
-  position: relative;
-  margin: 0 0 1.25rem;
-  overflow: hidden;
-  border: 1px solid var(--panel-border);
-  border-radius: 28px;
-  background: var(--panel-soft);
-  aspect-ratio: 16 / 9;
-}
-
-.profile-photo-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, transparent 48%, rgba(8, 13, 20, 0.26)),
-    radial-gradient(circle at top right, rgba(240, 100, 59, 0.16), transparent 38%);
-  pointer-events: none;
-}
-
-.profile-photo-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 52% 40%;
-}
-
 .hero-panel-primary h2 {
   margin-top: 0.8rem;
   font-size: var(--text-2xl);
