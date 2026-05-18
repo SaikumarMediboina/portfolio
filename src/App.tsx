@@ -370,7 +370,7 @@ function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
               onClick={onThemeToggle}
             >
               <span className="theme-toggle-indicator" aria-hidden="true" />
-              <span>{theme === "light" ? "Dark theme" : "Light theme"}</span>
+              <span>{theme === "light" ? "Dark" : "Light"}</span>
             </button>
           </div>
         </div>
@@ -447,7 +447,7 @@ function SignInPage({ theme, onThemeToggle, ...subscriptionProps }: SignInPagePr
               onClick={onThemeToggle}
             >
               <span className="theme-toggle-indicator" aria-hidden="true" />
-              <span>{theme === "light" ? "Dark theme" : "Light theme"}</span>
+              <span>{theme === "light" ? "Dark" : "Light"}</span>
             </button>
           </div>
         </div>
@@ -856,7 +856,7 @@ function App() {
               onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
             >
               <span className="theme-toggle-indicator" aria-hidden="true" />
-              <span>{theme === "light" ? "Dark theme" : "Light theme"}</span>
+              <span>{theme === "light" ? "Dark" : "Light"}</span>
             </button>
 
             <button
