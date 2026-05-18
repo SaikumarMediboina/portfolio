@@ -315,22 +315,25 @@ function SubscriptionAccessCard({
           </div>
 
           <div className="updates-actions">
-            <button
-              className="button button-secondary"
-              type="button"
-              disabled={subscriptionBusy || isSubscribed}
-              onClick={onSubscribe}
-            >
-              {subscriptionBusy ? "Updating..." : "Subscribe"}
-            </button>
-            <button
-              className="button button-secondary"
-              type="button"
-              disabled={subscriptionBusy || !isSubscribed}
-              onClick={onUnsubscribe}
-            >
-              Unsubscribe
-            </button>
+            {isSubscribed ? (
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={subscriptionBusy}
+                onClick={onUnsubscribe}
+              >
+                {subscriptionBusy ? "Updating..." : "Unsubscribe"}
+              </button>
+            ) : (
+              <button
+                className="button button-primary"
+                type="button"
+                disabled={subscriptionBusy}
+                onClick={onSubscribe}
+              >
+                {subscriptionBusy ? "Updating..." : "Subscribe"}
+              </button>
+            )}
             <button
               className="button button-tertiary"
               type="button"
