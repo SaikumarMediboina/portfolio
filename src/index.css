@@ -310,12 +310,16 @@ dt {
 .nav-account-fallback {
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, var(--accent), #ffb06b);
-  color: #111c2b;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  background:
+    linear-gradient(var(--panel-strong), var(--panel-strong)) padding-box,
+    linear-gradient(135deg, rgba(240, 100, 59, 0.34), rgba(255, 255, 255, 0.14)) border-box;
+  border: 1px solid transparent;
+  color: var(--ink-soft);
+}
+
+.nav-account-icon {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .site-nav a:hover::after,

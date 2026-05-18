@@ -387,6 +387,24 @@ function AssistantSendIcon() {
   );
 }
 
+function AccountCircleIcon() {
+  return (
+    <svg className="nav-account-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 12.2a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M5.8 19.2c.9-3 3.1-4.7 6.2-4.7s5.3 1.7 6.2 4.7"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
 function BlogLockNote() {
   return (
     <p className="blog-lock-note">
@@ -868,7 +886,6 @@ function ProfileMenu({
   isOpen,
   isSubscribed,
   subscriberEmail,
-  subscriberInitial,
   subscriberName,
   subscriberUser,
   subscriptionBusy,
@@ -901,7 +918,7 @@ function ProfileMenu({
           />
         ) : (
           <span className="nav-account-fallback" aria-hidden="true">
-            {subscriberUser ? subscriberInitial : "SK"}
+            <AccountCircleIcon />
           </span>
         )}
       </button>
