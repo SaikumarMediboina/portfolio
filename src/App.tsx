@@ -59,7 +59,6 @@ type SubscriberViewState =
   | "returningSignedOutUnsubscribed";
 
 const THEME_STORAGE_KEY = "portfolio-theme";
-const BLOG_UNLOCK_RETURN_STORAGE_KEY = "portfolio-unlock-return-blog";
 const ALL_BLOG_CATEGORIES = "All";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
 const LOCKED_BLOG_CAPTION =
@@ -101,17 +100,7 @@ function getSignInReturnBlogSlug() {
     return "";
   }
 
-  const querySlug = new URLSearchParams(window.location.search).get("blog");
-
-  if (querySlug) {
-    return querySlug;
-  }
-
-  try {
-    return window.sessionStorage.getItem(BLOG_UNLOCK_RETURN_STORAGE_KEY) ?? "";
-  } catch {
-    return "";
-  }
+  return new URLSearchParams(window.location.search).get("blog") ?? "";
 }
 
 function isAdminUpdatePathname() {
@@ -130,64 +119,12 @@ function getSignInHref(slug?: string) {
   return slug ? `/signin?blog=${encodeURIComponent(slug)}` : "/signin";
 }
 
-function rememberBlogUnlockTarget(slug: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  try {
-    window.sessionStorage.setItem(BLOG_UNLOCK_RETURN_STORAGE_KEY, slug);
-  } catch {
-    // Session storage can be unavailable in strict privacy modes.
-  }
-}
-
-function clearBlogUnlockTarget() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  try {
-    window.sessionStorage.removeItem(BLOG_UNLOCK_RETURN_STORAGE_KEY);
-  } catch {
-    // Session storage can be unavailable in strict privacy modes.
-  }
-}
-
 function getBlogAnchorId(slug: string) {
   return `blog-${slug}`;
 }
 
 function getPortfolioBlogHref(slug?: string) {
   return slug ? `/#${getBlogAnchorId(slug)}` : "/#blogs";
-}
-
-function scrollToCurrentHash() {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const rawHash = window.location.hash.replace(/^#/, "");
-
-  if (!rawHash) {
-    return;
-  }
-
-  let targetId = rawHash;
-
-  try {
-    targetId = decodeURIComponent(rawHash);
-  } catch {
-    targetId = rawHash;
-  }
-
-  window.requestAnimationFrame(() => {
-    const target = document.getElementById(targetId);
-
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  });
 }
 
 function getSubscriptionErrorMessage(error: unknown) {
@@ -619,7 +556,6 @@ function BlogArticlePage({
             <a
               className="button button-secondary"
               href={getSignInHref(post.slug)}
-              onClick={() => rememberBlogUnlockTarget(post.slug)}
             >
               Open sign in
             </a>
@@ -643,7 +579,6 @@ function BlogArticlePage({
             <a
               className="button button-primary"
               href={getSignInHref(post.slug)}
-              onClick={() => rememberBlogUnlockTarget(post.slug)}
             >
               Sign in to unlock
             </a>
@@ -682,14 +617,14 @@ function BlogArticlePage({
 }
 
 type SignInPageProps = SubscriptionAccessCardProps & {
-  portfolioReturnHref: string;
+  portfolioReturnBlogSlug?: string;
   subscriberView: SubscriberViewState;
   theme: Theme;
   onThemeToggle: () => void;
 };
 
 function SignInPage({
-  portfolioReturnHref,
+  portfolioReturnBlogSlug,
   subscriberName,
   subscriberView,
   theme,
@@ -764,13 +699,19 @@ function SignInPage({
           </a>
 
           <div className="article-header-actions">
-            <a
-              className="button button-secondary"
-              href={portfolioReturnHref}
-              onClick={clearBlogUnlockTarget}
-            >
-              Back to portfolio
-            </a>
+            {portfolioReturnBlogSlug ? (
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => returnToPortfolioBlog(portfolioReturnBlogSlug)}
+              >
+                Back to portfolio
+              </button>
+            ) : (
+              <a className="button button-secondary" href="/#top">
+                Back to portfolio
+              </a>
+            )}
             <button
               className="theme-toggle"
               type="button"
@@ -1090,23 +1031,6 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
-    if (standaloneBlogSlug || isSignInPage || isAdminUpdatePage) {
-      return undefined;
-    }
-
-    const scrollAfterRender = () => {
-      scrollToCurrentHash();
-      window.setTimeout(scrollToCurrentHash, 140);
-    };
-
-    scrollAfterRender();
-    clearBlogUnlockTarget();
-    window.addEventListener("hashchange", scrollAfterRender);
-
-    return () => window.removeEventListener("hashchange", scrollAfterRender);
-  }, [isAdminUpdatePage, isSignInPage, selectedBlogCategory, standaloneBlogSlug]);
-
-  useEffect(() => {
     if (!auth) {
       return undefined;
     }
@@ -1336,7 +1260,7 @@ function App() {
       <SignInPage
         canUseSubscriptions={canUseSubscriptions}
         isSubscribed={isSubscribed}
-        portfolioReturnHref={getPortfolioBlogHref(signInReturnBlog?.slug)}
+        portfolioReturnBlogSlug={signInReturnBlog?.slug}
         subscriberEmail={subscriberEmail}
         subscriberInitial={subscriberInitial}
         subscriberName={subscriberName}
@@ -1403,10 +1327,7 @@ function App() {
               href="/signin"
               aria-label={subscriberUser ? "Open subscriber account" : undefined}
               title={subscriberUser ? "Subscriber account" : undefined}
-              onClick={() => {
-                clearBlogUnlockTarget();
-                closeMenu();
-              }}
+              onClick={closeMenu}
             >
               {subscriberUser ? (
                 subscriberUser.photoURL ? (
@@ -1737,7 +1658,8 @@ function App() {
                     <a
                       className="blog-featured-link"
                       href={getSignInHref(featuredBlog.slug)}
-                      onClick={() => rememberBlogUnlockTarget(featuredBlog.slug)}
+                      target="_blank"
+                      rel="opener"
                     >
                       Sign in to unlock
                     </a>
@@ -1812,7 +1734,8 @@ function App() {
                         <a
                           className="blog-list-link"
                           href={getSignInHref(post.slug)}
-                          onClick={() => rememberBlogUnlockTarget(post.slug)}
+                          target="_blank"
+                          rel="opener"
                         >
                           Unlock
                         </a>
