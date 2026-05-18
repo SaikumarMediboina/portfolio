@@ -1,4 +1,6 @@
 import { startTransition, useEffect, useState } from "react";
+import type { User } from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import {
   certifications,
@@ -11,6 +13,12 @@ import {
   recognitions,
   skills,
 } from "./data/portfolio";
+import { auth, googleProvider, isFirebaseConfigured } from "./lib/firebase";
+import {
+  getSubscriberStatus,
+  saveSubscriber,
+  unsubscribeSubscriber,
+} from "./lib/subscribers";
 
 const navLinks = [
   { id: "about", label: "About" },
@@ -53,6 +61,31 @@ function getBlogAnchorId(slug: string) {
 
 function getPortfolioBlogHref(slug?: string) {
   return slug ? `/#${getBlogAnchorId(slug)}` : "/#blogs";
+}
+
+function getSubscriptionErrorMessage(error: unknown) {
+  const code =
+    typeof error === "object" && error && "code" in error
+      ? String((error as { code?: unknown }).code)
+      : "";
+
+  if (code === "auth/popup-closed-by-user") {
+    return "Google sign-in was closed before it completed.";
+  }
+
+  if (code === "auth/unauthorized-domain") {
+    return "This domain is not authorized in Firebase yet. Add it in Firebase Authentication settings.";
+  }
+
+  if (code === "permission-denied") {
+    return "Firestore blocked this subscription update. Please check the subscriber security rules.";
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return "Something went wrong while updating the subscription. Please try again.";
 }
 
 function returnToPortfolioBlog(slug?: string) {
@@ -244,6 +277,11 @@ function App() {
   const [activeSection, setActiveSection] = useState("top");
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
+  const [subscriberUser, setSubscriberUser] = useState<User | null>(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionBusy, setSubscriptionBusy] = useState(false);
+  const [subscriptionMessage, setSubscriptionMessage] = useState("");
+  const [subscriptionError, setSubscriptionError] = useState("");
 
   const selectedProject = projects[selectedProjectIndex];
   const selectedProjectNumber = String(selectedProjectIndex + 1).padStart(2, "0");
@@ -261,6 +299,12 @@ function App() {
   const standaloneBlog = standaloneBlogSlug
     ? blogPosts.find((post) => post.slug === standaloneBlogSlug)
     : undefined;
+  const canUseSubscriptions = isFirebaseConfigured && Boolean(auth && googleProvider);
+  const subscriberName = subscriberUser?.displayName ?? "Signed-in reader";
+  const subscriberEmail = subscriberUser?.email ?? "Email not shared";
+  const subscriberInitial = (subscriberUser?.displayName ?? subscriberUser?.email ?? "S")
+    .charAt(0)
+    .toUpperCase();
 
   useEffect(() => {
     const sectionIds = ["top", ...navLinks.map((link) => link.id)];
@@ -319,8 +363,145 @@ function App() {
     }
   }, [theme]);
 
+  useEffect(() => {
+    if (!auth) {
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    const unsubscribeFromAuth = onAuthStateChanged(auth, (user) => {
+      if (!isMounted) {
+        return;
+      }
+
+      setSubscriberUser(user);
+      setSubscriptionError("");
+
+      if (!user) {
+        setIsSubscribed(false);
+        setSubscriptionBusy(false);
+        return;
+      }
+
+      setSubscriptionBusy(true);
+      getSubscriberStatus(user.uid)
+        .then((subscribed) => {
+          if (isMounted) {
+            setIsSubscribed(subscribed);
+          }
+        })
+        .catch((error) => {
+          if (isMounted) {
+            setSubscriptionError(getSubscriptionErrorMessage(error));
+          }
+        })
+        .finally(() => {
+          if (isMounted) {
+            setSubscriptionBusy(false);
+          }
+        });
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribeFromAuth();
+    };
+  }, []);
+
   const closeMenu = () => setMenuOpen(false);
   const selectBlogCategory = (category: string) => setSelectedBlogCategory(category);
+  const clearSubscriptionFeedback = () => {
+    setSubscriptionMessage("");
+    setSubscriptionError("");
+  };
+
+  const handleGoogleSignIn = async () => {
+    clearSubscriptionFeedback();
+
+    if (!auth || !googleProvider || !canUseSubscriptions) {
+      setSubscriptionError(
+        "Google sign-in is ready in the code. Add Firebase environment variables in Vercel to activate it.",
+      );
+      return;
+    }
+
+    setSubscriptionBusy(true);
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      await saveSubscriber(result.user);
+      setSubscriberUser(result.user);
+      setIsSubscribed(true);
+      setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
+    } catch (error) {
+      setSubscriptionError(getSubscriptionErrorMessage(error));
+    } finally {
+      setSubscriptionBusy(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    clearSubscriptionFeedback();
+
+    if (!subscriberUser) {
+      await handleGoogleSignIn();
+      return;
+    }
+
+    setSubscriptionBusy(true);
+
+    try {
+      await saveSubscriber(subscriberUser);
+      setIsSubscribed(true);
+      setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
+    } catch (error) {
+      setSubscriptionError(getSubscriptionErrorMessage(error));
+    } finally {
+      setSubscriptionBusy(false);
+    }
+  };
+
+  const handleUnsubscribe = async () => {
+    clearSubscriptionFeedback();
+
+    if (!subscriberUser) {
+      return;
+    }
+
+    setSubscriptionBusy(true);
+
+    try {
+      await unsubscribeSubscriber(subscriberUser.uid);
+      setIsSubscribed(false);
+      setSubscriptionMessage("You have been unsubscribed from future portfolio updates.");
+    } catch (error) {
+      setSubscriptionError(getSubscriptionErrorMessage(error));
+    } finally {
+      setSubscriptionBusy(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    clearSubscriptionFeedback();
+
+    if (!auth) {
+      return;
+    }
+
+    setSubscriptionBusy(true);
+
+    try {
+      await signOut(auth);
+      setSubscriptionMessage(
+        "You are signed out. Your subscription preference stays saved unless you unsubscribe first.",
+      );
+    } catch (error) {
+      setSubscriptionError(getSubscriptionErrorMessage(error));
+    } finally {
+      setSubscriptionBusy(false);
+    }
+  };
 
   if (standaloneBlogSlug) {
     return (
@@ -730,6 +911,111 @@ function App() {
                 ))}
               </div>
             ) : null}
+          </div>
+        </section>
+
+        <section className="section shell" id="updates">
+          <div className="updates-panel">
+            <div className="updates-copy">
+              <p className="eyebrow">Content Updates</p>
+              <h2>Get notified when new engineering notes or portfolio updates go live.</h2>
+              <p>
+                Sign in with Google to subscribe to new blogs, project notes, and selected
+                portfolio updates. Your email is stored only for this purpose, and you can
+                unsubscribe anytime.
+              </p>
+              <ul className="updates-list" aria-label="Update categories">
+                <li>New backend engineering write-ups</li>
+                <li>AI, LLM, and search architecture notes</li>
+                <li>Important portfolio and project updates</li>
+              </ul>
+            </div>
+
+            <div className="updates-card">
+              <p className="impact-label">Subscriber Access</p>
+              <h3>{subscriberUser ? "Subscription preferences" : "Sign in with Google"}</h3>
+              <p>
+                This keeps updates permission-based and avoids collecting passwords or
+                unnecessary personal information.
+              </p>
+
+              {!canUseSubscriptions ? (
+                <p className="status-message is-warning">
+                  Google sign-in is added in code. Add the Firebase environment variables in
+                  Vercel to activate this panel online.
+                </p>
+              ) : null}
+
+              {subscriberUser ? (
+                <>
+                  <div className="subscriber-card">
+                    {subscriberUser.photoURL ? (
+                      <img src={subscriberUser.photoURL} alt="" />
+                    ) : (
+                      <span className="subscriber-initial" aria-hidden="true">
+                        {subscriberInitial}
+                      </span>
+                    )}
+                    <div>
+                      <strong>{subscriberName}</strong>
+                      <span>{subscriberEmail}</span>
+                    </div>
+                    <span className={`subscription-badge${isSubscribed ? " is-active" : ""}`}>
+                      {isSubscribed ? "Subscribed" : "Not subscribed"}
+                    </span>
+                  </div>
+
+                  <div className="updates-actions">
+                    <button
+                      className="button button-primary"
+                      type="button"
+                      disabled={subscriptionBusy || isSubscribed}
+                      onClick={handleSubscribe}
+                    >
+                      {subscriptionBusy ? "Updating..." : "Subscribe"}
+                    </button>
+                    <button
+                      className="button button-secondary"
+                      type="button"
+                      disabled={subscriptionBusy || !isSubscribed}
+                      onClick={handleUnsubscribe}
+                    >
+                      Unsubscribe
+                    </button>
+                    <button
+                      className="button button-tertiary"
+                      type="button"
+                      disabled={subscriptionBusy}
+                      onClick={handleSignOut}
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="button button-primary updates-button"
+                    type="button"
+                    disabled={subscriptionBusy || !canUseSubscriptions}
+                    onClick={handleGoogleSignIn}
+                  >
+                    {subscriptionBusy ? "Opening Google..." : "Sign in with Google"}
+                  </button>
+                  <p className="updates-footnote">
+                    Google handles authentication securely. This website only stores your
+                    subscriber preference.
+                  </p>
+                </>
+              )}
+
+              {subscriptionMessage ? (
+                <p className="status-message is-success">{subscriptionMessage}</p>
+              ) : null}
+              {subscriptionError ? (
+                <p className="status-message is-error">{subscriptionError}</p>
+              ) : null}
+            </div>
           </div>
         </section>
 
