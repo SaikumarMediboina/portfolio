@@ -45,6 +45,19 @@ type SectionHeadingProps = {
   description: string;
 };
 
+type AssistantLink = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
+type AssistantMessage = {
+  id: number;
+  links?: AssistantLink[];
+  role: "assistant" | "visitor";
+  text: string;
+};
+
 type SubscriberViewState =
   | "guest"
   | "newSignedIn"
@@ -327,6 +340,258 @@ function BlogLockNote() {
       </span>
       <span>{LOCKED_BLOG_CAPTION}</span>
     </p>
+  );
+}
+
+function getAssistantResponse(
+  input: string,
+  isReaderSignedIn: boolean,
+  hasActiveSubscription: boolean,
+): Pick<AssistantMessage, "links" | "text"> {
+  const query = input.toLowerCase();
+  const publicBlog = blogPosts.find((post) => post.slug === PUBLIC_BLOG_SLUG) ?? blogPosts[0];
+  const topProjects = projects.slice(0, 3).map((project) => project.name).join(", ");
+  const topSkills = skills
+    .map((group) => `${group.title}: ${group.items.slice(0, 4).join(", ")}`)
+    .join(". ");
+
+  if (query.includes("blog") || query.includes("article") || query.includes("write")) {
+    return {
+      text: `There are ${blogPosts.length} engineering write-ups. The public feature is "${publicBlog.title}". The other posts are available after sign-in, so interested readers can go deeper without cluttering the main page.`,
+      links: [
+        { href: "#blogs", label: "View blog index" },
+        { href: getBlogArticleHref(publicBlog.slug), label: "Open public article", external: true },
+        ...(isReaderSignedIn ? [] : [{ href: "/signin", label: "Sign in to unlock blogs" }]),
+      ],
+    };
+  }
+
+  if (
+    query.includes("project") ||
+    query.includes("work") ||
+    query.includes("matching") ||
+    query.includes("screening")
+  ) {
+    return {
+      text: `The selected work focuses on backend systems for compliance screening, search, AI-assisted scoring, and performance tuning. A good starting path is: ${topProjects}.`,
+      links: [{ href: "#work", label: "Explore selected work" }],
+    };
+  }
+
+  if (
+    query.includes("skill") ||
+    query.includes("stack") ||
+    query.includes("technology") ||
+    query.includes("tech")
+  ) {
+    return {
+      text: `The core stack is backend-heavy: ${topSkills}. The strongest theme is where Java services, Oracle-heavy systems, search, and AI/LLM workflows meet.`,
+      links: [{ href: "#skills", label: "View tech stack" }],
+    };
+  }
+
+  if (
+    query.includes("performance") ||
+    query.includes("latency") ||
+    query.includes("throughput") ||
+    query.includes("optimization")
+  ) {
+    return {
+      text: "The performance story is a major theme: 97% batch latency reduction, 85% real-time speedup, 100+ TPS runtime scale, and backend throughput improvements using database, cache, and async patterns.",
+      links: [
+        { href: "#work", label: "See performance projects" },
+        { href: getBlogArticleHref(publicBlog.slug), label: "Read throughput blog", external: true },
+      ],
+    };
+  }
+
+  if (
+    query.includes("contact") ||
+    query.includes("email") ||
+    query.includes("linkedin") ||
+    query.includes("connect")
+  ) {
+    return {
+      text: `You can contact ${profile.name} by email or LinkedIn. Best fit conversations are backend engineering, search systems, performance work, and practical AI/LLM product ideas.`,
+      links: [
+        { href: "#contact", label: "Go to contact" },
+        { href: `mailto:${profile.email}`, label: "Email" },
+        { href: profile.linkedin, label: "LinkedIn", external: true },
+      ],
+    };
+  }
+
+  if (
+    query.includes("subscribe") ||
+    query.includes("sign") ||
+    query.includes("account") ||
+    query.includes("unlock")
+  ) {
+    return {
+      text: isReaderSignedIn
+        ? hasActiveSubscription
+          ? "You are signed in and subscribed. New selected engineering notes can reach your inbox when updates are sent."
+          : "You are signed in but not subscribed yet. Use the profile menu in the header to subscribe when you want portfolio and blog updates."
+        : "Sign in unlocks the protected blog posts and lets you subscribe for selected portfolio and engineering updates. No password collection here, just account-based access.",
+      links: isReaderSignedIn ? [{ href: "#blogs", label: "Browse blogs" }] : [{ href: "/signin", label: "Open sign in" }],
+    };
+  }
+
+  return {
+    text: `I can guide you through ${profile.name}'s portfolio: projects, blogs, tech stack, performance highlights, contact details, and subscriber access. Try asking about "blogs", "performance work", "tech stack", or "contact".`,
+    links: [
+      { href: "#work", label: "Projects" },
+      { href: "#blogs", label: "Blogs" },
+      { href: "#skills", label: "Tech stack" },
+    ],
+  };
+}
+
+type SiteAssistantProps = {
+  isSubscribed: boolean;
+  subscriberUser: User | null;
+};
+
+function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<AssistantMessage[]>([
+    {
+      id: 1,
+      role: "assistant",
+      text: "Hi, I am the portfolio assistant. Ask me about Sai's projects, blogs, tech stack, performance work, or how to subscribe.",
+      links: [
+        { href: "#work", label: "Projects" },
+        { href: "#blogs", label: "Blogs" },
+      ],
+    },
+  ]);
+  const messagesRef = useRef<HTMLDivElement | null>(null);
+
+  const quickPrompts = [
+    "Show me the blogs",
+    "Explain the tech stack",
+    "What performance work stands out?",
+    "How do I contact Sai?",
+  ];
+
+  useEffect(() => {
+    const messagesContainer = messagesRef.current;
+
+    if (isOpen && messagesContainer) {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [isOpen, messages]);
+
+  const sendAssistantMessage = (value: string) => {
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
+      return;
+    }
+
+    const response = getAssistantResponse(trimmedValue, Boolean(subscriberUser), isSubscribed);
+
+    setMessages((current) => [
+      ...current,
+      {
+        id: Date.now(),
+        role: "visitor",
+        text: trimmedValue,
+      },
+      {
+        id: Date.now() + 1,
+        role: "assistant",
+        text: response.text,
+        links: response.links,
+      },
+    ]);
+    setInput("");
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    sendAssistantMessage(input);
+  };
+
+  return (
+    <div className={`site-assistant${isOpen ? " is-open" : ""}`}>
+      <button
+        className="assistant-launcher"
+        type="button"
+        aria-expanded={isOpen}
+        aria-label={isOpen ? "Close portfolio assistant" : "Open portfolio assistant"}
+        onClick={() => setIsOpen((open) => !open)}
+      >
+        <span aria-hidden="true">AI</span>
+      </button>
+
+      <section className="assistant-panel" aria-label="Portfolio assistant">
+        <div className="assistant-header">
+          <div>
+            <p className="impact-label">Portfolio Assistant</p>
+            <h2>Ask about the site.</h2>
+          </div>
+          <button
+            className="assistant-close"
+            type="button"
+            aria-label="Close assistant"
+            onClick={() => setIsOpen(false)}
+          >
+            x
+          </button>
+        </div>
+
+        <div className="assistant-messages" ref={messagesRef}>
+          {messages.map((message) => (
+            <article className={`assistant-message is-${message.role}`} key={message.id}>
+              <p>{message.text}</p>
+              {message.links?.length ? (
+                <div className="assistant-links">
+                  {message.links.map((link) => (
+                    <a
+                      href={link.href}
+                      key={`${message.id}-${link.label}`}
+                      target={link.external ? "_blank" : undefined}
+                      rel={link.external ? "opener" : undefined}
+                      onClick={() => {
+                        if (!link.external) {
+                          setIsOpen(false);
+                        }
+                      }}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </article>
+          ))}
+        </div>
+
+        <div className="assistant-prompts" aria-label="Suggested assistant prompts">
+          {quickPrompts.map((prompt) => (
+            <button type="button" key={prompt} onClick={() => sendAssistantMessage(prompt)}>
+              {prompt}
+            </button>
+          ))}
+        </div>
+
+        <form className="assistant-form" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={input}
+            placeholder="Ask about blogs, projects, stack..."
+            aria-label="Ask the portfolio assistant"
+            onChange={(event) => setInput(event.target.value)}
+          />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </div>
   );
 }
 
@@ -2010,6 +2275,8 @@ function App() {
           </div>
         </div>
       </footer>
+
+      <SiteAssistant isSubscribed={isSubscribed} subscriberUser={subscriberUser} />
     </>
   );
 }
