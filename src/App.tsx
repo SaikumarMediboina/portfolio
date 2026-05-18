@@ -45,6 +45,8 @@ type SectionHeadingProps = {
   description: string;
 };
 
+type SubscriberViewState = "guest" | "new" | "returning" | "paused";
+
 const THEME_STORAGE_KEY = "portfolio-theme";
 const ALL_BLOG_CATEGORIES = "All";
 
@@ -459,11 +461,38 @@ function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
 }
 
 type SignInPageProps = SubscriptionAccessCardProps & {
+  subscriberView: SubscriberViewState;
   theme: Theme;
   onThemeToggle: () => void;
 };
 
-function SignInPage({ theme, onThemeToggle, ...subscriptionProps }: SignInPageProps) {
+function SignInPage({
+  subscriberName,
+  subscriberView,
+  theme,
+  onThemeToggle,
+  ...subscriptionProps
+}: SignInPageProps) {
+  const firstName = subscriberName.split(" ")[0] || "there";
+  const heroCopy = {
+    guest: {
+      title: "Sign in to follow new engineering notes and portfolio updates.",
+      body: "Subscribe to practical notes on backend performance, search systems, AI and LLM workflows, and selected portfolio updates. You stay in control and can unsubscribe anytime.",
+    },
+    new: {
+      title: "You're in. Thanks for joining the engineering notes list.",
+      body: `Welcome aboard, ${firstName}. Future write-ups and selected portfolio updates will land in your inbox. Only useful notes, no noisy inbox drama.`,
+    },
+    returning: {
+      title: "Welcome back. Your update radar is still switched on.",
+      body: `Good to see you again, ${firstName}. You are already subscribed, so new engineering notes and portfolio updates will keep finding their way to you.`,
+    },
+    paused: {
+      title: "You're signed in, but updates are paused.",
+      body: "No emails will be sent while you are unsubscribed. If you want the next engineering note back in your inbox, you can subscribe again anytime.",
+    },
+  }[subscriberView];
+
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -504,15 +533,11 @@ function SignInPage({ theme, onThemeToggle, ...subscriptionProps }: SignInPagePr
         <section className="signin-hero">
           <div className="signin-copy">
             <p className="eyebrow">Subscriber Access</p>
-            <h1>Sign in to follow new engineering notes and portfolio updates.</h1>
-            <p>
-              Use Google sign-in to subscribe to new blogs, project write-ups, and selected
-              portfolio updates. The site stores only the details needed to manage your
-              subscription.
-            </p>
+            <h1>{heroCopy.title}</h1>
+            <p>{heroCopy.body}</p>
           </div>
 
-          <SubscriptionAccessCard {...subscriptionProps} />
+          <SubscriptionAccessCard subscriberName={subscriberName} {...subscriptionProps} />
         </section>
       </main>
     </>
@@ -705,6 +730,7 @@ function App() {
   const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
   const [subscriberUser, setSubscriberUser] = useState<User | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriberView, setSubscriberView] = useState<SubscriberViewState>("guest");
   const [subscriptionBusy, setSubscriptionBusy] = useState(false);
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [subscriptionError, setSubscriptionError] = useState("");
@@ -808,6 +834,7 @@ function App() {
 
       if (!user) {
         setIsSubscribed(false);
+        setSubscriberView("guest");
         setSubscriptionBusy(false);
         return;
       }
@@ -817,6 +844,7 @@ function App() {
         .then((subscribed) => {
           if (isMounted) {
             setIsSubscribed(subscribed);
+            setSubscriberView(subscribed ? "returning" : "paused");
           }
         })
         .catch((error) => {
@@ -851,11 +879,13 @@ function App() {
         }
 
         setSubscriptionBusy(true);
+        const wasSubscribed = await getSubscriberStatus(result.user.uid).catch(() => false);
         await saveSubscriber(result.user);
 
         if (isMounted) {
           setSubscriberUser(result.user);
           setIsSubscribed(true);
+          setSubscriberView(wasSubscribed ? "returning" : "new");
           setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
           setSubscriptionError("");
         }
@@ -899,9 +929,11 @@ function App() {
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
+      const wasSubscribed = await getSubscriberStatus(result.user.uid).catch(() => false);
       await saveSubscriber(result.user);
       setSubscriberUser(result.user);
       setIsSubscribed(true);
+      setSubscriberView(wasSubscribed ? "returning" : "new");
       setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
     } catch (error) {
       if (shouldUseRedirectSignIn(error)) {
@@ -932,6 +964,7 @@ function App() {
     try {
       await saveSubscriber(subscriberUser);
       setIsSubscribed(true);
+      setSubscriberView("new");
       setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
     } catch (error) {
       setSubscriptionError(getSubscriptionErrorMessage(error));
@@ -952,6 +985,7 @@ function App() {
     try {
       await unsubscribeSubscriber(subscriberUser.uid);
       setIsSubscribed(false);
+      setSubscriberView("paused");
       setSubscriptionMessage("You have been unsubscribed from future portfolio updates.");
     } catch (error) {
       setSubscriptionError(getSubscriptionErrorMessage(error));
@@ -971,6 +1005,7 @@ function App() {
 
     try {
       await signOut(auth);
+      setSubscriberView("guest");
       setSubscriptionMessage(
         "You are signed out. Your subscription preference stays saved unless you unsubscribe first.",
       );
@@ -999,6 +1034,7 @@ function App() {
         subscriberEmail={subscriberEmail}
         subscriberInitial={subscriberInitial}
         subscriberName={subscriberName}
+        subscriberView={subscriberView}
         subscriberUser={subscriberUser}
         subscriptionBusy={subscriptionBusy}
         subscriptionError={subscriptionError}
