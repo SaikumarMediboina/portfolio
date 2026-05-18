@@ -821,8 +821,29 @@ function App() {
                 {link.label}
               </a>
             ))}
-            <a className="nav-signin-link" href="/signin" onClick={closeMenu}>
-              {subscriberUser ? "Account" : "Sign In"}
+            <a
+              className={`nav-signin-link${subscriberUser ? " is-account-avatar" : ""}`}
+              href="/signin"
+              aria-label={subscriberUser ? "Open subscriber account" : undefined}
+              title={subscriberUser ? "Subscriber account" : undefined}
+              onClick={closeMenu}
+            >
+              {subscriberUser ? (
+                subscriberUser.photoURL ? (
+                  <img
+                    className="nav-account-image"
+                    src={subscriberUser.photoURL}
+                    alt={`${subscriberName} account`}
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="nav-account-fallback" aria-hidden="true">
+                    {subscriberInitial}
+                  </span>
+                )
+              ) : (
+                "Sign In"
+              )}
             </a>
           </nav>
 

@@ -296,11 +296,46 @@ dt {
 }
 
 .site-nav .nav-signin-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.65rem;
   padding: 0.6rem 0.85rem;
   border: 1px solid var(--chip-border);
   border-radius: 999px;
   background: var(--soft-button-bg);
   color: var(--ink);
+}
+
+.site-nav .nav-signin-link.is-account-avatar {
+  width: 3rem;
+  height: 3rem;
+  min-height: 3rem;
+  padding: 0.18rem;
+  overflow: hidden;
+}
+
+.nav-account-image,
+.nav-account-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.nav-account-image {
+  display: block;
+  object-fit: cover;
+}
+
+.nav-account-fallback {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent), #ffb06b);
+  color: #111c2b;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .site-nav .nav-signin-link::after {
