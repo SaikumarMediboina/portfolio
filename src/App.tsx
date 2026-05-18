@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useState } from "react";
+import { startTransition, useEffect, useState, type FormEvent } from "react";
 import type { User } from "firebase/auth";
 import {
   getRedirectResult,
@@ -63,6 +63,14 @@ function isSignInPathname() {
   }
 
   return window.location.pathname.replace(/\/$/, "") === "/signin";
+}
+
+function isAdminUpdatePathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/admin-update";
 }
 
 function getBlogArticleHref(slug: string) {
@@ -511,6 +519,184 @@ function SignInPage({ theme, onThemeToggle, ...subscriptionProps }: SignInPagePr
   );
 }
 
+type SendUpdateResult = {
+  error?: string;
+  failed?: number;
+  mode?: string;
+  sent?: number;
+  total?: number;
+};
+
+type AdminUpdatePageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
+  const [adminSecret, setAdminSecret] = useState("");
+  const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
+  const [link, setLink] = useState("");
+  const [testEmail, setTestEmail] = useState("");
+  const [sendBusy, setSendBusy] = useState(false);
+  const [sendResult, setSendResult] = useState<SendUpdateResult | null>(null);
+
+  const handleSendUpdate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSendBusy(true);
+    setSendResult(null);
+
+    try {
+      const response = await fetch("/api/send-update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-secret": adminSecret,
+        },
+        body: JSON.stringify({
+          title,
+          summary,
+          link,
+          testEmail,
+        }),
+      });
+      const result = (await response.json()) as SendUpdateResult;
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to send update.");
+      }
+
+      setSendResult(result);
+    } catch (error) {
+      setSendResult({
+        error: error instanceof Error ? error.message : "Unable to send update.",
+      });
+    } finally {
+      setSendBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to admin update sender
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/#top">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Email updates</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/#top">
+              Back to portfolio
+            </a>
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="admin-update-page shell" id="main-content">
+        <section className="admin-update-panel">
+          <div className="admin-update-copy">
+            <p className="eyebrow">Admin Sender</p>
+            <h1>Send a portfolio update email.</h1>
+            <p>
+              Start with a test recipient. Leave the test recipient blank only when you want to
+              send the update to every active subscriber.
+            </p>
+          </div>
+
+          <form className="admin-update-form" onSubmit={handleSendUpdate}>
+            <label>
+              <span>Admin secret</span>
+              <input
+                type="password"
+                value={adminSecret}
+                onChange={(event) => setAdminSecret(event.target.value)}
+                placeholder="Paste ADMIN_SEND_SECRET"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Email title</span>
+              <input
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="New engineering write-up is live"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Message</span>
+              <textarea
+                value={summary}
+                onChange={(event) => setSummary(event.target.value)}
+                placeholder="Write a short professional summary for subscribers."
+                rows={6}
+                required
+              />
+            </label>
+
+            <label>
+              <span>Update link</span>
+              <input
+                type="url"
+                value={link}
+                onChange={(event) => setLink(event.target.value)}
+                placeholder="https://saikumarmediboina.com/blog/..."
+              />
+            </label>
+
+            <label>
+              <span>Test recipient</span>
+              <input
+                type="email"
+                value={testEmail}
+                onChange={(event) => setTestEmail(event.target.value)}
+                placeholder="your-email@example.com"
+              />
+            </label>
+
+            <button className="button button-primary" type="submit" disabled={sendBusy}>
+              {sendBusy ? "Sending..." : testEmail ? "Send test email" : "Send to subscribers"}
+            </button>
+
+            {sendResult?.error ? (
+              <p className="status-message is-error">{sendResult.error}</p>
+            ) : null}
+            {sendResult && !sendResult.error ? (
+              <p className="status-message is-success">
+                Sent {sendResult.sent} of {sendResult.total} emails
+                {sendResult.failed ? `, ${sendResult.failed} failed` : ""}.
+              </p>
+            ) : null}
+          </form>
+        </section>
+      </main>
+    </>
+  );
+}
+
 function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -540,6 +726,7 @@ function App() {
     ? blogPosts.find((post) => post.slug === standaloneBlogSlug)
     : undefined;
   const isSignInPage = isSignInPathname();
+  const isAdminUpdatePage = isAdminUpdatePathname();
   const canUseSubscriptions = isFirebaseConfigured && Boolean(auth && googleProvider);
   const subscriberName = subscriberUser?.displayName ?? "Signed-in reader";
   const subscriberEmail = subscriberUser?.email ?? "Email not shared";
@@ -822,6 +1009,15 @@ function App() {
         onSubscribe={handleSubscribe}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onUnsubscribe={handleUnsubscribe}
+      />
+    );
+  }
+
+  if (isAdminUpdatePage) {
+    return (
+      <AdminUpdatePage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />
     );
   }

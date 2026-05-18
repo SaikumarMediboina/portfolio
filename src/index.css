@@ -1269,6 +1269,92 @@ dt {
   line-height: 1.8;
 }
 
+.admin-update-page {
+  padding: 9rem 0 5rem;
+}
+
+.admin-update-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(340px, 0.75fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: start;
+  padding: clamp(1.4rem, 3vw, 2rem);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top left, var(--accent-soft), transparent 34%),
+    var(--contact-background);
+  box-shadow: var(--shadow-soft);
+}
+
+.admin-update-copy {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.admin-update-copy h1 {
+  max-width: 650px;
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.admin-update-copy p:not(.eyebrow) {
+  max-width: 620px;
+  color: var(--ink-soft);
+  font-size: var(--text-lg);
+  line-height: 1.8;
+}
+
+.admin-update-form {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--panel-strong);
+}
+
+.admin-update-form label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-update-form label span {
+  color: var(--ink-strong);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.admin-update-form input,
+.admin-update-form textarea {
+  width: 100%;
+  border: 1px solid var(--chip-border);
+  border-radius: 18px;
+  background: var(--muted-button-bg);
+  color: var(--ink);
+  outline: 0;
+}
+
+.admin-update-form input {
+  min-height: 3.1rem;
+  padding: 0 1rem;
+}
+
+.admin-update-form textarea {
+  resize: vertical;
+  padding: 0.9rem 1rem;
+  line-height: 1.7;
+}
+
+.admin-update-form input:focus,
+.admin-update-form textarea:focus {
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
 .updates-panel {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
@@ -1684,6 +1770,7 @@ section[id] {
   .work-layout,
   .updates-panel,
   .signin-hero,
+  .admin-update-panel,
   .contact-panel {
     grid-template-columns: 1fr;
   }
