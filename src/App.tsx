@@ -177,6 +177,44 @@ function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
   );
 }
 
+function ThemeToggleIcon({ theme }: { theme: Theme }) {
+  if (theme === "light") {
+    return (
+      <svg
+        className="theme-toggle-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M20.2 15.7A8.2 8.2 0 0 1 8.3 3.8 8.7 8.7 0 1 0 20.2 15.7Z"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      className="theme-toggle-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="4.3" stroke="currentColor" strokeWidth="1.9" />
+      <path
+        d="M12 2.8v2.1M12 19.1v2.1M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2.8 12h2.1M19.1 12h2.1M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 type BlogArticleBodyProps = {
   post: BlogPost;
 };
@@ -369,8 +407,7 @@ function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
               aria-pressed={theme === "dark"}
               onClick={onThemeToggle}
             >
-              <span className="theme-toggle-indicator" aria-hidden="true" />
-              <span>{theme === "light" ? "Dark" : "Light"}</span>
+              <ThemeToggleIcon theme={theme} />
             </button>
           </div>
         </div>
@@ -446,8 +483,7 @@ function SignInPage({ theme, onThemeToggle, ...subscriptionProps }: SignInPagePr
               aria-pressed={theme === "dark"}
               onClick={onThemeToggle}
             >
-              <span className="theme-toggle-indicator" aria-hidden="true" />
-              <span>{theme === "light" ? "Dark" : "Light"}</span>
+              <ThemeToggleIcon theme={theme} />
             </button>
           </div>
         </div>
@@ -855,8 +891,7 @@ function App() {
               aria-pressed={theme === "dark"}
               onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
             >
-              <span className="theme-toggle-indicator" aria-hidden="true" />
-              <span>{theme === "light" ? "Dark" : "Light"}</span>
+              <ThemeToggleIcon theme={theme} />
             </button>
 
             <button
