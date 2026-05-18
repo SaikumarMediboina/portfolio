@@ -1,4 +1,5 @@
 import {
+  Fragment,
   startTransition,
   useEffect,
   useRef,
@@ -141,6 +142,14 @@ function isSavedPostsPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/saved-posts";
 }
 
+function isDashboardPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/dashboard";
+}
+
 function getSignInReturnBlogSlug() {
   if (typeof window === "undefined") {
     return "";
@@ -175,6 +184,56 @@ function getSignInHref(slug?: string) {
 
 function getSavedPostsSignInHref() {
   return "/signin?return=saved-posts";
+}
+
+function getReadMinutes(readTime: string) {
+  return Number.parseInt(readTime, 10) || 0;
+}
+
+const dashboardTopicColors = ["#e85b3f", "#f28443", "#1fb58f", "#e2b43c", "#7c3fe0", "#5f7ce5"];
+
+function getDashboardTopics(posts: BlogPost[]) {
+  const topicMap = new Map<string, { category: string; posts: number; readMinutes: number }>();
+
+  posts.forEach((post) => {
+    const current = topicMap.get(post.category) ?? {
+      category: post.category,
+      posts: 0,
+      readMinutes: 0,
+    };
+
+    topicMap.set(post.category, {
+      ...current,
+      posts: current.posts + 1,
+      readMinutes: current.readMinutes + getReadMinutes(post.readTime),
+    });
+  });
+
+  return Array.from(topicMap.values())
+    .sort((left, right) => right.posts - left.posts || right.readMinutes - left.readMinutes)
+    .map((topic, index) => ({
+      ...topic,
+      color: dashboardTopicColors[index % dashboardTopicColors.length],
+      score: topic.posts * 18 + topic.readMinutes,
+    }));
+}
+
+function getDashboardDonutGradient(topics: ReturnType<typeof getDashboardTopics>) {
+  const totalPosts = topics.reduce((total, topic) => total + topic.posts, 0);
+  let cursor = 0;
+
+  if (!totalPosts) {
+    return "conic-gradient(#2d2a26 0deg 360deg)";
+  }
+
+  const segments = topics.map((topic) => {
+    const nextCursor = cursor + (topic.posts / totalPosts) * 360;
+    const segment = `${topic.color} ${cursor}deg ${nextCursor}deg`;
+    cursor = nextCursor;
+    return segment;
+  });
+
+  return `conic-gradient(${segments.join(", ")})`;
 }
 
 function getBlogAnchorId(slug: string) {
@@ -1622,6 +1681,283 @@ function SavedPostsPage({
   );
 }
 
+type DashboardPageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
+  const topics = getDashboardTopics(blogPosts);
+  const totalBlogCount = Math.max(blogPosts.length, 1);
+  const totalReadMinutes = blogPosts.reduce((total, post) => total + getReadMinutes(post.readTime), 0);
+  const averageReadMinutes = blogPosts.length ? Math.round(totalReadMinutes / blogPosts.length) : 0;
+  const publicFeatureCount = blogPosts.some((post) => post.slug === PUBLIC_BLOG_SLUG) ? 1 : 0;
+  const maxTopicScore = Math.max(...topics.map((topic) => topic.score), 1);
+  const topArticles = [...blogPosts]
+    .map((post) => ({
+      ...post,
+      contentScore:
+        getReadMinutes(post.readTime) * 8 + post.sections.length * 6 + post.takeaways.length * 4,
+    }))
+    .sort((left, right) => right.contentScore - left.contentScore)
+    .slice(0, 8);
+  const maxArticleScore = Math.max(...topArticles.map((post) => post.contentScore), 1);
+  const cadenceBars = Array.from({ length: 30 }, (_, index) => {
+    const isPublishedDay = [1, 2, 3, 4, 5, 14, 23, 25].includes(index);
+
+    return {
+      height: isPublishedDay ? 38 + ((index * 11) % 44) : 6,
+      isPublishedDay,
+    };
+  });
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to dashboard
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/#top">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Creator dashboard</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/#top">
+              Back to portfolio
+            </a>
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="dashboard-page" id="main-content">
+        <section className="dashboard-shell">
+          <div className="dashboard-hero">
+            <p className="eyebrow">Creator Dashboard</p>
+            <h1>Content cockpit for portfolio momentum.</h1>
+            <p>
+              A compact view of engineering notes, topic coverage, portfolio signals, and the
+              writing pipeline behind this site.
+            </p>
+            <div className="dashboard-chip-row" aria-label="Dashboard lenses">
+              <span>Reader journey</span>
+              <span>Engineering notes</span>
+              <span>Portfolio signal</span>
+            </div>
+          </div>
+
+          <div className="dashboard-note">
+            <span>At a glance</span>
+            <p>
+              This dashboard summarizes the content already published on the site. It is designed
+              for editorial clarity, not inflated vanity metrics.
+            </p>
+          </div>
+
+          <div className="dashboard-stat-grid" aria-label="Dashboard summary">
+            <article className="dashboard-stat-card">
+              <ReaderMenuGlyph type="pen" />
+              <span>Total Blogs</span>
+              <strong>{blogPosts.length}</strong>
+            </article>
+            <article className="dashboard-stat-card">
+              <ReaderMenuGlyph type="bookmark" />
+              <span>Topic Lanes</span>
+              <strong>{topics.length}</strong>
+            </article>
+            <article className="dashboard-stat-card">
+              <ReaderMenuGlyph type="briefcase" />
+              <span>Projects</span>
+              <strong>{projects.length}</strong>
+            </article>
+            <article className="dashboard-stat-card">
+              <ReaderMenuGlyph type="home" />
+              <span>Avg. Read Time</span>
+              <strong>{averageReadMinutes} min</strong>
+            </article>
+          </div>
+
+          <div className="dashboard-grid dashboard-grid-two">
+            <article className="dashboard-card">
+              <div className="dashboard-card-heading">
+                <h2>Topic Performance</h2>
+                <span>Articles vs depth</span>
+              </div>
+              <div className="dashboard-topic-chart">
+                {topics.map((topic) => (
+                  <div className="dashboard-topic-column" key={topic.category}>
+                    <div className="dashboard-topic-bars">
+                      <span
+                        className="dashboard-topic-bar is-depth"
+                        style={
+                          {
+                            "--bar-height": `${Math.max((topic.score / maxTopicScore) * 100, 12)}%`,
+                            "--bar-color": topic.color,
+                          } as CSSProperties
+                        }
+                      />
+                      <span
+                        className="dashboard-topic-bar is-posts"
+                        style={
+                          {
+                            "--bar-height": `${Math.max((topic.posts / totalBlogCount) * 100, 12)}%`,
+                          } as CSSProperties
+                        }
+                      />
+                    </div>
+                    <small>{topic.category}</small>
+                  </div>
+                ))}
+              </div>
+              <div className="dashboard-legend">
+                <span><i className="is-depth" /> Depth score</span>
+                <span><i className="is-posts" /> Articles</span>
+              </div>
+            </article>
+
+            <article className="dashboard-card dashboard-donut-card">
+              <div className="dashboard-card-heading">
+                <h2>Content Distribution</h2>
+                <span>By topic</span>
+              </div>
+              <div
+                className="dashboard-donut"
+                style={{ background: getDashboardDonutGradient(topics) }}
+                aria-hidden="true"
+              >
+                <span />
+              </div>
+              <div className="dashboard-legend is-wrapped">
+                {topics.map((topic) => (
+                  <span key={topic.category}>
+                    <i style={{ background: topic.color }} /> {topic.category}
+                  </span>
+                ))}
+              </div>
+            </article>
+          </div>
+
+          <article className="dashboard-card">
+            <div className="dashboard-card-heading">
+              <h2>Top Content by Reading Depth</h2>
+              <span>Derived from article length and structure</span>
+            </div>
+            <div className="dashboard-article-bars">
+              {topArticles.map((post, index) => (
+                <a
+                  className="dashboard-article-bar"
+                  href={getBlogArticleHref(post.slug)}
+                  key={post.slug}
+                  target="_blank"
+                  rel="opener"
+                  style={
+                    {
+                      "--article-bar": `${Math.max((post.contentScore / maxArticleScore) * 100, 10)}%`,
+                    } as CSSProperties
+                  }
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{post.title}</strong>
+                </a>
+              ))}
+            </div>
+          </article>
+
+          <article className="dashboard-card">
+            <div className="dashboard-card-heading">
+              <h2>Publishing Rhythm</h2>
+              <span>30-day content habit view</span>
+            </div>
+            <div className="dashboard-cadence-stats">
+              <span><strong>{blogPosts.length}</strong> total posts</span>
+              <span><strong>{publicFeatureCount}</strong> public feature</span>
+              <span><strong>{Math.max(0, blogPosts.length - 1)}</strong> member reads</span>
+              <span><strong>{totalReadMinutes}</strong> min library</span>
+            </div>
+            <div className="dashboard-cadence-chart" aria-label="Publishing rhythm chart">
+              {cadenceBars.map((bar, index) => (
+                <span
+                  className={bar.isPublishedDay ? "is-published" : ""}
+                  key={`cadence-${index}`}
+                  style={{ "--cadence-height": `${bar.height}%` } as CSSProperties}
+                  title={`Day ${index + 1}`}
+                />
+              ))}
+            </div>
+          </article>
+
+          <article className="dashboard-card">
+            <div className="dashboard-card-heading">
+              <h2>Most Useful Content</h2>
+              <span>Structured list format</span>
+            </div>
+            <div className="dashboard-table-wrap">
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Blog title</th>
+                    <th>Topic</th>
+                    <th>Length</th>
+                    <th>Signal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topArticles.slice(0, 5).map((post, index) => (
+                    <tr key={post.slug}>
+                      <td>
+                        <span>{index + 1}</span>
+                        <a href={getBlogArticleHref(post.slug)} target="_blank" rel="opener">
+                          {post.title}
+                        </a>
+                      </td>
+                      <td>{post.category}</td>
+                      <td>{post.readTime}</td>
+                      <td>{post.stats[0]?.value ?? "Ready"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article className="dashboard-card">
+            <div className="dashboard-card-heading">
+              <h2>Topic Breakdown</h2>
+              <span>Coverage map</span>
+            </div>
+            <div className="dashboard-topic-breakdown">
+              {topics.map((topic) => (
+                <section key={topic.category}>
+                  <h3>{topic.category}</h3>
+                  <p>Blogs: <strong>{topic.posts}</strong></p>
+                  <p>Total read time: <strong>{topic.readMinutes} min</strong></p>
+                </section>
+              ))}
+            </div>
+          </article>
+        </section>
+      </main>
+    </>
+  );
+}
+
 type SignInPageProps = SubscriptionAccessCardProps & {
   portfolioReturnBlogSlug?: string;
   shouldReturnToSavedPosts?: boolean;
@@ -1983,6 +2319,7 @@ function App() {
   const standaloneBlogAccessChecking = Boolean(standaloneBlogNeedsAuth && !authReady);
   const isSignInPage = isSignInPathname();
   const isSavedPostsPage = isSavedPostsPathname();
+  const isDashboardPage = isDashboardPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
   const signInReturnBlogSlug = getSignInReturnBlogSlug();
   const signInReturnTarget = getSignInReturnTarget();
@@ -2059,7 +2396,7 @@ function App() {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 900) {
+      if (window.innerWidth > 1080) {
         setMenuOpen(false);
       }
     };
@@ -2431,6 +2768,15 @@ function App() {
     );
   }
 
+  if (isDashboardPage) {
+    return (
+      <DashboardPage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
+    );
+  }
+
   if (isSignInPage) {
     return (
       <SignInPage
@@ -2490,14 +2836,20 @@ function App() {
             aria-label="Primary"
           >
             {navLinks.map((link) => (
-              <a
-                key={link.id}
-                className={activeSection === link.id ? "is-active" : ""}
-                href={`#${link.id}`}
-                onClick={closeMenu}
-              >
-                {link.label}
-              </a>
+              <Fragment key={link.id}>
+                <a
+                  className={activeSection === link.id ? "is-active" : ""}
+                  href={`#${link.id}`}
+                  onClick={closeMenu}
+                >
+                  {link.label}
+                </a>
+                {link.id === "blogs" ? (
+                  <a href="/dashboard" onClick={closeMenu}>
+                    Dashboard
+                  </a>
+                ) : null}
+              </Fragment>
             ))}
             <div ref={profileMenuRef}>
               <ProfileMenu
