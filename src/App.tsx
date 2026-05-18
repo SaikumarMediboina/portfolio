@@ -66,6 +66,20 @@ type AssistantMessage = {
   text: string;
 };
 
+function getInitialAssistantMessages(): AssistantMessage[] {
+  return [
+    {
+      id: 1,
+      role: "assistant",
+      text: "Hey, I am Sai's portfolio assistant. I can help you find projects, blogs, tech stack details, and contact links.",
+      links: [
+        { href: "#work", label: "Projects" },
+        { href: "#blogs", label: "Blogs" },
+      ],
+    },
+  ];
+}
+
 type SubscriberViewState =
   | "guest"
   | "newSignedIn"
@@ -499,17 +513,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
   const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [messages, setMessages] = useState<AssistantMessage[]>([
-    {
-      id: 1,
-      role: "assistant",
-      text: "Hey, I am Sai's portfolio assistant. I can help you find projects, blogs, tech stack details, and contact links.",
-      links: [
-        { href: "#work", label: "Projects" },
-        { href: "#blogs", label: "Blogs" },
-      ],
-    },
-  ]);
+  const [messages, setMessages] = useState<AssistantMessage[]>(getInitialAssistantMessages);
   const assistantRef = useRef<HTMLDivElement | null>(null);
   const assistantDragRef = useRef<{
     pointerId: number;
@@ -571,21 +575,51 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     sendAssistantMessage(input);
   };
 
+  const clearAssistantChat = () => {
+    setMessages(getInitialAssistantMessages());
+    setInput("");
+  };
+
   const clampAssistantPosition = (x: number, y: number) => {
     if (typeof window === "undefined") {
       return { x, y };
     }
 
     const margin = 12;
+    const panelGap = 12;
     const launcherSize = assistantRef.current?.getBoundingClientRect().width || 64;
+    const panel = assistantRef.current?.querySelector<HTMLElement>(".assistant-panel");
+    const panelRect = panel?.getBoundingClientRect();
+    const minX =
+      isOpen && panelRect ? Math.max(margin, panelRect.width - launcherSize + margin) : margin;
+    const minY =
+      isOpen && panelRect
+        ? Math.max(margin, panelRect.height + panelGap + margin)
+        : margin;
     const maxX = window.innerWidth - launcherSize - margin;
     const maxY = window.innerHeight - launcherSize - margin;
+    const safeMaxX = Math.max(margin, maxX);
+    const safeMaxY = Math.max(margin, maxY);
+    const safeMinX = Math.min(minX, safeMaxX);
+    const safeMinY = Math.min(minY, safeMaxY);
 
     return {
-      x: Math.min(Math.max(margin, x), Math.max(margin, maxX)),
-      y: Math.min(Math.max(margin, y), Math.max(margin, maxY)),
+      x: Math.min(Math.max(safeMinX, x), safeMaxX),
+      y: Math.min(Math.max(safeMinY, y), safeMaxY),
     };
   };
+
+  useEffect(() => {
+    if (!isOpen || !assistantPosition) {
+      return;
+    }
+
+    setAssistantPosition((currentPosition) =>
+      currentPosition
+        ? clampAssistantPosition(currentPosition.x, currentPosition.y)
+        : currentPosition,
+    );
+  }, [isOpen]);
 
   const startAssistantDrag = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.button !== 0 || !assistantRef.current) {
@@ -692,19 +726,24 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
             <span className="assistant-avatar" aria-hidden="true">
               SK
             </span>
-            <div>
-              <h2>Portfolio Assistant</h2>
-              <p>Ask anything about the portfolio.</p>
+            <div className="assistant-title">
+              <h2>Sai Bot</h2>
+              <p>Portfolio guide</p>
             </div>
           </div>
-          <button
-            className="assistant-close"
-            type="button"
-            aria-label="Close assistant"
-            onClick={() => setIsOpen(false)}
-          >
-            x
-          </button>
+          <div className="assistant-header-actions">
+            <button className="assistant-clear" type="button" onClick={clearAssistantChat}>
+              Clear
+            </button>
+            <button
+              className="assistant-close"
+              type="button"
+              aria-label="Close assistant"
+              onClick={() => setIsOpen(false)}
+            >
+              x
+            </button>
+          </div>
         </div>
 
         <div className="assistant-body">
