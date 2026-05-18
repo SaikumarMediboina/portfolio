@@ -658,6 +658,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
         top: assistantPosition.y,
       }
     : undefined;
+  const shouldShowQuickPrompts = messages.length === 1;
 
   return (
     <div
@@ -693,7 +694,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
             </span>
             <div>
               <h2>Portfolio Assistant</h2>
-              <p>Ask about blogs, projects, or Sai's tech stack.</p>
+              <p>Ask anything about the portfolio.</p>
             </div>
           </div>
           <button
@@ -710,11 +711,6 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
           <div className="assistant-messages" ref={messagesRef}>
             {messages.map((message) => (
               <article className={`assistant-message is-${message.role}`} key={message.id}>
-                {message.role === "assistant" ? (
-                  <span className="assistant-message-avatar" aria-hidden="true">
-                    SK
-                  </span>
-                ) : null}
                 <div className="assistant-message-bubble">
                   <p>{message.text}</p>
                   {message.links?.length ? (
@@ -741,13 +737,15 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
             ))}
           </div>
 
-          <div className="assistant-prompts" aria-label="Suggested assistant prompts">
-            {quickPrompts.map((prompt) => (
-              <button type="button" key={prompt} onClick={() => sendAssistantMessage(prompt)}>
-                {prompt}
-              </button>
-            ))}
-          </div>
+          {shouldShowQuickPrompts ? (
+            <div className="assistant-prompts" aria-label="Suggested assistant prompts">
+              {quickPrompts.map((prompt) => (
+                <button type="button" key={prompt} onClick={() => sendAssistantMessage(prompt)}>
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <form className="assistant-form" onSubmit={handleSubmit}>
