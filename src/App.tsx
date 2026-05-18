@@ -587,6 +587,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
 
     const margin = 12;
     const panelGap = 12;
+    const topSafeArea = 32;
     const launcherSize = assistantRef.current?.getBoundingClientRect().width || 64;
     const panel = assistantRef.current?.querySelector<HTMLElement>(".assistant-panel");
     const panelRect = panel?.getBoundingClientRect();
@@ -594,7 +595,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
       isOpen && panelRect ? Math.max(margin, panelRect.width - launcherSize + margin) : margin;
     const minY =
       isOpen && panelRect
-        ? Math.max(margin, panelRect.height + panelGap + margin)
+        ? Math.max(margin, panelRect.height + panelGap + topSafeArea)
         : margin;
     const maxX = window.innerWidth - launcherSize - margin;
     const maxY = window.innerHeight - launcherSize - margin;
