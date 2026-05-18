@@ -1771,6 +1771,20 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
             </p>
           </div>
 
+          <div className="dashboard-email-callout">
+            <div>
+              <span>Content updates</span>
+              <h2>Get the signal without refreshing the dashboard.</h2>
+              <p>
+                Subscribe once and useful engineering notes, dashboard additions, and portfolio
+                updates land in your inbox only when there is something worth opening.
+              </p>
+            </div>
+            <a className="button button-primary" href="/signin">
+              Get updates
+            </a>
+          </div>
+
           <div className="dashboard-stat-grid" aria-label="Dashboard summary">
             <article className="dashboard-stat-card">
               <ReaderMenuGlyph type="pen" />
