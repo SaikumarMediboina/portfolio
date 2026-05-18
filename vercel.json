@@ -9,6 +9,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/saved-posts",
+      "destination": "/index.html"
+    },
+    {
       "source": "/admin-update",
       "destination": "/index.html"
     }

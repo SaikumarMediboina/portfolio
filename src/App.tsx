@@ -133,12 +133,28 @@ function isSignInPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/signin";
 }
 
+function isSavedPostsPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/saved-posts";
+}
+
 function getSignInReturnBlogSlug() {
   if (typeof window === "undefined") {
     return "";
   }
 
   return new URLSearchParams(window.location.search).get("blog") ?? "";
+}
+
+function getSignInReturnTarget() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return new URLSearchParams(window.location.search).get("return") ?? "";
 }
 
 function isAdminUpdatePathname() {
@@ -155,6 +171,10 @@ function getBlogArticleHref(slug: string) {
 
 function getSignInHref(slug?: string) {
   return slug ? `/signin?blog=${encodeURIComponent(slug)}` : "/signin";
+}
+
+function getSavedPostsSignInHref() {
+  return "/signin?return=saved-posts";
 }
 
 function getBlogAnchorId(slug: string) {
@@ -991,25 +1011,21 @@ function SavePostButton({
 type ReaderMenuProps = {
   isOpen: boolean;
   savedPosts: BlogPost[];
-  savedPostsBusySlug: string;
   subscriberName: string;
   onClose: () => void;
-  onToggleSavedPost: (post: BlogPost) => void;
 };
 
 function ReaderMenu({
   isOpen,
   savedPosts,
-  savedPostsBusySlug,
   subscriberName,
   onClose,
-  onToggleSavedPost,
 }: ReaderMenuProps) {
   const readerLinks = [
     { href: "#top", icon: "home" as const, label: "Home" },
     { href: "#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "#blogs", icon: "pen" as const, label: "Blogs" },
-    { href: "#reader-saved-posts", icon: "bookmark" as const, label: "Saved Posts" },
+    { href: "/saved-posts", icon: "bookmark" as const, label: "Saved Posts" },
     { href: "#about", icon: "about" as const, label: "About" },
     { href: "#contact", icon: "mail" as const, label: "Contact" },
   ];
@@ -1039,55 +1055,13 @@ function ReaderMenu({
             <a
               href={link.href}
               key={link.href}
-              onClick={() => {
-                if (link.href !== "#reader-saved-posts") {
-                  onClose();
-                }
-              }}
+              onClick={onClose}
             >
               <ReaderMenuGlyph type={link.icon} />
               <span>{link.label}</span>
             </a>
           ))}
         </nav>
-
-        <section className="reader-saved-posts" id="reader-saved-posts">
-          <div className="reader-saved-heading">
-            <p className="impact-label">Saved Posts</p>
-            <span>{savedPosts.length}</span>
-          </div>
-
-          {savedPosts.length ? (
-            <div className="reader-saved-list">
-              {savedPosts.map((post) => (
-                <article className="reader-saved-item" key={post.slug}>
-                  <div>
-                    <h3>{post.title}</h3>
-                    <p>
-                      {post.category} | {post.readTime}
-                    </p>
-                  </div>
-                  <div className="reader-saved-actions">
-                    <a href={getBlogArticleHref(post.slug)} target="_blank" rel="opener">
-                      Read
-                    </a>
-                    <button
-                      type="button"
-                      disabled={savedPostsBusySlug === post.slug}
-                      onClick={() => onToggleSavedPost(post)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="reader-saved-empty">
-              Save useful articles from the blog section and they will appear here.
-            </p>
-          )}
-        </section>
       </aside>
     </div>
   );
@@ -1491,8 +1465,166 @@ function BlogArticlePage({
   );
 }
 
+type SavedPostsPageProps = {
+  authReady: boolean;
+  savedPosts: BlogPost[];
+  savedPostsBusySlug: string;
+  subscriberUser: User | null;
+  subscriptionError: string;
+  subscriptionMessage: string;
+  theme: Theme;
+  onToggleSavedPost: (post: BlogPost) => void;
+  onThemeToggle: () => void;
+};
+
+function SavedPostsPage({
+  authReady,
+  savedPosts,
+  savedPostsBusySlug,
+  subscriberUser,
+  subscriptionError,
+  subscriptionMessage,
+  theme,
+  onToggleSavedPost,
+  onThemeToggle,
+}: SavedPostsPageProps) {
+  const savedPostCount = savedPosts.length;
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to saved posts
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/#top">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Saved reading shelf</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/#blogs">
+              Back to portfolio
+            </a>
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="saved-posts-page shell" id="main-content">
+        <section className="saved-posts-panel">
+          <div className="saved-posts-hero">
+            <p className="eyebrow">Saved Posts</p>
+            <h1>Your private reading shelf, minus the dust.</h1>
+            <p>
+              Articles you save from the blog section appear here in a clean list, so useful
+              engineering notes are easy to reopen when the coffee is ready.
+            </p>
+            {subscriberUser ? (
+              <div className="saved-posts-count" aria-label={`${savedPostCount} saved posts`}>
+                <strong>{savedPostCount}</strong>
+                <span>{savedPostCount === 1 ? "saved post" : "saved posts"}</span>
+              </div>
+            ) : null}
+          </div>
+
+          {subscriptionMessage ? (
+            <p className="status-message is-success">{subscriptionMessage}</p>
+          ) : null}
+          {subscriptionError ? <p className="status-message is-error">{subscriptionError}</p> : null}
+
+          {!authReady ? (
+            <div className="saved-posts-empty">
+              <ReaderMenuGlyph type="bookmark" />
+              <h2>Checking your reader shelf.</h2>
+              <p>The bookmarks are putting on their shoes. One second.</p>
+            </div>
+          ) : !subscriberUser ? (
+            <div className="saved-posts-empty">
+              <ReaderMenuGlyph type="bookmark" />
+              <h2>Sign in to open your saved-posts shelf.</h2>
+              <p>
+                Your private list lives behind sign-in, so bookmarks do not wander off into the
+                internet wearing someone else&apos;s jacket.
+              </p>
+              <a className="button button-primary" href={getSavedPostsSignInHref()}>
+                Sign in to view saved posts
+              </a>
+            </div>
+          ) : savedPosts.length ? (
+            <div className="saved-posts-list" aria-label="Saved blog posts">
+              {savedPosts.map((post, index) => (
+                <article className="saved-posts-item" key={post.slug}>
+                  <span className="saved-posts-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div className="saved-posts-copy">
+                    <div className="blog-meta">
+                      <span>{post.category}</span>
+                      <span>{post.publishedAt}</span>
+                      <span>{post.readTime}</span>
+                    </div>
+                    <h2>{post.title}</h2>
+                    <p>{post.summary}</p>
+                  </div>
+                  <div className="saved-posts-actions">
+                    <a
+                      className="button button-primary"
+                      href={getBlogArticleHref(post.slug)}
+                      target="_blank"
+                      rel="opener"
+                    >
+                      Read article
+                    </a>
+                    <button
+                      className="button button-secondary"
+                      type="button"
+                      disabled={savedPostsBusySlug === post.slug}
+                      onClick={() => onToggleSavedPost(post)}
+                    >
+                      {savedPostsBusySlug === post.slug ? "Removing..." : "Remove"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="saved-posts-empty">
+              <ReaderMenuGlyph type="bookmark" />
+              <h2>Your saved shelf is impressively empty.</h2>
+              <p>
+                Go rescue one sharp engineering note from the blog section, and this quiet little
+                shelf will instantly look productive.
+              </p>
+              <a className="button button-primary" href="/#blogs">
+                Browse blogs
+              </a>
+            </div>
+          )}
+        </section>
+      </main>
+    </>
+  );
+}
+
 type SignInPageProps = SubscriptionAccessCardProps & {
   portfolioReturnBlogSlug?: string;
+  shouldReturnToSavedPosts?: boolean;
   subscriberView: SubscriberViewState;
   theme: Theme;
   onThemeToggle: () => void;
@@ -1500,6 +1632,7 @@ type SignInPageProps = SubscriptionAccessCardProps & {
 
 function SignInPage({
   portfolioReturnBlogSlug,
+  shouldReturnToSavedPosts,
   subscriberName,
   subscriberView,
   theme,
@@ -1582,6 +1715,10 @@ function SignInPage({
               >
                 Back to portfolio
               </button>
+            ) : shouldReturnToSavedPosts ? (
+              <a className="button button-secondary" href="/saved-posts">
+                Back to saved posts
+              </a>
             ) : (
               <a className="button button-secondary" href="/#top">
                 Back to portfolio
@@ -1826,7 +1963,9 @@ function App() {
   const orderedBlogPosts = orderBlogPostsForAccess(visibleBlogPosts);
   const featuredBlog = orderedBlogPosts[0];
   const remainingBlogPosts = orderedBlogPosts.slice(1);
-  const savedPosts = blogPosts.filter((post) => savedPostSlugs.includes(post.slug));
+  const savedPosts = savedPostSlugs
+    .map((slug) => blogPosts.find((post) => post.slug === slug))
+    .filter((post): post is BlogPost => Boolean(post));
   const featuredBlogIsLocked = Boolean(
     featuredBlog && !canReadBlogPost(featuredBlog, subscriberUser),
   );
@@ -1842,8 +1981,10 @@ function App() {
   );
   const standaloneBlogAccessChecking = Boolean(standaloneBlogNeedsAuth && !authReady);
   const isSignInPage = isSignInPathname();
+  const isSavedPostsPage = isSavedPostsPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
   const signInReturnBlogSlug = getSignInReturnBlogSlug();
+  const signInReturnTarget = getSignInReturnTarget();
   const signInReturnBlog = signInReturnBlogSlug
     ? blogPosts.find((post) => post.slug === signInReturnBlogSlug)
     : undefined;
@@ -2050,6 +2191,10 @@ function App() {
               : "You are signed in. Subscribe when you want updates in your inbox.",
           );
           setSubscriptionError("");
+
+          if (getSignInReturnTarget() === "saved-posts") {
+            window.location.href = "/saved-posts";
+          }
         }
       })
       .catch((error) => {
@@ -2108,6 +2253,10 @@ function App() {
           ? "Welcome back. Your subscription is active."
           : "You are signed in. Subscribe when you want updates in your inbox.",
       );
+
+      if (getSignInReturnTarget() === "saved-posts") {
+        window.location.href = "/saved-posts";
+      }
     } catch (error) {
       if (shouldUseRedirectSignIn(error)) {
         setSubscriptionMessage("Redirecting to Google sign-in...");
@@ -2242,12 +2391,29 @@ function App() {
     );
   }
 
+  if (isSavedPostsPage) {
+    return (
+      <SavedPostsPage
+        authReady={authReady}
+        savedPosts={savedPosts}
+        savedPostsBusySlug={savedPostsBusySlug}
+        subscriberUser={subscriberUser}
+        subscriptionError={subscriptionError}
+        subscriptionMessage={subscriptionMessage}
+        theme={theme}
+        onToggleSavedPost={handleToggleSavedPost}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
+    );
+  }
+
   if (isSignInPage) {
     return (
       <SignInPage
         canUseSubscriptions={canUseSubscriptions}
         isSubscribed={isSubscribed}
         portfolioReturnBlogSlug={signInReturnBlog?.slug}
+        shouldReturnToSavedPosts={signInReturnTarget === "saved-posts"}
         subscriberEmail={subscriberEmail}
         subscriberInitial={subscriberInitial}
         subscriberName={subscriberName}
@@ -2380,10 +2546,8 @@ function App() {
         <ReaderMenu
           isOpen={readerMenuOpen}
           savedPosts={savedPosts}
-          savedPostsBusySlug={savedPostsBusySlug}
           subscriberName={subscriberName}
           onClose={() => setReaderMenuOpen(false)}
-          onToggleSavedPost={handleToggleSavedPost}
         />
       ) : null}
 
