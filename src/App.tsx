@@ -1,4 +1,12 @@
-import { startTransition, useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  startTransition,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { User } from "firebase/auth";
 import {
   getRedirectResult,
@@ -488,17 +496,30 @@ type SiteAssistantProps = {
 function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [messages, setMessages] = useState<AssistantMessage[]>([
     {
       id: 1,
       role: "assistant",
-      text: "Hi, I am the portfolio assistant. Ask me about Sai's projects, blogs, tech stack, performance work, or how to subscribe.",
+      text: "Hey, I am Sai's portfolio assistant. I can help you find projects, blogs, tech stack details, and contact links.",
       links: [
         { href: "#work", label: "Projects" },
         { href: "#blogs", label: "Blogs" },
       ],
     },
   ]);
+  const assistantRef = useRef<HTMLDivElement | null>(null);
+  const assistantDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
+  const assistantMovedRef = useRef(false);
+  const suppressAssistantClickRef = useRef(false);
   const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const quickPrompts = [
@@ -550,26 +571,130 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     sendAssistantMessage(input);
   };
 
+  const clampAssistantPosition = (x: number, y: number) => {
+    if (typeof window === "undefined") {
+      return { x, y };
+    }
+
+    const margin = 12;
+    const launcherSize = assistantRef.current?.getBoundingClientRect().width || 64;
+    const maxX = window.innerWidth - launcherSize - margin;
+    const maxY = window.innerHeight - launcherSize - margin;
+
+    return {
+      x: Math.min(Math.max(margin, x), Math.max(margin, maxX)),
+      y: Math.min(Math.max(margin, y), Math.max(margin, maxY)),
+    };
+  };
+
+  const startAssistantDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    if (event.button !== 0 || !assistantRef.current) {
+      return;
+    }
+
+    const rect = assistantRef.current.getBoundingClientRect();
+
+    assistantDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: rect.left,
+      originY: rect.top,
+    };
+    assistantMovedRef.current = false;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const moveAssistant = (event: ReactPointerEvent<HTMLElement>) => {
+    const dragState = assistantDragRef.current;
+
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const deltaX = event.clientX - dragState.startX;
+    const deltaY = event.clientY - dragState.startY;
+
+    if (Math.abs(deltaX) + Math.abs(deltaY) > 4) {
+      assistantMovedRef.current = true;
+    }
+
+    setAssistantPosition(
+      clampAssistantPosition(dragState.originX + deltaX, dragState.originY + deltaY),
+    );
+  };
+
+  const stopAssistantDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    const dragState = assistantDragRef.current;
+
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (assistantMovedRef.current) {
+      suppressAssistantClickRef.current = true;
+    }
+
+    assistantDragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  const toggleAssistant = () => {
+    if (suppressAssistantClickRef.current) {
+      suppressAssistantClickRef.current = false;
+      return;
+    }
+
+    setIsOpen((open) => !open);
+  };
+
+  const assistantStyle: CSSProperties | undefined = assistantPosition
+    ? {
+        bottom: "auto",
+        left: assistantPosition.x,
+        right: "auto",
+        top: assistantPosition.y,
+      }
+    : undefined;
+
   return (
-    <div className={`site-assistant${isOpen ? " is-open" : ""}`}>
+    <div
+      className={`site-assistant${isOpen ? " is-open" : ""}`}
+      ref={assistantRef}
+      style={assistantStyle}
+    >
       <button
         className="assistant-launcher"
         type="button"
         aria-expanded={isOpen}
         aria-label={isOpen ? "Close portfolio assistant" : "Open portfolio assistant"}
-        onClick={() => setIsOpen((open) => !open)}
+        onClick={toggleAssistant}
+        onPointerCancel={stopAssistantDrag}
+        onPointerDown={startAssistantDrag}
+        onPointerMove={moveAssistant}
+        onPointerUp={stopAssistantDrag}
       >
         <AssistantChatIcon />
       </button>
 
       <section className="assistant-panel" aria-label="Portfolio assistant">
         <div className="assistant-header">
-          <span className="assistant-avatar" aria-hidden="true">
-            SK
-          </span>
-          <div>
-            <h2>Portfolio Assistant</h2>
-            <p>Ask about the site, blogs, projects, or Sai's tech stack.</p>
+          <div
+            className="assistant-drag-region"
+            onPointerCancel={stopAssistantDrag}
+            onPointerDown={startAssistantDrag}
+            onPointerMove={moveAssistant}
+            onPointerUp={stopAssistantDrag}
+          >
+            <span className="assistant-avatar" aria-hidden="true">
+              SK
+            </span>
+            <div>
+              <h2>Portfolio Assistant</h2>
+              <p>Ask about blogs, projects, or Sai's tech stack.</p>
+            </div>
           </div>
           <button
             className="assistant-close"
