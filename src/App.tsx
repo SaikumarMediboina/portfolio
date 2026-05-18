@@ -332,6 +332,39 @@ function BlogLockIcon() {
   );
 }
 
+function AssistantChatIcon() {
+  return (
+    <svg className="assistant-chat-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M7.2 18.4 4 20l1-3.2A7.3 7.3 0 0 1 4 13.1C4 8.7 7.7 5.2 12.2 5.2s8.2 3.5 8.2 7.9-3.7 7.9-8.2 7.9a8.7 8.7 0 0 1-5-1.6Z"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.9 12.9h.1M12.2 12.9h.1M15.5 12.9h.1"
+        stroke="currentColor"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function AssistantSendIcon() {
+  return (
+    <svg className="assistant-send-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="m5 12 14-7-5 14-2.6-5.4L5 12Z"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinejoin="round"
+      />
+      <path d="m11.4 13.6 3.2-3.2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function BlogLockNote() {
   return (
     <p className="blog-lock-note">
@@ -526,14 +559,17 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
         aria-label={isOpen ? "Close portfolio assistant" : "Open portfolio assistant"}
         onClick={() => setIsOpen((open) => !open)}
       >
-        <span aria-hidden="true">AI</span>
+        <AssistantChatIcon />
       </button>
 
       <section className="assistant-panel" aria-label="Portfolio assistant">
         <div className="assistant-header">
+          <span className="assistant-avatar" aria-hidden="true">
+            SK
+          </span>
           <div>
-            <p className="impact-label">Portfolio Assistant</p>
-            <h2>Ask about the site.</h2>
+            <h2>Portfolio Assistant</h2>
+            <p>Ask about the site, blogs, projects, or Sai's tech stack.</p>
           </div>
           <button
             className="assistant-close"
@@ -545,50 +581,61 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
           </button>
         </div>
 
-        <div className="assistant-messages" ref={messagesRef}>
-          {messages.map((message) => (
-            <article className={`assistant-message is-${message.role}`} key={message.id}>
-              <p>{message.text}</p>
-              {message.links?.length ? (
-                <div className="assistant-links">
-                  {message.links.map((link) => (
-                    <a
-                      href={link.href}
-                      key={`${message.id}-${link.label}`}
-                      target={link.external ? "_blank" : undefined}
-                      rel={link.external ? "opener" : undefined}
-                      onClick={() => {
-                        if (!link.external) {
-                          setIsOpen(false);
-                        }
-                      }}
-                    >
-                      {link.label}
-                    </a>
-                  ))}
+        <div className="assistant-body">
+          <div className="assistant-messages" ref={messagesRef}>
+            {messages.map((message) => (
+              <article className={`assistant-message is-${message.role}`} key={message.id}>
+                {message.role === "assistant" ? (
+                  <span className="assistant-message-avatar" aria-hidden="true">
+                    SK
+                  </span>
+                ) : null}
+                <div className="assistant-message-bubble">
+                  <p>{message.text}</p>
+                  {message.links?.length ? (
+                    <div className="assistant-links">
+                      {message.links.map((link) => (
+                        <a
+                          href={link.href}
+                          key={`${message.id}-${link.label}`}
+                          target={link.external ? "_blank" : undefined}
+                          rel={link.external ? "opener" : undefined}
+                          onClick={() => {
+                            if (!link.external) {
+                              setIsOpen(false);
+                            }
+                          }}
+                        >
+                          {link.label}
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
 
-        <div className="assistant-prompts" aria-label="Suggested assistant prompts">
-          {quickPrompts.map((prompt) => (
-            <button type="button" key={prompt} onClick={() => sendAssistantMessage(prompt)}>
-              {prompt}
-            </button>
-          ))}
+          <div className="assistant-prompts" aria-label="Suggested assistant prompts">
+            {quickPrompts.map((prompt) => (
+              <button type="button" key={prompt} onClick={() => sendAssistantMessage(prompt)}>
+                {prompt}
+              </button>
+            ))}
+          </div>
         </div>
 
         <form className="assistant-form" onSubmit={handleSubmit}>
           <input
             type="text"
             value={input}
-            placeholder="Ask about blogs, projects, stack..."
+            placeholder="Search posts or ask a question..."
             aria-label="Ask the portfolio assistant"
             onChange={(event) => setInput(event.target.value)}
           />
-          <button type="submit">Send</button>
+          <button type="submit" aria-label="Send assistant message">
+            <AssistantSendIcon />
+          </button>
         </form>
       </section>
     </div>
