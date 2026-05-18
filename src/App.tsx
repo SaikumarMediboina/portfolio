@@ -60,6 +60,23 @@ type SubscriberViewState =
 
 const THEME_STORAGE_KEY = "portfolio-theme";
 const ALL_BLOG_CATEGORIES = "All";
+const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
+const LOCKED_BLOG_CAPTION =
+  "This one is behind the velvet rope. Sign in and the article behaves.";
+
+function canReadBlogPost(post: BlogPost | undefined, user: User | null) {
+  return Boolean(post && (post.slug === PUBLIC_BLOG_SLUG || user));
+}
+
+function orderBlogPostsForAccess(posts: BlogPost[]) {
+  const publicPost = posts.find((post) => post.slug === PUBLIC_BLOG_SLUG);
+
+  if (!publicPost) {
+    return posts;
+  }
+
+  return [publicPost, ...posts.filter((post) => post.slug !== PUBLIC_BLOG_SLUG)];
+}
 
 function getBlogSlugFromPathname() {
   if (typeof window === "undefined") {
@@ -262,6 +279,45 @@ function ThemeToggleIcon({ theme }: { theme: Theme }) {
   );
 }
 
+function BlogLockIcon() {
+  return (
+    <svg className="blog-lock-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect
+        x="5.5"
+        y="10"
+        width="13"
+        height="9.5"
+        rx="2.4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M8.5 10V7.7C8.5 5.8 10.1 4.3 12 4.3s3.5 1.5 3.5 3.4V10"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12 14.1v1.8"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function BlogLockNote() {
+  return (
+    <p className="blog-lock-note">
+      <span className="blog-lock-icon" aria-hidden="true">
+        <BlogLockIcon />
+      </span>
+      <span>{LOCKED_BLOG_CAPTION}</span>
+    </p>
+  );
+}
+
 type BlogArticleBodyProps = {
   post: BlogPost;
 };
@@ -418,11 +474,19 @@ function SubscriptionAccessCard({
 
 type BlogArticlePageProps = {
   post?: BlogPost;
+  isAccessChecking: boolean;
+  isLocked: boolean;
   theme: Theme;
   onThemeToggle: () => void;
 };
 
-function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
+function BlogArticlePage({
+  post,
+  isAccessChecking,
+  isLocked,
+  theme,
+  onThemeToggle,
+}: BlogArticlePageProps) {
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -464,7 +528,44 @@ function BlogArticlePage({ post, theme, onThemeToggle }: BlogArticlePageProps) {
       </header>
 
       <main className="article-page shell" id="main-content">
-        {post ? (
+        {post && isAccessChecking ? (
+          <section className="standalone-blog standalone-blog-empty standalone-blog-locked">
+            <p className="eyebrow">Checking access</p>
+            <div className="standalone-lock-headline">
+              <span className="blog-lock-icon" aria-hidden="true">
+                <BlogLockIcon />
+              </span>
+              <h1>Giving the lock one second to check your reader badge.</h1>
+            </div>
+            <p>
+              If you are already signed in, the article will open as soon as your session is
+              confirmed.
+            </p>
+            <a className="button button-secondary" href="/signin">
+              Open sign in
+            </a>
+          </section>
+        ) : post && isLocked ? (
+          <section className="standalone-blog standalone-blog-empty standalone-blog-locked">
+            <p className="eyebrow">Locked Article</p>
+            <div className="standalone-lock-headline">
+              <span className="blog-lock-icon" aria-hidden="true">
+                <BlogLockIcon />
+              </span>
+              <h1>{post.title}</h1>
+            </div>
+            <div className="blog-meta">
+              <span>{post.category}</span>
+              <span>{post.publishedAt}</span>
+              <span>{post.readTime}</span>
+            </div>
+            <p>{post.summary}</p>
+            <BlogLockNote />
+            <a className="button button-primary" href="/signin">
+              Sign in to unlock
+            </a>
+          </section>
+        ) : post ? (
           <article className="standalone-blog">
             <div className="standalone-blog-hero">
               <p className="eyebrow">Standalone Article</p>
@@ -794,6 +895,7 @@ function App() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
   const [subscriberUser, setSubscriberUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(!auth);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriberView, setSubscriberView] = useState<SubscriberViewState>("guest");
   const [subscriptionBusy, setSubscriptionBusy] = useState(false);
@@ -811,12 +913,23 @@ function App() {
     selectedBlogCategory === ALL_BLOG_CATEGORIES
       ? blogPosts
       : blogPosts.filter((post) => post.category === selectedBlogCategory);
-  const featuredBlog = visibleBlogPosts[0];
-  const remainingBlogPosts = visibleBlogPosts.slice(1);
+  const orderedBlogPosts = orderBlogPostsForAccess(visibleBlogPosts);
+  const featuredBlog = orderedBlogPosts[0];
+  const remainingBlogPosts = orderedBlogPosts.slice(1);
+  const featuredBlogIsLocked = Boolean(
+    featuredBlog && !canReadBlogPost(featuredBlog, subscriberUser),
+  );
   const standaloneBlogSlug = getBlogSlugFromPathname();
   const standaloneBlog = standaloneBlogSlug
     ? blogPosts.find((post) => post.slug === standaloneBlogSlug)
     : undefined;
+  const standaloneBlogNeedsAuth = Boolean(
+    standaloneBlog && standaloneBlog.slug !== PUBLIC_BLOG_SLUG,
+  );
+  const standaloneBlogIsLocked = Boolean(
+    standaloneBlogNeedsAuth && authReady && !canReadBlogPost(standaloneBlog, subscriberUser),
+  );
+  const standaloneBlogAccessChecking = Boolean(standaloneBlogNeedsAuth && !authReady);
   const isSignInPage = isSignInPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
   const canUseSubscriptions = isFirebaseConfigured && Boolean(auth && googleProvider);
@@ -896,6 +1009,7 @@ function App() {
       }
 
       setSubscriberUser(user);
+      setAuthReady(true);
       setSubscriptionError("");
 
       if (!user) {
@@ -1099,6 +1213,8 @@ function App() {
     return (
       <BlogArticlePage
         post={standaloneBlog}
+        isAccessChecking={standaloneBlogAccessChecking}
+        isLocked={standaloneBlogIsLocked}
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />
@@ -1467,38 +1583,57 @@ function App() {
 
           <div className="blog-index">
             {featuredBlog ? (
-              <article className="blog-featured" id={getBlogAnchorId(featuredBlog.slug)}>
+              <article
+                className={`blog-featured${featuredBlogIsLocked ? " is-locked" : ""}`}
+                id={getBlogAnchorId(featuredBlog.slug)}
+              >
                 <div className="blog-featured-copy">
-                  <p className="eyebrow">Featured Article</p>
+                  <p className="eyebrow">
+                    {featuredBlogIsLocked ? "Locked Article" : "Featured Article"}
+                  </p>
                   <div className="blog-meta">
                     <span>{featuredBlog.category}</span>
                     <span>{featuredBlog.publishedAt}</span>
                     <span>{featuredBlog.readTime}</span>
                   </div>
                   <h3>
+                    {featuredBlogIsLocked ? (
+                      <span>{featuredBlog.title}</span>
+                    ) : (
+                      <a
+                        href={getBlogArticleHref(featuredBlog.slug)}
+                        target="_blank"
+                        rel="opener"
+                      >
+                        {featuredBlog.title}
+                      </a>
+                    )}
+                  </h3>
+                  <p>{featuredBlog.summary}</p>
+                  {featuredBlogIsLocked ? (
+                    <BlogLockNote />
+                  ) : (
+                    <ul className="bullet-list">
+                      {featuredBlog.takeaways.map((takeaway) => (
+                        <li key={takeaway}>{takeaway}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {featuredBlogIsLocked ? (
+                    <a className="blog-featured-link" href="/signin">
+                      Sign in to unlock
+                    </a>
+                  ) : (
                     <a
+                      className="blog-featured-link"
                       href={getBlogArticleHref(featuredBlog.slug)}
                       target="_blank"
                       rel="opener"
+                      aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
                     >
-                      {featuredBlog.title}
+                      Read full post
                     </a>
-                  </h3>
-                  <p>{featuredBlog.summary}</p>
-                  <ul className="bullet-list">
-                    {featuredBlog.takeaways.map((takeaway) => (
-                      <li key={takeaway}>{takeaway}</li>
-                    ))}
-                  </ul>
-                  <a
-                    className="blog-featured-link"
-                    href={getBlogArticleHref(featuredBlog.slug)}
-                    target="_blank"
-                    rel="opener"
-                    aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
-                  >
-                    Read full post
-                  </a>
+                  )}
                 </div>
 
                 <aside className="blog-featured-aside" aria-label="Featured article metrics">
@@ -1521,41 +1656,58 @@ function App() {
 
             {remainingBlogPosts.length > 0 ? (
               <div className="blog-list" aria-label="Latest blog articles">
-                {remainingBlogPosts.map((post, index) => (
-                  <article
-                    className="blog-list-item"
-                    id={getBlogAnchorId(post.slug)}
-                    key={post.slug}
-                  >
-                    <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
-                    <div className="blog-list-copy">
-                      <div className="blog-meta">
-                        <span>{post.category}</span>
-                        <span>{post.publishedAt}</span>
-                        <span>{post.readTime}</span>
+                {remainingBlogPosts.map((post, index) => {
+                  const isLocked = !canReadBlogPost(post, subscriberUser);
+
+                  return (
+                    <article
+                      className={`blog-list-item${isLocked ? " is-locked" : ""}`}
+                      id={getBlogAnchorId(post.slug)}
+                      key={post.slug}
+                    >
+                      <span className="blog-list-number">
+                        {String(index + 2).padStart(2, "0")}
+                      </span>
+                      <div className="blog-list-copy">
+                        <div className="blog-meta">
+                          <span>{post.category}</span>
+                          <span>{post.publishedAt}</span>
+                          <span>{post.readTime}</span>
+                        </div>
+                        <h3>
+                          {isLocked ? (
+                            <span>{post.title}</span>
+                          ) : (
+                            <a
+                              href={getBlogArticleHref(post.slug)}
+                              target="_blank"
+                              rel="opener"
+                            >
+                              {post.title}
+                            </a>
+                          )}
+                        </h3>
+                        <p>{post.summary}</p>
+                        {isLocked ? <BlogLockNote /> : null}
                       </div>
-                      <h3>
+                      {isLocked ? (
+                        <a className="blog-list-link" href="/signin">
+                          Unlock
+                        </a>
+                      ) : (
                         <a
+                          className="blog-list-link"
                           href={getBlogArticleHref(post.slug)}
                           target="_blank"
                           rel="opener"
+                          aria-label={`Read ${post.title}`}
                         >
-                          {post.title}
+                          Read full post
                         </a>
-                      </h3>
-                      <p>{post.summary}</p>
-                    </div>
-                    <a
-                      className="blog-list-link"
-                      href={getBlogArticleHref(post.slug)}
-                      target="_blank"
-                      rel="opener"
-                      aria-label={`Read ${post.title}`}
-                    >
-                      Read full post
-                    </a>
-                  </article>
-                ))}
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             ) : null}
           </div>

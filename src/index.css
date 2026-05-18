@@ -986,6 +986,19 @@ dt {
   margin-top: 0.85rem;
 }
 
+.blog-featured.is-locked,
+.blog-list-item.is-locked,
+.standalone-blog-locked {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--panel-border));
+  background:
+    radial-gradient(circle at top right, var(--accent-soft), transparent 30%),
+    var(--panel);
+}
+
+.blog-featured.is-locked .blog-featured-aside {
+  opacity: 0.76;
+}
+
 .blog-list {
   display: grid;
   gap: 0.8rem;
@@ -1079,6 +1092,36 @@ dt {
 .blog-list-link:hover {
   color: var(--ink-strong);
   text-decoration-color: currentColor;
+}
+
+.blog-lock-note {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  max-width: 46rem;
+  margin-top: 0.9rem;
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.blog-lock-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--chip-border));
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.blog-lock-svg {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 .blog-empty {
@@ -1235,6 +1278,40 @@ dt {
 .standalone-blog-empty .button {
   justify-self: start;
   margin-top: 0.5rem;
+}
+
+.standalone-lock-headline {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.standalone-lock-headline .blog-lock-icon {
+  width: 3rem;
+  height: 3rem;
+  margin-top: 1rem;
+}
+
+.standalone-lock-headline .blog-lock-svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.standalone-lock-headline h1 {
+  max-width: 18ch;
+  margin-top: 0.2rem;
+}
+
+.standalone-blog-locked .blog-meta {
+  margin-top: 0.4rem;
+}
+
+.standalone-blog-locked .blog-lock-note {
+  margin-top: 0.25rem;
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.65;
 }
 
 .signin-page {
@@ -1976,6 +2053,14 @@ section[id] {
   .standalone-blog-empty h1 {
     max-width: 100%;
     font-size: 2.45rem;
+  }
+
+  .standalone-lock-headline {
+    flex-direction: column;
+  }
+
+  .standalone-lock-headline .blog-lock-icon {
+    margin-top: 0;
   }
 
   .footer-shell {
