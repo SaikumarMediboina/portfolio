@@ -1001,13 +1001,17 @@ function App() {
       return;
     }
 
+    const wasSubscribedBeforeSignOut = isSubscribed;
+
     setSubscriptionBusy(true);
 
     try {
       await signOut(auth);
       setSubscriberView("guest");
       setSubscriptionMessage(
-        "You are signed out. Your subscription preference stays saved unless you unsubscribe first.",
+        wasSubscribedBeforeSignOut
+          ? "You are signed out. Your subscription is still active, so the good engineering stuff can still find you."
+          : "You are signed out and off the update list. The inbox is quieter now, but the door stays open whenever curiosity comes back.",
       );
     } catch (error) {
       setSubscriptionError(getSubscriptionErrorMessage(error));
