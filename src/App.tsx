@@ -62,7 +62,7 @@ const THEME_STORAGE_KEY = "portfolio-theme";
 const ALL_BLOG_CATEGORIES = "All";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
 const LOCKED_BLOG_CAPTION =
-  "This one is behind the velvet rope. Sign in and the article behaves.";
+  "This one is in the members-only lab. Sign in and the doors open.";
 
 function canReadBlogPost(post: BlogPost | undefined, user: User | null) {
   return Boolean(post && (post.slug === PUBLIC_BLOG_SLUG || user));
@@ -95,6 +95,14 @@ function isSignInPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/signin";
 }
 
+function getSignInReturnBlogSlug() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return new URLSearchParams(window.location.search).get("blog") ?? "";
+}
+
 function isAdminUpdatePathname() {
   if (typeof window === "undefined") {
     return false;
@@ -105,6 +113,10 @@ function isAdminUpdatePathname() {
 
 function getBlogArticleHref(slug: string) {
   return `/blog/${encodeURIComponent(slug)}`;
+}
+
+function getSignInHref(slug?: string) {
+  return slug ? `/signin?blog=${encodeURIComponent(slug)}` : "/signin";
 }
 
 function getBlogAnchorId(slug: string) {
@@ -541,7 +553,7 @@ function BlogArticlePage({
               If you are already signed in, the article will open as soon as your session is
               confirmed.
             </p>
-            <a className="button button-secondary" href="/signin">
+            <a className="button button-secondary" href={getSignInHref(post.slug)}>
               Open sign in
             </a>
           </section>
@@ -561,7 +573,7 @@ function BlogArticlePage({
             </div>
             <p>{post.summary}</p>
             <BlogLockNote />
-            <a className="button button-primary" href="/signin">
+            <a className="button button-primary" href={getSignInHref(post.slug)}>
               Sign in to unlock
             </a>
           </section>
@@ -599,12 +611,14 @@ function BlogArticlePage({
 }
 
 type SignInPageProps = SubscriptionAccessCardProps & {
+  portfolioReturnHref: string;
   subscriberView: SubscriberViewState;
   theme: Theme;
   onThemeToggle: () => void;
 };
 
 function SignInPage({
+  portfolioReturnHref,
   subscriberName,
   subscriberView,
   theme,
@@ -679,7 +693,7 @@ function SignInPage({
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href="/#top">
+            <a className="button button-secondary" href={portfolioReturnHref}>
               Back to portfolio
             </a>
             <button
@@ -932,6 +946,10 @@ function App() {
   const standaloneBlogAccessChecking = Boolean(standaloneBlogNeedsAuth && !authReady);
   const isSignInPage = isSignInPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
+  const signInReturnBlogSlug = getSignInReturnBlogSlug();
+  const signInReturnBlog = signInReturnBlogSlug
+    ? blogPosts.find((post) => post.slug === signInReturnBlogSlug)
+    : undefined;
   const canUseSubscriptions = isFirebaseConfigured && Boolean(auth && googleProvider);
   const subscriberName = subscriberUser?.displayName ?? "Signed-in reader";
   const subscriberEmail = subscriberUser?.email ?? "Email not shared";
@@ -1226,6 +1244,7 @@ function App() {
       <SignInPage
         canUseSubscriptions={canUseSubscriptions}
         isSubscribed={isSubscribed}
+        portfolioReturnHref={getPortfolioBlogHref(signInReturnBlog?.slug)}
         subscriberEmail={subscriberEmail}
         subscriberInitial={subscriberInitial}
         subscriberName={subscriberName}
@@ -1620,7 +1639,7 @@ function App() {
                     </ul>
                   )}
                   {featuredBlogIsLocked ? (
-                    <a className="blog-featured-link" href="/signin">
+                    <a className="blog-featured-link" href={getSignInHref(featuredBlog.slug)}>
                       Sign in to unlock
                     </a>
                   ) : (
@@ -1691,7 +1710,7 @@ function App() {
                         {isLocked ? <BlogLockNote /> : null}
                       </div>
                       {isLocked ? (
-                        <a className="blog-list-link" href="/signin">
+                        <a className="blog-list-link" href={getSignInHref(post.slug)}>
                           Unlock
                         </a>
                       ) : (
