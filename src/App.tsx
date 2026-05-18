@@ -316,7 +316,7 @@ function SubscriptionAccessCard({
 
           <div className="updates-actions">
             <button
-              className="button button-primary"
+              className="button button-secondary"
               type="button"
               disabled={subscriptionBusy || isSubscribed}
               onClick={onSubscribe}
