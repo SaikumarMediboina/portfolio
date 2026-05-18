@@ -249,10 +249,6 @@ function SubscriptionAccessCard({
     <div className="updates-card">
       <p className="impact-label">Subscriber Access</p>
       <h3>{subscriberUser ? "Subscription preferences" : "Sign in with Google"}</h3>
-      <p>
-        This keeps updates permission-based and avoids collecting passwords or unnecessary
-        personal information.
-      </p>
 
       {!canUseSubscriptions ? (
         <p className="status-message is-warning">
@@ -318,8 +314,8 @@ function SubscriptionAccessCard({
             {subscriptionBusy ? "Opening Google..." : "Sign in with Google"}
           </button>
           <p className="updates-footnote">
-            Google handles authentication securely. This website only stores your subscriber
-            preference.
+            Subscribe to receive selected portfolio and engineering updates. You can unsubscribe
+            at any time.
           </p>
         </>
       )}

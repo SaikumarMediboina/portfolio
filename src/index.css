@@ -1222,9 +1222,9 @@ dt {
   max-width: 720px;
   color: var(--ink-strong);
   font-family: "Outfit", sans-serif;
-  font-size: clamp(2.6rem, 6vw, 5.4rem);
-  line-height: 0.95;
-  letter-spacing: -0.08em;
+  font-size: clamp(2.45rem, 5.2vw, 4.85rem);
+  line-height: 1.04;
+  letter-spacing: -0.045em;
 }
 
 .signin-copy p:not(.eyebrow) {
