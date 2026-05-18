@@ -1376,6 +1376,15 @@ function BlogArticlePage({
           </a>
 
           <div className="article-header-actions">
+            {post && !isAccessChecking && !isLocked ? (
+              <SavePostButton
+                isBusy={savedPostsBusySlug === post.slug}
+                isSaved={isPostSaved(post.slug)}
+                post={post}
+                subscriberUser={subscriberUser}
+                onToggle={onToggleSavedPost}
+              />
+            ) : null}
             <button
               className="button button-secondary"
               type="button"
@@ -2408,6 +2417,10 @@ function App() {
           </div>
 
           <aside className="hero-panel">
+            <figure className="profile-photo-card">
+              <img src="/profile-photo.jpg" alt="Sai Kumar Mediboina" />
+            </figure>
+
             <div className="hero-panel-primary">
               <p className="eyebrow">Profile Snapshot</p>
               <h2>{profile.name}</h2>
