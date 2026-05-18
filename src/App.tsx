@@ -30,7 +30,10 @@ import {
 import { auth, googleProvider, isFirebaseConfigured } from "./lib/firebase";
 import {
   ensureSubscriberProfile,
+  getSavedPostSlugs,
+  saveReaderPost,
   saveSubscriber,
+  unsaveReaderPost,
   unsubscribeSubscriber,
 } from "./lib/subscribers";
 
@@ -401,6 +404,95 @@ function AccountCircleIcon() {
         strokeLinecap="round"
         strokeWidth="1.8"
       />
+    </svg>
+  );
+}
+
+type ReaderMenuGlyphType = "about" | "bookmark" | "briefcase" | "home" | "mail" | "menu" | "pen";
+
+function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
+  const paths = {
+    about: (
+      <>
+        <circle cx="12" cy="7.2" r="3.1" stroke="currentColor" strokeWidth="1.8" />
+        <path
+          d="M5.8 19.5c.9-3.2 3.1-5 6.2-5s5.3 1.8 6.2 5"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.8"
+        />
+      </>
+    ),
+    bookmark: (
+      <path
+        d="M7 4.8h10v15l-5-3.3-5 3.3v-15Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    ),
+    briefcase: (
+      <>
+        <path
+          d="M4.8 8.2h14.4v10H4.8v-10Z"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path d="M9 8.2V6h6v2.2M4.8 12h14.4" stroke="currentColor" strokeWidth="1.8" />
+      </>
+    ),
+    home: (
+      <>
+        <path
+          d="m4.8 11.2 7.2-6 7.2 6"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M7 10.2v8.2h10v-8.2"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+      </>
+    ),
+    mail: (
+      <>
+        <path
+          d="M4.8 7h14.4v10H4.8V7Z"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path d="m5.4 7.6 6.6 5 6.6-5" stroke="currentColor" strokeWidth="1.8" />
+      </>
+    ),
+    menu: (
+      <>
+        <path
+          d="M5 7h14M5 12h14M5 17h14"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.9"
+        />
+      </>
+    ),
+    pen: (
+      <path
+        d="M5.2 18.8 6.4 14 15 5.4a2.2 2.2 0 0 1 3.1 3.1L9.5 17.1l-4.3 1.7Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    ),
+  };
+
+  return (
+    <svg className="reader-menu-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {paths[type]}
     </svg>
   );
 }
@@ -860,6 +952,147 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
   );
 }
 
+type SavePostButtonProps = {
+  isBusy: boolean;
+  isSaved: boolean;
+  onToggle: (post: BlogPost) => void;
+  post: BlogPost;
+  subscriberUser: User | null;
+};
+
+function SavePostButton({
+  isBusy,
+  isSaved,
+  onToggle,
+  post,
+  subscriberUser,
+}: SavePostButtonProps) {
+  if (!subscriberUser) {
+    return (
+      <a className="save-post-button" href={getSignInHref(post.slug)} target="_blank" rel="opener">
+        Sign in to save
+      </a>
+    );
+  }
+
+  return (
+    <button
+      className={`save-post-button${isSaved ? " is-saved" : ""}`}
+      type="button"
+      disabled={isBusy}
+      onClick={() => onToggle(post)}
+    >
+      <ReaderMenuGlyph type="bookmark" />
+      {isBusy ? "Updating..." : isSaved ? "Saved" : "Save post"}
+    </button>
+  );
+}
+
+type ReaderMenuProps = {
+  isOpen: boolean;
+  savedPosts: BlogPost[];
+  savedPostsBusySlug: string;
+  subscriberName: string;
+  onClose: () => void;
+  onToggleSavedPost: (post: BlogPost) => void;
+};
+
+function ReaderMenu({
+  isOpen,
+  savedPosts,
+  savedPostsBusySlug,
+  subscriberName,
+  onClose,
+  onToggleSavedPost,
+}: ReaderMenuProps) {
+  const readerLinks = [
+    { href: "#top", icon: "home" as const, label: "Home" },
+    { href: "#work", icon: "briefcase" as const, label: "Portfolio" },
+    { href: "#blogs", icon: "pen" as const, label: "Blogs" },
+    { href: "#reader-saved-posts", icon: "bookmark" as const, label: "Saved Posts" },
+    { href: "#about", icon: "about" as const, label: "About" },
+    { href: "#contact", icon: "mail" as const, label: "Contact" },
+  ];
+
+  return (
+    <div className={`reader-menu${isOpen ? " is-open" : ""}`} aria-hidden={!isOpen}>
+      <button
+        className="reader-menu-backdrop"
+        type="button"
+        aria-label="Close reader menu"
+        onClick={onClose}
+      />
+      <aside className="reader-menu-panel" aria-label="Reader menu">
+        <div className="reader-menu-heading">
+          <div>
+            <p className="impact-label">Reader Menu</p>
+            <h2>{subscriberName}</h2>
+            <span>{savedPosts.length} saved posts</span>
+          </div>
+          <button className="reader-menu-close" type="button" onClick={onClose}>
+            Close
+          </button>
+        </div>
+
+        <nav className="reader-menu-nav" aria-label="Reader navigation">
+          {readerLinks.map((link) => (
+            <a
+              href={link.href}
+              key={link.href}
+              onClick={() => {
+                if (link.href !== "#reader-saved-posts") {
+                  onClose();
+                }
+              }}
+            >
+              <ReaderMenuGlyph type={link.icon} />
+              <span>{link.label}</span>
+            </a>
+          ))}
+        </nav>
+
+        <section className="reader-saved-posts" id="reader-saved-posts">
+          <div className="reader-saved-heading">
+            <p className="impact-label">Saved Posts</p>
+            <span>{savedPosts.length}</span>
+          </div>
+
+          {savedPosts.length ? (
+            <div className="reader-saved-list">
+              {savedPosts.map((post) => (
+                <article className="reader-saved-item" key={post.slug}>
+                  <div>
+                    <h3>{post.title}</h3>
+                    <p>
+                      {post.category} | {post.readTime}
+                    </p>
+                  </div>
+                  <div className="reader-saved-actions">
+                    <a href={getBlogArticleHref(post.slug)} target="_blank" rel="opener">
+                      Read
+                    </a>
+                    <button
+                      type="button"
+                      disabled={savedPostsBusySlug === post.slug}
+                      onClick={() => onToggleSavedPost(post)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="reader-saved-empty">
+              Save useful articles from the blog section and they will appear here.
+            </p>
+          )}
+        </section>
+      </aside>
+    </div>
+  );
+}
+
 type SubscriptionAccessCardProps = {
   canUseSubscriptions: boolean;
   isSubscribed: boolean;
@@ -1104,7 +1337,11 @@ type BlogArticlePageProps = {
   post?: BlogPost;
   isAccessChecking: boolean;
   isLocked: boolean;
+  isPostSaved: (slug: string) => boolean;
+  savedPostsBusySlug: string;
+  subscriberUser: User | null;
   theme: Theme;
+  onToggleSavedPost: (post: BlogPost) => void;
   onThemeToggle: () => void;
 };
 
@@ -1112,7 +1349,11 @@ function BlogArticlePage({
   post,
   isAccessChecking,
   isLocked,
+  isPostSaved,
+  savedPostsBusySlug,
+  subscriberUser,
   theme,
+  onToggleSavedPost,
   onThemeToggle,
 }: BlogArticlePageProps) {
   return (
@@ -1210,6 +1451,15 @@ function BlogArticlePage({
                 <span>{post.readTime}</span>
               </div>
               <p>{post.summary}</p>
+              <div className="blog-action-row">
+                <SavePostButton
+                  isBusy={savedPostsBusySlug === post.slug}
+                  isSaved={isPostSaved(post.slug)}
+                  post={post}
+                  subscriberUser={subscriberUser}
+                  onToggle={onToggleSavedPost}
+                />
+              </div>
             </div>
 
             <BlogArticleBody post={post} />
@@ -1538,12 +1788,15 @@ function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [readerMenuOpen, setReaderMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [selectedBlogCategory, setSelectedBlogCategory] = useState(ALL_BLOG_CATEGORIES);
   const [subscriberUser, setSubscriberUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(!auth);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [savedPostSlugs, setSavedPostSlugs] = useState<string[]>([]);
+  const [savedPostsBusySlug, setSavedPostsBusySlug] = useState("");
   const [subscriberView, setSubscriberView] = useState<SubscriberViewState>("guest");
   const [subscriptionBusy, setSubscriptionBusy] = useState(false);
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
@@ -1564,6 +1817,7 @@ function App() {
   const orderedBlogPosts = orderBlogPostsForAccess(visibleBlogPosts);
   const featuredBlog = orderedBlogPosts[0];
   const remainingBlogPosts = orderedBlogPosts.slice(1);
+  const savedPosts = blogPosts.filter((post) => savedPostSlugs.includes(post.slug));
   const featuredBlogIsLocked = Boolean(
     featuredBlog && !canReadBlogPost(featuredBlog, subscriberUser),
   );
@@ -1590,6 +1844,7 @@ function App() {
   const subscriberInitial = (subscriberUser?.displayName ?? subscriberUser?.email ?? "S")
     .charAt(0)
     .toUpperCase();
+  const isPostSaved = (slug: string) => savedPostSlugs.includes(slug);
 
   useEffect(() => {
     const sectionIds = ["top", ...navLinks.map((link) => link.id)];
@@ -1663,6 +1918,22 @@ function App() {
   }, [profileMenuOpen]);
 
   useEffect(() => {
+    if (!readerMenuOpen) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setReaderMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [readerMenuOpen]);
+
+  useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
 
@@ -1696,6 +1967,9 @@ function App() {
 
       if (!user) {
         setIsSubscribed(false);
+        setSavedPostSlugs([]);
+        setSavedPostsBusySlug("");
+        setReaderMenuOpen(false);
         setSubscriberView(manualSignOutViewRef.current ?? "guest");
         manualSignOutViewRef.current = null;
         setSubscriptionBusy(false);
@@ -1703,10 +1977,11 @@ function App() {
       }
 
       setSubscriptionBusy(true);
-      ensureSubscriberProfile(user)
-        .then((subscriber) => {
+      Promise.all([ensureSubscriberProfile(user), getSavedPostSlugs(user.uid)])
+        .then(([subscriber, nextSavedPostSlugs]) => {
           if (isMounted) {
             setIsSubscribed(subscriber.subscribed);
+            setSavedPostSlugs(nextSavedPostSlugs);
             setSubscriberView(getSignedInSubscriberView(subscriber));
           }
         })
@@ -1742,11 +2017,15 @@ function App() {
         }
 
         setSubscriptionBusy(true);
-        const subscriber = await ensureSubscriberProfile(result.user);
+        const [subscriber, nextSavedPostSlugs] = await Promise.all([
+          ensureSubscriberProfile(result.user),
+          getSavedPostSlugs(result.user.uid),
+        ]);
 
         if (isMounted) {
           setSubscriberUser(result.user);
           setIsSubscribed(subscriber.subscribed);
+          setSavedPostSlugs(nextSavedPostSlugs);
           setSubscriberView(getSignedInSubscriberView(subscriber));
           setSubscriptionMessage(
             subscriber.subscribed
@@ -1775,6 +2054,7 @@ function App() {
   const closeMenu = () => {
     setMenuOpen(false);
     setProfileMenuOpen(false);
+    setReaderMenuOpen(false);
   };
   const selectBlogCategory = (category: string) => setSelectedBlogCategory(category);
   const clearSubscriptionFeedback = () => {
@@ -1798,9 +2078,13 @@ function App() {
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const subscriber = await ensureSubscriberProfile(result.user);
+      const [subscriber, nextSavedPostSlugs] = await Promise.all([
+        ensureSubscriberProfile(result.user),
+        getSavedPostSlugs(result.user.uid),
+      ]);
       setSubscriberUser(result.user);
       setIsSubscribed(subscriber.subscribed);
+      setSavedPostSlugs(nextSavedPostSlugs);
       setSubscriberView(getSignedInSubscriberView(subscriber));
       setSubscriptionMessage(
         subscriber.subscribed
@@ -1820,6 +2104,35 @@ function App() {
       if (shouldResetBusy) {
         setSubscriptionBusy(false);
       }
+    }
+  };
+
+  const handleToggleSavedPost = async (post: BlogPost) => {
+    clearSubscriptionFeedback();
+
+    if (!subscriberUser) {
+      setSubscriptionMessage("Sign in first, then you can save articles to your reader menu.");
+      return;
+    }
+
+    setSavedPostsBusySlug(post.slug);
+
+    try {
+      if (isPostSaved(post.slug)) {
+        await unsaveReaderPost(subscriberUser.uid, post.slug);
+        setSavedPostSlugs((current) => current.filter((slug) => slug !== post.slug));
+        setSubscriptionMessage("Removed from saved posts.");
+      } else {
+        await saveReaderPost(subscriberUser, post.slug);
+        setSavedPostSlugs((current) =>
+          current.includes(post.slug) ? current : [...current, post.slug],
+        );
+        setSubscriptionMessage("Saved to your reader menu.");
+      }
+    } catch (error) {
+      setSubscriptionError(getSubscriptionErrorMessage(error));
+    } finally {
+      setSavedPostsBusySlug("");
     }
   };
 
@@ -1881,6 +2194,8 @@ function App() {
     try {
       manualSignOutViewRef.current = signedOutView;
       await signOut(auth);
+      setReaderMenuOpen(false);
+      setSavedPostSlugs([]);
       setSubscriberView(signedOutView);
       setSubscriptionMessage(
         wasSubscribedBeforeSignOut
@@ -1900,7 +2215,11 @@ function App() {
         post={standaloneBlog}
         isAccessChecking={standaloneBlogAccessChecking}
         isLocked={standaloneBlogIsLocked}
+        isPostSaved={isPostSaved}
+        savedPostsBusySlug={savedPostsBusySlug}
+        subscriberUser={subscriberUser}
         theme={theme}
+        onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />
     );
@@ -1995,6 +2314,22 @@ function App() {
           </nav>
 
           <div className="header-actions">
+            {subscriberUser ? (
+              <button
+                className="reader-menu-trigger"
+                type="button"
+                aria-expanded={readerMenuOpen}
+                aria-label="Open reader menu"
+                onClick={() => {
+                  setReaderMenuOpen((open) => !open);
+                  setMenuOpen(false);
+                  setProfileMenuOpen(false);
+                }}
+              >
+                <ReaderMenuGlyph type="menu" />
+              </button>
+            ) : null}
+
             <button
               className="theme-toggle"
               type="button"
@@ -2023,6 +2358,17 @@ function App() {
           </div>
         </div>
       </header>
+
+      {subscriberUser ? (
+        <ReaderMenu
+          isOpen={readerMenuOpen}
+          savedPosts={savedPosts}
+          savedPostsBusySlug={savedPostsBusySlug}
+          subscriberName={subscriberName}
+          onClose={() => setReaderMenuOpen(false)}
+          onToggleSavedPost={handleToggleSavedPost}
+        />
+      ) : null}
 
       <main id="main-content">
         <section className="hero shell" id="top">
@@ -2313,15 +2659,24 @@ function App() {
                       Sign in to unlock
                     </a>
                   ) : (
-                    <a
-                      className="blog-featured-link"
-                      href={getBlogArticleHref(featuredBlog.slug)}
-                      target="_blank"
-                      rel="opener"
-                      aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
-                    >
-                      Read full post
-                    </a>
+                    <div className="blog-action-row">
+                      <a
+                        className="blog-featured-link"
+                        href={getBlogArticleHref(featuredBlog.slug)}
+                        target="_blank"
+                        rel="opener"
+                        aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
+                      >
+                        Read full post
+                      </a>
+                      <SavePostButton
+                        isBusy={savedPostsBusySlug === featuredBlog.slug}
+                        isSaved={isPostSaved(featuredBlog.slug)}
+                        post={featuredBlog}
+                        subscriberUser={subscriberUser}
+                        onToggle={handleToggleSavedPost}
+                      />
+                    </div>
                   )}
                 </div>
 
@@ -2389,15 +2744,24 @@ function App() {
                           Unlock
                         </a>
                       ) : (
-                        <a
-                          className="blog-list-link"
-                          href={getBlogArticleHref(post.slug)}
-                          target="_blank"
-                          rel="opener"
-                          aria-label={`Read ${post.title}`}
-                        >
-                          Read full post
-                        </a>
+                        <div className="blog-list-actions">
+                          <a
+                            className="blog-list-link"
+                            href={getBlogArticleHref(post.slug)}
+                            target="_blank"
+                            rel="opener"
+                            aria-label={`Read ${post.title}`}
+                          >
+                            Read full post
+                          </a>
+                          <SavePostButton
+                            isBusy={savedPostsBusySlug === post.slug}
+                            isSaved={isPostSaved(post.slug)}
+                            post={post}
+                            subscriberUser={subscriberUser}
+                            onToggle={handleToggleSavedPost}
+                          />
+                        </div>
                       )}
                     </article>
                   );

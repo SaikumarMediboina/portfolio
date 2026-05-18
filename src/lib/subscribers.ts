@@ -1,5 +1,12 @@
 import type { User } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 import { db, isFirebaseConfigured } from "./firebase";
 
 const SUBSCRIBERS_COLLECTION = "subscribers";
@@ -21,6 +28,22 @@ export async function getSubscriberStatus(uid: string) {
   const subscriber = await getSubscriberRecord(uid);
 
   return subscriber.subscribed;
+}
+
+export async function getSavedPostSlugs(uid: string) {
+  const store = assertSubscriberStore();
+  const subscriberRef = doc(store, SUBSCRIBERS_COLLECTION, uid);
+  const subscriberSnapshot = await getDoc(subscriberRef);
+
+  if (!subscriberSnapshot.exists()) {
+    return [];
+  }
+
+  const savedPostSlugs = subscriberSnapshot.data().savedPostSlugs;
+
+  return Array.isArray(savedPostSlugs)
+    ? savedPostSlugs.filter((slug): slug is string => typeof slug === "string")
+    : [];
 }
 
 export async function getSubscriberRecord(uid: string): Promise<SubscriberRecord> {
@@ -102,6 +125,46 @@ export async function unsubscribeSubscriber(uid: string) {
       subscribed: false,
       updatedAt: serverTimestamp(),
       unsubscribedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
+}
+
+export async function saveReaderPost(user: User, slug: string) {
+  const store = assertSubscriberStore();
+  const subscriberRef = doc(store, SUBSCRIBERS_COLLECTION, user.uid);
+  const subscriberSnapshot = await getDoc(subscriberRef);
+  const subscriberPayload: Record<string, unknown> = {
+    uid: user.uid,
+    name: user.displayName,
+    email: user.email,
+    photoURL: user.photoURL,
+    savedPostSlugs: arrayUnion(slug),
+    source: "portfolio",
+    updatedAt: serverTimestamp(),
+  };
+
+  if (!subscriberSnapshot.exists()) {
+    subscriberPayload.createdAt = serverTimestamp();
+    subscriberPayload.subscribed = false;
+  }
+
+  await setDoc(
+    subscriberRef,
+    subscriberPayload,
+    { merge: true },
+  );
+}
+
+export async function unsaveReaderPost(uid: string, slug: string) {
+  const store = assertSubscriberStore();
+  const subscriberRef = doc(store, SUBSCRIBERS_COLLECTION, uid);
+
+  await setDoc(
+    subscriberRef,
+    {
+      savedPostSlugs: arrayRemove(slug),
+      updatedAt: serverTimestamp(),
     },
     { merge: true },
   );
