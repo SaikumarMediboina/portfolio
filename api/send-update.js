@@ -260,7 +260,7 @@ export default async function handler(request, response) {
       return jsonResponse(response, 400, { error: "No subscribed recipients found." });
     }
 
-    const subject = `New portfolio update: ${title}`;
+    const subject = testEmail ? `[TEST] Portfolio update: ${title}` : `New portfolio update: ${title}`;
     const html = buildEmailHtml({ title, summary, link, siteUrl });
     const text = buildEmailText({ title, summary, link, siteUrl });
     const results = [];
