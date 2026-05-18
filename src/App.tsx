@@ -436,7 +436,7 @@ function SignInPage({ theme, onThemeToggle, ...subscriptionProps }: SignInPagePr
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href="/#updates">
+            <a className="button button-secondary" href="/#top">
               Back to portfolio
             </a>
             <button
@@ -1209,41 +1209,6 @@ function App() {
                 ))}
               </div>
             ) : null}
-          </div>
-        </section>
-
-        <section className="section shell" id="updates">
-          <div className="updates-panel">
-            <div className="updates-copy">
-              <p className="eyebrow">Content Updates</p>
-              <h2>Get notified when new engineering notes or portfolio updates go live.</h2>
-              <p>
-                Sign in with Google to subscribe to new blogs, project notes, and selected
-                portfolio updates. Your email is stored only for this purpose, and you can
-                unsubscribe anytime.
-              </p>
-              <ul className="updates-list" aria-label="Update categories">
-                <li>New backend engineering write-ups</li>
-                <li>AI, LLM, and search architecture notes</li>
-                <li>Important portfolio and project updates</li>
-              </ul>
-            </div>
-
-            <SubscriptionAccessCard
-              canUseSubscriptions={canUseSubscriptions}
-              isSubscribed={isSubscribed}
-              subscriberEmail={subscriberEmail}
-              subscriberInitial={subscriberInitial}
-              subscriberName={subscriberName}
-              subscriberUser={subscriberUser}
-              subscriptionBusy={subscriptionBusy}
-              subscriptionError={subscriptionError}
-              subscriptionMessage={subscriptionMessage}
-              onGoogleSignIn={handleGoogleSignIn}
-              onSignOut={handleSignOut}
-              onSubscribe={handleSubscribe}
-              onUnsubscribe={handleUnsubscribe}
-            />
           </div>
         </section>
 
