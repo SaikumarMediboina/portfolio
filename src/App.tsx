@@ -3448,10 +3448,6 @@ function App() {
       <header className={`site-header${headerDocked ? " is-docked" : ""}`}>
         <div className="shell header-shell">
           <div className="brand-cluster">
-            <a className="brand brand-mark-link" href="#top" onClick={closeMenu} aria-label="Go to home">
-              <span className="brand-mark">SK</span>
-            </a>
-
             <button
               className="reader-menu-trigger"
               type="button"
@@ -3465,6 +3461,10 @@ function App() {
             >
               <ReaderMenuGlyph type="menu" />
             </button>
+
+            <a className="brand brand-mark-link" href="#top" onClick={closeMenu} aria-label="Go to home">
+              <span className="brand-mark">SK</span>
+            </a>
 
             <a className="brand brand-name-link" href="#top" onClick={closeMenu}>
               <span className="brand-copy">
