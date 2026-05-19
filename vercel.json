@@ -29,6 +29,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/ai-radar",
+      "destination": "/index.html"
+    },
+    {
       "source": "/dashboard",
       "destination": "/index.html"
     },
