@@ -181,6 +181,10 @@ type AiRadarSignal = {
   category: string;
   cadence: string;
   href: string;
+  imageUrl?: string;
+  isLive?: boolean;
+  publishedAt?: string;
+  rank?: number;
   source: string;
   summary: string;
   title: string;
@@ -1645,7 +1649,7 @@ function getAssistantKnowledgeEntries(
       category: "page",
       title: "AI Radar",
       summary:
-        "AI Radar is a curated link-out board for official and free AI sources. It shows source, category, cadence, and Sai's short original why-it-matters note instead of copying full articles.",
+        "AI Radar is a live ranked board for official and free AI sources. It refreshes from RSS or Atom feeds, uses source thumbnails only when provided, renders generated cover art otherwise, and links readers to the original articles.",
       details: aiRadarSignals
         .slice(0, 5)
         .map((signal) => `${signal.source}: ${signal.title} (${signal.category})`),
@@ -3477,39 +3481,174 @@ type AiRadarPageProps = {
   onThemeToggle: () => void;
 };
 
+function getAiRadarSourceTone(source: string) {
+  const sourceTones: Record<string, { primary: string; secondary: string }> = {
+    "Anthropic News": { primary: "#b85b3c", secondary: "#f2c3a4" },
+    "arXiv CS.AI": { primary: "#8c1d40", secondary: "#f4c7d6" },
+    "Google AI Blog": { primary: "#1a73e8", secondary: "#cfe1ff" },
+    "Hugging Face Blog": { primary: "#f4a51c", secondary: "#ffdf8f" },
+    "NVIDIA AI Blog": { primary: "#76b900", secondary: "#d9f99d" },
+    "OpenAI News": { primary: "#111c2b", secondary: "#c9d6e4" },
+  };
+
+  return sourceTones[source] ?? { primary: "#f0643b", secondary: "#ffe3da" };
+}
+
+function getAiRadarSourceInitials(source: string) {
+  return source
+    .replace(/\b(blog|news|cs\.ai)\b/gi, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+}
+
+function formatAiRadarDate(publishedAt?: string) {
+  if (!publishedAt) {
+    return "Curated source";
+  }
+
+  const date = new Date(publishedAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Recently updated";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
+function getAiRadarVisualStyle(signal: AiRadarSignal) {
+  const tone = getAiRadarSourceTone(signal.source);
+
+  return {
+    "--radar-primary": tone.primary,
+    "--radar-secondary": tone.secondary,
+  } as CSSProperties;
+}
+
 function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
   const [selectedCategory, setSelectedCategory] = useState(ALL_AI_RADAR_CATEGORIES);
+  const [liveSignals, setLiveSignals] = useState<AiRadarSignal[]>(aiRadarSignals);
+  const [radarStatus, setRadarStatus] = useState<"loading" | "live" | "fallback">("loading");
+  const [radarUpdatedAt, setRadarUpdatedAt] = useState("");
+  const [radarRefreshTick, setRadarRefreshTick] = useState(0);
+  const [radarError, setRadarError] = useState("");
   const aiRadarCategories = [
     ALL_AI_RADAR_CATEGORIES,
-    ...Array.from(new Set(aiRadarSignals.map((signal) => signal.category))),
+    ...Array.from(new Set(liveSignals.map((signal) => signal.category))),
   ];
   const visibleSignals =
     selectedCategory === ALL_AI_RADAR_CATEGORIES
-      ? aiRadarSignals
-      : aiRadarSignals.filter((signal) => signal.category === selectedCategory);
-  const featuredSignal = aiRadarSignals[0];
+      ? liveSignals
+      : liveSignals.filter((signal) => signal.category === selectedCategory);
+  const featuredSignal = visibleSignals[0] ?? liveSignals[0] ?? aiRadarSignals[0];
+  const topSignals = visibleSignals.slice(1, 4);
+  const listSignals = visibleSignals.slice(4);
   const radarStats = [
-    { value: `${aiRadarSignals.length}`, label: "free source lanes" },
+    { value: `${liveSignals.length}`, label: radarStatus === "live" ? "ranked live items" : "curated source lanes" },
     { value: "0", label: "full articles copied" },
-    { value: "100%", label: "link-out reading" },
+    { value: radarStatus === "live" ? "15m" : "safe", label: radarStatus === "live" ? "refresh window" : "fallback mode" },
   ];
   const radarPrinciples = [
     {
-      title: "Link to originals",
+      title: "Visual, not crowded",
       detail:
-        "Readers open the publisher, research feed, or official newsroom directly so credit and traffic stay with the source.",
+        "Large source tiles reduce text density and make the page feel like a board, not a document.",
     },
     {
-      title: "Write original notes",
+      title: "Refresh from feeds",
       detail:
-        "The short context here is written for this site. No full article text, screenshots, or copied media are reused.",
+        "The live endpoint ranks articles from free RSS or Atom feeds by freshness, source relevance, and AI keywords.",
     },
     {
-      title: "Keep it useful",
+      title: "Respect originals",
       detail:
-        "The feed favors practical signals for builders: models, agents, research, open source, enterprise AI, and infrastructure.",
+        "Cards link to the original article. Feed thumbnails are used only when provided; otherwise the site renders its own cover art.",
     },
   ];
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    const loadAiRadar = async () => {
+      setRadarStatus("loading");
+      setRadarError("");
+
+      try {
+        const response = await fetch(`/api/ai-radar?limit=12&refresh=${radarRefreshTick}`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("AI Radar feed is unavailable.");
+        }
+
+        const data = await response.json();
+        const items = Array.isArray(data?.items) ? data.items : [];
+        const nextSignals = items
+          .map((item): AiRadarSignal | null => {
+            if (
+              typeof item?.title !== "string" ||
+              typeof item?.href !== "string" ||
+              typeof item?.source !== "string"
+            ) {
+              return null;
+            }
+
+            return {
+              category: typeof item.category === "string" ? item.category : "AI",
+              cadence: typeof item.cadence === "string" ? item.cadence : "Live source feed",
+              href: item.href,
+              imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
+              isLive: Boolean(item.isLive),
+              publishedAt: typeof item.publishedAt === "string" ? item.publishedAt : undefined,
+              rank: typeof item.rank === "number" ? item.rank : undefined,
+              source: item.source,
+              summary: typeof item.summary === "string" ? item.summary : "",
+              title: item.title,
+              whyItMatters:
+                typeof item.whyItMatters === "string" && item.whyItMatters
+                  ? item.whyItMatters
+                  : "Fresh signal from a trusted AI source. Open the original article for the full context.",
+            };
+          })
+          .filter((item): item is AiRadarSignal => Boolean(item));
+
+        if (!isCurrent) {
+          return;
+        }
+
+        if (nextSignals.length) {
+          setLiveSignals(nextSignals);
+          setRadarStatus("live");
+          setRadarUpdatedAt(typeof data?.generatedAt === "string" ? data.generatedAt : "");
+        } else {
+          setLiveSignals(aiRadarSignals);
+          setRadarStatus("fallback");
+          setRadarUpdatedAt("");
+        }
+      } catch (error) {
+        if (!isCurrent) {
+          return;
+        }
+
+        setLiveSignals(aiRadarSignals);
+        setRadarStatus("fallback");
+        setRadarUpdatedAt("");
+        setRadarError(error instanceof Error ? error.message : "AI Radar is using curated fallback sources.");
+      }
+    };
+
+    loadAiRadar();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [radarRefreshTick]);
 
   return (
     <>
@@ -3552,33 +3691,57 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
         <section className="ai-radar-hero">
           <div className="ai-radar-hero-copy">
             <p className="eyebrow">AI Radar</p>
-            <h1>Latest AI signals without the noisy scroll.</h1>
+            <h1>Latest AI signals, ranked and easier to scan.</h1>
             <p>
-              A curated board of free and official AI sources, organized for engineers who want
-              useful model, agent, research, open-source, and infrastructure updates without
-              copying publisher content.
+              A live board of trusted free AI sources. It refreshes from public feeds, ranks useful
+              updates, and keeps the reading path simple: preview here, full article at the source.
             </p>
             <div className="ai-radar-actions">
               <a className="button button-primary" href="#radar-feed">
-                Scan sources
+                Scan top stories
               </a>
-              <a className="button button-secondary" href="#newsletter">
-                Get updates
-              </a>
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={radarStatus === "loading"}
+                onClick={() => setRadarRefreshTick((tick) => tick + 1)}
+              >
+                {radarStatus === "loading" ? "Refreshing..." : "Refresh radar"}
+              </button>
             </div>
+            <p className="ai-radar-status">
+              {radarStatus === "live"
+                ? `Live feed refreshed${radarUpdatedAt ? ` ${formatAiRadarDate(radarUpdatedAt)}` : ""}.`
+                : radarStatus === "loading"
+                  ? "Checking trusted AI feeds..."
+                  : radarError || "Showing curated fallback sources until the live feed responds."}
+            </p>
           </div>
 
-          <aside className="ai-radar-featured" aria-label="Featured AI source">
-            <span className="ai-radar-live-dot">Featured source</span>
+          <aside
+            className="ai-radar-featured"
+            aria-label="Featured AI article"
+            style={getAiRadarVisualStyle(featuredSignal)}
+          >
+            <div className="ai-radar-cover">
+              {featuredSignal.imageUrl ? (
+                <img src={featuredSignal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+              ) : (
+                <span>{getAiRadarSourceInitials(featuredSignal.source)}</span>
+              )}
+            </div>
+            <span className="ai-radar-live-dot">
+              {featuredSignal.isLive ? "Top ranked article" : "Featured source"}
+            </span>
             <h2>{featuredSignal.title}</h2>
-            <p>{featuredSignal.summary}</p>
             <div className="ai-radar-source-line">
               <span>{featuredSignal.source}</span>
               <span>{featuredSignal.category}</span>
+              <span>{formatAiRadarDate(featuredSignal.publishedAt)}</span>
             </div>
-            <p className="ai-radar-why">{featuredSignal.whyItMatters}</p>
+            <p className="ai-radar-why">{featuredSignal.summary || featuredSignal.whyItMatters}</p>
             <a href={featuredSignal.href} target="_blank" rel="noreferrer">
-              Read original source
+              Read original article
             </a>
           </aside>
         </section>
@@ -3592,10 +3755,38 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
           ))}
         </section>
 
+        {topSignals.length ? (
+          <section className="ai-radar-top-grid" aria-label="Top ranked AI stories">
+            {topSignals.map((signal) => (
+              <a
+                className="ai-radar-top-card"
+                href={signal.href}
+                key={`${signal.source}-${signal.href}`}
+                target="_blank"
+                rel="noreferrer"
+                style={getAiRadarVisualStyle(signal)}
+              >
+                <div className="ai-radar-card-art">
+                  {signal.imageUrl ? (
+                    <img src={signal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                  ) : (
+                    <span>{getAiRadarSourceInitials(signal.source)}</span>
+                  )}
+                </div>
+                <div className="ai-radar-card-copy">
+                  <span>{signal.source}</span>
+                  <h2>{signal.title}</h2>
+                  <small>{signal.category} / {formatAiRadarDate(signal.publishedAt)}</small>
+                </div>
+              </a>
+            ))}
+          </section>
+        ) : null}
+
         <section className="ai-radar-layout" id="radar-feed">
           <aside className="ai-radar-lens" aria-label="AI Radar filters">
             <p className="eyebrow">Signal filters</p>
-            <h2>Choose the lane you care about.</h2>
+            <h2>Choose the lane, then jump to the original.</h2>
             <div className="ai-radar-filters">
               {aiRadarCategories.map((category) => (
                 <button
@@ -3609,26 +3800,36 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
               ))}
             </div>
             <div className="ai-radar-note">
-              <strong>Copyright-safe by design.</strong>
+              <strong>Why not copy every article image?</strong>
               <p>
-                This page points to original sources and adds short context. It does not republish
-                full articles, source images, or paywalled content.
+                Some images are copyrighted or blocked for reuse. If the feed provides a thumbnail,
+                it can appear here; otherwise this page uses original generated cover art.
               </p>
             </div>
           </aside>
 
           <div className="ai-radar-feed" aria-label="Curated AI source list">
-            {visibleSignals.map((signal, index) => (
-              <article className="ai-radar-item" key={signal.href}>
+            {(listSignals.length ? listSignals : visibleSignals).map((signal, index) => (
+              <article
+                className="ai-radar-item"
+                key={`${signal.source}-${signal.href}`}
+                style={getAiRadarVisualStyle(signal)}
+              >
                 <span className="ai-radar-number">{String(index + 1).padStart(2, "0")}</span>
+                <div className="ai-radar-mini-art">
+                  {signal.imageUrl ? (
+                    <img src={signal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                  ) : (
+                    <span>{getAiRadarSourceInitials(signal.source)}</span>
+                  )}
+                </div>
                 <div className="ai-radar-item-copy">
                   <div className="ai-radar-item-meta">
                     <span>{signal.category}</span>
-                    <span>{signal.cadence}</span>
+                    <span>{formatAiRadarDate(signal.publishedAt)}</span>
                   </div>
                   <h3>{signal.title}</h3>
-                  <p>{signal.summary}</p>
-                  <p className="ai-radar-why">{signal.whyItMatters}</p>
+                  <p>{signal.summary || signal.whyItMatters}</p>
                 </div>
                 <div className="ai-radar-item-action">
                   <span>{signal.source}</span>
