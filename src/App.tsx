@@ -51,6 +51,7 @@ const mainNavLinks = [
   { href: "/portfolio", label: "Portfolio" },
   { href: "#about", id: "about", label: "About" },
   { href: "/blogs", label: "Blogs" },
+  { href: "/shelf", label: "Sai's Shelf" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/contact", label: "Contact" },
 ] as const;
