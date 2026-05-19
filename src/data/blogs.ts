@@ -9,6 +9,25 @@ export type BlogSection = {
   bullets?: string[];
 };
 
+export type BlogDiagramNode = {
+  detail: string;
+  label: string;
+  tone?: "async" | "cache" | "database" | "input" | "outcome" | "service";
+};
+
+export type BlogDiagramLane = {
+  nodes: BlogDiagramNode[];
+  title: string;
+};
+
+export type BlogDiagram = {
+  caption: string;
+  highlights: BlogStat[];
+  lanes: BlogDiagramLane[];
+  subtitle: string;
+  title: string;
+};
+
 export type BlogPost = {
   slug: string;
   title: string;
@@ -17,6 +36,7 @@ export type BlogPost = {
   summary: string;
   tags: string[];
   stats: BlogStat[];
+  diagram?: BlogDiagram;
   takeaways: string[];
   sections: BlogSection[];
 };
@@ -248,6 +268,80 @@ export const blogPosts: BlogPost[] = [
       { label: "Focus", value: "Throughput" },
       { label: "Pattern", value: "Async + Cache" },
     ],
+    diagram: {
+      title: "Targeted throughput optimization pattern",
+      subtitle:
+        "A clean view of how repeated backend work moved closer to the right execution layer.",
+      caption:
+        "The optimization avoided a full rewrite. The request path stayed lean while database-heavy work, cache reads, and non-critical writes were handled where they created the least friction.",
+      highlights: [
+        { label: "Round-trips", value: "Reduced" },
+        { label: "Writes", value: "Async" },
+        { label: "Reads", value: "Cached" },
+      ],
+      lanes: [
+        {
+          title: "Client request flow",
+          nodes: [
+            {
+              label: "Sequential requests",
+              detail: "Observed ~320ms client pacing between response and next request.",
+              tone: "input",
+            },
+            {
+              label: "Synchronous boundary",
+              detail: "Only user-visible work should remain on the critical path.",
+              tone: "service",
+            },
+          ],
+        },
+        {
+          title: "Lean service layer",
+          nodes: [
+            {
+              label: "API orchestration",
+              detail: "Coordinates validation, routing, and response shaping.",
+              tone: "service",
+            },
+            {
+              label: "Selective caching",
+              detail: "Frequently used read queries avoid repeated database pressure.",
+              tone: "cache",
+            },
+          ],
+        },
+        {
+          title: "Database-side execution",
+          nodes: [
+            {
+              label: "Stored procedures",
+              detail: "JSON preparation and duplicate suppression move closer to data.",
+              tone: "database",
+            },
+            {
+              label: "Hot-path indexes",
+              detail: "Frequently accessed lookups use targeted indexing.",
+              tone: "database",
+            },
+          ],
+        },
+        {
+          title: "Controlled background work",
+          nodes: [
+            {
+              label: "Async inserts",
+              detail: "Non-critical writes run through managed executor paths.",
+              tone: "async",
+            },
+            {
+              label: "Stable response path",
+              detail: "The main flow returns faster without hiding reliability work.",
+              tone: "outcome",
+            },
+          ],
+        },
+      ],
+    },
     takeaways: [
       "The issue surfaced when request processing showed repeated data access, JSON handling, cache conversion overhead, and blocking write paths.",
       "Possible solutions included service rewrites, infrastructure scaling, or targeted optimization across database, cache, and asynchronous execution.",

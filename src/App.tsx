@@ -703,6 +703,7 @@ const motionRevealSelector = [
   ".blog-list-item",
   ".guide-hero",
   ".guide-card",
+  ".blog-architecture-diagram",
   ".mini-updates-panel",
   ".whats-new-list article",
   ".ai-radar-hero",
@@ -1841,6 +1842,56 @@ function ReadingProgressBar({ progress }: { progress: number }) {
     >
       <span style={{ "--reading-progress": `${progress}%` } as CSSProperties} />
     </div>
+  );
+}
+
+function BlogArchitectureDiagram({ post }: { post: BlogPost }) {
+  if (!post.diagram) {
+    return null;
+  }
+
+  return (
+    <section className="blog-architecture-diagram" aria-labelledby={`${post.slug}-diagram-title`}>
+      <div className="blog-diagram-heading">
+        <p className="eyebrow">Architecture View</p>
+        <h2 id={`${post.slug}-diagram-title`}>{post.diagram.title}</h2>
+        <p>{post.diagram.subtitle}</p>
+      </div>
+
+      <div className="blog-diagram-canvas" aria-label={post.diagram.title}>
+        {post.diagram.lanes.map((lane, laneIndex) => (
+          <article className="blog-diagram-lane" key={lane.title}>
+            <div className="blog-diagram-lane-title">
+              <span>{String(laneIndex + 1).padStart(2, "0")}</span>
+              <h3>{lane.title}</h3>
+            </div>
+            <div className="blog-diagram-node-stack">
+              {lane.nodes.map((node) => (
+                <div
+                  className={`blog-diagram-node${node.tone ? ` is-${node.tone}` : ""}`}
+                  key={`${lane.title}-${node.label}`}
+                >
+                  <strong>{node.label}</strong>
+                  <p>{node.detail}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="blog-diagram-footer">
+        <p>{post.diagram.caption}</p>
+        <div className="blog-diagram-highlights" aria-label="Diagram highlights">
+          {post.diagram.highlights.map((highlight) => (
+            <span key={`${post.slug}-diagram-${highlight.label}`}>
+              <strong>{highlight.value}</strong>
+              {highlight.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -6042,6 +6093,7 @@ function BlogArticlePage({
               </div>
             </div>
 
+            <BlogArchitectureDiagram post={post} />
             <BlogArticleBody post={post} />
             <RelatedPosts
               currentPost={post}

@@ -1635,6 +1635,203 @@ dt {
   margin-top: 0.85rem;
 }
 
+.blog-architecture-diagram {
+  display: grid;
+  gap: 1rem;
+  margin: 1.7rem 0 0.4rem;
+  padding: clamp(1rem, 2.4vw, 1.35rem);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 18%, transparent), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel-soft) 88%, transparent), var(--panel-strong));
+  box-shadow: var(--shadow-soft);
+}
+
+.blog-diagram-heading {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.blog-diagram-heading h2 {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.blog-diagram-heading p:not(.eyebrow),
+.blog-diagram-footer p {
+  max-width: 62rem;
+  color: var(--ink-soft);
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+.blog-diagram-canvas {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  position: relative;
+}
+
+.blog-diagram-canvas::before {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 5.2rem;
+  height: 2px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 44%, transparent), transparent);
+  pointer-events: none;
+}
+
+.blog-diagram-lane {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.72rem;
+  min-width: 0;
+}
+
+.blog-diagram-lane:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -0.52rem;
+  top: 4.75rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-top: 2px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  border-right: 2px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  transform: rotate(45deg);
+}
+
+.blog-diagram-lane-title {
+  display: flex;
+  align-items: center;
+  gap: 0.58rem;
+  min-height: 3.4rem;
+  padding: 0.72rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 18px;
+  background: var(--muted-button-bg);
+}
+
+.blog-diagram-lane-title span {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--ink-strong);
+  color: var(--bg);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.blog-diagram-lane-title h3 {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: var(--text-md);
+  line-height: 1.2;
+}
+
+.blog-diagram-node-stack {
+  display: grid;
+  gap: 0.62rem;
+}
+
+.blog-diagram-node {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 8.8rem;
+  padding: 0.85rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
+}
+
+.blog-diagram-node::before {
+  content: "";
+  width: 2.4rem;
+  height: 0.32rem;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.blog-diagram-node.is-cache::before {
+  background: #d9a441;
+}
+
+.blog-diagram-node.is-database::before {
+  background: #58a6ff;
+}
+
+.blog-diagram-node.is-async::before {
+  background: #8bd17c;
+}
+
+.blog-diagram-node.is-outcome::before {
+  background: #ff7b72;
+}
+
+.blog-diagram-node strong {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: var(--text-md);
+  line-height: 1.25;
+}
+
+.blog-diagram-node p {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.blog-diagram-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.blog-diagram-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.blog-diagram-highlights span {
+  display: grid;
+  min-width: 6.7rem;
+  padding: 0.68rem 0.76rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 16px;
+  background: var(--muted-button-bg);
+  color: var(--ink-soft);
+  font-size: var(--text-micro);
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.blog-diagram-highlights strong {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: var(--text-lg);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .article-site-header {
   position: sticky;
   top: 0;
@@ -6749,6 +6946,23 @@ body::before {
     grid-template-columns: 1fr;
   }
 
+  .blog-diagram-canvas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .blog-diagram-canvas::before,
+  .blog-diagram-lane::after {
+    display: none;
+  }
+
+  .blog-diagram-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-diagram-highlights {
+    justify-content: flex-start;
+  }
+
   .reader-menu-panel {
     inset: 0.75rem auto 0.75rem 0.75rem;
     width: min(20.5rem, calc(100vw - 1.5rem));
@@ -6938,6 +7152,18 @@ body::before {
 
   .standalone-blog {
     padding: 1.35rem;
+  }
+
+  .blog-diagram-canvas {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-diagram-node {
+    min-height: auto;
+  }
+
+  .blog-diagram-highlights span {
+    flex: 1 1 8rem;
   }
 
   .standalone-blog-hero h1,
