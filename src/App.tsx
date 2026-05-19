@@ -38,22 +38,21 @@ import {
 } from "./lib/subscribers";
 
 const portfolioNavLinks = [
+  { href: "/", label: "Home" },
   { id: "about", label: "About" },
   { id: "experience", label: "Experience" },
   { id: "work", label: "Work" },
   { id: "skills", label: "Skills" },
-  { id: "blogs", label: "Blogs" },
   { id: "recognition", label: "Recognition" },
   { id: "credentials", label: "Credentials" },
-  { id: "contact", label: "Contact" },
 ] as const;
 
 const mainNavLinks = [
   { href: "/portfolio", label: "Portfolio" },
   { href: "#about", id: "about", label: "About" },
-  { href: "#blogs", id: "blogs", label: "Blogs" },
+  { href: "/blogs", label: "Blogs" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "#contact", id: "contact", label: "Contact" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 type Theme = "light" | "dark";
@@ -85,7 +84,7 @@ function getInitialAssistantMessages(): AssistantMessage[] {
       text: "Hey, I am Sai's portfolio assistant. I can help you find projects, blogs, tech stack details, and contact links.",
       links: [
         { href: "/portfolio#work", label: "Projects" },
-        { href: "#blogs", label: "Blogs" },
+        { href: "/blogs", label: "Blogs" },
       ],
     },
   ];
@@ -155,6 +154,22 @@ function isDashboardPathname() {
   }
 
   return window.location.pathname.replace(/\/$/, "") === "/dashboard";
+}
+
+function isBlogsPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/blogs";
+}
+
+function isContactPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/contact";
 }
 
 function isPortfolioPathname() {
@@ -256,7 +271,7 @@ function getBlogAnchorId(slug: string) {
 }
 
 function getPortfolioBlogHref(slug?: string) {
-  return slug ? `/portfolio#${getBlogAnchorId(slug)}` : "/portfolio#blogs";
+  return slug ? `/blogs#${getBlogAnchorId(slug)}` : "/blogs";
 }
 
 function getSubscriptionErrorMessage(error: unknown) {
@@ -327,17 +342,12 @@ function returnToPortfolioBlog(slug?: string) {
   }
 
   const portfolioHref = getPortfolioBlogHref(slug);
-  const targetId = slug ? getBlogAnchorId(slug) : "blogs";
 
   try {
     const portfolioWindow = window.opener as Window | null;
 
     if (portfolioWindow && !portfolioWindow.closed) {
-      portfolioWindow.location.hash = targetId;
-      portfolioWindow.document.getElementById(targetId)?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      portfolioWindow.location.href = portfolioHref;
       portfolioWindow.focus();
       window.close();
 
@@ -618,7 +628,7 @@ function getAssistantResponse(
     return {
       text: `There are ${blogPosts.length} engineering write-ups. The public feature is "${publicBlog.title}". The other posts are available after sign-in, so interested readers can go deeper without cluttering the main page.`,
       links: [
-        { href: "#blogs", label: "View blog index" },
+        { href: "/blogs", label: "View blog index" },
         { href: getBlogArticleHref(publicBlog.slug), label: "Open public article", external: true },
         ...(isReaderSignedIn ? [] : [{ href: "/signin", label: "Sign in to unlock blogs" }]),
       ],
@@ -673,7 +683,7 @@ function getAssistantResponse(
     return {
       text: `You can contact ${profile.name} by email or LinkedIn. Best fit conversations are backend engineering, search systems, performance work, and practical AI/LLM product ideas.`,
       links: [
-        { href: "#contact", label: "Go to contact" },
+        { href: "/contact", label: "Go to contact" },
         { href: `mailto:${profile.email}`, label: "Email" },
         { href: profile.linkedin, label: "LinkedIn", external: true },
       ],
@@ -692,7 +702,7 @@ function getAssistantResponse(
           ? "You are signed in and subscribed. New selected engineering notes can reach your inbox when updates are sent."
           : "You are signed in but not subscribed yet. Use the profile menu in the header to subscribe when you want portfolio and blog updates."
         : "Sign in unlocks the protected blog posts and lets you subscribe for selected portfolio and engineering updates. No password collection here, just account-based access.",
-      links: isReaderSignedIn ? [{ href: "#blogs", label: "Browse blogs" }] : [{ href: "/signin", label: "Open sign in" }],
+      links: isReaderSignedIn ? [{ href: "/blogs", label: "Browse blogs" }] : [{ href: "/signin", label: "Open sign in" }],
     };
   }
 
@@ -700,7 +710,7 @@ function getAssistantResponse(
     text: `I can guide you through ${profile.name}'s portfolio: projects, blogs, tech stack, performance highlights, contact details, and subscriber access. Try asking about "blogs", "performance work", "tech stack", or "contact".`,
     links: [
       { href: "/portfolio#work", label: "Projects" },
-      { href: "#blogs", label: "Blogs" },
+      { href: "/blogs", label: "Blogs" },
       { href: "/portfolio#skills", label: "Tech stack" },
     ],
   };
@@ -1096,12 +1106,12 @@ function ReaderMenu({
   onClose,
 }: ReaderMenuProps) {
   const readerLinks = [
-    { href: "#top", icon: "home" as const, label: "Home" },
+    { href: "/", icon: "home" as const, label: "Home" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
-    { href: "#blogs", icon: "pen" as const, label: "Blogs" },
+    { href: "/blogs", icon: "pen" as const, label: "Blogs" },
     { href: "/saved-posts", icon: "bookmark" as const, label: "Saved Posts" },
-    { href: "#about", icon: "about" as const, label: "About" },
-    { href: "#contact", icon: "mail" as const, label: "Contact" },
+    { href: "/#about", icon: "about" as const, label: "About" },
+    { href: "/contact", icon: "mail" as const, label: "Contact" },
   ];
 
   return (
@@ -1381,6 +1391,482 @@ function SubscriptionAccessCard({
   );
 }
 
+type BlogIndexSectionProps = {
+  blogCategories: string[];
+  featuredBlog?: BlogPost;
+  featuredBlogIsLocked: boolean;
+  isPostSaved: (slug: string) => boolean;
+  remainingBlogPosts: BlogPost[];
+  savedPostsBusySlug: string;
+  selectedBlogCategory: string;
+  subscriberUser: User | null;
+  visibleBlogPosts: BlogPost[];
+  onSelectBlogCategory: (category: string) => void;
+  onToggleSavedPost: (post: BlogPost) => void;
+};
+
+function BlogIndexSection({
+  blogCategories,
+  featuredBlog,
+  featuredBlogIsLocked,
+  isPostSaved,
+  remainingBlogPosts,
+  savedPostsBusySlug,
+  selectedBlogCategory,
+  subscriberUser,
+  visibleBlogPosts,
+  onSelectBlogCategory,
+  onToggleSavedPost,
+}: BlogIndexSectionProps) {
+  return (
+    <section className="section shell blog-section" id="blogs">
+      <SectionHeading
+        eyebrow="Blogs"
+        title="Short engineering write-ups that turn resume bullets into clearer technical stories."
+        description="Practical notes on performance engineering, search architecture, and AI-enabled backend systems."
+      />
+
+      <div className="blog-toolbar">
+        <div className="blog-controls" aria-label="Blog categories">
+          {blogCategories.map((category) => (
+            <button
+              className={`blog-filter${selectedBlogCategory === category ? " is-active" : ""}`}
+              key={category}
+              type="button"
+              onClick={() => onSelectBlogCategory(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+        <p className="blog-count">
+          {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
+        </p>
+      </div>
+
+      <div className="blog-index">
+        {featuredBlog ? (
+          <article
+            className={`blog-featured${featuredBlogIsLocked ? " is-locked" : ""}`}
+            id={getBlogAnchorId(featuredBlog.slug)}
+          >
+            <div className="blog-featured-copy">
+              <p className="eyebrow">
+                {featuredBlogIsLocked ? "Locked Article" : "Featured Article"}
+              </p>
+              <div className="blog-meta">
+                <span>{featuredBlog.category}</span>
+                <span>{featuredBlog.publishedAt}</span>
+                <span>{featuredBlog.readTime}</span>
+              </div>
+              <h3>
+                {featuredBlogIsLocked ? (
+                  <span>{featuredBlog.title}</span>
+                ) : (
+                  <a href={getBlogArticleHref(featuredBlog.slug)} target="_blank" rel="opener">
+                    {featuredBlog.title}
+                  </a>
+                )}
+              </h3>
+              <p>{featuredBlog.summary}</p>
+              {featuredBlogIsLocked ? (
+                <BlogLockNote />
+              ) : (
+                <ul className="bullet-list">
+                  {featuredBlog.takeaways.map((takeaway) => (
+                    <li key={takeaway}>{takeaway}</li>
+                  ))}
+                </ul>
+              )}
+              {featuredBlogIsLocked ? (
+                <a
+                  className="blog-featured-link"
+                  href={getSignInHref(featuredBlog.slug)}
+                  target="_blank"
+                  rel="opener"
+                >
+                  Sign in to unlock
+                </a>
+              ) : (
+                <div className="blog-action-row">
+                  <a
+                    className="blog-featured-link"
+                    href={getBlogArticleHref(featuredBlog.slug)}
+                    target="_blank"
+                    rel="opener"
+                    aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
+                  >
+                    Read full post
+                  </a>
+                  <SavePostButton
+                    isBusy={savedPostsBusySlug === featuredBlog.slug}
+                    isSaved={isPostSaved(featuredBlog.slug)}
+                    post={featuredBlog}
+                    subscriberUser={subscriberUser}
+                    onToggle={onToggleSavedPost}
+                  />
+                </div>
+              )}
+            </div>
+
+            <aside className="blog-featured-aside" aria-label="Featured article metrics">
+              <p className="impact-label">Key metrics</p>
+              <div className="blog-stat-grid">
+                {featuredBlog.stats.map((stat) => (
+                  <div className="blog-stat" key={`${featuredBlog.slug}-${stat.label}`}>
+                    <span>{stat.label}</span>
+                    <strong>{stat.value}</strong>
+                  </div>
+                ))}
+              </div>
+            </aside>
+          </article>
+        ) : (
+          <div className="blog-empty">
+            <p>No articles are available for this category yet.</p>
+          </div>
+        )}
+
+        {remainingBlogPosts.length > 0 ? (
+          <div className="blog-list" aria-label="Latest blog articles">
+            {remainingBlogPosts.map((post, index) => {
+              const isLocked = !canReadBlogPost(post, subscriberUser);
+
+              return (
+                <article
+                  className={`blog-list-item${isLocked ? " is-locked" : ""}`}
+                  id={getBlogAnchorId(post.slug)}
+                  key={post.slug}
+                >
+                  <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
+                  <div className="blog-list-copy">
+                    <div className="blog-meta">
+                      <span>{post.category}</span>
+                      <span>{post.publishedAt}</span>
+                      <span>{post.readTime}</span>
+                    </div>
+                    <h3>
+                      {isLocked ? (
+                        <span>{post.title}</span>
+                      ) : (
+                        <a href={getBlogArticleHref(post.slug)} target="_blank" rel="opener">
+                          {post.title}
+                        </a>
+                      )}
+                    </h3>
+                    <p>{post.summary}</p>
+                    {isLocked ? <BlogLockNote /> : null}
+                  </div>
+                  {isLocked ? (
+                    <a
+                      className="blog-list-link"
+                      href={getSignInHref(post.slug)}
+                      target="_blank"
+                      rel="opener"
+                    >
+                      Unlock
+                    </a>
+                  ) : (
+                    <div className="blog-list-actions">
+                      <a
+                        className="blog-list-link"
+                        href={getBlogArticleHref(post.slug)}
+                        target="_blank"
+                        rel="opener"
+                        aria-label={`Read ${post.title}`}
+                      >
+                        Read full post
+                      </a>
+                      <SavePostButton
+                        isBusy={savedPostsBusySlug === post.slug}
+                        isSaved={isPostSaved(post.slug)}
+                        post={post}
+                        subscriberUser={subscriberUser}
+                        onToggle={onToggleSavedPost}
+                      />
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+type BlogIndexPageProps = BlogIndexSectionProps & {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPageProps) {
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to blogs
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Engineering notes</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="blogs-page" id="main-content">
+        <BlogIndexSection {...blogIndexProps} />
+      </main>
+    </>
+  );
+}
+
+type ContactPageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
+  const collaborationAreas = [
+    {
+      title: "Backend Performance",
+      summary:
+        "Diagnose latency, remove repeated work, and make high-volume request paths more predictable.",
+      points: ["Database hot paths", "Async execution", "Throughput tuning"],
+    },
+    {
+      title: "Search and Matching Systems",
+      summary:
+        "Design search-heavy workflows where relevance, scale, and explainability need to work together.",
+      points: ["Oracle Text", "OpenSearch", "Hybrid scoring"],
+    },
+    {
+      title: "AI and LLM Workflows",
+      summary:
+        "Bring practical AI into backend systems without losing control, auditability, or engineering clarity.",
+      points: ["Semantic retrieval", "LLM assistance", "Prompt workflows"],
+    },
+  ];
+  const collaborationSteps = [
+    {
+      label: "01",
+      title: "Understand the workflow",
+      detail:
+        "Clarify the system goal, user path, constraints, and the production signal that matters most.",
+    },
+    {
+      label: "02",
+      title: "Find the real bottleneck",
+      detail:
+        "Separate symptoms from root causes across database access, services, cache, search, and async flows.",
+    },
+    {
+      label: "03",
+      title: "Design the clean path",
+      detail:
+        "Choose the smallest reliable solution that improves performance without creating hidden operational risk.",
+    },
+    {
+      label: "04",
+      title: "Validate and document",
+      detail:
+        "Measure the result, capture the reasoning, and keep the implementation understandable for future teams.",
+    },
+  ];
+  const proofSignals = [
+    { value: "97%", label: "Batch latency reduction" },
+    { value: "85%", label: "Real-time speedup" },
+    { value: "100+ TPS", label: "Runtime scale" },
+  ];
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to collaboration page
+      </a>
+
+      <header className="article-site-header collaboration-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Collaboration</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="collaboration-page" id="main-content">
+        <section className="collaboration-hero shell">
+          <div className="collaboration-hero-copy">
+            <p className="collaboration-pill">Available for meaningful engineering conversations</p>
+            <h1>Turn complex backend workflows into reliable, scalable product systems.</h1>
+            <p>
+              I enjoy conversations around performance engineering, search-heavy architectures,
+              AI-assisted relevance, and backend systems where speed, correctness, and trust all
+              need to hold together.
+            </p>
+            <div className="collaboration-actions">
+              <a className="button collaboration-primary" href={`mailto:${profile.email}`}>
+                Start a conversation
+              </a>
+              <a
+                className="button collaboration-secondary"
+                href={profile.linkedin}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Connect on LinkedIn
+              </a>
+            </div>
+          </div>
+
+          <aside className="collaboration-signal-card" aria-label="Collaboration signals">
+            <p className="collaboration-card-kicker">Engineering focus</p>
+            <h2>Performance, search, and practical AI.</h2>
+            <div className="collaboration-radar" aria-hidden="true">
+              <span className="radar-ring radar-ring-one" />
+              <span className="radar-ring radar-ring-two" />
+              <span className="radar-line radar-line-one" />
+              <span className="radar-line radar-line-two" />
+              <span className="radar-dot radar-dot-one" />
+              <span className="radar-dot radar-dot-two" />
+              <span className="radar-dot radar-dot-three" />
+            </div>
+            <dl className="collaboration-contact-list">
+              <div>
+                <dt>Email</dt>
+                <dd>{profile.email}</dd>
+              </div>
+              <div>
+                <dt>Location</dt>
+                <dd>{profile.location}</dd>
+              </div>
+            </dl>
+          </aside>
+        </section>
+
+        <section className="collaboration-section shell">
+          <div className="collaboration-section-heading">
+            <p className="collaboration-eyebrow">Collaboration areas</p>
+            <h2>Where I can bring the strongest value.</h2>
+            <p>
+              The best fit is work that needs thoughtful backend design, measurable performance
+              improvement, and clean technical storytelling.
+            </p>
+          </div>
+
+          <div className="collaboration-card-grid">
+            {collaborationAreas.map((area) => (
+              <article className="collaboration-area-card" key={area.title}>
+                <span className="collaboration-card-icon" aria-hidden="true" />
+                <h3>{area.title}</h3>
+                <p>{area.summary}</p>
+                <ul>
+                  {area.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="collaboration-section collaboration-proof shell">
+          <div>
+            <p className="collaboration-eyebrow">Outcome-oriented</p>
+            <h2>Conversations stay grounded in measurable engineering signal.</h2>
+            <p>
+              I like working from evidence: latency numbers, query behavior, throughput patterns,
+              reliability constraints, and the product outcome behind the technical work.
+            </p>
+          </div>
+
+          <div className="collaboration-proof-grid">
+            {proofSignals.map((signal) => (
+              <article key={signal.label}>
+                <strong>{signal.value}</strong>
+                <span>{signal.label}</span>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="collaboration-section shell">
+          <div className="collaboration-section-heading">
+            <p className="collaboration-eyebrow">How we work together</p>
+            <h2>A simple path from problem to useful result.</h2>
+          </div>
+
+          <div className="collaboration-process">
+            {collaborationSteps.map((step) => (
+              <article className="collaboration-step" key={step.label}>
+                <span>{step.label}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.detail}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="collaboration-cta shell">
+          <p className="collaboration-eyebrow">Ready to connect</p>
+          <h2>Have a backend, search, or AI workflow worth improving?</h2>
+          <p>
+            Send a short note with the context, goal, and any constraints. I will respond with the
+            clearest next step.
+          </p>
+          <a className="button collaboration-primary" href={`mailto:${profile.email}`}>
+            {profile.email}
+          </a>
+        </section>
+      </main>
+    </>
+  );
+}
+
 type BlogArticlePageProps = {
   post?: BlogPost;
   isAccessChecking: boolean;
@@ -1415,7 +1901,7 @@ function BlogArticlePage({
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/portfolio#top">
+          <a className="brand" href="/">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -1433,12 +1919,15 @@ function BlogArticlePage({
                 onToggle={onToggleSavedPost}
               />
             ) : null}
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
             <button
               className="button button-secondary"
               type="button"
               onClick={() => returnToPortfolioBlog(post?.slug)}
             >
-              Back to portfolio
+              Back to blogs
             </button>
             <button
               className="theme-toggle"
@@ -1526,10 +2015,10 @@ function BlogArticlePage({
             <p className="eyebrow">Article not found</p>
             <h1>This blog post is not available.</h1>
             <p>
-              The article link may have changed. You can go back to the portfolio blogs and
-              choose a post from the current list.
+              The article link may have changed. You can go back to the blog index and choose a
+              post from the current list.
             </p>
-            <a className="button button-primary" href="/portfolio#blogs">
+            <a className="button button-primary" href="/blogs">
               View blogs
             </a>
           </section>
@@ -1575,7 +2064,7 @@ function SavedPostsPage({
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/portfolio#top">
+          <a className="brand" href="/">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -1584,8 +2073,11 @@ function SavedPostsPage({
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href="/portfolio#blogs">
-              Back to portfolio
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <a className="button button-secondary" href="/blogs">
+              Back to blogs
             </a>
             <button
               className="theme-toggle"
@@ -1685,7 +2177,7 @@ function SavedPostsPage({
                 Go rescue one sharp engineering note from the blog section, and this quiet little
                 shelf will instantly look productive.
               </p>
-              <a className="button button-primary" href="/portfolio#blogs">
+              <a className="button button-primary" href="/blogs">
                 Browse blogs
               </a>
             </div>
@@ -1737,7 +2229,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/portfolio#top">
+          <a className="brand" href="/">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -1746,6 +2238,9 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
           </a>
 
           <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
             <a className="button button-secondary" href="/portfolio#top">
               Back to portfolio
             </a>
@@ -2063,7 +2558,7 @@ function SignInPage({
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/portfolio#top">
+          <a className="brand" href="/">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -2072,13 +2567,16 @@ function SignInPage({
           </a>
 
           <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
             {portfolioReturnBlogSlug ? (
               <button
                 className="button button-secondary"
                 type="button"
                 onClick={() => returnToPortfolioBlog(portfolioReturnBlogSlug)}
               >
-                Back to portfolio
+                Back to blogs
               </button>
             ) : shouldReturnToSavedPosts ? (
               <a className="button button-secondary" href="/saved-posts">
@@ -2185,7 +2683,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/portfolio#top">
+          <a className="brand" href="/">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -2194,6 +2692,9 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
           </a>
 
           <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
             <a className="button button-secondary" href="/portfolio#top">
               Back to portfolio
             </a>
@@ -2349,6 +2850,8 @@ function App() {
   const isSignInPage = isSignInPathname();
   const isSavedPostsPage = isSavedPostsPathname();
   const isDashboardPage = isDashboardPathname();
+  const isBlogsPage = isBlogsPathname();
+  const isContactPage = isContactPathname();
   const isPortfolioPage = isPortfolioPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
   const currentNavLinks = isPortfolioPage ? portfolioNavLinks : mainNavLinks;
@@ -2811,6 +3314,35 @@ function App() {
     );
   }
 
+  if (isBlogsPage) {
+    return (
+      <BlogIndexPage
+        blogCategories={blogCategories}
+        featuredBlog={featuredBlog}
+        featuredBlogIsLocked={featuredBlogIsLocked}
+        isPostSaved={isPostSaved}
+        remainingBlogPosts={remainingBlogPosts}
+        savedPostsBusySlug={savedPostsBusySlug}
+        selectedBlogCategory={selectedBlogCategory}
+        subscriberUser={subscriberUser}
+        theme={theme}
+        visibleBlogPosts={visibleBlogPosts}
+        onSelectBlogCategory={selectBlogCategory}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+        onToggleSavedPost={handleToggleSavedPost}
+      />
+    );
+  }
+
+  if (isContactPage) {
+    return (
+      <ContactPage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
+    );
+  }
+
   if (isSignInPage) {
     return (
       <SignInPage
@@ -2969,7 +3501,7 @@ function App() {
               <a className="button button-primary" href={isPortfolioPage ? "#work" : "/portfolio#work"}>
                 Explore selected work
               </a>
-              <a className="button button-secondary" href={`mailto:${profile.email}`}>
+              <a className="button button-secondary" href="/contact">
                 Contact me
               </a>
             </div>
@@ -3177,190 +3709,21 @@ function App() {
           </>
         ) : null}
 
-        <section className="section shell" id="blogs">
-          <SectionHeading
-            eyebrow="Blogs"
-            title="Short engineering write-ups that turn resume bullets into clearer technical stories."
-            description="Practical notes on performance engineering, search architecture, and AI-enabled backend systems."
+        {!isPortfolioPage ? (
+          <BlogIndexSection
+            blogCategories={blogCategories}
+            featuredBlog={featuredBlog}
+            featuredBlogIsLocked={featuredBlogIsLocked}
+            isPostSaved={isPostSaved}
+            remainingBlogPosts={remainingBlogPosts}
+            savedPostsBusySlug={savedPostsBusySlug}
+            selectedBlogCategory={selectedBlogCategory}
+            subscriberUser={subscriberUser}
+            visibleBlogPosts={visibleBlogPosts}
+            onSelectBlogCategory={selectBlogCategory}
+            onToggleSavedPost={handleToggleSavedPost}
           />
-
-          <div className="blog-toolbar">
-            <div className="blog-controls" aria-label="Blog categories">
-              {blogCategories.map((category) => (
-                <button
-                  className={`blog-filter${selectedBlogCategory === category ? " is-active" : ""}`}
-                  key={category}
-                  type="button"
-                  onClick={() => selectBlogCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-            <p className="blog-count">
-              {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
-            </p>
-          </div>
-
-          <div className="blog-index">
-            {featuredBlog ? (
-              <article
-                className={`blog-featured${featuredBlogIsLocked ? " is-locked" : ""}`}
-                id={getBlogAnchorId(featuredBlog.slug)}
-              >
-                <div className="blog-featured-copy">
-                  <p className="eyebrow">
-                    {featuredBlogIsLocked ? "Locked Article" : "Featured Article"}
-                  </p>
-                  <div className="blog-meta">
-                    <span>{featuredBlog.category}</span>
-                    <span>{featuredBlog.publishedAt}</span>
-                    <span>{featuredBlog.readTime}</span>
-                  </div>
-                  <h3>
-                    {featuredBlogIsLocked ? (
-                      <span>{featuredBlog.title}</span>
-                    ) : (
-                      <a
-                        href={getBlogArticleHref(featuredBlog.slug)}
-                        target="_blank"
-                        rel="opener"
-                      >
-                        {featuredBlog.title}
-                      </a>
-                    )}
-                  </h3>
-                  <p>{featuredBlog.summary}</p>
-                  {featuredBlogIsLocked ? (
-                    <BlogLockNote />
-                  ) : (
-                    <ul className="bullet-list">
-                      {featuredBlog.takeaways.map((takeaway) => (
-                        <li key={takeaway}>{takeaway}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {featuredBlogIsLocked ? (
-                    <a
-                      className="blog-featured-link"
-                      href={getSignInHref(featuredBlog.slug)}
-                      target="_blank"
-                      rel="opener"
-                    >
-                      Sign in to unlock
-                    </a>
-                  ) : (
-                    <div className="blog-action-row">
-                      <a
-                        className="blog-featured-link"
-                        href={getBlogArticleHref(featuredBlog.slug)}
-                        target="_blank"
-                        rel="opener"
-                        aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
-                      >
-                        Read full post
-                      </a>
-                      <SavePostButton
-                        isBusy={savedPostsBusySlug === featuredBlog.slug}
-                        isSaved={isPostSaved(featuredBlog.slug)}
-                        post={featuredBlog}
-                        subscriberUser={subscriberUser}
-                        onToggle={handleToggleSavedPost}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <aside className="blog-featured-aside" aria-label="Featured article metrics">
-                  <p className="impact-label">Key metrics</p>
-                  <div className="blog-stat-grid">
-                    {featuredBlog.stats.map((stat) => (
-                      <div className="blog-stat" key={`${featuredBlog.slug}-${stat.label}`}>
-                        <span>{stat.label}</span>
-                        <strong>{stat.value}</strong>
-                      </div>
-                    ))}
-                  </div>
-                </aside>
-              </article>
-            ) : (
-              <div className="blog-empty">
-                <p>No articles are available for this category yet.</p>
-              </div>
-            )}
-
-            {remainingBlogPosts.length > 0 ? (
-              <div className="blog-list" aria-label="Latest blog articles">
-                {remainingBlogPosts.map((post, index) => {
-                  const isLocked = !canReadBlogPost(post, subscriberUser);
-
-                  return (
-                    <article
-                      className={`blog-list-item${isLocked ? " is-locked" : ""}`}
-                      id={getBlogAnchorId(post.slug)}
-                      key={post.slug}
-                    >
-                      <span className="blog-list-number">
-                        {String(index + 2).padStart(2, "0")}
-                      </span>
-                      <div className="blog-list-copy">
-                        <div className="blog-meta">
-                          <span>{post.category}</span>
-                          <span>{post.publishedAt}</span>
-                          <span>{post.readTime}</span>
-                        </div>
-                        <h3>
-                          {isLocked ? (
-                            <span>{post.title}</span>
-                          ) : (
-                            <a
-                              href={getBlogArticleHref(post.slug)}
-                              target="_blank"
-                              rel="opener"
-                            >
-                              {post.title}
-                            </a>
-                          )}
-                        </h3>
-                        <p>{post.summary}</p>
-                        {isLocked ? <BlogLockNote /> : null}
-                      </div>
-                      {isLocked ? (
-                        <a
-                          className="blog-list-link"
-                          href={getSignInHref(post.slug)}
-                          target="_blank"
-                          rel="opener"
-                        >
-                          Unlock
-                        </a>
-                      ) : (
-                        <div className="blog-list-actions">
-                          <a
-                            className="blog-list-link"
-                            href={getBlogArticleHref(post.slug)}
-                            target="_blank"
-                            rel="opener"
-                            aria-label={`Read ${post.title}`}
-                          >
-                            Read full post
-                          </a>
-                          <SavePostButton
-                            isBusy={savedPostsBusySlug === post.slug}
-                            isSaved={isPostSaved(post.slug)}
-                            post={post}
-                            subscriberUser={subscriberUser}
-                            onToggle={handleToggleSavedPost}
-                          />
-                        </div>
-                      )}
-                    </article>
-                  );
-                })}
-              </div>
-            ) : null}
-          </div>
-        </section>
+        ) : null}
 
         {isPortfolioPage ? (
           <>
@@ -3419,33 +3782,6 @@ function App() {
           </>
         ) : null}
 
-        <section className="section shell" id="contact">
-          <div className="contact-panel">
-            <div className="contact-copy">
-              <p className="eyebrow">Contact</p>
-              <h2>Let's connect if you are building backend systems that need speed, scale, trust, and practical AI.</h2>
-              <p>
-                This portfolio is designed to stay simple around the work itself. For
-                collaboration, backend engineering conversations, or opportunities, you can
-                reach me directly by email or LinkedIn.
-              </p>
-            </div>
-
-            <div className="contact-actions">
-              <a className="button button-primary" href={`mailto:${profile.email}`}>
-                {profile.email}
-              </a>
-              <a
-                className="button button-secondary"
-                href={profile.linkedin}
-                target="_blank"
-                rel="noreferrer"
-              >
-                LinkedIn
-              </a>
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="site-footer">
