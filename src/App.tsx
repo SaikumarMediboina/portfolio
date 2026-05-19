@@ -882,6 +882,11 @@ type AssistantPromptEntry = Pick<
   "category" | "details" | "summary" | "title"
 >;
 
+type GenericAssistantResponse = {
+  keywords: string[];
+  text: string;
+};
+
 const assistantStopWords = new Set([
   "a",
   "about",
@@ -965,6 +970,146 @@ const assistantSynonyms: Record<string, string[]> = {
   tech: ["stack", "skills", "technology", "tools"],
 };
 
+const siteSpecificQuestionWords = new Set([
+  "blog",
+  "blogs",
+  "certificate",
+  "certification",
+  "certifications",
+  "contact",
+  "dashboard",
+  "education",
+  "experience",
+  "portfolio",
+  "project",
+  "projects",
+  "resume",
+  "role",
+  "sai",
+  "saved",
+  "shelf",
+  "site",
+  "stack",
+  "tech",
+  "update",
+  "updates",
+  "website",
+  "work",
+  "your",
+];
+
+const genericLearningPhrases = [
+  "compare",
+  "define",
+  "difference between",
+  "explain",
+  "how do",
+  "how does",
+  "meaning of",
+  "what are",
+  "what is",
+  "why do",
+  "why does",
+];
+
+const genericAssistantResponses: GenericAssistantResponse[] = [
+  {
+    keywords: ["cap", "theorem", "consistency", "availability", "partition"],
+    text:
+      "CAP theorem says a distributed system can strongly guarantee only two of three during a network partition: consistency, availability, and partition tolerance. Since partitions can happen in real networks, systems usually choose between stronger consistency or higher availability. Tiny mental model: when two data centers cannot talk, do you reject some requests to stay correct, or keep serving and reconcile later?",
+  },
+  {
+    keywords: ["llm", "large", "language", "model"],
+    text:
+      "An LLM is a model trained to understand and generate text by predicting useful language patterns from large datasets. In products, it is strongest for summarizing, explaining, drafting, extracting, and assisting workflows. The trick is grounding it with context, because an ungrounded LLM can sound confident even when it is wrong.",
+  },
+  {
+    keywords: ["ai", "artificial", "intelligence"],
+    text:
+      "AI is the broader field of making software perform tasks that usually need human-like intelligence, such as classification, recommendation, search relevance, or text understanding. LLMs are one branch of AI focused on language. In real systems, AI works best when paired with rules, data validation, and human review where accuracy matters.",
+  },
+  {
+    keywords: ["rest", "api", "http", "endpoint"],
+    text:
+      "A REST API exposes resources over HTTP using methods like GET, POST, PUT, PATCH, and DELETE. Good REST design keeps URLs resource-focused, uses status codes clearly, and avoids hiding too much behavior behind one giant endpoint. Think of it as a clean contract between frontend, services, and external clients.",
+  },
+  {
+    keywords: ["microservice", "microservices"],
+    text:
+      "Microservices split an application into smaller independently deployable services, each owning a focused business capability. They help teams scale and release separately, but they add network calls, observability needs, and data consistency tradeoffs. They are powerful, but not a free lunch.",
+  },
+  {
+    keywords: ["database", "index", "indexing"],
+    text:
+      "A database index is a data structure that helps the database find rows faster without scanning the whole table. It improves read performance on common filters and joins, but it costs storage and slows writes because the index must be maintained. The best indexes match real query patterns, not guesswork.",
+  },
+  {
+    keywords: ["cache", "caching", "redis", "coherence"],
+    text:
+      "Caching stores frequently used data closer to the application so repeated requests avoid expensive work. It can reduce latency and database load, but stale data and invalidation rules must be designed carefully. Cache bugs are sneaky little raccoons, so TTLs and ownership rules matter.",
+  },
+  {
+    keywords: ["async", "asynchronous", "thread", "parallel", "executor"],
+    text:
+      "Asynchronous processing lets work continue without blocking the main request path. Parallel processing splits safe independent work so multiple units run at the same time. The win is better responsiveness and throughput, but it needs limits, error handling, and clear transaction boundaries.",
+  },
+  {
+    keywords: ["latency", "throughput"],
+    text:
+      "Latency is how long one request takes; throughput is how many requests the system can handle over time. A system can have high throughput but still feel slow if individual requests wait too long. Performance tuning usually needs both views, because users feel latency and platforms feel throughput.",
+  },
+  {
+    keywords: ["kafka", "queue", "messaging", "event"],
+    text:
+      "A message queue or event stream decouples producers from consumers. Producers publish work, and consumers process it independently, which improves resilience and absorbs traffic spikes. Kafka is commonly used when ordered, durable, high-throughput event streaming is needed.",
+  },
+  {
+    keywords: ["kubernetes", "container", "docker", "pod"],
+    text:
+      "Containers package an application with its runtime dependencies, while Kubernetes schedules and manages those containers across machines. Kubernetes helps with scaling, rollouts, self-healing, and service discovery. In short: containers package the app; Kubernetes runs the fleet.",
+  },
+  {
+    keywords: ["sql", "nosql"],
+    text:
+      "SQL databases are strong for structured relational data, joins, transactions, and consistency. NoSQL databases are often chosen for flexible schemas, high-scale access patterns, or specialized data models like documents, key-value, or wide-column storage. The right choice depends on query patterns and consistency needs.",
+  },
+  {
+    keywords: ["acid", "transaction", "transactions"],
+    text:
+      "ACID describes reliable database transactions: atomicity, consistency, isolation, and durability. It means a transaction completes fully or not at all, preserves valid data rules, avoids unsafe interference, and survives once committed. This is the boring magic that keeps money, orders, and records sane.",
+  },
+  {
+    keywords: ["authentication", "authorization", "auth"],
+    text:
+      "Authentication verifies who the user is; authorization decides what that verified user can access. Login is authentication. Checking whether that user can open an admin page is authorization.",
+  },
+  {
+    keywords: ["oop", "object", "polymorphism", "inheritance", "encapsulation", "abstraction"],
+    text:
+      "OOP organizes code around objects that combine data and behavior. Encapsulation hides internal details, abstraction exposes simple interfaces, inheritance reuses behavior through parent-child relationships, and polymorphism lets different objects respond to the same operation in their own way.",
+  },
+  {
+    keywords: ["normalization", "database", "schema"],
+    text:
+      "Database normalization organizes tables to reduce duplicate data and update anomalies. It usually means separating entities into related tables and connecting them with keys. Denormalization can be useful later for read speed, but normalization gives the data model a clean spine first.",
+  },
+  {
+    keywords: ["load", "balancer", "loadbalancer"],
+    text:
+      "A load balancer distributes incoming traffic across multiple servers so no single instance carries everything. It improves availability and scaling, and it can remove unhealthy instances from rotation. It is the traffic cop that keeps the backend road from turning into chaos.",
+  },
+  {
+    keywords: ["semantic", "search", "embedding", "vector"],
+    text:
+      "Semantic search looks for meaning, not just exact keywords. It often uses embeddings, which convert text into vectors so similar ideas sit closer together mathematically. This helps when users phrase the same intent in different words.",
+  },
+  {
+    keywords: ["mcp", "model", "context", "protocol"],
+    text:
+      "Model Context Protocol, or MCP, is a standard way for AI assistants to connect with external tools and data sources. Instead of every tool needing a custom integration, MCP gives assistants a cleaner pattern for discovering capabilities and requesting context. Think USB-C, but for AI tool connections.",
+  },
+];
+
 function normalizeAssistantText(value: string) {
   return value
     .toLowerCase()
@@ -986,6 +1131,46 @@ function getAssistantTokens(input: string) {
     });
 
   return Array.from(tokens);
+}
+
+function isGenericLearningQuestion(input: string) {
+  const normalizedInput = normalizeAssistantText(input);
+  const words = normalizedInput.split(" ").filter(Boolean);
+  const hasLearningPhrase = genericLearningPhrases.some(
+    (phrase) => normalizedInput.startsWith(phrase) || normalizedInput.includes(` ${phrase} `),
+  );
+  const hasKnownGenericTopic = genericAssistantResponses.some((response) =>
+    response.keywords.some((keyword) => normalizedInput.includes(normalizeAssistantText(keyword))),
+  );
+  const hasSiteSpecificWord = words.some((word) => siteSpecificQuestionWords.has(word));
+
+  return (hasLearningPhrase || hasKnownGenericTopic) && !hasSiteSpecificWord;
+}
+
+function getGenericAssistantResponse(
+  input: string,
+): Pick<AssistantMessage, "links" | "text"> | null {
+  if (!isGenericLearningQuestion(input)) {
+    return null;
+  }
+
+  const normalizedInput = normalizeAssistantText(input);
+  const rankedResponse = genericAssistantResponses
+    .map((response) => ({
+      response,
+      score: response.keywords.filter((keyword) =>
+        normalizedInput.includes(normalizeAssistantText(keyword)),
+      ).length,
+    }))
+    .sort((left, right) => right.score - left.score)[0];
+
+  return {
+    text:
+      rankedResponse?.score > 0
+        ? rankedResponse.response.text
+        : "I can answer general CS, backend, cloud, AI, and system-design questions when the Gemini key is active. My built-in quick brain already knows topics like CAP theorem, REST APIs, caching, database indexes, async processing, Kubernetes, SQL vs NoSQL, and LLMs.",
+    links: [{ href: "/shelf", label: "Sai's Shelf" }],
+  };
 }
 
 function getAssistantSearchText(entry: AssistantKnowledgeEntry) {
@@ -1556,6 +1741,12 @@ function getAssistantResponse(
 
   if (isGreetingOnly) {
     return getAssistantGreetingResponse();
+  }
+
+  const genericResponse = getGenericAssistantResponse(input);
+
+  if (genericResponse) {
+    return genericResponse;
   }
 
   const tokens = getAssistantTokens(input);

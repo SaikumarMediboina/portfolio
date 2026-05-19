@@ -157,8 +157,8 @@ export default async function handler(request, response) {
       `Website context:\n${contextText}`,
       "",
       fallbackText
-        ? `If the context is insufficient, use this fallback style/content:\n${fallbackText}`
-        : "If the context is insufficient, say you do not know from the website yet.",
+        ? `Fallback response if the model is unavailable or a Sai-specific answer is not supported by the website context:\n${fallbackText}`
+        : "For unsupported Sai-specific questions, say you do not know from the website yet.",
     ].join("\n");
     const geminiResponse = await fetch(
       `${GEMINI_API_BASE_URL}/${process.env.GEMINI_MODEL || DEFAULT_MODEL}:generateContent`,
@@ -176,6 +176,7 @@ export default async function handler(request, response) {
                   "You are Sai Kumar Mediboina's portfolio website assistant.",
                   "For questions about Sai, his portfolio, projects, blogs, credentials, contact details, or this website, answer only from the provided website context and recent conversation.",
                   "For generic software engineering, computer science, backend, cloud, AI, LLM, and career learning questions, you may answer with general educational knowledge.",
+                  "Do not reject a generic technical question just because it is not in the website context.",
                   "If a Sai-specific question lacks context, say that politely and do not guess.",
                   "Keep answers concise, complete, professional, warm, and slightly catchy.",
                   "Use 2 to 5 short sentences unless the visitor asks for depth.",
