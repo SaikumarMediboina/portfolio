@@ -2279,16 +2279,20 @@ type ReaderMenuProps = {
   isOpen: boolean;
   isSignedIn: boolean;
   savedPosts: BlogPost[];
+  subscriptionBusy: boolean;
   subscriberName: string;
   onClose: () => void;
+  onSignOut: () => void;
 };
 
 function ReaderMenu({
   isOpen,
   isSignedIn,
   savedPosts,
+  subscriptionBusy,
   subscriberName,
   onClose,
+  onSignOut,
 }: ReaderMenuProps) {
   const savedPostLabel = `${savedPosts.length} ${savedPosts.length === 1 ? "saved post" : "saved posts"}`;
   const readerLinks = [
@@ -2329,6 +2333,33 @@ function ReaderMenu({
           <button className="reader-menu-close" type="button" onClick={onClose}>
             Close
           </button>
+        </div>
+
+        <div className="reader-menu-account">
+          <p className="impact-label">Account</p>
+          <strong>{isSignedIn ? subscriberName : "Guest reader"}</strong>
+          <span>
+            {isSignedIn
+              ? "Your saved posts and reader access stay synced across the site."
+              : "Sign in once to save posts and unlock member-only reads."}
+          </span>
+          {isSignedIn ? (
+            <button
+              className="button button-tertiary"
+              type="button"
+              disabled={subscriptionBusy}
+              onClick={() => {
+                onClose();
+                onSignOut();
+              }}
+            >
+              {subscriptionBusy ? "Signing out..." : "Sign out"}
+            </button>
+          ) : (
+            <a className="button button-primary" href="/signin" onClick={onClose}>
+              Sign in
+            </a>
+          )}
         </div>
 
         <nav className="reader-menu-nav" aria-label="Reader navigation">
@@ -5244,8 +5275,10 @@ function App() {
         isOpen={readerMenuOpen}
         isSignedIn={Boolean(subscriberUser)}
         savedPosts={savedPosts}
+        subscriptionBusy={subscriptionBusy}
         subscriberName={subscriberName}
         onClose={() => setReaderMenuOpen(false)}
+        onSignOut={handleSignOut}
       />
 
       <main id="main-content">
