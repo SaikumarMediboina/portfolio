@@ -1094,6 +1094,7 @@ function SavePostButton({
 
 type ReaderMenuProps = {
   isOpen: boolean;
+  isSignedIn: boolean;
   savedPosts: BlogPost[];
   subscriberName: string;
   onClose: () => void;
@@ -1101,15 +1102,21 @@ type ReaderMenuProps = {
 
 function ReaderMenu({
   isOpen,
+  isSignedIn,
   savedPosts,
   subscriberName,
   onClose,
 }: ReaderMenuProps) {
+  const savedPostLabel = `${savedPosts.length} ${savedPosts.length === 1 ? "saved post" : "saved posts"}`;
   const readerLinks = [
     { href: "/", icon: "home" as const, label: "Home" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
-    { href: "/saved-posts", icon: "bookmark" as const, label: "Saved Posts" },
+    {
+      href: isSignedIn ? "/saved-posts" : getSavedPostsSignInHref(),
+      icon: "bookmark" as const,
+      label: "Saved Posts",
+    },
     { href: "/#about", icon: "about" as const, label: "About" },
     { href: "/contact", icon: "mail" as const, label: "Contact" },
   ];
@@ -1126,8 +1133,12 @@ function ReaderMenu({
         <div className="reader-menu-heading">
           <div>
             <p className="impact-label">Reader Menu</p>
-            <h2>{subscriberName}</h2>
-            <span>{savedPosts.length} saved posts</span>
+            <h2>{isSignedIn ? subscriberName : "Browse like a guest, save like a member"}</h2>
+            <span>
+              {isSignedIn
+                ? savedPostLabel
+                : "Sign in once and your favorite posts get their own little VIP shelf."}
+            </span>
           </div>
           <button className="reader-menu-close" type="button" onClick={onClose}>
             Close
@@ -1146,6 +1157,13 @@ function ReaderMenu({
             </a>
           ))}
         </nav>
+
+        {!isSignedIn ? (
+          <p className="reader-menu-note">
+            Saved Posts is ready, but it needs your sign-in badge first. After that, every useful
+            article you save gets parked neatly for later.
+          </p>
+        ) : null}
       </aside>
     </div>
   );
@@ -3388,13 +3406,29 @@ function App() {
 
       <header className={`site-header${headerDocked ? " is-docked" : ""}`}>
         <div className="shell header-shell">
-          <a className="brand" href="#top" onClick={closeMenu}>
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>{profile.role}</span>
-            </span>
-          </a>
+          <div className="brand-cluster">
+            <a className="brand" href="#top" onClick={closeMenu}>
+              <span className="brand-mark">SK</span>
+              <span className="brand-copy">
+                <strong>{profile.name}</strong>
+                <span>{profile.role}</span>
+              </span>
+            </a>
+
+            <button
+              className="reader-menu-trigger"
+              type="button"
+              aria-expanded={readerMenuOpen}
+              aria-label="Open reader menu"
+              onClick={() => {
+                setReaderMenuOpen((open) => !open);
+                setMenuOpen(false);
+                setProfileMenuOpen(false);
+              }}
+            >
+              <ReaderMenuGlyph type="menu" />
+            </button>
+          </div>
 
           <nav
             className={`site-nav${menuOpen ? " is-open" : ""}`}
@@ -3433,22 +3467,6 @@ function App() {
           </nav>
 
           <div className="header-actions">
-            {subscriberUser ? (
-              <button
-                className="reader-menu-trigger"
-                type="button"
-                aria-expanded={readerMenuOpen}
-                aria-label="Open reader menu"
-                onClick={() => {
-                  setReaderMenuOpen((open) => !open);
-                  setMenuOpen(false);
-                  setProfileMenuOpen(false);
-                }}
-              >
-                <ReaderMenuGlyph type="menu" />
-              </button>
-            ) : null}
-
             <button
               className="theme-toggle"
               type="button"
@@ -3478,14 +3496,13 @@ function App() {
         </div>
       </header>
 
-      {subscriberUser ? (
-        <ReaderMenu
-          isOpen={readerMenuOpen}
-          savedPosts={savedPosts}
-          subscriberName={subscriberName}
-          onClose={() => setReaderMenuOpen(false)}
-        />
-      ) : null}
+      <ReaderMenu
+        isOpen={readerMenuOpen}
+        isSignedIn={Boolean(subscriberUser)}
+        savedPosts={savedPosts}
+        subscriberName={subscriberName}
+        onClose={() => setReaderMenuOpen(false)}
+      />
 
       <main id="main-content">
         <section className="hero shell" id="top">

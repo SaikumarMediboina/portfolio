@@ -241,6 +241,21 @@ dt {
   min-width: 0;
 }
 
+.brand-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+  min-width: 0;
+}
+
+.brand-cluster .brand {
+  min-width: 0;
+}
+
+.brand-cluster .reader-menu-trigger {
+  flex: 0 0 auto;
+}
+
 .brand-mark {
   display: grid;
   place-items: center;
@@ -626,6 +641,17 @@ dt {
   transform: translateX(2px);
   background: var(--muted-button-bg);
   color: var(--ink-strong);
+}
+
+.reader-menu-note {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 18px;
+  background: var(--muted-button-bg);
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.65;
 }
 
 .reader-menu-icon {
