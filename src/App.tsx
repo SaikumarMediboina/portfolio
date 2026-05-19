@@ -3743,14 +3743,38 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
                 </a>
               </div>
             </div>
+
+            <div className="ai-radar-story-controls" aria-label="AI story controls">
+              <div className="ai-radar-story-dots">
+                {storySignals.map((signal, index) => (
+                  <button
+                    className={index === activeStoryIndex ? "is-active" : ""}
+                    key={`${signal.source}-${signal.href}`}
+                    type="button"
+                    aria-label={`Show story ${index + 1}`}
+                    onClick={() => setActiveStoryIndex(index)}
+                  />
+                ))}
+              </div>
+              <button
+                className="ai-radar-next-story"
+                type="button"
+                onClick={() =>
+                  setActiveStoryIndex((index) =>
+                    storySignals.length ? (index + 1) % storySignals.length : 0,
+                  )
+                }
+              >
+                Next story
+              </button>
+            </div>
           </div>
 
           <div className="ai-radar-hero-panel">
             <p className="eyebrow">AI Radar</p>
-            <h2>Stories rotate as the signal changes.</h2>
+            <h2>Live AI briefing.</h2>
             <p>
-              Fresh AI updates from trusted feeds, ranked for model releases, agents, research,
-              open-source AI, and infrastructure moves.
+              Rotating stories from trusted AI feeds, ranked for builders who want signal fast.
             </p>
             <div className="ai-radar-signal-strip" aria-label="AI Radar summary">
               {radarHighlights.map((item) => (
@@ -3780,31 +3804,6 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
                   ? "Checking trusted feeds"
                   : radarError ? "Curated fallback active" : "Curated fallback active"}
             </p>
-          </div>
-
-          <div className="ai-radar-story-controls" aria-label="AI story controls">
-            <div className="ai-radar-story-dots">
-              {storySignals.map((signal, index) => (
-                <button
-                  className={index === activeStoryIndex ? "is-active" : ""}
-                  key={`${signal.source}-${signal.href}`}
-                  type="button"
-                  aria-label={`Show story ${index + 1}`}
-                  onClick={() => setActiveStoryIndex(index)}
-                />
-              ))}
-            </div>
-            <button
-              className="ai-radar-next-story"
-              type="button"
-              onClick={() =>
-                setActiveStoryIndex((index) =>
-                  storySignals.length ? (index + 1) % storySignals.length : 0,
-                )
-              }
-            >
-              Next story
-            </button>
           </div>
         </section>
 
