@@ -191,6 +191,13 @@ type AiRadarSignal = {
   whyItMatters: string;
 };
 
+type AiRadarApiItem = Partial<AiRadarSignal>;
+
+type AiRadarApiResponse = {
+  generatedAt?: string;
+  items?: AiRadarApiItem[];
+};
+
 const aiRadarSignals: AiRadarSignal[] = [
   {
     category: "Models",
@@ -3587,8 +3594,8 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
           throw new Error("AI Radar feed is unavailable.");
         }
 
-        const data = await response.json();
-        const items = Array.isArray(data?.items) ? data.items : [];
+        const data = (await response.json()) as AiRadarApiResponse;
+        const items: AiRadarApiItem[] = Array.isArray(data.items) ? data.items : [];
         const nextSignals = items
           .map((item): AiRadarSignal | null => {
             if (
