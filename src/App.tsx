@@ -2368,9 +2368,7 @@ function App() {
   useEffect(() => {
     const sectionIds = [
       "top",
-      ...currentNavLinks
-        .map((link) => ("id" in link ? link.id : ""))
-        .filter((id): id is string => Boolean(id)),
+      ...currentNavLinks.flatMap((link) => ("id" in link ? [link.id] : [])),
     ];
     let frameId = 0;
 
