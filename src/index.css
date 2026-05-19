@@ -579,6 +579,9 @@ dt {
     var(--menu-bg);
   box-shadow: var(--shadow-card);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   transform: translateX(-1rem);
   transition: transform 0.22s ease;
 }
@@ -622,37 +625,6 @@ dt {
   font-size: var(--text-micro);
   font-weight: 800;
   padding: 0.48rem 0.7rem;
-}
-
-.reader-menu-account {
-  display: grid;
-  gap: 0.5rem;
-  padding: 0.9rem;
-  border: 1px solid var(--chip-border);
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, var(--muted-button-bg), transparent),
-    var(--panel);
-}
-
-.reader-menu-account strong {
-  color: var(--ink-strong);
-  font-family: "Outfit", sans-serif;
-  font-size: var(--text-md);
-  line-height: 1.25;
-}
-
-.reader-menu-account span {
-  color: var(--ink-soft);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.reader-menu-account .button {
-  width: 100%;
-  min-height: 2.55rem;
-  justify-content: center;
 }
 
 .reader-menu-nav {
@@ -4274,7 +4246,7 @@ section[id] {
     flex-direction: column;
     align-items: stretch;
     gap: 0.28rem;
-    width: min(21rem, calc(100vw - 1.5rem));
+    width: min(19rem, calc(100vw - 3.2rem));
     max-height: min(34rem, calc(100dvh - 6.2rem));
     padding: 0.65rem;
     border: 1px solid var(--panel-border);
@@ -4283,9 +4255,11 @@ section[id] {
     box-shadow: var(--shadow-card);
     opacity: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     pointer-events: none;
     scrollbar-width: thin;
+    touch-action: pan-y;
     visibility: hidden;
     transform: translateY(-8px) scale(0.98);
     transform-origin: top right;
@@ -4568,10 +4542,6 @@ section[id] {
 
   .reader-menu-heading h2 {
     font-size: 1.15rem;
-  }
-
-  .reader-menu-account {
-    padding: 0.78rem;
   }
 
   .reader-menu-nav {
