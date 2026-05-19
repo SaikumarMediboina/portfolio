@@ -332,10 +332,6 @@ function getSignInHref(slug?: string) {
   return slug ? `/signin?blog=${encodeURIComponent(slug)}` : "/signin";
 }
 
-function getUpdatesSignInHref(returnTarget = "blogs") {
-  return `/signin?return=${encodeURIComponent(returnTarget)}`;
-}
-
 function getSavedPostsSignInHref() {
   return "/signin?return=saved-posts";
 }
@@ -1412,12 +1408,12 @@ function getAssistantKnowledgeEntries(
     }),
     createAssistantEntry({
       category: "subscription",
-      title: "Sign in and content updates",
+      title: "Newsletter and reader access",
       summary: isReaderSignedIn
         ? hasActiveSubscription
-          ? "You are signed in and subscribed. New selected engineering notes can reach your inbox when updates are sent."
-          : "You are signed in, but updates are not active yet. Subscribe from the profile area when you want selected portfolio and engineering notes in your inbox."
-        : "Sign in unlocks protected blog posts, saved posts, and the option to receive selected portfolio and engineering updates.",
+          ? "You are signed in and subscribed. New selected engineering notes can reach your inbox when updates are sent. Visitors can also join the newsletter from the footer with only an email address."
+          : "You are signed in, but updates are not active yet. Subscribe from the profile area, or use the footer newsletter form with an email address."
+        : "The footer newsletter form lets visitors subscribe with only an email address. Sign in is still used for protected blog posts and saved posts.",
       keywords: [
         "sign",
         "signin",
@@ -1432,7 +1428,7 @@ function getAssistantKnowledgeEntries(
       ],
       links: isReaderSignedIn
         ? [{ href: "/blogs", label: "Browse blogs" }]
-        : [{ href: "/signin", label: "Open sign in" }],
+        : [{ href: "#newsletter", label: "Join newsletter" }],
       priority: 5,
     }),
     createAssistantEntry({
@@ -2747,7 +2743,7 @@ function BlogIndexSection({
           <p className="blog-count">
             {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
           </p>
-          <a className="blog-updates-link" href={getUpdatesSignInHref()}>
+          <a className="blog-updates-link" href="#newsletter">
             Get updates
           </a>
         </div>
@@ -2955,65 +2951,89 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
   );
 }
 
-type NewsletterCalloutProps = {
-  canUseSubscriptions?: boolean;
-  isSubscribed?: boolean;
-  returnTarget: string;
-  subscriberUser?: User | null;
-  subscriptionBusy?: boolean;
-  onSubscribe?: () => void;
-};
+function NewsletterCallout() {
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "success" | "error">("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+  const [newsletterBusy, setNewsletterBusy] = useState(false);
 
-function NewsletterCallout({
-  canUseSubscriptions = true,
-  isSubscribed = false,
-  returnTarget,
-  subscriberUser = null,
-  subscriptionBusy = false,
-  onSubscribe,
-}: NewsletterCalloutProps) {
-  const actionLabel = subscriberUser
-    ? isSubscribed
-      ? "Subscribed"
-      : "Subscribe"
-    : "Get updates";
+  const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const email = newsletterEmail.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setNewsletterStatus("error");
+      setNewsletterMessage("Please enter a valid email address.");
+      return;
+    }
+
+    setNewsletterBusy(true);
+    setNewsletterStatus("idle");
+    setNewsletterMessage("");
+
+    try {
+      const response = await fetch("/api/subscribe-newsletter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Unable to subscribe right now.");
+      }
+
+      setNewsletterEmail("");
+      setNewsletterStatus("success");
+      setNewsletterMessage(
+        payload.message || "You are subscribed. Useful engineering notes will find you.",
+      );
+    } catch (error) {
+      setNewsletterStatus("error");
+      setNewsletterMessage(
+        error instanceof Error ? error.message : "Unable to subscribe right now.",
+      );
+    } finally {
+      setNewsletterBusy(false);
+    }
+  };
 
   return (
-    <section className="newsletter-callout" aria-label="Subscribe to updates">
+    <section className="newsletter-callout" id="newsletter" aria-label="Subscribe to updates">
       <div className="newsletter-icon" aria-hidden="true">
         <ReaderMenuGlyph type="mail" />
       </div>
       <div>
         <p className="eyebrow">Newsletter</p>
-        <h2>Get the useful updates without checking the site every week.</h2>
+        <h2>Join the Newsletter</h2>
         <p>
-          Subscribe for selected engineering notes, new shelf additions, and meaningful portfolio
-          updates. No noise, no spam, and you can unsubscribe anytime.
+          Get notified when new deep dives, engineering notes, and meaningful portfolio updates are
+          published. No spam. Unsubscribe from any email.
         </p>
       </div>
-      <div className="newsletter-actions">
-        {subscriberUser ? (
-          <button
-            className={`button ${isSubscribed ? "button-secondary" : "button-primary"}`}
-            type="button"
-            disabled={subscriptionBusy || isSubscribed || !canUseSubscriptions}
-            onClick={onSubscribe}
-          >
-            {subscriptionBusy ? "Updating..." : actionLabel}
-          </button>
-        ) : (
-          <a className="button button-primary" href={getUpdatesSignInHref(returnTarget)}>
-            {actionLabel}
-          </a>
-        )}
-        <span>
-          {subscriberUser
-            ? isSubscribed
-              ? "You are on the update list."
-              : "One click and future notes can find you."
-            : "Sign in once to manage preferences."}
-        </span>
-      </div>
+      <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
+        <label>
+          <span>Email address</span>
+          <input
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            placeholder="Your email address"
+            value={newsletterEmail}
+            onChange={(event) => setNewsletterEmail(event.target.value)}
+            disabled={newsletterBusy}
+          />
+        </label>
+        <button className="button button-primary" type="submit" disabled={newsletterBusy}>
+          {newsletterBusy ? "Subscribing..." : "Subscribe"}
+        </button>
+        {newsletterMessage ? (
+          <p className={`newsletter-status is-${newsletterStatus}`}>{newsletterMessage}</p>
+        ) : null}
+      </form>
     </section>
   );
 }
@@ -3978,7 +3998,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                 updates land in your inbox only when there is something worth opening.
               </p>
             </div>
-            <a className="button button-primary" href={getUpdatesSignInHref("dashboard")}>
+            <a className="button button-primary" href="#newsletter">
               Get updates
             </a>
           </div>
@@ -5062,18 +5082,11 @@ function App() {
     }
   };
 
-  const renderWithAssistant = (page: ReactNode, newsletterReturnTarget = "home") => (
+  const renderWithAssistant = (page: ReactNode) => (
     <>
       {page}
       <div className="site-newsletter-footer shell">
-        <NewsletterCallout
-          canUseSubscriptions={canUseSubscriptions}
-          isSubscribed={isSubscribed}
-          returnTarget={newsletterReturnTarget}
-          subscriberUser={subscriberUser}
-          subscriptionBusy={subscriptionBusy}
-          onSubscribe={handleSubscribe}
-        />
+        <NewsletterCallout />
       </div>
       <SiteFooter />
       <SiteAssistant isSubscribed={isSubscribed} subscriberUser={subscriberUser} />
@@ -5093,7 +5106,6 @@ function App() {
         onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "blogs",
     );
   }
 
@@ -5110,7 +5122,6 @@ function App() {
         onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "saved-posts",
     );
   }
 
@@ -5120,7 +5131,6 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "start",
     );
   }
 
@@ -5130,7 +5140,6 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "whats-new",
     );
   }
 
@@ -5140,7 +5149,6 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "shelf",
     );
   }
 
@@ -5150,7 +5158,6 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "dashboard",
     );
   }
 
@@ -5171,7 +5178,6 @@ function App() {
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onToggleSavedPost={handleToggleSavedPost}
       />,
-      "blogs",
     );
   }
 
@@ -5181,7 +5187,6 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "work-with-me",
     );
   }
 
@@ -5207,7 +5212,6 @@ function App() {
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onUnsubscribe={handleUnsubscribe}
       />,
-      signInReturnTarget || "home",
     );
   }
 
@@ -5217,7 +5221,6 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
-      "home",
     );
   }
 
@@ -5645,7 +5648,6 @@ function App() {
 
       </main>
     </>,
-    isPortfolioPage ? "portfolio" : "home",
   );
 }
 

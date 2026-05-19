@@ -133,6 +133,7 @@ async function getSubscribedRecipients({ accessToken, projectId }) {
     .map((fields) => ({
       email: String(getFieldValue(fields, "email")).trim(),
       name: String(getFieldValue(fields, "name") || "Subscriber").trim(),
+      unsubscribeToken: String(getFieldValue(fields, "unsubscribeToken")).trim(),
     }))
     .filter((recipient) => recipient.email);
 
@@ -147,11 +148,23 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-function buildEmailHtml({ title, summary, link, siteUrl }) {
+function getUnsubscribeUrl({ recipient, siteUrl }) {
+  const cleanSiteUrl = siteUrl.replace(/\/$/, "");
+
+  if (recipient?.email && recipient?.unsubscribeToken) {
+    return `${cleanSiteUrl}/api/unsubscribe-newsletter?email=${encodeURIComponent(
+      recipient.email,
+    )}&token=${encodeURIComponent(recipient.unsubscribeToken)}`;
+  }
+
+  return `${cleanSiteUrl}/signin`;
+}
+
+function buildEmailHtml({ title, summary, link, recipient, siteUrl }) {
   const safeTitle = escapeHtml(title);
   const safeSummary = escapeHtml(summary).replace(/\n/g, "<br />");
   const safeLink = escapeHtml(link);
-  const signInUrl = `${siteUrl.replace(/\/$/, "")}/signin`;
+  const unsubscribeUrl = escapeHtml(getUnsubscribeUrl({ recipient, siteUrl }));
 
   return `
     <div style="margin:0;padding:0;background:#0f1724;color:#f7f3ed;font-family:Arial,sans-serif;">
@@ -167,7 +180,7 @@ function buildEmailHtml({ title, summary, link, siteUrl }) {
         <div style="margin-top:28px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.12);">
           <p style="margin:0;color:#98a6b8;font-size:13px;line-height:1.6;">
             You are receiving this because you subscribed to Sai Kumar Mediboina portfolio updates.
-            You can unsubscribe anytime from <a href="${signInUrl}" style="color:#ffb06b;">subscriber preferences</a>.
+            You can <a href="${unsubscribeUrl}" style="color:#ffb06b;">unsubscribe anytime</a>.
           </p>
         </div>
       </div>
@@ -175,8 +188,8 @@ function buildEmailHtml({ title, summary, link, siteUrl }) {
   `;
 }
 
-function buildEmailText({ title, summary, link, siteUrl }) {
-  const signInUrl = `${siteUrl.replace(/\/$/, "")}/signin`;
+function buildEmailText({ title, summary, link, recipient, siteUrl }) {
+  const unsubscribeUrl = getUnsubscribeUrl({ recipient, siteUrl });
 
   return [
     title,
@@ -185,7 +198,7 @@ function buildEmailText({ title, summary, link, siteUrl }) {
     "",
     link ? `Read the update: ${link}` : "",
     "",
-    `You can unsubscribe anytime from subscriber preferences: ${signInUrl}`,
+    `You can unsubscribe anytime: ${unsubscribeUrl}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -261,11 +274,12 @@ export default async function handler(request, response) {
     }
 
     const subject = testEmail ? `[TEST] Portfolio update: ${title}` : `New portfolio update: ${title}`;
-    const html = buildEmailHtml({ title, summary, link, siteUrl });
-    const text = buildEmailText({ title, summary, link, siteUrl });
     const results = [];
 
     for (const recipient of recipients) {
+      const html = buildEmailHtml({ title, summary, link, recipient, siteUrl });
+      const text = buildEmailText({ title, summary, link, recipient, siteUrl });
+
       try {
         const providerResponse = await sendEmail({
           to: recipient.email,
