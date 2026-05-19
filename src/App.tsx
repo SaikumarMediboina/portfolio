@@ -212,6 +212,10 @@ function getSignInHref(slug?: string) {
   return slug ? `/signin?blog=${encodeURIComponent(slug)}` : "/signin";
 }
 
+function getUpdatesSignInHref() {
+  return "/signin?return=blogs";
+}
+
 function getSavedPostsSignInHref() {
   return "/signin?return=saved-posts";
 }
@@ -430,6 +434,39 @@ function ThemeToggleIcon({ theme }: { theme: Theme }) {
         strokeLinecap="round"
       />
     </svg>
+  );
+}
+
+type PageBackButtonProps = {
+  fallbackHref: string;
+  label?: string;
+};
+
+function PageBackButton({ fallbackHref, label = "Back" }: PageBackButtonProps) {
+  const handleBack = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      const referrerUrl = document.referrer ? new URL(document.referrer) : null;
+      const hasSameSiteReferrer = referrerUrl?.origin === window.location.origin;
+
+      if (hasSameSiteReferrer && window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+    } catch {
+      // Fall through to the explicit page fallback.
+    }
+
+    window.location.href = fallbackHref;
+  };
+
+  return (
+    <button className="button button-secondary" type="button" onClick={handleBack}>
+      {label}
+    </button>
   );
 }
 
@@ -1457,9 +1494,14 @@ function BlogIndexSection({
             </button>
           ))}
         </div>
-        <p className="blog-count">
-          {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
-        </p>
+        <div className="blog-toolbar-actions">
+          <p className="blog-count">
+            {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
+          </p>
+          <a className="blog-updates-link" href={getUpdatesSignInHref()}>
+            Get updates
+          </a>
+        </div>
       </div>
 
       <div className="blog-index">
@@ -1643,6 +1685,7 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
             <a className="button button-secondary" href="/">
               Home
             </a>
+            <PageBackButton fallbackHref="/" label="Back" />
             <button
               className="theme-toggle"
               type="button"
@@ -1741,6 +1784,7 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
             <a className="button button-secondary" href="/">
               Home
             </a>
+            <PageBackButton fallbackHref="/" label="Back" />
             <button
               className="theme-toggle"
               type="button"
@@ -2094,9 +2138,7 @@ function SavedPostsPage({
             <a className="button button-secondary" href="/">
               Home
             </a>
-            <a className="button button-secondary" href="/blogs">
-              Back to blogs
-            </a>
+            <PageBackButton fallbackHref="/blogs" label="Back" />
             <button
               className="theme-toggle"
               type="button"
@@ -2259,9 +2301,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
             <a className="button button-secondary" href="/">
               Home
             </a>
-            <a className="button button-secondary" href="/portfolio#top">
-              Back to portfolio
-            </a>
+            <PageBackButton fallbackHref="/portfolio#top" label="Back" />
             <button
               className="theme-toggle"
               type="button"
@@ -2502,6 +2542,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
 
 type SignInPageProps = SubscriptionAccessCardProps & {
   portfolioReturnBlogSlug?: string;
+  shouldReturnToBlogs?: boolean;
   shouldReturnToSavedPosts?: boolean;
   subscriberView: SubscriberViewState;
   theme: Theme;
@@ -2510,6 +2551,7 @@ type SignInPageProps = SubscriptionAccessCardProps & {
 
 function SignInPage({
   portfolioReturnBlogSlug,
+  shouldReturnToBlogs,
   shouldReturnToSavedPosts,
   subscriberName,
   subscriberView,
@@ -2600,10 +2642,10 @@ function SignInPage({
               <a className="button button-secondary" href="/saved-posts">
                 Back to saved posts
               </a>
+            ) : shouldReturnToBlogs ? (
+              <PageBackButton fallbackHref="/blogs" label="Back to blogs" />
             ) : (
-              <a className="button button-secondary" href="/portfolio#top">
-                Back to portfolio
-              </a>
+              <PageBackButton fallbackHref="/portfolio#top" label="Back" />
             )}
             <button
               className="theme-toggle"
@@ -2713,9 +2755,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
             <a className="button button-secondary" href="/">
               Home
             </a>
-            <a className="button button-secondary" href="/portfolio#top">
-              Back to portfolio
-            </a>
+            <PageBackButton fallbackHref="/portfolio#top" label="Back" />
             <button
               className="theme-toggle"
               type="button"
@@ -3367,6 +3407,7 @@ function App() {
         canUseSubscriptions={canUseSubscriptions}
         isSubscribed={isSubscribed}
         portfolioReturnBlogSlug={signInReturnBlog?.slug}
+        shouldReturnToBlogs={signInReturnTarget === "blogs"}
         shouldReturnToSavedPosts={signInReturnTarget === "saved-posts"}
         subscriberEmail={subscriberEmail}
         subscriberInitial={subscriberInitial}
@@ -3407,12 +3448,8 @@ function App() {
       <header className={`site-header${headerDocked ? " is-docked" : ""}`}>
         <div className="shell header-shell">
           <div className="brand-cluster">
-            <a className="brand" href="#top" onClick={closeMenu}>
+            <a className="brand brand-mark-link" href="#top" onClick={closeMenu} aria-label="Go to home">
               <span className="brand-mark">SK</span>
-              <span className="brand-copy">
-                <strong>{profile.name}</strong>
-                <span>{profile.role}</span>
-              </span>
             </a>
 
             <button
@@ -3428,6 +3465,13 @@ function App() {
             >
               <ReaderMenuGlyph type="menu" />
             </button>
+
+            <a className="brand brand-name-link" href="#top" onClick={closeMenu}>
+              <span className="brand-copy">
+                <strong>{profile.name}</strong>
+                <span>{profile.role}</span>
+              </span>
+            </a>
           </div>
 
           <nav
