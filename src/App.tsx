@@ -1676,7 +1676,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
       {
         id: assistantMessageId,
         role: "assistant",
-        text: "Checking Sai's site notebook...",
+        text: "Digging through Sai's knowledge base. Tiny gears are turning...",
       },
     ]);
     setInput("");
