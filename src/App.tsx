@@ -299,7 +299,9 @@ function getPersonStructuredData() {
 function getWebsiteStructuredData() {
   return {
     "@context": "https://schema.org",
+    "@id": `${SITE_URL}/#website`,
     "@type": "WebSite",
+    alternateName: ["Sai Kumar", "Sai Kumar Portfolio"],
     description: DEFAULT_SEO_DESCRIPTION,
     inLanguage: "en",
     name: SITE_NAME,
@@ -321,9 +323,7 @@ function getWebPageStructuredData(metadata: SeoMetadata, pageType = "WebPage") {
     image: getAbsoluteSiteUrl(metadata.imagePath),
     inLanguage: "en",
     isPartOf: {
-      "@type": "WebSite",
-      name: SITE_NAME,
-      url: getAbsoluteSiteUrl("/"),
+      "@id": `${SITE_URL}/#website`,
     },
     mainEntity: {
       "@id": `${SITE_URL}/#person`,
