@@ -467,6 +467,10 @@ dt {
   margin-top: 0.8rem;
 }
 
+.mobile-account-panel {
+  display: none;
+}
+
 .reader-menu-trigger,
 .theme-toggle,
 .menu-toggle {
@@ -4110,6 +4114,51 @@ section[id] {
     width: 100%;
     justify-items: center;
     padding: 0.55rem 0 0.3rem;
+  }
+
+  .mobile-account-panel {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1rem;
+    border: 1px solid var(--chip-border);
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at top left, var(--accent-soft), transparent 45%),
+      var(--muted-button-bg);
+  }
+
+  .mobile-account-panel > div:first-child {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .mobile-account-panel strong {
+    color: var(--ink-strong);
+    font-family: "Outfit", sans-serif;
+    font-size: var(--text-md);
+    line-height: 1.25;
+  }
+
+  .mobile-account-panel span {
+    color: var(--ink-soft);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    line-height: 1.55;
+  }
+
+  .mobile-account-panel .button {
+    width: 100%;
+    min-height: 2.8rem;
+  }
+
+  .mobile-account-actions {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .mobile-account-panel .status-message {
+    margin: 0;
   }
 
   .profile-menu-panel {

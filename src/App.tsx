@@ -2453,6 +2453,80 @@ function ProfileMenu({
   );
 }
 
+function MobileAccountPanel({
+  canUseSubscriptions,
+  isSubscribed,
+  subscriberEmail,
+  subscriberName,
+  subscriberUser,
+  subscriptionBusy,
+  onGoogleSignIn,
+  onSignOut,
+  onSubscribe,
+  onUnsubscribe,
+}: SubscriptionAccessCardProps) {
+  return (
+    <div className="mobile-account-panel">
+      <div>
+        <p className="impact-label">{subscriberUser ? "Account" : "Reader Access"}</p>
+        <strong>{subscriberUser ? subscriberName : "Sign in to unlock member reads"}</strong>
+        <span>
+          {subscriberUser
+            ? subscriberEmail
+            : "Save posts, unlock protected blogs, and manage update preferences."}
+        </span>
+      </div>
+
+      {subscriberUser ? (
+        <div className="mobile-account-actions">
+          {isSubscribed ? (
+            <button
+              className="button button-secondary"
+              type="button"
+              disabled={subscriptionBusy}
+              onClick={onUnsubscribe}
+            >
+              {subscriptionBusy ? "Updating..." : "Unsubscribe"}
+            </button>
+          ) : (
+            <button
+              className="button button-primary"
+              type="button"
+              disabled={subscriptionBusy}
+              onClick={onSubscribe}
+            >
+              {subscriptionBusy ? "Updating..." : "Subscribe"}
+            </button>
+          )}
+          <button
+            className="button button-tertiary"
+            type="button"
+            disabled={subscriptionBusy}
+            onClick={onSignOut}
+          >
+            Sign out
+          </button>
+        </div>
+      ) : (
+        <button
+          className="button button-primary"
+          type="button"
+          disabled={subscriptionBusy || !canUseSubscriptions}
+          onClick={onGoogleSignIn}
+        >
+          {subscriptionBusy ? "Opening..." : "Sign in"}
+        </button>
+      )}
+
+      {!canUseSubscriptions ? (
+        <p className="status-message is-warning">
+          Sign-in needs Firebase environment variables in Vercel before it can go live.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function SubscriptionAccessCard({
   canUseSubscriptions,
   isSubscribed,
@@ -4992,6 +5066,21 @@ function App() {
                 {link.label}
               </a>
             ))}
+            <MobileAccountPanel
+              canUseSubscriptions={canUseSubscriptions}
+              isSubscribed={isSubscribed}
+              subscriberEmail={subscriberEmail}
+              subscriberInitial={subscriberInitial}
+              subscriberName={subscriberName}
+              subscriberUser={subscriberUser}
+              subscriptionBusy={subscriptionBusy}
+              subscriptionError={subscriptionError}
+              subscriptionMessage={subscriptionMessage}
+              onGoogleSignIn={handleGoogleSignIn}
+              onSignOut={handleSignOut}
+              onSubscribe={handleSubscribe}
+              onUnsubscribe={handleUnsubscribe}
+            />
             <div ref={profileMenuRef}>
               <ProfileMenu
                 canUseSubscriptions={canUseSubscriptions}
