@@ -876,6 +876,11 @@ type AssistantKnowledgeEntry = {
   title: string;
 };
 
+type AssistantPromptEntry = Pick<
+  AssistantKnowledgeEntry,
+  "category" | "details" | "summary" | "title"
+>;
+
 const assistantStopWords = new Set([
   "a",
   "about",
@@ -1007,6 +1012,45 @@ function getUniqueAssistantLinks(links: AssistantLink[]) {
     seen.add(key);
     return true;
   });
+}
+
+function rankAssistantEntries(
+  input: string,
+  isReaderSignedIn: boolean,
+  hasActiveSubscription: boolean,
+) {
+  const normalizedQuery = normalizeAssistantText(input);
+  const tokens = getAssistantTokens(input);
+
+  if (!tokens.length) {
+    return [];
+  }
+
+  return getAssistantKnowledgeEntries(isReaderSignedIn, hasActiveSubscription)
+    .map((entry) => ({
+      entry,
+      score: scoreAssistantEntry(entry, tokens, normalizedQuery),
+    }))
+    .filter((result) => result.score > 0)
+    .sort((left, right) => right.score - left.score);
+}
+
+function getAssistantPromptContext(
+  input: string,
+  isReaderSignedIn: boolean,
+  hasActiveSubscription: boolean,
+): AssistantPromptEntry[] {
+  const rankedEntries = rankAssistantEntries(input, isReaderSignedIn, hasActiveSubscription);
+  const selectedEntries = rankedEntries.length
+    ? rankedEntries.slice(0, 8).map((result) => result.entry)
+    : getAssistantKnowledgeEntries(isReaderSignedIn, hasActiveSubscription).slice(0, 6);
+
+  return selectedEntries.map((entry) => ({
+    category: entry.category,
+    details: entry.details?.slice(0, 4),
+    summary: entry.summary,
+    title: entry.title,
+  }));
 }
 
 function createAssistantEntry(
@@ -1519,13 +1563,7 @@ function getAssistantResponse(
     return getAssistantUnknownResponse();
   }
 
-  const rankedEntries = getAssistantKnowledgeEntries(isReaderSignedIn, hasActiveSubscription)
-    .map((entry) => ({
-      entry,
-      score: scoreAssistantEntry(entry, tokens, normalizedQuery),
-    }))
-    .filter((result) => result.score > 0)
-    .sort((left, right) => right.score - left.score);
+  const rankedEntries = rankAssistantEntries(input, isReaderSignedIn, hasActiveSubscription);
 
   const bestMatch = rankedEntries[0];
 
@@ -1583,6 +1621,39 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     }
   }, [isOpen, messages]);
 
+  const getLlmAssistantResponse = async (
+    question: string,
+    fallbackResponse: Pick<AssistantMessage, "links" | "text">,
+  ) => {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        question,
+        fallbackText: fallbackResponse.text,
+        context: getAssistantPromptContext(question, Boolean(subscriberUser), isSubscribed),
+        history: messages.slice(-6).map((message) => ({
+          role: message.role,
+          text: message.text,
+        })),
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Assistant API request failed.");
+    }
+
+    const data = await response.json();
+    const text = typeof data?.text === "string" ? data.text.trim() : "";
+
+    return {
+      links: fallbackResponse.links,
+      text: text || fallbackResponse.text,
+    };
+  };
+
   const sendAssistantMessage = (value: string) => {
     const trimmedValue = value.trim();
 
@@ -1591,22 +1662,51 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     }
 
     const response = getAssistantResponse(trimmedValue, Boolean(subscriberUser), isSubscribed);
+    const visitorMessageId = Date.now();
+    const assistantMessageId = visitorMessageId + 1;
 
     setMessages((current) => [
       ...current,
       {
-        id: Date.now(),
+        id: visitorMessageId,
         role: "visitor",
         text: trimmedValue,
       },
       {
-        id: Date.now() + 1,
+        id: assistantMessageId,
         role: "assistant",
-        text: response.text,
-        links: response.links,
+        text: "Checking Sai's site notebook...",
       },
     ]);
     setInput("");
+
+    getLlmAssistantResponse(trimmedValue, response)
+      .then((llmResponse) => {
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === assistantMessageId
+              ? {
+                  ...message,
+                  links: llmResponse.links,
+                  text: llmResponse.text,
+                }
+              : message,
+          ),
+        );
+      })
+      .catch(() => {
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === assistantMessageId
+              ? {
+                  ...message,
+                  links: response.links,
+                  text: response.text,
+                }
+              : message,
+          ),
+        );
+      });
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
