@@ -6,6 +6,7 @@ import {
   type CSSProperties,
   type FormEvent,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from "react";
 import type { User } from "firebase/auth";
 import {
@@ -4575,8 +4576,15 @@ function App() {
     }
   };
 
+  const renderWithAssistant = (page: ReactNode) => (
+    <>
+      {page}
+      <SiteAssistant isSubscribed={isSubscribed} subscriberUser={subscriberUser} />
+    </>
+  );
+
   if (standaloneBlogSlug) {
-    return (
+    return renderWithAssistant(
       <BlogArticlePage
         post={standaloneBlog}
         isAccessChecking={standaloneBlogAccessChecking}
@@ -4587,12 +4595,12 @@ function App() {
         theme={theme}
         onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
   if (isSavedPostsPage) {
-    return (
+    return renderWithAssistant(
       <SavedPostsPage
         authReady={authReady}
         savedPosts={savedPosts}
@@ -4603,48 +4611,48 @@ function App() {
         theme={theme}
         onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
   if (isStartPage) {
-    return (
+    return renderWithAssistant(
       <StartHerePage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
   if (isWhatsNewPage) {
-    return (
+    return renderWithAssistant(
       <WhatsNewPage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
   if (isShelfPage) {
-    return (
+    return renderWithAssistant(
       <ShelfPage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
   if (isDashboardPage) {
-    return (
+    return renderWithAssistant(
       <DashboardPage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
   if (isBlogsPage) {
-    return (
+    return renderWithAssistant(
       <BlogIndexPage
         blogCategories={blogCategories}
         featuredBlog={featuredBlog}
@@ -4659,21 +4667,21 @@ function App() {
         onSelectBlogCategory={selectBlogCategory}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onToggleSavedPost={handleToggleSavedPost}
-      />
+      />,
     );
   }
 
   if (isContactPage) {
-    return (
+    return renderWithAssistant(
       <ContactPage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
   if (isSignInPage) {
-    return (
+    return renderWithAssistant(
       <SignInPage
         canUseSubscriptions={canUseSubscriptions}
         isSubscribed={isSubscribed}
@@ -4693,20 +4701,20 @@ function App() {
         onSubscribe={handleSubscribe}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onUnsubscribe={handleUnsubscribe}
-      />
+      />,
     );
   }
 
   if (isAdminUpdatePage) {
-    return (
+    return renderWithAssistant(
       <AdminUpdatePage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-      />
+      />,
     );
   }
 
-  return (
+  return renderWithAssistant(
     <>
       <a className="skip-link" href="#main-content">
         Skip to content
@@ -5128,9 +5136,7 @@ function App() {
           </div>
         </div>
       </footer>
-
-      <SiteAssistant isSubscribed={isSubscribed} subscriberUser={subscriberUser} />
-    </>
+    </>,
   );
 }
 
