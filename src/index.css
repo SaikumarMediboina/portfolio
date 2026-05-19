@@ -4842,6 +4842,508 @@ section[id] {
   scroll-margin-top: 8rem;
 }
 
+@keyframes pageEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes cardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes editorialSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gentleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes orbDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(18px, -18px, 0) scale(1.04);
+  }
+}
+
+@keyframes gridDrift {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+
+  100% {
+    background-position: 44px 44px, 44px 44px;
+  }
+}
+
+@keyframes premiumSweep {
+  0% {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+
+  42%,
+  100% {
+    transform: translateX(150%) skewX(-20deg);
+  }
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 6px rgba(255, 141, 102, 0.12);
+  }
+
+  50% {
+    box-shadow: 0 0 0 11px rgba(255, 141, 102, 0);
+  }
+}
+
+@keyframes storyImageDrift {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+@keyframes chartGrow {
+  0% {
+    transform: scaleY(0.12);
+    opacity: 0.36;
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes articleFill {
+  0% {
+    transform: scaleX(0.08);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes donutSettle {
+  0% {
+    opacity: 0;
+    transform: rotate(-18deg) scale(0.92);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes radarSweep {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes radarSweepOffset {
+  0% {
+    transform: rotate(58deg);
+  }
+
+  100% {
+    transform: rotate(418deg);
+  }
+}
+
+@keyframes radarBlink {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+@keyframes assistantBreathe {
+  0%,
+  100% {
+    box-shadow: 0 18px 34px rgba(217, 74, 56, 0.32);
+  }
+
+  50% {
+    box-shadow: 0 22px 44px rgba(217, 74, 56, 0.46);
+  }
+}
+
+body::before {
+  animation: gridDrift 30s linear infinite;
+}
+
+.backdrop-orb-left {
+  animation: orbDrift 14s ease-in-out infinite;
+}
+
+.backdrop-orb-right {
+  animation: orbDrift 16s ease-in-out 0.8s infinite reverse;
+}
+
+.hero,
+.blogs-page,
+.guide-page,
+.ai-radar-page,
+.collaboration-page,
+.article-page,
+.saved-posts-page,
+.shelf-page,
+.dashboard-page,
+.signin-page,
+.admin-update-page {
+  animation: pageEntrance 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.hero-copy,
+.section-heading,
+.blog-toolbar,
+.guide-hero,
+.dashboard-hero,
+.collaboration-hero-copy,
+.signin-copy,
+.saved-posts-hero,
+.shelf-hero,
+.standalone-blog-hero {
+  animation: editorialSlideIn 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.hero-panel,
+.metric-card,
+.focus-card,
+.project-tab,
+.project-spotlight,
+.timeline-card,
+.skill-card,
+.credential-panel,
+.recognition-card,
+.updates-panel,
+.updates-card,
+.contact-panel,
+.blog-featured,
+.blog-list-item,
+.guide-card,
+.mini-updates-panel,
+.whats-new-list article,
+.ai-radar-story-card,
+.ai-radar-hero-panel,
+.ai-radar-top-card,
+.ai-radar-lens,
+.ai-radar-item,
+.collaboration-signal-card,
+.collaboration-area-card,
+.collaboration-proof,
+.collaboration-step,
+.collaboration-cta,
+.dashboard-note,
+.dashboard-email-callout,
+.dashboard-stat-card,
+.dashboard-card,
+.dashboard-topic-breakdown section,
+.saved-posts-panel,
+.saved-posts-item,
+.saved-posts-empty,
+.shelf-panel,
+.shelf-coming-soon,
+.shelf-plan-card,
+.admin-update-panel,
+.standalone-blog,
+.blog-article-section {
+  animation: cardEntrance 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--motion-delay, 0s);
+}
+
+.hero-panel {
+  animation:
+    cardEntrance 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) both,
+    gentleFloat 8s ease-in-out 1s infinite;
+}
+
+.ai-radar-story-card {
+  animation:
+    cardEntrance 0.72s cubic-bezier(0.2, 0.8, 0.2, 1) both,
+    gentleFloat 7.5s ease-in-out 1s infinite;
+}
+
+.button-primary,
+.collaboration-primary,
+.assistant-launcher {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.button-primary::after,
+.collaboration-primary::after,
+.assistant-launcher::after {
+  content: "";
+  position: absolute;
+  inset: -40% auto -40% -35%;
+  z-index: 0;
+  width: 38%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+  opacity: 0.58;
+  transform: translateX(-130%) skewX(-20deg);
+  animation: premiumSweep 4.8s ease-in-out 1.4s infinite;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.assistant-launcher {
+  animation: assistantBreathe 3.8s ease-in-out infinite;
+}
+
+.ai-radar-live-dot::before {
+  animation: livePulse 1.8s ease-in-out infinite;
+}
+
+.ai-radar-hero::before {
+  animation: gentleFloat 9s ease-in-out infinite;
+}
+
+.ai-radar-story-thumb img,
+.ai-radar-hero-backdrop img {
+  animation: storyImageDrift 12s ease-in-out infinite;
+}
+
+.dashboard-topic-bar,
+.dashboard-cadence-chart span {
+  transform-origin: bottom;
+  animation: chartGrow 0.78s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--motion-delay, 0s);
+}
+
+.dashboard-article-bar::before {
+  transform-origin: left;
+  animation: articleFill 0.86s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--motion-delay, 0s);
+}
+
+.dashboard-donut {
+  animation: donutSettle 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.radar-line {
+  animation: radarSweep 14s linear infinite;
+}
+
+.radar-line-two {
+  animation: radarSweepOffset 14s linear infinite;
+}
+
+.radar-dot {
+  animation: radarBlink 2.8s ease-in-out infinite;
+}
+
+.radar-dot-two {
+  animation-delay: 0.45s;
+}
+
+.radar-dot-three {
+  animation-delay: 0.9s;
+}
+
+:is(
+  .metric-grid,
+  .focus-grid,
+  .recognition-grid,
+  .project-selector,
+  .project-spotlight-grid,
+  .skill-grid,
+  .credentials-grid,
+  .blog-list,
+  .guide-grid,
+  .whats-new-list,
+  .ai-radar-top-grid,
+  .ai-radar-feed,
+  .collaboration-card-grid,
+  .collaboration-proof-grid,
+  .collaboration-process,
+  .dashboard-stat-grid,
+  .dashboard-grid,
+  .dashboard-topic-chart,
+  .dashboard-article-bars,
+  .dashboard-cadence-stats,
+  .saved-posts-list,
+  .shelf-plan-grid
+) > :nth-child(1) {
+  --motion-delay: 0.04s;
+}
+
+:is(
+  .metric-grid,
+  .focus-grid,
+  .recognition-grid,
+  .project-selector,
+  .project-spotlight-grid,
+  .skill-grid,
+  .credentials-grid,
+  .blog-list,
+  .guide-grid,
+  .whats-new-list,
+  .ai-radar-top-grid,
+  .ai-radar-feed,
+  .collaboration-card-grid,
+  .collaboration-proof-grid,
+  .collaboration-process,
+  .dashboard-stat-grid,
+  .dashboard-grid,
+  .dashboard-topic-chart,
+  .dashboard-article-bars,
+  .dashboard-cadence-stats,
+  .saved-posts-list,
+  .shelf-plan-grid
+) > :nth-child(2) {
+  --motion-delay: 0.1s;
+}
+
+:is(
+  .metric-grid,
+  .focus-grid,
+  .recognition-grid,
+  .project-selector,
+  .project-spotlight-grid,
+  .skill-grid,
+  .credentials-grid,
+  .blog-list,
+  .guide-grid,
+  .whats-new-list,
+  .ai-radar-top-grid,
+  .ai-radar-feed,
+  .collaboration-card-grid,
+  .collaboration-proof-grid,
+  .collaboration-process,
+  .dashboard-stat-grid,
+  .dashboard-grid,
+  .dashboard-topic-chart,
+  .dashboard-article-bars,
+  .dashboard-cadence-stats,
+  .saved-posts-list,
+  .shelf-plan-grid
+) > :nth-child(3) {
+  --motion-delay: 0.16s;
+}
+
+:is(
+  .metric-grid,
+  .focus-grid,
+  .recognition-grid,
+  .project-selector,
+  .project-spotlight-grid,
+  .skill-grid,
+  .credentials-grid,
+  .blog-list,
+  .guide-grid,
+  .whats-new-list,
+  .ai-radar-top-grid,
+  .ai-radar-feed,
+  .collaboration-card-grid,
+  .collaboration-proof-grid,
+  .collaboration-process,
+  .dashboard-stat-grid,
+  .dashboard-grid,
+  .dashboard-topic-chart,
+  .dashboard-article-bars,
+  .dashboard-cadence-stats,
+  .saved-posts-list,
+  .shelf-plan-grid
+) > :nth-child(4) {
+  --motion-delay: 0.22s;
+}
+
+:is(
+  .metric-grid,
+  .focus-grid,
+  .recognition-grid,
+  .project-selector,
+  .skill-grid,
+  .credentials-grid,
+  .blog-list,
+  .ai-radar-feed,
+  .dashboard-topic-chart,
+  .dashboard-article-bars,
+  .saved-posts-list
+) > :nth-child(n + 5) {
+  --motion-delay: 0.28s;
+}
+
+@supports (animation-timeline: view()) {
+  .section-heading,
+  .focus-card,
+  .project-tab,
+  .project-spotlight,
+  .timeline-card,
+  .skill-card,
+  .credential-panel,
+  .recognition-card,
+  .blog-list-item,
+  .guide-card,
+  .ai-radar-item,
+  .collaboration-area-card,
+  .collaboration-step,
+  .dashboard-card,
+  .saved-posts-item,
+  .shelf-plan-card,
+  .blog-article-section {
+    animation-timeline: view();
+    animation-range: entry 0% cover 32%;
+  }
+}
+
 @media (max-width: 1080px) {
   .hero,
   .work-layout,
