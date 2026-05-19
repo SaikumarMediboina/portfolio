@@ -52,12 +52,12 @@ const portfolioNavLinks = [
 const mainNavLinks = [
   { href: "/start", label: "Start Here" },
   { href: "/portfolio", label: "Portfolio" },
-  { href: "#about", id: "about", label: "About" },
   { href: "/blogs", label: "Blogs" },
   { href: "/whats-new", label: "What's New" },
   { href: "/shelf", label: "Sai's Shelf" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/work-with-me", label: "Work With Me" },
+  { href: "#about", id: "about", label: "About" },
 ] as const;
 
 type SiteUpdate = {
