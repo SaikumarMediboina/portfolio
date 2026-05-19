@@ -1888,10 +1888,8 @@ dt {
 
 .ai-radar-hero-copy,
 .ai-radar-featured,
-.ai-radar-stats article,
 .ai-radar-lens,
-.ai-radar-item,
-.ai-radar-principles article {
+.ai-radar-item {
   border: 1px solid var(--panel-border);
   background: var(--panel-strong);
   box-shadow: var(--shadow-soft);
@@ -1906,16 +1904,33 @@ dt {
   padding: clamp(1.5rem, 4vw, 2.5rem);
   border-radius: var(--radius-xl);
   background:
-    radial-gradient(circle at 18% 0%, var(--accent-soft), transparent 32%),
-    radial-gradient(circle at 92% 12%, var(--accent-cool), transparent 28%),
-    var(--panel-strong);
+    linear-gradient(135deg, rgba(17, 28, 43, 0.96), rgba(20, 38, 59, 0.92)),
+    radial-gradient(circle at 18% 0%, rgba(255, 141, 102, 0.32), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgba(126, 166, 255, 0.22), transparent 28%);
+  color: #fff8ef;
+  overflow: hidden;
+  position: relative;
+}
+
+.ai-radar-hero-copy::before {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: calc(var(--radius-xl) - 10px);
+  pointer-events: none;
+}
+
+.ai-radar-hero-copy > * {
+  position: relative;
+  z-index: 1;
 }
 
 .ai-radar-hero-copy h1 {
-  max-width: 13ch;
-  color: var(--ink-strong);
+  max-width: 12ch;
+  color: #fff8ef;
   font-family: "Outfit", sans-serif;
-  font-size: clamp(3rem, 7vw, 5.7rem);
+  font-size: clamp(3.1rem, 7vw, 6rem);
   font-weight: 800;
   letter-spacing: -0.055em;
   line-height: 0.93;
@@ -1923,11 +1938,46 @@ dt {
 }
 
 .ai-radar-hero-copy p:not(.eyebrow) {
-  max-width: 56rem;
-  color: var(--ink-soft);
+  max-width: 42rem;
+  color: rgba(255, 248, 239, 0.68);
   font-size: var(--text-lg);
-  line-height: 1.86;
+  line-height: 1.7;
   text-wrap: pretty;
+}
+
+.ai-radar-hero-copy .eyebrow {
+  color: #ffb091;
+}
+
+.ai-radar-signal-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.1rem;
+}
+
+.ai-radar-signal-strip span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  min-height: 2.35rem;
+  padding: 0.38rem 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 248, 239, 0.62);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ai-radar-signal-strip strong {
+  color: #fff8ef;
+  font-family: "Outfit", sans-serif;
+  font-size: var(--text-sm);
+  letter-spacing: 0;
 }
 
 .ai-radar-actions {
@@ -1947,10 +1997,10 @@ dt {
   align-items: center;
   min-height: 2rem;
   padding: 0.35rem 0.68rem;
-  border: 1px solid var(--chip-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: var(--muted-button-bg);
-  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 248, 239, 0.62);
   font-family: "IBM Plex Mono", monospace;
   font-size: var(--text-micro);
   font-weight: 800;
@@ -2032,6 +2082,13 @@ dt {
   font-size: var(--text-md);
   line-height: 1.82;
   text-wrap: pretty;
+}
+
+.ai-radar-featured .ai-radar-why {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .ai-radar-source-line,
@@ -2135,34 +2192,6 @@ dt {
   font-size: clamp(3.5rem, 8vw, 6.7rem);
 }
 
-.ai-radar-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.ai-radar-stats article {
-  padding: 1rem;
-  border-radius: var(--radius-lg);
-}
-
-.ai-radar-stats strong {
-  display: block;
-  color: var(--accent);
-  font-family: "Outfit", sans-serif;
-  font-size: var(--text-2xl);
-  line-height: 1;
-}
-
-.ai-radar-stats span {
-  display: block;
-  margin-top: 0.45rem;
-  color: var(--ink-soft);
-  font-size: var(--text-sm);
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
 .ai-radar-top-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2215,11 +2244,15 @@ dt {
 }
 
 .ai-radar-card-copy h2 {
+  display: -webkit-box;
+  overflow: hidden;
   color: var(--ink-strong);
   font-family: "Outfit", sans-serif;
   font-size: clamp(1.3rem, 2.4vw, 2rem);
   line-height: 1.12;
   text-wrap: balance;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .ai-radar-layout {
@@ -2233,7 +2266,7 @@ dt {
   position: sticky;
   top: 7rem;
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
   padding: 1.1rem;
   border-radius: var(--radius-lg);
 }
@@ -2276,7 +2309,7 @@ dt {
 }
 
 .ai-radar-note {
-  padding: 0.95rem;
+  padding: 0.85rem;
   border: 1px solid var(--chip-border);
   border-radius: var(--radius-md);
   background: var(--panel-soft);
@@ -2288,10 +2321,10 @@ dt {
 }
 
 .ai-radar-note p {
-  margin-top: 0.45rem;
+  margin-top: 0.32rem;
   color: var(--ink-soft);
   font-size: var(--text-sm);
-  line-height: 1.7;
+  line-height: 1.55;
 }
 
 .ai-radar-feed {
@@ -2385,39 +2418,6 @@ dt {
 .ai-radar-item-action a {
   color: var(--accent);
   white-space: nowrap;
-}
-
-.ai-radar-principles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.ai-radar-principles article {
-  display: grid;
-  justify-items: start;
-  gap: 0.75rem;
-  padding: 1.15rem;
-  border-radius: var(--radius-lg);
-}
-
-.ai-radar-principles .reader-menu-icon {
-  width: 1.8rem;
-  height: 1.8rem;
-  color: var(--accent);
-}
-
-.ai-radar-principles h2 {
-  color: var(--ink-strong);
-  font-family: "Outfit", sans-serif;
-  font-size: var(--text-xl);
-  line-height: 1.25;
-}
-
-.ai-radar-principles p {
-  color: var(--ink-soft);
-  line-height: 1.75;
-  text-wrap: pretty;
 }
 
 .newsletter-callout {
@@ -4655,9 +4655,7 @@ section[id] {
   .dashboard-stat-grid,
   .dashboard-cadence-stats,
   .dashboard-topic-breakdown,
-  .ai-radar-stats,
-  .ai-radar-top-grid,
-  .ai-radar-principles {
+  .ai-radar-top-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4852,9 +4850,7 @@ section[id] {
   .dashboard-stat-grid,
   .dashboard-cadence-stats,
   .dashboard-topic-breakdown,
-  .ai-radar-stats,
-  .ai-radar-top-grid,
-  .ai-radar-principles {
+  .ai-radar-top-grid {
     grid-template-columns: 1fr;
   }
 

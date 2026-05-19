@@ -3555,27 +3555,10 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
   const featuredSignal = visibleSignals[0] ?? liveSignals[0] ?? aiRadarSignals[0];
   const topSignals = visibleSignals.slice(1, 4);
   const listSignals = visibleSignals.slice(4);
-  const radarStats = [
-    { value: `${liveSignals.length}`, label: radarStatus === "live" ? "ranked live items" : "curated source lanes" },
-    { value: "0", label: "full articles copied" },
-    { value: radarStatus === "live" ? "15m" : "safe", label: radarStatus === "live" ? "refresh window" : "fallback mode" },
-  ];
-  const radarPrinciples = [
-    {
-      title: "Visual, not crowded",
-      detail:
-        "Large source tiles reduce text density and make the page feel like a board, not a document.",
-    },
-    {
-      title: "Refresh from feeds",
-      detail:
-        "The live endpoint ranks articles from free RSS or Atom feeds by freshness, source relevance, and AI keywords.",
-    },
-    {
-      title: "Respect originals",
-      detail:
-        "Cards link to the original article. Feed thumbnails are used only when provided; otherwise the site renders its own cover art.",
-    },
+  const radarHighlights = [
+    { label: "Live Feed", value: radarStatus === "live" ? "On" : "Fallback" },
+    { label: "Sources", value: `${new Set(liveSignals.map((signal) => signal.source)).size}` },
+    { label: "Mode", value: "Ranked" },
   ];
 
   useEffect(() => {
@@ -3698,14 +3681,22 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
         <section className="ai-radar-hero">
           <div className="ai-radar-hero-copy">
             <p className="eyebrow">AI Radar</p>
-            <h1>Latest AI signals, ranked and easier to scan.</h1>
+            <h1>AI signal, without the noise.</h1>
             <p>
-              A live board of trusted free AI sources. It refreshes from public feeds, ranks useful
-              updates, and keeps the reading path simple: preview here, full article at the source.
+              A premium briefing board for model releases, agents, research, open-source AI, and
+              infrastructure moves. Fresh stories, ranked for builders.
             </p>
+            <div className="ai-radar-signal-strip" aria-label="AI Radar summary">
+              {radarHighlights.map((item) => (
+                <span key={item.label}>
+                  <strong>{item.value}</strong>
+                  {item.label}
+                </span>
+              ))}
+            </div>
             <div className="ai-radar-actions">
               <a className="button button-primary" href="#radar-feed">
-                Scan top stories
+                View briefing
               </a>
               <button
                 className="button button-secondary"
@@ -3713,15 +3704,15 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
                 disabled={radarStatus === "loading"}
                 onClick={() => setRadarRefreshTick((tick) => tick + 1)}
               >
-                {radarStatus === "loading" ? "Refreshing..." : "Refresh radar"}
+                {radarStatus === "loading" ? "Refreshing..." : "Refresh"}
               </button>
             </div>
             <p className="ai-radar-status">
               {radarStatus === "live"
-                ? `Live feed refreshed${radarUpdatedAt ? ` ${formatAiRadarDate(radarUpdatedAt)}` : ""}.`
+                ? `Live briefing${radarUpdatedAt ? ` / ${formatAiRadarDate(radarUpdatedAt)}` : ""}`
                 : radarStatus === "loading"
-                  ? "Checking trusted AI feeds..."
-                  : radarError || "Showing curated fallback sources until the live feed responds."}
+                  ? "Checking trusted feeds"
+                  : radarError ? "Curated fallback active" : "Curated fallback active"}
             </p>
           </div>
 
@@ -3738,7 +3729,7 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
               )}
             </div>
             <span className="ai-radar-live-dot">
-              {featuredSignal.isLive ? "Top ranked article" : "Featured source"}
+              {featuredSignal.isLive ? "Top Story" : "Featured Source"}
             </span>
             <h2>{featuredSignal.title}</h2>
             <div className="ai-radar-source-line">
@@ -3748,18 +3739,9 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
             </div>
             <p className="ai-radar-why">{featuredSignal.summary || featuredSignal.whyItMatters}</p>
             <a href={featuredSignal.href} target="_blank" rel="noreferrer">
-              Read original article
+              Open original
             </a>
           </aside>
-        </section>
-
-        <section className="ai-radar-stats" aria-label="AI Radar publishing rules">
-          {radarStats.map((stat) => (
-            <article key={stat.label}>
-              <strong>{stat.value}</strong>
-              <span>{stat.label}</span>
-            </article>
-          ))}
         </section>
 
         {topSignals.length ? (
@@ -3793,7 +3775,7 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
         <section className="ai-radar-layout" id="radar-feed">
           <aside className="ai-radar-lens" aria-label="AI Radar filters">
             <p className="eyebrow">Signal filters</p>
-            <h2>Choose the lane, then jump to the original.</h2>
+            <h2>Filter the signal.</h2>
             <div className="ai-radar-filters">
               {aiRadarCategories.map((category) => (
                 <button
@@ -3807,10 +3789,9 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
               ))}
             </div>
             <div className="ai-radar-note">
-              <strong>Why not copy every article image?</strong>
+              <strong>Clean reading path.</strong>
               <p>
-                Some images are copyrighted or blocked for reuse. If the feed provides a thumbnail,
-                it can appear here; otherwise this page uses original generated cover art.
+                Quick preview here. Full context opens at the original source.
               </p>
             </div>
           </aside>
@@ -3841,22 +3822,12 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
                 <div className="ai-radar-item-action">
                   <span>{signal.source}</span>
                   <a href={signal.href} target="_blank" rel="noreferrer">
-                    Read original
+                    Open
                   </a>
                 </div>
               </article>
             ))}
           </div>
-        </section>
-
-        <section className="ai-radar-principles" aria-label="AI Radar editorial principles">
-          {radarPrinciples.map((principle) => (
-            <article key={principle.title}>
-              <ReaderMenuGlyph type="radar" />
-              <h2>{principle.title}</h2>
-              <p>{principle.detail}</p>
-            </article>
-          ))}
         </section>
       </main>
     </>
