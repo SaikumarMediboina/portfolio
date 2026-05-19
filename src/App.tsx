@@ -48,13 +48,66 @@ const portfolioNavLinks = [
 ] as const;
 
 const mainNavLinks = [
+  { href: "/start", label: "Start Here" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "#about", id: "about", label: "About" },
   { href: "/blogs", label: "Blogs" },
+  { href: "/whats-new", label: "What's New" },
   { href: "/shelf", label: "Sai's Shelf" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/contact", label: "Contact" },
 ] as const;
+
+type SiteUpdate = {
+  category: string;
+  date: string;
+  href: string;
+  summary: string;
+  title: string;
+};
+
+const siteUpdates: SiteUpdate[] = [
+  {
+    category: "Guide",
+    date: "2026-05-19",
+    href: "/start",
+    title: "Start Here guide added",
+    summary:
+      "A first-visit path that explains what to read, where to explore projects, and how to follow new updates.",
+  },
+  {
+    category: "Updates",
+    date: "2026-05-19",
+    href: "/whats-new",
+    title: "What's New page added",
+    summary:
+      "A simple place to scan recent content headlines from the last 30 days without hunting through the site.",
+  },
+  {
+    category: "Shelf",
+    date: "2026-05-19",
+    href: "/shelf",
+    title: "Sai's Shelf opened",
+    summary:
+      "A future home for useful engineering references, CS fundamentals, AI notes, and practical learning material.",
+  },
+  {
+    category: "Blog",
+    date: "2026-05-15",
+    href: "/blog/backend-throughput-database-cache-async-optimization",
+    title: "Improving backend throughput with database, cache, and async patterns",
+    summary:
+      "A technical story about reducing repeated backend work across database access, cache usage, and async execution.",
+  },
+  {
+    category: "Portfolio",
+    date: "2026-05-14",
+    href: "/contact",
+    title: "Collaboration page added",
+    summary:
+      "A dedicated page for professional conversations around backend performance, search systems, and practical AI workflows.",
+  },
+];
 
 type Theme = "light" | "dark";
 
@@ -149,6 +202,22 @@ function isSavedPostsPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/saved-posts";
 }
 
+function isStartPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/start";
+}
+
+function isWhatsNewPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/whats-new";
+}
+
 function isShelfPathname() {
   if (typeof window === "undefined") {
     return false;
@@ -221,12 +290,47 @@ function getSignInHref(slug?: string) {
   return slug ? `/signin?blog=${encodeURIComponent(slug)}` : "/signin";
 }
 
-function getUpdatesSignInHref() {
-  return "/signin?return=blogs";
+function getUpdatesSignInHref(returnTarget = "blogs") {
+  return `/signin?return=${encodeURIComponent(returnTarget)}`;
 }
 
 function getSavedPostsSignInHref() {
   return "/signin?return=saved-posts";
+}
+
+function getReturnTargetConfig(target: string) {
+  const returnTargets: Record<string, { href: string; label: string }> = {
+    blogs: { href: "/blogs", label: "Back to blogs" },
+    contact: { href: "/contact", label: "Back to contact" },
+    dashboard: { href: "/dashboard", label: "Back to dashboard" },
+    "saved-posts": { href: "/saved-posts", label: "Back to saved posts" },
+    shelf: { href: "/shelf", label: "Back to shelf" },
+    start: { href: "/start", label: "Back to start" },
+    "whats-new": { href: "/whats-new", label: "Back to what's new" },
+  };
+
+  return returnTargets[target] ?? null;
+}
+
+function getRecentSiteUpdates(updates: SiteUpdate[], days = 30) {
+  const now = new Date();
+  const maxAge = days * 24 * 60 * 60 * 1000;
+
+  return [...updates]
+    .filter((update) => {
+      const age = now.getTime() - new Date(`${update.date}T00:00:00`).getTime();
+
+      return age >= 0 && age <= maxAge;
+    })
+    .sort((left, right) => right.date.localeCompare(left.date));
+}
+
+function formatUpdateDate(date: string) {
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(`${date}T00:00:00`));
 }
 
 function getReadMinutes(readTime: string) {
@@ -566,7 +670,8 @@ type ReaderMenuGlyphType =
   | "mail"
   | "menu"
   | "pen"
-  | "shelf";
+  | "shelf"
+  | "spark";
 
 function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
   const paths = {
@@ -658,6 +763,22 @@ function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
           d="M9 5.5v13M6.2 10h11.6M6.2 14.2h11.6"
           stroke="currentColor"
           strokeWidth="1.8"
+        />
+      </>
+    ),
+    spark: (
+      <>
+        <path
+          d="M12 3.8 13.7 9l5.2 1.7-5.2 1.7L12 17.6l-1.7-5.2-5.2-1.7L10.3 9 12 3.8Z"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M18.2 16.2 19 18.5l2.2.7-2.2.8-.8 2.2-.7-2.2-2.3-.8 2.3-.7.7-2.3Z"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
         />
       </>
     ),
@@ -1179,8 +1300,10 @@ function ReaderMenu({
   const savedPostLabel = `${savedPosts.length} ${savedPosts.length === 1 ? "saved post" : "saved posts"}`;
   const readerLinks = [
     { href: "/", icon: "home" as const, label: "Home" },
+    { href: "/start", icon: "spark" as const, label: "Start Here" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
+    { href: "/whats-new", icon: "spark" as const, label: "What's New" },
     { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
     {
       href: isSignedIn ? "/saved-posts" : getSavedPostsSignInHref(),
@@ -1734,6 +1857,243 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
 
       <main className="blogs-page" id="main-content">
         <BlogIndexSection {...blogIndexProps} />
+      </main>
+    </>
+  );
+}
+
+type NewsletterCalloutProps = {
+  returnTarget: string;
+};
+
+function NewsletterCallout({ returnTarget }: NewsletterCalloutProps) {
+  return (
+    <section className="newsletter-callout" aria-label="Subscribe to updates">
+      <div className="newsletter-icon" aria-hidden="true">
+        <ReaderMenuGlyph type="mail" />
+      </div>
+      <div>
+        <p className="eyebrow">Newsletter</p>
+        <h2>Get the useful updates without checking the site every week.</h2>
+        <p>
+          Subscribe for selected engineering notes, new shelf additions, and meaningful portfolio
+          updates. No noise, no spam, and you can unsubscribe anytime.
+        </p>
+      </div>
+      <a className="button button-primary" href={getUpdatesSignInHref(returnTarget)}>
+        Get updates
+      </a>
+    </section>
+  );
+}
+
+type StartHerePageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
+  const startCards = [
+    {
+      eyebrow: "01",
+      title: "Explore the portfolio",
+      detail:
+        "Start with selected backend work, performance outcomes, role progression, skills, recognition, and credentials.",
+      href: "/portfolio#work",
+      cta: "View portfolio",
+    },
+    {
+      eyebrow: "02",
+      title: "Read the engineering notes",
+      detail:
+        "Browse practical write-ups on performance engineering, search architecture, AI relevance, and backend workflows.",
+      href: "/blogs",
+      cta: "Read blogs",
+    },
+    {
+      eyebrow: "03",
+      title: "Check what changed recently",
+      detail:
+        "Use What's New to scan the latest headlines from the last 30 days before going deeper.",
+      href: "/whats-new",
+      cta: "See what's new",
+    },
+    {
+      eyebrow: "04",
+      title: "Save the useful things",
+      detail:
+        "Use Sai's Shelf for curated resources and sign in when you want saved posts and content updates.",
+      href: "/shelf",
+      cta: "Open shelf",
+    },
+  ];
+  const recentUpdates = getRecentSiteUpdates(siteUpdates).slice(0, 3);
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to start here
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Start here</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <PageBackButton fallbackHref="/" label="Back" />
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="guide-page shell" id="main-content">
+        <section className="guide-hero">
+          <p className="eyebrow">Start Here</p>
+          <h1>New here? This is the fastest way to understand the site.</h1>
+          <p>
+            This page gives a quick path through the portfolio: what I build, where the technical
+            stories live, what changed recently, and how to follow future updates.
+          </p>
+        </section>
+
+        <section className="guide-grid" aria-label="Recommended first steps">
+          {startCards.map((card) => (
+            <article className="guide-card" key={card.title}>
+              <span>{card.eyebrow}</span>
+              <h2>{card.title}</h2>
+              <p>{card.detail}</p>
+              <a href={card.href}>{card.cta}</a>
+            </article>
+          ))}
+        </section>
+
+        <section className="mini-updates-panel">
+          <div>
+            <p className="eyebrow">What's new</p>
+            <h2>Recent headlines from the last 30 days.</h2>
+          </div>
+          <div className="mini-update-list">
+            {recentUpdates.length ? (
+              recentUpdates.map((update) => (
+                <a href={update.href} key={`${update.date}-${update.title}`}>
+                  <span>{update.category}</span>
+                  <strong>{update.title}</strong>
+                  <small>{formatUpdateDate(update.date)}</small>
+                </a>
+              ))
+            ) : (
+              <p>No new headlines in the last 30 days. The shelf is calm, for once.</p>
+            )}
+          </div>
+        </section>
+
+        <NewsletterCallout returnTarget="start" />
+      </main>
+    </>
+  );
+}
+
+type WhatsNewPageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
+  const recentUpdates = getRecentSiteUpdates(siteUpdates);
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to what's new
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>What's new</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <PageBackButton fallbackHref="/" label="Back" />
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="guide-page shell" id="main-content">
+        <section className="guide-hero">
+          <p className="eyebrow">What's New</p>
+          <h1>Recent headlines from the last 30 days.</h1>
+          <p>
+            A clean changelog for new articles, shelf additions, page improvements, and useful
+            content updates added to this site.
+          </p>
+        </section>
+
+        <section className="whats-new-list" aria-label="Recent updates">
+          {recentUpdates.length ? (
+            recentUpdates.map((update) => (
+              <article className="whats-new-item" key={`${update.date}-${update.title}`}>
+                <div>
+                  <span>{update.category}</span>
+                  <time dateTime={update.date}>{formatUpdateDate(update.date)}</time>
+                </div>
+                <h2>{update.title}</h2>
+                <p>{update.summary}</p>
+                <a href={update.href}>Open update</a>
+              </article>
+            ))
+          ) : (
+            <div className="whats-new-empty">
+              <ReaderMenuGlyph type="spark" />
+              <h2>No new headlines in the last 30 days.</h2>
+              <p>
+                Quiet weeks are allowed. Subscribe below and the next useful update will find you
+                without any refresh-button cardio.
+              </p>
+            </div>
+          )}
+        </section>
+
+        <NewsletterCallout returnTarget="whats-new" />
       </main>
     </>
   );
@@ -2477,7 +2837,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                 updates land in your inbox only when there is something worth opening.
               </p>
             </div>
-            <a className="button button-primary" href="/signin">
+            <a className="button button-primary" href={getUpdatesSignInHref("dashboard")}>
               Get updates
             </a>
           </div>
@@ -2671,8 +3031,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
 
 type SignInPageProps = SubscriptionAccessCardProps & {
   portfolioReturnBlogSlug?: string;
-  shouldReturnToBlogs?: boolean;
-  shouldReturnToSavedPosts?: boolean;
+  signInReturnTarget?: string;
   subscriberView: SubscriberViewState;
   theme: Theme;
   onThemeToggle: () => void;
@@ -2680,8 +3039,7 @@ type SignInPageProps = SubscriptionAccessCardProps & {
 
 function SignInPage({
   portfolioReturnBlogSlug,
-  shouldReturnToBlogs,
-  shouldReturnToSavedPosts,
+  signInReturnTarget,
   subscriberName,
   subscriberView,
   theme,
@@ -2689,6 +3047,7 @@ function SignInPage({
   ...subscriptionProps
 }: SignInPageProps) {
   const firstName = subscriberName.split(" ")[0] || "there";
+  const returnTargetConfig = getReturnTargetConfig(signInReturnTarget ?? "");
   const heroCopy = {
     guest: {
       title: "Sign in to follow new engineering notes and portfolio updates.",
@@ -2767,12 +3126,11 @@ function SignInPage({
               >
                 Back to blogs
               </button>
-            ) : shouldReturnToSavedPosts ? (
-              <a className="button button-secondary" href="/saved-posts">
-                Back to saved posts
-              </a>
-            ) : shouldReturnToBlogs ? (
-              <PageBackButton fallbackHref="/blogs" label="Back to blogs" />
+            ) : returnTargetConfig ? (
+              <PageBackButton
+                fallbackHref={returnTargetConfig.href}
+                label={returnTargetConfig.label}
+              />
             ) : (
               <PageBackButton fallbackHref="/portfolio#top" label="Back" />
             )}
@@ -3035,6 +3393,8 @@ function App() {
   );
   const standaloneBlogAccessChecking = Boolean(standaloneBlogNeedsAuth && !authReady);
   const isSignInPage = isSignInPathname();
+  const isStartPage = isStartPathname();
+  const isWhatsNewPage = isWhatsNewPathname();
   const isSavedPostsPage = isSavedPostsPathname();
   const isShelfPage = isShelfPathname();
   const isDashboardPage = isDashboardPathname();
@@ -3493,6 +3853,24 @@ function App() {
     );
   }
 
+  if (isStartPage) {
+    return (
+      <StartHerePage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
+    );
+  }
+
+  if (isWhatsNewPage) {
+    return (
+      <WhatsNewPage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
+    );
+  }
+
   if (isShelfPage) {
     return (
       <ShelfPage
@@ -3546,8 +3924,7 @@ function App() {
         canUseSubscriptions={canUseSubscriptions}
         isSubscribed={isSubscribed}
         portfolioReturnBlogSlug={signInReturnBlog?.slug}
-        shouldReturnToBlogs={signInReturnTarget === "blogs"}
-        shouldReturnToSavedPosts={signInReturnTarget === "saved-posts"}
+        signInReturnTarget={signInReturnTarget}
         subscriberEmail={subscriberEmail}
         subscriberInitial={subscriberInitial}
         subscriberName={subscriberName}

@@ -9,6 +9,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/start",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/whats-new",
+      "destination": "/index.html"
+    },
+    {
       "source": "/saved-posts",
       "destination": "/index.html"
     },
