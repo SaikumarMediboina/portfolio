@@ -34,6 +34,7 @@ import {
   getSavedPostSlugs,
   saveReaderPost,
   saveSubscriber,
+  subscribeToSavedPostSlugs,
   unsaveReaderPost,
   unsubscribeSubscriber,
 } from "./lib/subscribers";
@@ -159,10 +160,50 @@ type SubscriberViewState =
   | "returningSignedOutUnsubscribed";
 
 const THEME_STORAGE_KEY = "portfolio-theme";
+const SAVED_POSTS_STORAGE_KEY_PREFIX = "portfolio-saved-posts:";
 const ALL_BLOG_CATEGORIES = "All";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
 const LOCKED_BLOG_CAPTION =
   "This one is in the members-only lab. Sign in and the doors open.";
+
+function normalizeSavedPostSlugs(savedPostSlugs: unknown) {
+  return Array.isArray(savedPostSlugs)
+    ? Array.from(new Set(savedPostSlugs.filter((slug): slug is string => typeof slug === "string")))
+    : [];
+}
+
+function getSavedPostsStorageKey(uid: string) {
+  return `${SAVED_POSTS_STORAGE_KEY_PREFIX}${uid}`;
+}
+
+function readCachedSavedPostSlugs(uid: string) {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    return normalizeSavedPostSlugs(
+      JSON.parse(window.localStorage.getItem(getSavedPostsStorageKey(uid)) ?? "[]"),
+    );
+  } catch {
+    return [];
+  }
+}
+
+function cacheSavedPostSlugs(uid: string, savedPostSlugs: string[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      getSavedPostsStorageKey(uid),
+      JSON.stringify(normalizeSavedPostSlugs(savedPostSlugs)),
+    );
+  } catch {
+    // Saved posts still sync through Firestore if browser storage is restricted.
+  }
+}
 
 function canReadBlogPost(post: BlogPost | undefined, user: User | null) {
   return Boolean(post && (post.slug === PUBLIC_BLOG_SLUG || user));
@@ -4631,6 +4672,7 @@ function App() {
           if (isMounted) {
             setIsSubscribed(subscriber.subscribed);
             setSavedPostSlugs(nextSavedPostSlugs);
+            cacheSavedPostSlugs(user.uid, nextSavedPostSlugs);
             setSubscriberView(getSignedInSubscriberView(subscriber));
           }
         })
@@ -4651,6 +4693,62 @@ function App() {
       unsubscribeFromAuth();
     };
   }, []);
+
+  useEffect(() => {
+    if (!subscriberUser || !canUseSubscriptions) {
+      return undefined;
+    }
+
+    let isCurrentUser = true;
+    const cachedSavedPostSlugs = readCachedSavedPostSlugs(subscriberUser.uid);
+    setSavedPostSlugs(cachedSavedPostSlugs);
+
+    const unsubscribeFromSavedPosts = subscribeToSavedPostSlugs(
+      subscriberUser.uid,
+      (nextSavedPostSlugs) => {
+        if (!isCurrentUser) {
+          return;
+        }
+
+        setSavedPostSlugs(nextSavedPostSlugs);
+        cacheSavedPostSlugs(subscriberUser.uid, nextSavedPostSlugs);
+      },
+      (error) => {
+        if (isCurrentUser) {
+          setSubscriptionError(getSubscriptionErrorMessage(error));
+        }
+      },
+    );
+
+    return () => {
+      isCurrentUser = false;
+      unsubscribeFromSavedPosts();
+    };
+  }, [canUseSubscriptions, subscriberUser]);
+
+  useEffect(() => {
+    if (!subscriberUser) {
+      return undefined;
+    }
+
+    const savedPostsStorageKey = getSavedPostsStorageKey(subscriberUser.uid);
+
+    const handleSavedPostsStorage = (event: StorageEvent) => {
+      if (event.key !== savedPostsStorageKey || event.newValue === null) {
+        return;
+      }
+
+      try {
+        setSavedPostSlugs(normalizeSavedPostSlugs(JSON.parse(event.newValue)));
+      } catch {
+        // Ignore malformed storage events; Firestore remains the source of truth.
+      }
+    };
+
+    window.addEventListener("storage", handleSavedPostsStorage);
+
+    return () => window.removeEventListener("storage", handleSavedPostsStorage);
+  }, [subscriberUser]);
 
   useEffect(() => {
     if (!auth || !canUseSubscriptions) {
@@ -4675,6 +4773,7 @@ function App() {
           setSubscriberUser(result.user);
           setIsSubscribed(subscriber.subscribed);
           setSavedPostSlugs(nextSavedPostSlugs);
+          cacheSavedPostSlugs(result.user.uid, nextSavedPostSlugs);
           setSubscriberView(getSignedInSubscriberView(subscriber));
           setSubscriptionMessage(
             subscriber.subscribed
@@ -4738,6 +4837,7 @@ function App() {
       setSubscriberUser(result.user);
       setIsSubscribed(subscriber.subscribed);
       setSavedPostSlugs(nextSavedPostSlugs);
+      cacheSavedPostSlugs(result.user.uid, nextSavedPostSlugs);
       setSubscriberView(getSignedInSubscriberView(subscriber));
       setSubscriptionMessage(
         subscriber.subscribed
@@ -4773,23 +4873,31 @@ function App() {
     }
 
     const wasSaved = isPostSaved(post.slug);
+    const updateSavedPostSlugs = (getNextSavedPostSlugs: (current: string[]) => string[]) => {
+      setSavedPostSlugs((current) => {
+        const nextSavedPostSlugs = normalizeSavedPostSlugs(getNextSavedPostSlugs(current));
+        cacheSavedPostSlugs(subscriberUser.uid, nextSavedPostSlugs);
+
+        return nextSavedPostSlugs;
+      });
+    };
 
     setSavedPostsBusySlug(post.slug);
 
     try {
       if (wasSaved) {
-        setSavedPostSlugs((current) => current.filter((slug) => slug !== post.slug));
+        updateSavedPostSlugs((current) => current.filter((slug) => slug !== post.slug));
         setSubscriptionMessage("Removed from saved posts.");
         await unsaveReaderPost(subscriberUser.uid, post.slug);
       } else {
-        setSavedPostSlugs((current) =>
+        updateSavedPostSlugs((current) =>
           current.includes(post.slug) ? current : [...current, post.slug],
         );
         setSubscriptionMessage("Saved to your reader menu.");
         await saveReaderPost(subscriberUser, post.slug);
       }
     } catch (error) {
-      setSavedPostSlugs((current) =>
+      updateSavedPostSlugs((current) =>
         wasSaved
           ? current.includes(post.slug)
             ? current

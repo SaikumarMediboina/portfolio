@@ -4,6 +4,7 @@ import {
   arrayUnion,
   doc,
   getDoc,
+  onSnapshot,
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
@@ -15,6 +16,12 @@ type SubscriberRecord = {
   exists: boolean;
   subscribed: boolean;
 };
+
+function normalizeSavedPostSlugs(savedPostSlugs: unknown) {
+  return Array.isArray(savedPostSlugs)
+    ? savedPostSlugs.filter((slug): slug is string => typeof slug === "string")
+    : [];
+}
 
 function assertSubscriberStore() {
   if (!isFirebaseConfigured || !db) {
@@ -39,11 +46,28 @@ export async function getSavedPostSlugs(uid: string) {
     return [];
   }
 
-  const savedPostSlugs = subscriberSnapshot.data().savedPostSlugs;
+  return normalizeSavedPostSlugs(subscriberSnapshot.data().savedPostSlugs);
+}
 
-  return Array.isArray(savedPostSlugs)
-    ? savedPostSlugs.filter((slug): slug is string => typeof slug === "string")
-    : [];
+export function subscribeToSavedPostSlugs(
+  uid: string,
+  onChange: (savedPostSlugs: string[]) => void,
+  onError?: (error: Error) => void,
+) {
+  const store = assertSubscriberStore();
+  const subscriberRef = doc(store, SUBSCRIBERS_COLLECTION, uid);
+
+  return onSnapshot(
+    subscriberRef,
+    (subscriberSnapshot) => {
+      onChange(
+        subscriberSnapshot.exists()
+          ? normalizeSavedPostSlugs(subscriberSnapshot.data().savedPostSlugs)
+          : [],
+      );
+    },
+    (error) => onError?.(error),
+  );
 }
 
 export async function getSubscriberRecord(uid: string): Promise<SubscriberRecord> {
