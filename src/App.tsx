@@ -333,6 +333,54 @@ function formatUpdateDate(date: string) {
   }).format(new Date(`${date}T00:00:00`));
 }
 
+function getDateKey(date: Date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+function getDashboardActivityBars(updates: SiteUpdate[], days = 30) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const updateCounts = new Map<string, number>();
+
+  updates.forEach((update) => {
+    const updateDate = new Date(`${update.date}T00:00:00`);
+    updateDate.setHours(0, 0, 0, 0);
+
+    const ageInDays = Math.round((today.getTime() - updateDate.getTime()) / (24 * 60 * 60 * 1000));
+
+    if (ageInDays >= 0 && ageInDays < days) {
+      const dateKey = getDateKey(updateDate);
+      updateCounts.set(dateKey, (updateCounts.get(dateKey) ?? 0) + 1);
+    }
+  });
+
+  const maxCount = Math.max(...Array.from(updateCounts.values()), 1);
+
+  return Array.from({ length: days }, (_, index) => {
+    const currentDate = new Date(today);
+    currentDate.setDate(today.getDate() - (days - 1 - index));
+
+    const dateKey = getDateKey(currentDate);
+    const updateCount = updateCounts.get(dateKey) ?? 0;
+    const isPublishedDay = updateCount > 0;
+
+    return {
+      date: dateKey,
+      height: isPublishedDay ? Math.max((updateCount / maxCount) * 100, 36) : 8,
+      isPublishedDay,
+      label: `${formatUpdateDate(dateKey)}: ${
+        isPublishedDay ? `${updateCount} update${updateCount === 1 ? "" : "s"}` : "quiet day"
+      }`,
+      updateCount,
+    };
+  });
+}
+
 function getReadMinutes(readTime: string) {
   return Number.parseInt(readTime, 10) || 0;
 }
@@ -2749,6 +2797,9 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
   const averageReadMinutes = blogPosts.length ? Math.round(totalReadMinutes / blogPosts.length) : 0;
   const publicFeatureCount = blogPosts.some((post) => post.slug === PUBLIC_BLOG_SLUG) ? 1 : 0;
   const maxTopicScore = Math.max(...topics.map((topic) => topic.score), 1);
+  const cadenceBars = getDashboardActivityBars(siteUpdates);
+  const activeCadenceDays = cadenceBars.filter((bar) => bar.isPublishedDay).length;
+  const recentUpdateCount = cadenceBars.reduce((total, bar) => total + bar.updateCount, 0);
   const topArticles = [...blogPosts]
     .map((post) => ({
       ...post,
@@ -2758,14 +2809,6 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
     .sort((left, right) => right.contentScore - left.contentScore)
     .slice(0, 8);
   const maxArticleScore = Math.max(...topArticles.map((post) => post.contentScore), 1);
-  const cadenceBars = Array.from({ length: 30 }, (_, index) => {
-    const isPublishedDay = [1, 2, 3, 4, 5, 14, 23, 25].includes(index);
-
-    return {
-      height: isPublishedDay ? 38 + ((index * 11) % 44) : 6,
-      isPublishedDay,
-    };
-  });
 
   return (
     <>
@@ -2869,8 +2912,12 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
             <article className="dashboard-card">
               <div className="dashboard-card-heading">
                 <h2>Topic Performance</h2>
-                <span>Articles vs depth</span>
+                <span>Metric comparison</span>
               </div>
+              <p className="dashboard-card-helper">
+                Depth score combines read time, structure, and takeaways. Articles shows how many
+                posts exist in that topic, while the dot keeps the topic identity clear.
+              </p>
               <div className="dashboard-topic-chart">
                 {topics.map((topic) => (
                   <div className="dashboard-topic-column" key={topic.category}>
@@ -2880,9 +2927,9 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                         style={
                           {
                             "--bar-height": `${Math.max((topic.score / maxTopicScore) * 100, 12)}%`,
-                            "--bar-color": topic.color,
                           } as CSSProperties
                         }
+                        title={`${topic.category} depth score: ${topic.score}`}
                       />
                       <span
                         className="dashboard-topic-bar is-posts"
@@ -2891,9 +2938,13 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                             "--bar-height": `${Math.max((topic.posts / totalBlogCount) * 100, 12)}%`,
                           } as CSSProperties
                         }
+                        title={`${topic.category} articles: ${topic.posts}`}
                       />
                     </div>
-                    <small>{topic.category}</small>
+                    <small>
+                      <i style={{ background: topic.color }} aria-hidden="true" />
+                      {topic.category}
+                    </small>
                   </div>
                 ))}
               </div>
@@ -2954,23 +3005,39 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
           <article className="dashboard-card">
             <div className="dashboard-card-heading">
               <h2>Publishing Rhythm</h2>
-              <span>30-day content habit view</span>
+              <span>Last 30 days</span>
             </div>
+            <p className="dashboard-card-helper">
+              This timeline is based on the site update log. Each bar represents one day; highlighted
+              bars show when a page, blog, or dashboard item was published or meaningfully updated.
+            </p>
             <div className="dashboard-cadence-stats">
-              <span><strong>{blogPosts.length}</strong> total posts</span>
-              <span><strong>{publicFeatureCount}</strong> public feature</span>
-              <span><strong>{Math.max(0, blogPosts.length - 1)}</strong> member reads</span>
+              <span><strong>{recentUpdateCount}</strong> recent updates</span>
+              <span><strong>{activeCadenceDays}</strong> active days</span>
+              <span><strong>{publicFeatureCount}</strong> public article</span>
               <span><strong>{totalReadMinutes}</strong> min library</span>
             </div>
-            <div className="dashboard-cadence-chart" aria-label="Publishing rhythm chart">
+            <div
+              className="dashboard-cadence-chart"
+              aria-label="Publishing rhythm chart for the last 30 days"
+            >
               {cadenceBars.map((bar, index) => (
                 <span
                   className={bar.isPublishedDay ? "is-published" : ""}
                   key={`cadence-${index}`}
                   style={{ "--cadence-height": `${bar.height}%` } as CSSProperties}
-                  title={`Day ${index + 1}`}
+                  title={bar.label}
                 />
               ))}
+            </div>
+            <div className="dashboard-cadence-axis" aria-hidden="true">
+              <span>{formatUpdateDate(cadenceBars[0]?.date ?? getDateKey(new Date()))}</span>
+              <span>30-day window</span>
+              <span>Today</span>
+            </div>
+            <div className="dashboard-legend dashboard-cadence-legend">
+              <span><i className="is-published" /> Published or updated</span>
+              <span><i className="is-quiet" /> Quiet day</span>
             </div>
           </article>
 

@@ -2338,6 +2338,8 @@ dt {
   --dash-green: #19b889;
   --dash-blue: #354155;
   --dash-yellow: #e5b342;
+  --dash-depth: #f06b4a;
+  --dash-articles: #76a7ff;
   min-height: 100vh;
   padding: 4.5rem 0 5rem;
   background:
@@ -2543,6 +2545,14 @@ dt {
   text-align: right;
 }
 
+.dashboard-card-helper {
+  max-width: 58rem;
+  margin: -0.45rem 0 1.1rem;
+  color: #b7aea4;
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
 .dashboard-topic-chart {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
@@ -2574,20 +2584,33 @@ dt {
 }
 
 .dashboard-topic-bar.is-depth {
-  background: var(--bar-color);
+  background: linear-gradient(180deg, #ff876a 0%, var(--dash-depth) 100%);
+  box-shadow: 0 0 18px rgba(240, 107, 74, 0.18);
 }
 
 .dashboard-topic-bar.is-posts {
-  background: var(--dash-green);
+  background: linear-gradient(180deg, #a9c8ff 0%, var(--dash-articles) 100%);
+  box-shadow: 0 0 18px rgba(118, 167, 255, 0.18);
 }
 
 .dashboard-topic-column small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   min-height: 2.6rem;
   color: #81786f;
   font-size: var(--text-micro);
   font-weight: 800;
   line-height: 1.25;
   text-align: center;
+}
+
+.dashboard-topic-column small i {
+  flex: 0 0 auto;
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
 }
 
 .dashboard-legend {
@@ -2610,11 +2633,23 @@ dt {
   width: 0.8rem;
   height: 0.5rem;
   border-radius: 999px;
-  background: var(--dash-red);
+  background: var(--dash-depth);
+}
+
+.dashboard-legend i.is-depth {
+  background: var(--dash-depth);
 }
 
 .dashboard-legend i.is-posts {
+  background: var(--dash-articles);
+}
+
+.dashboard-legend i.is-published {
   background: var(--dash-green);
+}
+
+.dashboard-legend i.is-quiet {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .dashboard-donut-card {
@@ -2753,6 +2788,21 @@ dt {
 .dashboard-cadence-chart span.is-published {
   background: var(--dash-green);
   box-shadow: 0 0 18px rgba(25, 184, 137, 0.2);
+}
+
+.dashboard-cadence-axis {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.7rem;
+  color: rgba(170, 161, 150, 0.82);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 800;
+}
+
+.dashboard-cadence-legend {
+  margin-top: 0.85rem;
 }
 
 .dashboard-table-wrap {
