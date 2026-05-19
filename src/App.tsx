@@ -762,6 +762,7 @@ type ReaderMenuGlyphType =
   | "home"
   | "mail"
   | "menu"
+  | "news"
   | "pen"
   | "shelf"
   | "spark";
@@ -833,6 +834,28 @@ function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
           stroke="currentColor"
           strokeLinecap="round"
           strokeWidth="1.9"
+        />
+      </>
+    ),
+    news: (
+      <>
+        <path
+          d="M6.2 5.4h11.6v13.2H6.2V5.4Z"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M8.8 8.4h6.4M8.8 11.2h6.4M8.8 14h3.4"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M15.2 14h.9"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="2.3"
         />
       </>
     ),
@@ -2299,7 +2322,7 @@ function ReaderMenu({
     { href: "/start", icon: "spark" as const, label: "Start Here" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
-    { href: "/whats-new", icon: "spark" as const, label: "What's New" },
+    { href: "/whats-new", icon: "news" as const, label: "What's New" },
     { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
     {
       href: isSignedIn ? "/saved-posts" : getSavedPostsSignInHref(),
@@ -3094,23 +3117,13 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
       </header>
 
       <main className="guide-page shell" id="main-content">
-        <section className="guide-hero is-start-guide">
-          <div>
-            <p className="eyebrow">Start Here</p>
-            <h1>New here? This is the fastest way to understand the site.</h1>
-            <p>
-              This page gives a quick path through the portfolio: what I build, where the technical
-              stories live, what changed recently, and how to follow future updates.
-            </p>
-          </div>
-          <div className="guide-hero-visual start-map-visual" aria-hidden="true">
-            <span className="guide-visual-node is-active">01</span>
-            <span className="guide-visual-line" />
-            <span className="guide-visual-node">02</span>
-            <span className="guide-visual-line" />
-            <span className="guide-visual-node">03</span>
-            <strong>Guided path</strong>
-          </div>
+        <section className="guide-hero">
+          <p className="eyebrow">Start Here</p>
+          <h1>New here? This is the fastest way to understand the site.</h1>
+          <p>
+            This page gives a quick path through the portfolio: what I build, where the technical
+            stories live, what changed recently, and how to follow future updates.
+          </p>
         </section>
 
         <section className="guide-grid" aria-label="Recommended first steps">
@@ -3194,21 +3207,13 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
       </header>
 
       <main className="guide-page shell" id="main-content">
-        <section className="guide-hero is-whats-new-guide">
-          <div>
-            <p className="eyebrow">What's New</p>
-            <h1>Recent headlines from the last 30 days.</h1>
-            <p>
-              A clean changelog for new articles, shelf additions, page improvements, and useful
-              content updates added to this site.
-            </p>
-          </div>
-          <div className="guide-hero-visual update-feed-visual" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <strong>Live update feed</strong>
-          </div>
+        <section className="guide-hero">
+          <p className="eyebrow">What's New</p>
+          <h1>Recent headlines from the last 30 days.</h1>
+          <p>
+            A clean changelog for new articles, shelf additions, page improvements, and useful
+            content updates added to this site.
+          </p>
         </section>
 
         <section className="whats-new-list" aria-label="Recent updates">
