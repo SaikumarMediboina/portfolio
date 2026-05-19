@@ -996,7 +996,7 @@ const siteSpecificQuestionWords = new Set([
   "website",
   "work",
   "your",
-];
+]);
 
 const genericLearningPhrases = [
   "compare",
