@@ -135,7 +135,7 @@ function getInitialAssistantMessages(): AssistantMessage[] {
     {
       id: 1,
       role: "assistant",
-      text: "Hey, I am Sai's portfolio assistant. I can help you find projects, blogs, tech stack details, and contact links.",
+      text: "Hey, I am Sai's website assistant. I answer from the portfolio, blogs, updates, and reader features on this site. If something is outside my notebook, I will say that clearly instead of guessing.",
       links: [
         { href: "/portfolio#work", label: "Projects" },
         { href: "/blogs", label: "Blogs" },
@@ -850,108 +850,695 @@ function BlogLockNote() {
   );
 }
 
+type AssistantKnowledgeCategory =
+  | "blog"
+  | "certification"
+  | "contact"
+  | "dashboard"
+  | "education"
+  | "experience"
+  | "metric"
+  | "page"
+  | "profile"
+  | "project"
+  | "recognition"
+  | "skill"
+  | "subscription"
+  | "update";
+
+type AssistantKnowledgeEntry = {
+  category: AssistantKnowledgeCategory;
+  details?: string[];
+  keywords: string[];
+  links?: AssistantLink[];
+  priority?: number;
+  summary: string;
+  title: string;
+};
+
+const assistantStopWords = new Set([
+  "a",
+  "about",
+  "all",
+  "am",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "be",
+  "can",
+  "did",
+  "do",
+  "does",
+  "for",
+  "from",
+  "give",
+  "has",
+  "have",
+  "how",
+  "i",
+  "in",
+  "is",
+  "it",
+  "me",
+  "my",
+  "of",
+  "on",
+  "or",
+  "please",
+  "show",
+  "tell",
+  "that",
+  "the",
+  "this",
+  "to",
+  "want",
+  "what",
+  "when",
+  "where",
+  "which",
+  "who",
+  "why",
+  "with",
+  "your",
+  "you",
+]);
+
+const assistantSynonyms: Record<string, string[]> = {
+  ai: ["artificial", "intelligence", "llm", "semantic", "relevance", "similarity"],
+  article: ["blog", "post", "writeup", "writing"],
+  articles: ["blog", "blogs", "posts", "writeups", "writing"],
+  async: ["asynchronous", "executor", "parallel", "thread"],
+  backend: ["java", "spring", "microservices", "api", "performance"],
+  blog: ["article", "post", "writeup", "writing"],
+  blogs: ["article", "articles", "posts", "writeups", "writing"],
+  bot: ["assistant", "chatbot", "website", "guide"],
+  cache: ["caching", "coherence"],
+  chatbot: ["assistant", "bot", "website", "guide"],
+  contact: ["email", "linkedin", "connect"],
+  current: ["role", "experience", "oracle"],
+  dashboard: ["analytics", "metrics", "content"],
+  database: ["oracle", "sql", "plsql", "stored", "procedure"],
+  db: ["database", "oracle", "sql", "plsql"],
+  education: ["college", "degree", "cgpa", "mtech", "btech"],
+  email: ["contact", "mail", "connect"],
+  experience: ["role", "oracle", "work", "career"],
+  llm: ["ai", "semantic", "prompt", "mcp", "model"],
+  mail: ["email", "contact"],
+  mcp: ["model", "context", "protocol", "anthropic", "certification"],
+  name: ["profile", "sai", "kumar", "mediboina"],
+  performance: ["latency", "throughput", "optimization", "scale", "speed"],
+  project: ["work", "portfolio", "system", "engine"],
+  projects: ["work", "portfolio", "systems", "engines"],
+  resume: ["experience", "projects", "skills", "education"],
+  search: ["opensearch", "oracle", "text", "semantic"],
+  signin: ["sign", "login", "subscribe", "unlock"],
+  stack: ["skills", "technology", "tools", "tech"],
+  subscribe: ["updates", "newsletter", "email", "signin"],
+  tech: ["stack", "skills", "technology", "tools"],
+};
+
+function normalizeAssistantText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9+.#]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getAssistantTokens(input: string) {
+  const normalizedInput = normalizeAssistantText(input);
+  const tokens = new Set<string>();
+
+  normalizedInput
+    .split(" ")
+    .filter((word) => word.length > 1 && !assistantStopWords.has(word))
+    .forEach((word) => {
+      tokens.add(word);
+      assistantSynonyms[word]?.forEach((synonym) => tokens.add(synonym));
+    });
+
+  return Array.from(tokens);
+}
+
+function getAssistantSearchText(entry: AssistantKnowledgeEntry) {
+  return normalizeAssistantText(
+    [
+      entry.title,
+      entry.summary,
+      ...(entry.details ?? []),
+      ...entry.keywords,
+      entry.category,
+    ].join(" "),
+  );
+}
+
+function getUniqueAssistantLinks(links: AssistantLink[]) {
+  const seen = new Set<string>();
+
+  return links.filter((link) => {
+    const key = `${link.href}-${link.label}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function createAssistantEntry(
+  entry: Omit<AssistantKnowledgeEntry, "keywords"> & { keywords?: string[] },
+): AssistantKnowledgeEntry {
+  return {
+    ...entry,
+    keywords: entry.keywords ?? [],
+  };
+}
+
+function getAssistantKnowledgeEntries(
+  isReaderSignedIn: boolean,
+  hasActiveSubscription: boolean,
+) {
+  const currentExperience = experience[0];
+  const currentRole = currentExperience?.roles[0];
+  const currentCompany = currentExperience?.company ?? profile.currentCompany;
+  const publicBlog = blogPosts.find((post) => post.slug === PUBLIC_BLOG_SLUG) ?? blogPosts[0];
+  const entries: AssistantKnowledgeEntry[] = [
+    createAssistantEntry({
+      category: "page",
+      title: "What the assistant knows",
+      summary:
+        "This assistant answers from the website content: portfolio sections, selected projects, blogs, latest updates, dashboard notes, credentials, sign-in access, saved posts, and contact links. If a question is outside that scope, it says so instead of guessing.",
+      keywords: [
+        "assistant",
+        "bot",
+        "chatbot",
+        "trained",
+        "website",
+        "site",
+        "answer",
+        "answers",
+        "know",
+        "scope",
+        "help",
+      ],
+      links: [
+        { href: "/start", label: "Start Here" },
+        { href: "/portfolio#work", label: "Projects" },
+        { href: "/blogs", label: "Blogs" },
+      ],
+      priority: 5,
+    }),
+    createAssistantEntry({
+      category: "profile",
+      title: "About Sai Kumar Mediboina",
+      summary: `${profile.name} is a ${profile.currentTitle} at ${profile.currentCompany}. ${profile.summary}`,
+      details: [`Focus: ${profile.focus}`, `Location: ${profile.location}`],
+      keywords: [
+        "about",
+        "intro",
+        "profile",
+        "summary",
+        "sai",
+        "kumar",
+        "mediboina",
+        profile.role,
+        profile.currentTitle,
+        profile.currentCompany,
+      ],
+      links: [{ href: "/portfolio#about", label: "About Sai" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
+      category: "experience",
+      title: "Current role",
+      summary: currentRole
+        ? `Sai currently works as ${currentRole.title} at ${currentCompany}. The role focuses on backend platform engineering, search architecture, performance optimization, and AI-enabled workflow design.`
+        : `${profile.name} works on backend platform engineering, search systems, performance optimization, and AI-enabled workflows.`,
+      details: currentExperience
+        ? [
+            `Company: ${currentExperience.company}, ${currentExperience.location}.`,
+            currentExperience.summary,
+            ...currentExperience.achievements.slice(0, 2),
+          ]
+        : undefined,
+      keywords: [
+        "current",
+        "role",
+        "job",
+        "career",
+        "experience",
+        "oracle",
+        "application",
+        "software",
+        "engineer",
+        "developer",
+      ],
+      links: [{ href: "/portfolio#experience", label: "View experience" }],
+      priority: 5,
+    }),
+    createAssistantEntry({
+      category: "contact",
+      title: "Contact and links",
+      summary: `Best fit conversations are backend engineering, search systems, performance work, and practical AI or LLM product ideas. You can reach Sai through the contact page, email, or LinkedIn.`,
+      details: [`Email: ${profile.email}`, `LinkedIn: ${profile.linkedin}`],
+      keywords: ["contact", "email", "mail", "linkedin", "connect", "collaboration", "hire"],
+      links: [
+        { href: "/contact", label: "Contact page" },
+        { href: `mailto:${profile.email}`, label: "Email" },
+        { href: profile.linkedin, label: "LinkedIn", external: true },
+      ],
+      priority: 6,
+    }),
+    createAssistantEntry({
+      category: "subscription",
+      title: "Sign in and content updates",
+      summary: isReaderSignedIn
+        ? hasActiveSubscription
+          ? "You are signed in and subscribed. New selected engineering notes can reach your inbox when updates are sent."
+          : "You are signed in, but updates are not active yet. Subscribe from the profile area when you want selected portfolio and engineering notes in your inbox."
+        : "Sign in unlocks protected blog posts, saved posts, and the option to receive selected portfolio and engineering updates.",
+      keywords: [
+        "sign",
+        "signin",
+        "login",
+        "account",
+        "subscribe",
+        "unsubscribe",
+        "newsletter",
+        "updates",
+        "unlock",
+        "saved",
+      ],
+      links: isReaderSignedIn
+        ? [{ href: "/blogs", label: "Browse blogs" }]
+        : [{ href: "/signin", label: "Open sign in" }],
+      priority: 5,
+    }),
+    createAssistantEntry({
+      category: "project",
+      title: "Selected projects",
+      summary: `Selected work includes ${projects
+        .slice(0, 4)
+        .map((project) => project.name)
+        .join(", ")}. The common thread is backend scale, search-heavy screening, AI-assisted relevance, and measurable performance improvement.`,
+      details: projects
+        .slice(0, 4)
+        .map((project) => `${project.name}: ${project.impact}`),
+      keywords: [
+        "project",
+        "projects",
+        "work",
+        "portfolio",
+        "selected",
+        "matching",
+        "screening",
+        "search",
+        "performance",
+      ],
+      links: [{ href: "/portfolio#work", label: "View selected work" }],
+      priority: 5,
+    }),
+    createAssistantEntry({
+      category: "blog",
+      title: "Blogs and articles",
+      summary: `The site has ${blogPosts.length} engineering write-ups. The public feature is "${publicBlog.title}"; deeper articles unlock after sign-in so serious readers can explore more without cluttering the main page.`,
+      details: orderBlogPostsForAccess(blogPosts)
+        .slice(0, 4)
+        .map((post) => `${post.title} - ${post.summary}`),
+      keywords: ["blogs", "articles", "posts", "writing", "writeups", "read", "content"],
+      links: [
+        { href: "/blogs", label: "View blog index" },
+        { href: getBlogArticleHref(publicBlog.slug), label: "Open public article", external: true },
+        ...(isReaderSignedIn ? [] : [{ href: "/signin", label: "Unlock member reads" }]),
+      ],
+      priority: 5,
+    }),
+    createAssistantEntry({
+      category: "education",
+      title: "Education",
+      summary: `Education includes ${education
+        .map((entry) => `${entry.degree} from ${entry.school} with ${entry.score}`)
+        .join("; ")}.`,
+      keywords: ["education", "degree", "college", "cgpa", "mtech", "btech", "nit", "jntu"],
+      links: [{ href: "/portfolio#credentials", label: "View education" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
+      category: "certification",
+      title: "Certifications",
+      summary: `Credentials include ${certifications
+        .slice(0, 4)
+        .map((certification) => `${certification.title} from ${certification.issuer}`)
+        .join("; ")} and more in the credentials section.`,
+      keywords: [
+        "certification",
+        "certifications",
+        "certificate",
+        "credentials",
+        "oracle",
+        "spring",
+        "mcp",
+        "anthropic",
+      ],
+      links: [{ href: "/portfolio#credentials", label: "View credentials" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
+      category: "skill",
+      title: "Tech stack",
+      summary:
+        "Sai's stack is backend-heavy: Java, Spring Boot, REST APIs, microservices, Oracle 19c, Oracle Text, OpenSearch, OCI, Kubernetes, semantic search, AI similarity, and LLM workflow patterns.",
+      details: skills.map((group) => `${group.title}: ${group.items.join(", ")}`),
+      keywords: ["tech", "stack", "skills", "technology", "tools", "java", "spring", "oracle"],
+      links: [{ href: "/portfolio#skills", label: "View tech stack" }],
+      priority: 5,
+    }),
+    createAssistantEntry({
+      category: "page",
+      title: "Start Here",
+      summary:
+        "Start Here is the guided first-visit path. It explains what the website contains, what to read first, and how to follow new updates.",
+      keywords: ["start", "new", "first", "guide", "beginner", "glimpse", "navigation"],
+      links: [{ href: "/start", label: "Open Start Here" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
+      category: "update",
+      title: "What's New",
+      summary:
+        "What's New collects recent site updates from the last 30 days so visitors can scan fresh pages, blog additions, and feature changes quickly.",
+      keywords: ["what", "new", "latest", "updates", "recent", "last", "30", "days"],
+      links: [{ href: "/whats-new", label: "Open What's New" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
+      category: "page",
+      title: "Sai's Shelf",
+      summary:
+        "Sai's Shelf is planned as a useful resource area for CS fundamentals, AI notes, engineering references, and practical learning material.",
+      keywords: ["shelf", "resources", "cs", "fundamentals", "learning", "notes"],
+      links: [{ href: "/shelf", label: "Open Sai's Shelf" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
+      category: "dashboard",
+      title: "Creator dashboard",
+      summary:
+        "The dashboard summarizes portfolio momentum: blog coverage, topic distribution, publishing rhythm, top content, and recent site signals.",
+      keywords: ["dashboard", "analytics", "metrics", "charts", "content", "topics", "rhythm"],
+      links: [{ href: "/dashboard", label: "Open dashboard" }],
+      priority: 4,
+    }),
+  ];
+
+  projects.forEach((project) => {
+    entries.push(
+      createAssistantEntry({
+        category: "project",
+        title: project.name,
+        summary: `${project.name}: ${project.impact} ${project.summary}`,
+        details: [`Stack: ${project.stack.join(", ")}`, ...project.highlights],
+        keywords: [
+          "project",
+          "work",
+          "portfolio",
+          project.name,
+          project.impact,
+          ...project.stack,
+          ...project.highlights,
+        ],
+        links: [{ href: "/portfolio#work", label: "View selected work" }],
+        priority: 3,
+      }),
+    );
+  });
+
+  metrics.forEach((metric) => {
+    entries.push(
+      createAssistantEntry({
+        category: "metric",
+        title: metric.label,
+        summary: `${metric.value}: ${metric.detail}`,
+        keywords: ["metric", "impact", "result", "number", metric.value, metric.label],
+        links: [{ href: "/portfolio#about", label: "View highlights" }],
+        priority: 3,
+      }),
+    );
+  });
+
+  currentFocus.forEach((focus) => {
+    entries.push(
+      createAssistantEntry({
+        category: "profile",
+        title: focus.title,
+        summary: `${focus.title}: ${focus.caption}. ${focus.detail}`,
+        keywords: ["focus", "currently", "working", focus.title, focus.caption],
+        links: [{ href: "/portfolio#about", label: "View focus areas" }],
+        priority: 3,
+      }),
+    );
+  });
+
+  skills.forEach((group) => {
+    entries.push(
+      createAssistantEntry({
+        category: "skill",
+        title: group.title,
+        summary: `${group.title}: ${group.items.join(", ")}.`,
+        keywords: ["skill", "skills", "stack", "technology", group.title, ...group.items],
+        links: [{ href: "/portfolio#skills", label: "View tech stack" }],
+        priority: 2,
+      }),
+    );
+  });
+
+  recognitions.forEach((recognition) => {
+    entries.push(
+      createAssistantEntry({
+        category: "recognition",
+        title: recognition.title,
+        summary: `${recognition.title} from ${recognition.issuer}: ${recognition.detail}`,
+        details: [`Highlight: ${recognition.highlight}`],
+        keywords: ["award", "recognition", "achievement", recognition.title, recognition.issuer],
+        links: [{ href: "/portfolio#recognition", label: "View recognition" }],
+        priority: 3,
+      }),
+    );
+  });
+
+  education.forEach((entry) => {
+    entries.push(
+      createAssistantEntry({
+        category: "education",
+        title: `${entry.degree} at ${entry.school}`,
+        summary: `${entry.degree} from ${entry.school}, ${entry.score}.`,
+        keywords: ["education", "degree", "college", "cgpa", entry.degree, entry.school, entry.score],
+        links: [{ href: "/portfolio#credentials", label: "View education" }],
+        priority: 2,
+      }),
+    );
+  });
+
+  certifications.forEach((certification) => {
+    entries.push(
+      createAssistantEntry({
+        category: "certification",
+        title: certification.title,
+        summary: `${certification.title} from ${certification.issuer}.`,
+        details: [`Year: ${certification.year}`],
+        keywords: [
+          "certification",
+          "certificate",
+          "credential",
+          certification.title,
+          certification.issuer,
+          certification.year,
+        ],
+        links: [{ href: "/portfolio#credentials", label: "View credentials" }],
+        priority: 2,
+      }),
+    );
+  });
+
+  orderBlogPostsForAccess(blogPosts).forEach((post) => {
+    const canReadPost = post.slug === PUBLIC_BLOG_SLUG || isReaderSignedIn;
+
+    entries.push(
+      createAssistantEntry({
+        category: "blog",
+        title: post.title,
+        summary: canReadPost
+          ? `${post.title}: ${post.summary}`
+          : `${post.title} is in the members-only lab. Sign in to unlock the full article; preview: ${post.summary}`,
+        details: canReadPost
+          ? [
+              `Category: ${post.category}. ${post.readTime}. Published ${post.publishedAt}.`,
+              `Stats: ${post.stats.map((stat) => `${stat.label} ${stat.value}`).join(", ")}`,
+              ...post.takeaways.slice(0, 2),
+            ]
+          : [`Category: ${post.category}. ${post.readTime}. Sign in required for the full read.`],
+        keywords: [
+          "blog",
+          "article",
+          "post",
+          "read",
+          post.title,
+          post.category,
+          post.summary,
+          ...post.takeaways,
+          ...post.sections.map((section) => section.heading),
+        ],
+        links: canReadPost
+          ? [{ href: getBlogArticleHref(post.slug), label: "Open article", external: true }]
+          : [
+              { href: "/signin", label: "Unlock article" },
+              { href: "/blogs", label: "View blog index" },
+            ],
+        priority: post.slug === PUBLIC_BLOG_SLUG ? 4 : 3,
+      }),
+    );
+  });
+
+  siteUpdates.forEach((update) => {
+    entries.push(
+      createAssistantEntry({
+        category: "update",
+        title: update.title,
+        summary: `${update.title}: ${update.summary}`,
+        details: [`Added on ${formatUpdateDate(update.date)}. Category: ${update.category}.`],
+        keywords: ["update", "latest", "recent", update.category, update.title, update.summary],
+        links: [{ href: update.href, label: "Open update" }],
+        priority: 2,
+      }),
+    );
+  });
+
+  return entries;
+}
+
+function scoreAssistantEntry(
+  entry: AssistantKnowledgeEntry,
+  tokens: string[],
+  normalizedQuery: string,
+) {
+  const searchText = getAssistantSearchText(entry);
+  const titleText = normalizeAssistantText(entry.title);
+  const keywordText = normalizeAssistantText(entry.keywords.join(" "));
+  let score = entry.priority ?? 0;
+
+  if (normalizedQuery.length > 4 && searchText.includes(normalizedQuery)) {
+    score += 10;
+  }
+
+  tokens.forEach((token) => {
+    if (titleText.includes(token)) {
+      score += 5;
+    }
+
+    if (keywordText.includes(token)) {
+      score += 3;
+    }
+
+    if (searchText.includes(token)) {
+      score += 1;
+    }
+  });
+
+  return score;
+}
+
+function getAssistantUnknownResponse(): Pick<AssistantMessage, "links" | "text"> {
+  return {
+    text:
+      "That one is outside my portfolio notebook. I would rather say \"not sure yet\" than confidently juggle imaginary facts. Try asking about Sai's projects, blogs, tech stack, updates, subscriber access, or contact details.",
+    links: [
+      { href: "/start", label: "Start Here" },
+      { href: "/blogs", label: "Blogs" },
+      { href: "/portfolio#work", label: "Projects" },
+    ],
+  };
+}
+
+function getAssistantGreetingResponse(): Pick<AssistantMessage, "links" | "text"> {
+  return {
+    text:
+      "Hey, I am awake and wearing my tiny portfolio librarian badge. Ask me about Sai's projects, blogs, tech stack, performance wins, latest updates, or how to contact him.",
+    links: [
+      { href: "/start", label: "Start Here" },
+      { href: "/portfolio#work", label: "Projects" },
+      { href: "/blogs", label: "Blogs" },
+    ],
+  };
+}
+
+function formatAssistantEntryResponse(
+  entry: AssistantKnowledgeEntry,
+  relatedEntries: AssistantKnowledgeEntry[],
+): Pick<AssistantMessage, "links" | "text"> {
+  const detailText = entry.details?.slice(0, 2).join(" ") ?? "";
+  const relatedText = relatedEntries.length
+    ? ` Related on this site: ${relatedEntries
+        .slice(0, 2)
+        .map((relatedEntry) => relatedEntry.title)
+        .join(", ")}.`
+    : "";
+  const links = getUniqueAssistantLinks([
+    ...(entry.links ?? []),
+    ...relatedEntries.flatMap((relatedEntry) => relatedEntry.links ?? []),
+  ]).slice(0, 4);
+
+  return {
+    text: `${entry.summary}${detailText ? ` ${detailText}` : ""}${relatedText}`,
+    links: links.length ? links : undefined,
+  };
+}
+
 function getAssistantResponse(
   input: string,
   isReaderSignedIn: boolean,
   hasActiveSubscription: boolean,
 ): Pick<AssistantMessage, "links" | "text"> {
-  const query = input.toLowerCase();
-  const publicBlog = blogPosts.find((post) => post.slug === PUBLIC_BLOG_SLUG) ?? blogPosts[0];
-  const topProjects = projects.slice(0, 3).map((project) => project.name).join(", ");
-  const topSkills = skills
-    .map((group) => `${group.title}: ${group.items.slice(0, 4).join(", ")}`)
-    .join(". ");
+  const normalizedQuery = normalizeAssistantText(input);
+  const queryWords = normalizedQuery.split(" ").filter(Boolean);
+  const isGreetingOnly =
+    queryWords.length > 0 &&
+    queryWords.length <= 2 &&
+    queryWords.every((word) => /^(hi|hello|hey|yo|namaste|hai)$/.test(word));
 
-  if (query.includes("blog") || query.includes("article") || query.includes("write")) {
-    return {
-      text: `There are ${blogPosts.length} engineering write-ups. The public feature is "${publicBlog.title}". The other posts are available after sign-in, so interested readers can go deeper without cluttering the main page.`,
-      links: [
-        { href: "/blogs", label: "View blog index" },
-        { href: getBlogArticleHref(publicBlog.slug), label: "Open public article", external: true },
-        ...(isReaderSignedIn ? [] : [{ href: "/signin", label: "Sign in to unlock blogs" }]),
-      ],
-    };
+  if (isGreetingOnly) {
+    return getAssistantGreetingResponse();
   }
 
-  if (
-    query.includes("project") ||
-    query.includes("work") ||
-    query.includes("matching") ||
-    query.includes("screening")
-  ) {
-    return {
-      text: `The selected work focuses on backend systems for compliance screening, search, AI-assisted scoring, and performance tuning. A good starting path is: ${topProjects}.`,
-      links: [{ href: "/portfolio#work", label: "Explore selected work" }],
-    };
+  const tokens = getAssistantTokens(input);
+
+  if (!tokens.length) {
+    return getAssistantUnknownResponse();
   }
 
-  if (
-    query.includes("skill") ||
-    query.includes("stack") ||
-    query.includes("technology") ||
-    query.includes("tech")
-  ) {
-    return {
-      text: `The core stack is backend-heavy: ${topSkills}. The strongest theme is where Java services, Oracle-heavy systems, search, and AI/LLM workflows meet.`,
-      links: [{ href: "/portfolio#skills", label: "View tech stack" }],
-    };
+  const rankedEntries = getAssistantKnowledgeEntries(isReaderSignedIn, hasActiveSubscription)
+    .map((entry) => ({
+      entry,
+      score: scoreAssistantEntry(entry, tokens, normalizedQuery),
+    }))
+    .filter((result) => result.score > 0)
+    .sort((left, right) => right.score - left.score);
+
+  const bestMatch = rankedEntries[0];
+
+  if (!bestMatch || bestMatch.score < 5) {
+    return getAssistantUnknownResponse();
   }
 
-  if (
-    query.includes("performance") ||
-    query.includes("latency") ||
-    query.includes("throughput") ||
-    query.includes("optimization")
-  ) {
-    return {
-      text: "The performance story is a major theme: 97% batch latency reduction, 85% real-time speedup, 100+ TPS runtime scale, and backend throughput improvements using database, cache, and async patterns.",
-      links: [
-        { href: "/portfolio#work", label: "See performance projects" },
-        { href: getBlogArticleHref(publicBlog.slug), label: "Read throughput blog", external: true },
-      ],
-    };
-  }
+  const relatedEntries = rankedEntries
+    .slice(1)
+    .filter((result) => result.entry.category !== bestMatch.entry.category || result.score >= 8)
+    .map((result) => result.entry);
 
-  if (
-    query.includes("contact") ||
-    query.includes("email") ||
-    query.includes("linkedin") ||
-    query.includes("connect")
-  ) {
-    return {
-      text: `You can contact ${profile.name} by email or LinkedIn. Best fit conversations are backend engineering, search systems, performance work, and practical AI/LLM product ideas.`,
-      links: [
-        { href: "/contact", label: "Go to contact" },
-        { href: `mailto:${profile.email}`, label: "Email" },
-        { href: profile.linkedin, label: "LinkedIn", external: true },
-      ],
-    };
-  }
-
-  if (
-    query.includes("subscribe") ||
-    query.includes("sign") ||
-    query.includes("account") ||
-    query.includes("unlock")
-  ) {
-    return {
-      text: isReaderSignedIn
-        ? hasActiveSubscription
-          ? "You are signed in and subscribed. New selected engineering notes can reach your inbox when updates are sent."
-          : "You are signed in but not subscribed yet. Use the profile menu in the header to subscribe when you want portfolio and blog updates."
-        : "Sign in unlocks the protected blog posts and lets you subscribe for selected portfolio and engineering updates. No password collection here, just account-based access.",
-      links: isReaderSignedIn ? [{ href: "/blogs", label: "Browse blogs" }] : [{ href: "/signin", label: "Open sign in" }],
-    };
-  }
-
-  return {
-    text: `I can guide you through ${profile.name}'s portfolio: projects, blogs, tech stack, performance highlights, contact details, and subscriber access. Try asking about "blogs", "performance work", "tech stack", or "contact".`,
-    links: [
-      { href: "/portfolio#work", label: "Projects" },
-      { href: "/blogs", label: "Blogs" },
-      { href: "/portfolio#skills", label: "Tech stack" },
-    ],
-  };
+  return formatAssistantEntryResponse(bestMatch.entry, relatedEntries);
 }
 
 type SiteAssistantProps = {
@@ -979,8 +1566,8 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
   const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const quickPrompts = [
-    "Show me the blogs",
-    "Explain the tech stack",
+    "What can you answer?",
+    "Explain AI and LLM work",
     "What performance work stands out?",
     "How do I contact Sai?",
   ];
