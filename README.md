@@ -47,13 +47,13 @@ The site includes a manual admin sender at `/admin-update`.
 
 Emails are sent from a Vercel Function, not from the browser, so API keys are not exposed to visitors.
 
-## LLM Chat Assistant
+## Gemini Chat Assistant
 
-The portfolio assistant uses `/api/chat` as a Vercel Function. The browser sends the visitor question plus a compact, public website context. The server calls the LLM with `OPENAI_API_KEY`, so the key is never exposed in client-side code.
+The portfolio assistant uses `/api/chat` as a Vercel Function. The browser sends the visitor question plus a compact, public website context. The server calls Gemini with `GEMINI_API_KEY`, so the key is never exposed in client-side code.
 
 Add these backend-only variables in Vercel:
 
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL` optional, defaults to `gpt-5.4-mini`
+- `GEMINI_API_KEY`
+- `GEMINI_MODEL` optional, defaults to `gemini-2.5-flash`
 
-If the OpenAI key is missing or the API cannot answer, the assistant falls back to the built-in website-trained response.
+If the Gemini key is missing, the free-tier quota is reached, or the API cannot answer, the assistant falls back to the built-in website-trained response.
