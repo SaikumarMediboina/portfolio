@@ -148,6 +148,14 @@ function isSavedPostsPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/saved-posts";
 }
 
+function isShelfPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/shelf";
+}
+
 function isDashboardPathname() {
   if (typeof window === "undefined") {
     return false;
@@ -549,7 +557,15 @@ function AccountCircleIcon() {
   );
 }
 
-type ReaderMenuGlyphType = "about" | "bookmark" | "briefcase" | "home" | "mail" | "menu" | "pen";
+type ReaderMenuGlyphType =
+  | "about"
+  | "bookmark"
+  | "briefcase"
+  | "home"
+  | "mail"
+  | "menu"
+  | "pen"
+  | "shelf";
 
 function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
   const paths = {
@@ -628,6 +644,21 @@ function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
         strokeLinejoin="round"
         strokeWidth="1.8"
       />
+    ),
+    shelf: (
+      <>
+        <path
+          d="M6.2 5.5h11.6v13H6.2v-13Z"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M9 5.5v13M6.2 10h11.6M6.2 14.2h11.6"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+      </>
     ),
   };
 
@@ -1149,6 +1180,7 @@ function ReaderMenu({
     { href: "/", icon: "home" as const, label: "Home" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
+    { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
     {
       href: isSignedIn ? "/saved-posts" : getSavedPostsSignInHref(),
       icon: "bookmark" as const,
@@ -2248,6 +2280,102 @@ function SavedPostsPage({
   );
 }
 
+type ShelfPageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function ShelfPage({ theme, onThemeToggle }: ShelfPageProps) {
+  const shelfPlans = [
+    {
+      title: "Backend Patterns",
+      detail: "Small notes on caching, async processing, database tuning, and service design.",
+    },
+    {
+      title: "CS Fundamentals",
+      detail: "Clean explanations for concepts that are useful in interviews and real systems.",
+    },
+    {
+      title: "AI and LLM Notes",
+      detail: "Practical prompts, workflow ideas, and references that are worth revisiting.",
+    },
+  ];
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to Sai's Shelf
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Sai's Shelf</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <PageBackButton fallbackHref="/" label="Back" />
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="shelf-page shell" id="main-content">
+        <section className="shelf-panel">
+          <div className="shelf-hero">
+            <p className="eyebrow">Sai's Shelf</p>
+            <h1>A growing shelf for useful engineering content.</h1>
+            <p>
+              This space will collect practical references, short explainers, diagrams, tools,
+              and notes that are worth keeping close. I will add content one useful piece at a
+              time, so the shelf grows without becoming noisy.
+            </p>
+          </div>
+
+          <div className="shelf-coming-soon">
+            <ReaderMenuGlyph type="shelf" />
+            <div>
+              <h2>The shelf is being arranged.</h2>
+              <p>
+                Nothing dusty here yet. Soon this will become a neat corner for the kind of
+                content you want to bookmark before future-you starts searching frantically.
+              </p>
+            </div>
+          </div>
+
+          <div className="shelf-plan-grid" aria-label="Planned shelf topics">
+            {shelfPlans.map((item) => (
+              <article className="shelf-plan-card" key={item.title}>
+                <span>Coming soon</span>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
+
 type DashboardPageProps = {
   theme: Theme;
   onThemeToggle: () => void;
@@ -2907,6 +3035,7 @@ function App() {
   const standaloneBlogAccessChecking = Boolean(standaloneBlogNeedsAuth && !authReady);
   const isSignInPage = isSignInPathname();
   const isSavedPostsPage = isSavedPostsPathname();
+  const isShelfPage = isShelfPathname();
   const isDashboardPage = isDashboardPathname();
   const isBlogsPage = isBlogsPathname();
   const isContactPage = isContactPathname();
@@ -3358,6 +3487,15 @@ function App() {
         subscriptionMessage={subscriptionMessage}
         theme={theme}
         onToggleSavedPost={handleToggleSavedPost}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
+    );
+  }
+
+  if (isShelfPage) {
+    return (
+      <ShelfPage
+        theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />
     );

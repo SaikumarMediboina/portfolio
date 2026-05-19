@@ -13,6 +13,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/shelf",
+      "destination": "/index.html"
+    },
+    {
       "source": "/blogs",
       "destination": "/index.html"
     },
