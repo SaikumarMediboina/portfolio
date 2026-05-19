@@ -2951,14 +2951,55 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
   );
 }
 
-function NewsletterCallout() {
+type NewsletterCalloutProps = {
+  isSubscribed: boolean;
+  subscriberEmail: string;
+  subscriberUser: User | null;
+  subscriptionBusy: boolean;
+  onSubscribe: () => void;
+};
+
+function NewsletterCallout({
+  isSubscribed,
+  subscriberEmail,
+  subscriberUser,
+  subscriptionBusy,
+  onSubscribe,
+}: NewsletterCalloutProps) {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "success" | "error">("idle");
   const [newsletterMessage, setNewsletterMessage] = useState("");
   const [newsletterBusy, setNewsletterBusy] = useState(false);
+  const [newsletterAlreadySubscribed, setNewsletterAlreadySubscribed] = useState(false);
+  const newsletterIsConfirmed = newsletterStatus === "success";
+  const showSubscribedState = Boolean((subscriberUser && isSubscribed) || newsletterIsConfirmed);
+  const newsletterTitle = subscriberUser
+    ? isSubscribed
+      ? "You're already subscribed"
+      : "Join with your signed-in email"
+    : newsletterIsConfirmed
+      ? newsletterAlreadySubscribed
+        ? "You're already on the list"
+        : "You're subscribed"
+      : "Join the Newsletter";
+  const newsletterDescription = subscriberUser
+    ? isSubscribed
+      ? `Updates will go to ${subscriberEmail}. You can unsubscribe from your profile menu or from any email.`
+      : `Use ${subscriberEmail} for selected deep dives, engineering notes, and meaningful portfolio updates.`
+    : newsletterIsConfirmed
+      ? "Future deep dives and engineering notes will land in your inbox when there is something worth opening."
+      : "Get notified when new deep dives, engineering notes, and meaningful portfolio updates are published. No spam. Unsubscribe from any email.";
 
   const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (subscriberUser) {
+      if (!isSubscribed) {
+        onSubscribe();
+      }
+
+      return;
+    }
 
     const email = newsletterEmail.trim().toLowerCase();
 
@@ -2971,6 +3012,7 @@ function NewsletterCallout() {
     setNewsletterBusy(true);
     setNewsletterStatus("idle");
     setNewsletterMessage("");
+    setNewsletterAlreadySubscribed(false);
 
     try {
       const response = await fetch("/api/subscribe-newsletter", {
@@ -2986,8 +3028,9 @@ function NewsletterCallout() {
         throw new Error(payload.error || "Unable to subscribe right now.");
       }
 
-      setNewsletterEmail("");
+      setNewsletterEmail(email);
       setNewsletterStatus("success");
+      setNewsletterAlreadySubscribed(Boolean(payload.alreadySubscribed));
       setNewsletterMessage(
         payload.message || "You are subscribed. Useful engineering notes will find you.",
       );
@@ -3008,11 +3051,8 @@ function NewsletterCallout() {
       </div>
       <div>
         <p className="eyebrow">Newsletter</p>
-        <h2>Join the Newsletter</h2>
-        <p>
-          Get notified when new deep dives, engineering notes, and meaningful portfolio updates are
-          published. No spam. Unsubscribe from any email.
-        </p>
+        <h2>{newsletterTitle}</h2>
+        <p>{newsletterDescription}</p>
       </div>
       <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
         <label>
@@ -3022,13 +3062,28 @@ function NewsletterCallout() {
             autoComplete="email"
             inputMode="email"
             placeholder="Your email address"
-            value={newsletterEmail}
-            onChange={(event) => setNewsletterEmail(event.target.value)}
-            disabled={newsletterBusy}
+            value={subscriberUser ? subscriberEmail : newsletterEmail}
+            onChange={(event) => {
+              setNewsletterEmail(event.target.value);
+              setNewsletterStatus("idle");
+              setNewsletterMessage("");
+              setNewsletterAlreadySubscribed(false);
+            }}
+            disabled={newsletterBusy || Boolean(subscriberUser) || showSubscribedState}
           />
         </label>
-        <button className="button button-primary" type="submit" disabled={newsletterBusy}>
-          {newsletterBusy ? "Subscribing..." : "Subscribe"}
+        <button
+          className={`button ${showSubscribedState ? "button-secondary" : "button-primary"}`}
+          type="submit"
+          disabled={newsletterBusy || subscriptionBusy || showSubscribedState}
+        >
+          {showSubscribedState
+            ? "Subscribed"
+            : newsletterBusy
+              ? "Subscribing..."
+              : subscriptionBusy
+                ? "Updating..."
+                : "Subscribe"}
         </button>
         {newsletterMessage ? (
           <p className={`newsletter-status is-${newsletterStatus}`}>{newsletterMessage}</p>
@@ -5086,7 +5141,13 @@ function App() {
     <>
       {page}
       <div className="site-newsletter-footer shell">
-        <NewsletterCallout />
+        <NewsletterCallout
+          isSubscribed={isSubscribed}
+          subscriberEmail={subscriberEmail}
+          subscriberUser={subscriberUser}
+          subscriptionBusy={subscriptionBusy}
+          onSubscribe={handleSubscribe}
+        />
       </div>
       <SiteFooter />
       <SiteAssistant isSubscribed={isSubscribed} subscriberUser={subscriberUser} />

@@ -106,6 +106,30 @@ function createUnsubscribeToken(email, serviceAccount) {
   return createHmac("sha256", secret).update(email).digest("hex");
 }
 
+async function getNewsletterSubscriber({ accessToken, email, projectId }) {
+  const documentId = getEmailSubscriberId(email);
+  const response = await fetch(
+    `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${SUBSCRIBERS_COLLECTION}/${documentId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Unable to check newsletter subscriber: ${detail}`);
+  }
+
+  return response.json();
+}
+
 async function upsertNewsletterSubscriber({ accessToken, email, projectId, token }) {
   const documentId = getEmailSubscriberId(email);
   const now = new Date().toISOString();
@@ -169,6 +193,14 @@ export default async function handler(request, response) {
     const serviceAccount = parseServiceAccount();
     const accessToken = await getGoogleAccessToken(serviceAccount);
     const unsubscribeToken = createUnsubscribeToken(email, serviceAccount);
+    const existingSubscriber = await getNewsletterSubscriber({
+      accessToken,
+      email,
+      projectId: serviceAccount.project_id,
+    });
+    const alreadySubscribed = Boolean(
+      existingSubscriber?.fields?.subscribed?.booleanValue === true,
+    );
 
     await upsertNewsletterSubscriber({
       accessToken,
@@ -178,7 +210,10 @@ export default async function handler(request, response) {
     });
 
     return jsonResponse(response, 200, {
-      message: "You are subscribed. The good engineering notes now know where to land.",
+      alreadySubscribed,
+      message: alreadySubscribed
+        ? "You are already subscribed. The good notes have your address safe and sound."
+        : "You are subscribed. The good engineering notes now know where to land.",
     });
   } catch (error) {
     return jsonResponse(response, 500, {
