@@ -156,6 +156,56 @@ function getInitialAssistantMessages(): AssistantMessage[] {
   ];
 }
 
+const motionRevealSelector = [
+  ".hero-copy",
+  ".hero-panel",
+  ".metric-card",
+  ".section-heading",
+  ".focus-card",
+  ".project-tab",
+  ".project-spotlight",
+  ".timeline-card",
+  ".skill-card",
+  ".credential-panel",
+  ".recognition-card",
+  ".updates-panel",
+  ".updates-card",
+  ".contact-panel",
+  ".blog-toolbar",
+  ".blog-featured",
+  ".blog-list-item",
+  ".guide-hero",
+  ".guide-card",
+  ".mini-updates-panel",
+  ".whats-new-list article",
+  ".ai-radar-hero",
+  ".ai-radar-top-card",
+  ".ai-radar-lens",
+  ".ai-radar-item",
+  ".collaboration-hero-copy",
+  ".collaboration-signal-card",
+  ".collaboration-area-card",
+  ".collaboration-proof",
+  ".collaboration-step",
+  ".collaboration-cta",
+  ".dashboard-hero",
+  ".dashboard-note",
+  ".dashboard-email-callout",
+  ".dashboard-stat-card",
+  ".dashboard-card",
+  ".dashboard-topic-breakdown section",
+  ".signin-copy",
+  ".updates-card",
+  ".saved-posts-hero",
+  ".saved-posts-item",
+  ".saved-posts-empty",
+  ".shelf-hero",
+  ".shelf-coming-soon",
+  ".shelf-plan-card",
+  ".standalone-blog",
+  ".blog-article-section",
+].join(",");
+
 type SubscriberViewState =
   | "guest"
   | "newSignedIn"
@@ -5244,6 +5294,65 @@ function App() {
     .charAt(0)
     .toUpperCase();
   const isPostSaved = (slug: string) => savedPostSlugs.includes(slug);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const revealElements = Array.from(
+      document.querySelectorAll<HTMLElement>(motionRevealSelector),
+    );
+
+    revealElements.forEach((element, index) => {
+      element.classList.add("motion-reveal");
+      element.style.setProperty("--motion-delay", `${Math.min((index % 8) * 0.055, 0.36)}s`);
+    });
+
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      revealElements.forEach((element) => element.classList.add("is-visible"));
+      return undefined;
+    }
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        });
+      },
+      {
+        rootMargin: "0px 0px -10% 0px",
+        threshold: 0.14,
+      },
+    );
+
+    revealElements.forEach((element) => revealObserver.observe(element));
+
+    return () => revealObserver.disconnect();
+  }, [
+    isAdminUpdatePage,
+    isAiRadarPage,
+    isBlogsPage,
+    isContactPage,
+    isDashboardPage,
+    isPortfolioPage,
+    isSavedPostsPage,
+    isShelfPage,
+    isSignInPage,
+    isStartPage,
+    isWhatsNewPage,
+    savedPostSlugs.length,
+    selectedBlogCategory,
+    selectedProjectIndex,
+    standaloneBlogSlug,
+    subscriberUser?.uid,
+  ]);
 
   useEffect(() => {
     const sectionIds = [

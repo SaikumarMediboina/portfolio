@@ -5094,6 +5094,32 @@ section[id] {
   }
 }
 
+@keyframes heroGlowDrift {
+  0%,
+  100% {
+    translate: 0 0;
+    scale: 1;
+    opacity: 0.5;
+  }
+
+  50% {
+    translate: -18px 16px;
+    scale: 1.08;
+    opacity: 0.78;
+  }
+}
+
+@keyframes softBorderGlow {
+  0%,
+  100% {
+    border-color: var(--panel-border);
+  }
+
+  50% {
+    border-color: color-mix(in srgb, var(--accent) 34%, var(--panel-border));
+  }
+}
+
 body::before {
   animation: gridDrift 30s linear infinite;
 }
@@ -5104,6 +5130,116 @@ body::before {
 
 .backdrop-orb-right {
   animation: orbDrift 16s ease-in-out 0.8s infinite reverse;
+}
+
+.hero,
+.guide-hero,
+.signin-hero,
+.saved-posts-panel,
+.shelf-panel,
+.standalone-blog,
+.ai-radar-hero,
+.dashboard-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero::before,
+.guide-hero::before,
+.signin-hero::before,
+.saved-posts-panel::before,
+.shelf-panel::before,
+.standalone-blog::before {
+  content: "";
+  position: absolute;
+  inset: auto -2rem -3rem auto;
+  z-index: -1;
+  width: min(20rem, 48vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 36% 34%, color-mix(in srgb, var(--accent) 38%, transparent), transparent 40%),
+    radial-gradient(circle at 68% 72%, color-mix(in srgb, var(--accent-cool) 70%, transparent), transparent 36%);
+  filter: blur(8px);
+  opacity: 0.42;
+  pointer-events: none;
+  animation: heroGlowDrift 9s ease-in-out infinite;
+}
+
+.motion-reveal {
+  opacity: 0;
+  translate: 0 30px;
+  scale: 0.985;
+  filter: blur(7px);
+  transition:
+    opacity 0.78s cubic-bezier(0.2, 0.8, 0.2, 1),
+    translate 0.78s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.78s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.78s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: var(--motion-delay, 0s);
+  will-change: opacity, translate, scale, filter;
+}
+
+.motion-reveal:is(
+  .hero-copy,
+  .section-heading,
+  .blog-toolbar,
+  .guide-hero,
+  .dashboard-hero,
+  .collaboration-hero-copy,
+  .signin-copy,
+  .saved-posts-hero,
+  .shelf-hero,
+  .standalone-blog-hero
+) {
+  translate: -24px 0;
+}
+
+.motion-reveal.is-visible {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  filter: blur(0);
+}
+
+:is(
+  .metric-card,
+  .focus-card,
+  .project-tab,
+  .skill-card,
+  .recognition-card,
+  .blog-list-item,
+  .guide-card,
+  .ai-radar-top-card,
+  .ai-radar-item,
+  .collaboration-area-card,
+  .dashboard-stat-card,
+  .dashboard-card,
+  .saved-posts-item,
+  .shelf-plan-card
+).motion-reveal.is-visible:hover {
+  translate: 0 -6px;
+  transition-delay: 0s;
+}
+
+:is(
+  .hero-panel,
+  .project-spotlight,
+  .blog-featured,
+  .updates-panel,
+  .updates-card,
+  .contact-panel,
+  .guide-card,
+  .ai-radar-story-card,
+  .dashboard-card,
+  .saved-posts-panel,
+  .shelf-panel,
+  .standalone-blog
+).motion-reveal.is-visible {
+  animation-name: softBorderGlow;
+  animation-duration: 6s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 
 .hero,
