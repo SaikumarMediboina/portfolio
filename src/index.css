@@ -1442,6 +1442,28 @@ dt {
   color: var(--accent);
 }
 
+.save-radar-button {
+  min-height: 2.28rem;
+  padding: 0.5rem 0.72rem;
+  font-size: var(--text-micro);
+}
+
+.save-radar-button.is-on-dark {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff8ef;
+}
+
+.save-radar-button.is-on-dark:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.save-radar-button.is-on-dark.is-saved {
+  border-color: rgba(255, 141, 102, 0.42);
+  background: rgba(255, 141, 102, 0.14);
+  color: #ffb091;
+}
+
 .save-post-button:disabled,
 .saved-posts-actions button:disabled {
   cursor: wait;
@@ -2112,6 +2134,19 @@ dt {
   background: rgba(255, 255, 255, 0.14);
 }
 
+.ai-radar-story-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.62rem;
+  align-items: center;
+  margin-top: 0.95rem;
+}
+
+.ai-radar-story-actions a,
+.ai-radar-story-actions .save-radar-button {
+  margin-top: 0;
+}
+
 .ai-radar-hero-panel {
   align-self: stretch;
   display: grid;
@@ -2627,6 +2662,12 @@ dt {
 .ai-radar-item-action a {
   color: var(--accent);
   white-space: nowrap;
+}
+
+.ai-radar-item-action .save-radar-button {
+  justify-self: end;
+  min-height: 2.1rem;
+  padding: 0.42rem 0.62rem;
 }
 
 .newsletter-callout {
@@ -4586,12 +4627,12 @@ dt {
 
 .assistant-drag-region {
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 0.6rem;
   min-width: 0;
   min-height: 2.7rem;
-  padding: 0.26rem 0.42rem 0.26rem 0.32rem;
+  padding: 0.26rem 0.42rem;
   border: 1px solid transparent;
   border-radius: 999px;
   cursor: grab;
@@ -4625,22 +4666,6 @@ dt {
   letter-spacing: 0.03em;
 }
 
-.assistant-grip {
-  display: grid;
-  gap: 0.18rem;
-  place-items: center;
-  width: 0.75rem;
-  opacity: 0.7;
-}
-
-.assistant-grip span {
-  display: block;
-  width: 0.25rem;
-  height: 0.25rem;
-  border-radius: 999px;
-  background: rgba(248, 244, 239, 0.68);
-}
-
 .assistant-title {
   min-width: 0;
 }
@@ -4664,17 +4689,6 @@ dt {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.assistant-drag-hint {
-  padding: 0.28rem 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 999px;
-  color: rgba(248, 244, 239, 0.52);
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .assistant-header-actions {
@@ -6038,14 +6052,10 @@ body::before {
   }
 
   .assistant-drag-region {
-    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 0.5rem;
     min-height: 2.6rem;
     padding: 0.22rem 0.32rem;
-  }
-
-  .assistant-drag-hint {
-    display: none;
   }
 
   .assistant-avatar {

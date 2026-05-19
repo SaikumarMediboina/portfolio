@@ -146,9 +146,8 @@ function getInitialAssistantMessages(): AssistantMessage[] {
     {
       id: 1,
       role: "assistant",
-      text: "Hey, I am Sai's website assistant. I answer from the portfolio, blogs, updates, and reader features on this site. If something is outside my notebook, I will say that clearly instead of guessing.",
+      text: "Hey, I am Sai's website assistant. I can explain his portfolio and blogs, or answer general CS, backend, cloud, and AI questions in a simple way.",
       links: [
-        { href: "/portfolio#work", label: "Projects" },
         { href: "/blogs", label: "Blogs" },
         { href: "/ai-radar", label: "AI Radar" },
       ],
@@ -221,6 +220,8 @@ type SubscriberViewState =
 
 const THEME_STORAGE_KEY = "portfolio-theme";
 const SAVED_POSTS_STORAGE_KEY_PREFIX = "portfolio-saved-posts:";
+const SAVED_AI_RADAR_STORAGE_KEY_PREFIX = "portfolio-saved-ai-radar:";
+const AI_RADAR_SAVE_ID_PREFIX = "ai-radar:";
 const ALL_BLOG_CATEGORIES = "All";
 const ALL_AI_RADAR_CATEGORIES = "All signals";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
@@ -246,6 +247,25 @@ type AiRadarApiItem = Partial<AiRadarSignal>;
 type AiRadarApiResponse = {
   generatedAt?: string;
   items?: AiRadarApiItem[];
+};
+
+type SavedAiRadarItem = Pick<
+  AiRadarSignal,
+  "category" | "href" | "imageUrl" | "publishedAt" | "source" | "summary" | "title"
+> & {
+  id: string;
+  savedAt?: string;
+};
+
+type SavedReaderItem = {
+  actionLabel: string;
+  date?: string;
+  href: string;
+  id: string;
+  kind: "AI Radar" | "Blog";
+  summary: string;
+  tags: string[];
+  title: string;
 };
 
 const aiRadarSignals: AiRadarSignal[] = [
@@ -323,8 +343,77 @@ function normalizeSavedPostSlugs(savedPostSlugs: unknown) {
     : [];
 }
 
+function isSavedAiRadarId(id: string) {
+  return id.startsWith(AI_RADAR_SAVE_ID_PREFIX);
+}
+
+function getAiRadarSavedId(signal: Pick<AiRadarSignal, "href">) {
+  return `${AI_RADAR_SAVE_ID_PREFIX}${encodeURIComponent(signal.href)}`;
+}
+
+function getAiRadarHrefFromSavedId(id: string) {
+  if (!isSavedAiRadarId(id)) {
+    return "";
+  }
+
+  try {
+    return decodeURIComponent(id.slice(AI_RADAR_SAVE_ID_PREFIX.length));
+  } catch {
+    return "";
+  }
+}
+
+function normalizeSavedAiRadarItems(items: unknown): SavedAiRadarItem[] {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  const normalizedItems = items
+    .map((item): SavedAiRadarItem | null => {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+
+      const candidate = item as Partial<SavedAiRadarItem>;
+      const href = typeof candidate.href === "string" ? candidate.href : "";
+      const id =
+        typeof candidate.id === "string" && candidate.id
+          ? candidate.id
+          : href
+            ? getAiRadarSavedId({ href })
+            : "";
+
+      if (!id || !isSavedAiRadarId(id)) {
+        return null;
+      }
+
+      return {
+        category: typeof candidate.category === "string" ? candidate.category : "AI",
+        href: href || getAiRadarHrefFromSavedId(id),
+        id,
+        imageUrl: typeof candidate.imageUrl === "string" ? candidate.imageUrl : undefined,
+        publishedAt:
+          typeof candidate.publishedAt === "string" ? candidate.publishedAt : undefined,
+        savedAt: typeof candidate.savedAt === "string" ? candidate.savedAt : undefined,
+        source: typeof candidate.source === "string" ? candidate.source : "AI Radar",
+        summary:
+          typeof candidate.summary === "string"
+            ? candidate.summary
+            : "Saved from AI Radar for later reading.",
+        title: typeof candidate.title === "string" ? candidate.title : "Saved AI Radar story",
+      };
+    })
+    .filter((item): item is SavedAiRadarItem => Boolean(item));
+
+  return Array.from(new Map(normalizedItems.map((item) => [item.id, item])).values());
+}
+
 function getSavedPostsStorageKey(uid: string) {
   return `${SAVED_POSTS_STORAGE_KEY_PREFIX}${uid}`;
+}
+
+function getSavedAiRadarStorageKey(uid: string) {
+  return `${SAVED_AI_RADAR_STORAGE_KEY_PREFIX}${uid}`;
 }
 
 function readCachedSavedPostSlugs(uid: string) {
@@ -335,6 +424,20 @@ function readCachedSavedPostSlugs(uid: string) {
   try {
     return normalizeSavedPostSlugs(
       JSON.parse(window.localStorage.getItem(getSavedPostsStorageKey(uid)) ?? "[]"),
+    );
+  } catch {
+    return [];
+  }
+}
+
+function readCachedSavedAiRadarItems(uid: string) {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    return normalizeSavedAiRadarItems(
+      JSON.parse(window.localStorage.getItem(getSavedAiRadarStorageKey(uid)) ?? "[]"),
     );
   } catch {
     return [];
@@ -354,6 +457,99 @@ function cacheSavedPostSlugs(uid: string, savedPostSlugs: string[]) {
   } catch {
     // Saved posts still sync through Firestore if browser storage is restricted.
   }
+}
+
+function cacheSavedAiRadarItems(uid: string, savedAiRadarItems: SavedAiRadarItem[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      getSavedAiRadarStorageKey(uid),
+      JSON.stringify(normalizeSavedAiRadarItems(savedAiRadarItems)),
+    );
+  } catch {
+    // Saved AI Radar metadata is a local enhancement; Firestore still stores the saved IDs.
+  }
+}
+
+function getCachedSavedAiRadarItemsForSlugs(uid: string, savedPostSlugs: string[]) {
+  const savedAiRadarIds = new Set(savedPostSlugs.filter(isSavedAiRadarId));
+  const cachedItems = readCachedSavedAiRadarItems(uid).filter((item) =>
+    savedAiRadarIds.has(item.id),
+  );
+
+  cacheSavedAiRadarItems(uid, cachedItems);
+
+  return cachedItems;
+}
+
+function getSavedAiRadarItem(signal: AiRadarSignal): SavedAiRadarItem {
+  return {
+    category: signal.category,
+    href: signal.href,
+    id: getAiRadarSavedId(signal),
+    imageUrl: signal.imageUrl,
+    publishedAt: signal.publishedAt,
+    savedAt: new Date().toISOString(),
+    source: signal.source,
+    summary: signal.summary || signal.whyItMatters,
+    title: signal.title,
+  };
+}
+
+function buildSavedReaderItems(
+  savedPostSlugs: string[],
+  savedAiRadarItems: SavedAiRadarItem[],
+) {
+  return savedPostSlugs
+    .map((id): SavedReaderItem | null => {
+      const post = blogPosts.find((candidate) => candidate.slug === id);
+
+      if (post) {
+        return {
+          actionLabel: "Read article",
+          date: post.publishedAt,
+          href: getBlogArticleHref(post.slug),
+          id: post.slug,
+          kind: "Blog",
+          summary: post.summary,
+          tags: [post.category, post.readTime],
+          title: post.title,
+        };
+      }
+
+      const savedSignal =
+        savedAiRadarItems.find((item) => item.id === id) ??
+        (isSavedAiRadarId(id)
+          ? {
+              category: "AI Radar",
+              href: getAiRadarHrefFromSavedId(id),
+              id,
+              publishedAt: undefined,
+              source: "AI Radar",
+              summary: "Saved from AI Radar for later reading.",
+              title: "Saved AI Radar story",
+            } satisfies SavedAiRadarItem
+          : null);
+
+      if (!savedSignal) {
+        return null;
+      }
+
+      return {
+        actionLabel: "Open story",
+        date: formatAiRadarDate(savedSignal.publishedAt),
+        href: savedSignal.href,
+        id: savedSignal.id,
+        kind: "AI Radar",
+        summary: savedSignal.summary,
+        tags: ["AI Radar", savedSignal.source, savedSignal.category],
+        title: savedSignal.title,
+      };
+    })
+    .filter((item): item is SavedReaderItem => Boolean(item));
 }
 
 function canReadBlogPost(post: BlogPost | undefined, user: User | null) {
@@ -1119,6 +1315,13 @@ type GenericAssistantResponse = {
   text: string;
 };
 
+type AssistantAnswerMode = "generic" | "site";
+
+type AssistantResponseDraft = Pick<AssistantMessage, "links" | "text"> & {
+  mode: AssistantAnswerMode;
+  shouldUseLlm: boolean;
+};
+
 const assistantStopWords = new Set([
   "a",
   "about",
@@ -1232,6 +1435,51 @@ const siteSpecificQuestionWords = new Set([
   "website",
   "work",
   "your",
+]);
+
+const genericTechWords = new Set([
+  "acid",
+  "algorithm",
+  "api",
+  "architecture",
+  "async",
+  "authentication",
+  "authorization",
+  "backend",
+  "cache",
+  "cap",
+  "cloud",
+  "container",
+  "database",
+  "deadlock",
+  "docker",
+  "event",
+  "executor",
+  "index",
+  "java",
+  "jvm",
+  "kafka",
+  "kubernetes",
+  "latency",
+  "llm",
+  "load",
+  "microservice",
+  "microservices",
+  "mcp",
+  "nosql",
+  "oop",
+  "oracle",
+  "queue",
+  "rest",
+  "scaling",
+  "semantic",
+  "spring",
+  "sql",
+  "system",
+  "thread",
+  "throughput",
+  "transaction",
+  "vector",
 ]);
 
 const genericLearningPhrases = [
@@ -1378,14 +1626,43 @@ function isGenericLearningQuestion(input: string) {
   const hasKnownGenericTopic = genericAssistantResponses.some((response) =>
     response.keywords.some((keyword) => normalizedInput.includes(normalizeAssistantText(keyword))),
   );
+  const hasKnownTechWord = words.some((word) => genericTechWords.has(word));
+  const hasPersonalSiteMarker = words.some((word) =>
+    [
+      "sai",
+      "saikumar",
+      "mediboina",
+      "you",
+      "your",
+      "portfolio",
+      "site",
+      "website",
+      "resume",
+      "role",
+      "experience",
+      "project",
+      "projects",
+      "blog",
+      "blogs",
+      "contact",
+      "education",
+      "certification",
+      "dashboard",
+      "saved",
+      "shelf",
+      "updates",
+      "work",
+    ].includes(word),
+  );
   const hasSiteSpecificWord = words.some((word) => siteSpecificQuestionWords.has(word));
+  const isSiteQuestion = hasPersonalSiteMarker || (hasSiteSpecificWord && !hasKnownTechWord);
 
-  return (hasLearningPhrase || hasKnownGenericTopic) && !hasSiteSpecificWord;
+  return (hasLearningPhrase || hasKnownGenericTopic || hasKnownTechWord) && !isSiteQuestion;
 }
 
 function getGenericAssistantResponse(
   input: string,
-): Pick<AssistantMessage, "links" | "text"> | null {
+): AssistantResponseDraft | null {
   if (!isGenericLearningQuestion(input)) {
     return null;
   }
@@ -1404,8 +1681,9 @@ function getGenericAssistantResponse(
     text:
       rankedResponse?.score > 0
         ? rankedResponse.response.text
-        : "I can answer general CS, backend, cloud, AI, and system-design questions when the Gemini key is active. My built-in quick brain already knows topics like CAP theorem, REST APIs, caching, database indexes, async processing, Kubernetes, SQL vs NoSQL, and LLMs.",
-    links: [{ href: "/shelf", label: "Sai's Shelf" }],
+        : "I can answer that as a general engineering concept. I will keep it practical, concise, and separate from Sai-specific portfolio facts unless you ask about Sai directly.",
+    mode: "generic",
+    shouldUseLlm: true,
   };
 }
 
@@ -1464,12 +1742,12 @@ function getAssistantPromptContext(
 ): AssistantPromptEntry[] {
   const rankedEntries = rankAssistantEntries(input, isReaderSignedIn, hasActiveSubscription);
   const selectedEntries = rankedEntries.length
-    ? rankedEntries.slice(0, 8).map((result) => result.entry)
-    : getAssistantKnowledgeEntries(isReaderSignedIn, hasActiveSubscription).slice(0, 6);
+    ? rankedEntries.slice(0, 10).map((result) => result.entry)
+    : getAssistantKnowledgeEntries(isReaderSignedIn, hasActiveSubscription).slice(0, 8);
 
   return selectedEntries.map((entry) => ({
     category: entry.category,
-    details: entry.details?.slice(0, 4),
+    details: entry.details?.slice(0, 6),
     summary: entry.summary,
     title: entry.title,
   }));
@@ -1944,36 +2222,46 @@ function scoreAssistantEntry(
   return score;
 }
 
-function getAssistantUnknownResponse(): Pick<AssistantMessage, "links" | "text"> {
+function getAssistantUnknownResponse(): AssistantResponseDraft {
   return {
     text:
-      "That one is outside my portfolio notebook. I would rather say \"not sure yet\" than confidently juggle imaginary facts. Try asking about Sai's projects, blogs, tech stack, updates, subscriber access, or contact details.",
+      "I do not have enough website context to answer that confidently yet. Try asking about Sai's projects, blogs, tech stack, updates, reader access, or a general CS/backend concept.",
     links: [
       { href: "/start", label: "Start Here" },
-      { href: "/blogs", label: "Blogs" },
-      { href: "/ai-radar", label: "AI Radar" },
       { href: "/portfolio#work", label: "Projects" },
     ],
+    mode: "site",
+    shouldUseLlm: false,
   };
 }
 
-function getAssistantGreetingResponse(): Pick<AssistantMessage, "links" | "text"> {
+function getAssistantGreetingResponse(): AssistantResponseDraft {
   return {
     text:
-      "Hey, I am awake and wearing my tiny portfolio librarian badge. Ask me about Sai's projects, blogs, tech stack, performance wins, latest updates, or how to contact him.",
+      "Hey, I am Sai's site assistant. Ask me about his projects, blogs, tech stack, AI Radar, or general CS and backend concepts.",
     links: [
-      { href: "/start", label: "Start Here" },
       { href: "/portfolio#work", label: "Projects" },
       { href: "/blogs", label: "Blogs" },
-      { href: "/ai-radar", label: "AI Radar" },
     ],
+    mode: "site",
+    shouldUseLlm: false,
+  };
+}
+
+function getAssistantSmallTalkResponse(): AssistantResponseDraft {
+  return {
+    text:
+      "Nice. Ask me a Sai-specific question, or throw a CS/backend concept at me and I will keep it simple.",
+    links: undefined,
+    mode: "site",
+    shouldUseLlm: false,
   };
 }
 
 function formatAssistantEntryResponse(
   entry: AssistantKnowledgeEntry,
   relatedEntries: AssistantKnowledgeEntry[],
-): Pick<AssistantMessage, "links" | "text"> {
+): AssistantResponseDraft {
   const detailText = entry.details?.slice(0, 2).join(" ") ?? "";
   const relatedText = relatedEntries.length
     ? ` Related on this site: ${relatedEntries
@@ -1984,11 +2272,13 @@ function formatAssistantEntryResponse(
   const links = getUniqueAssistantLinks([
     ...(entry.links ?? []),
     ...relatedEntries.flatMap((relatedEntry) => relatedEntry.links ?? []),
-  ]).slice(0, 4);
+  ]).slice(0, 2);
 
   return {
     text: `${entry.summary}${detailText ? ` ${detailText}` : ""}${relatedText}`,
     links: links.length ? links : undefined,
+    mode: "site",
+    shouldUseLlm: true,
   };
 }
 
@@ -2021,7 +2311,7 @@ function getAssistantResponse(
   input: string,
   isReaderSignedIn: boolean,
   hasActiveSubscription: boolean,
-): Pick<AssistantMessage, "links" | "text"> {
+): AssistantResponseDraft {
   const normalizedQuery = normalizeAssistantText(input);
   const queryWords = normalizedQuery.split(" ").filter(Boolean);
   const isGreetingOnly =
@@ -2031,6 +2321,17 @@ function getAssistantResponse(
 
   if (isGreetingOnly) {
     return getAssistantGreetingResponse();
+  }
+
+  const isSmallTalk =
+    queryWords.length > 0 &&
+    queryWords.length <= 3 &&
+    queryWords.every((word) =>
+      /^(ok|okay|cool|nice|fine|thanks|thank|done|yes|no|hmm|great)$/.test(word),
+    );
+
+  if (isSmallTalk) {
+    return getAssistantSmallTalkResponse();
   }
 
   const genericResponse = getGenericAssistantResponse(input);
@@ -2086,11 +2387,9 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
   const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const quickPrompts = [
-    "What can you answer?",
-    "Show AI Radar",
-    "Explain AI and LLM work",
-    "What performance work stands out?",
-    "How do I contact Sai?",
+    "Show Sai's projects",
+    "Explain CAP theorem",
+    "Open AI Radar",
   ];
 
   useEffect(() => {
@@ -2108,7 +2407,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
 
   const getLlmAssistantResponse = async (
     question: string,
-    fallbackResponse: Pick<AssistantMessage, "links" | "text">,
+    fallbackResponse: AssistantResponseDraft,
   ) => {
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -2118,7 +2417,11 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
       body: JSON.stringify({
         question,
         fallbackText: fallbackResponse.text,
-        context: getAssistantPromptContext(question, Boolean(subscriberUser), isSubscribed),
+        mode: fallbackResponse.mode,
+        context:
+          fallbackResponse.mode === "generic"
+            ? []
+            : getAssistantPromptContext(question, Boolean(subscriberUser), isSubscribed),
         history: messages.slice(-6).map((message) => ({
           role: message.role,
           text: message.text,
@@ -2134,7 +2437,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     const text = typeof data?.text === "string" ? data.text.trim() : "";
 
     return {
-      links: fallbackResponse.links,
+      links: fallbackResponse.links?.slice(0, 2),
       text: text || fallbackResponse.text,
     };
   };
@@ -2149,6 +2452,10 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     const response = getAssistantResponse(trimmedValue, Boolean(subscriberUser), isSubscribed);
     const visitorMessageId = Date.now();
     const assistantMessageId = visitorMessageId + 1;
+    const loadingText =
+      response.mode === "generic"
+        ? "Thinking through the concept..."
+        : "Checking Sai's website notes...";
 
     setMessages((current) => [
       ...current,
@@ -2160,10 +2467,15 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
       {
         id: assistantMessageId,
         role: "assistant",
-        text: "Digging through Sai's knowledge base. Tiny gears are turning...",
+        text: response.shouldUseLlm ? loadingText : response.text,
+        links: response.shouldUseLlm ? undefined : response.links?.slice(0, 2),
       },
     ]);
     setInput("");
+
+    if (!response.shouldUseLlm) {
+      return;
+    }
 
     getLlmAssistantResponse(trimmedValue, response)
       .then((llmResponse) => {
@@ -2185,7 +2497,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
             message.id === assistantMessageId
               ? {
                   ...message,
-                  links: response.links,
+                  links: response.links?.slice(0, 2),
                   text: response.text,
                 }
               : message,
@@ -2349,11 +2661,6 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
             onPointerMove={moveAssistant}
             onPointerUp={stopAssistantDrag}
           >
-            <span className="assistant-grip" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </span>
             <span className="assistant-avatar" aria-hidden="true">
               SK
             </span>
@@ -2361,9 +2668,6 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
               <h2>Sai&apos;s Bot</h2>
               <p>Portfolio guide</p>
             </div>
-            <span className="assistant-drag-hint" aria-hidden="true">
-              Drag
-            </span>
           </div>
           <div className="assistant-header-actions">
             <button className="assistant-clear" type="button" onClick={clearAssistantChat}>
@@ -2375,7 +2679,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
               aria-label="Close assistant"
               onClick={() => setIsOpen(false)}
             >
-              ×
+              x
             </button>
           </div>
         </div>
@@ -2511,10 +2815,45 @@ function SavePostButton({
   );
 }
 
+type SaveAiRadarButtonProps = {
+  className?: string;
+  isBusy: boolean;
+  isSaved: boolean;
+  onToggle: () => void;
+  subscriberUser: User | null;
+};
+
+function SaveAiRadarButton({
+  className = "",
+  isBusy,
+  isSaved,
+  onToggle,
+  subscriberUser,
+}: SaveAiRadarButtonProps) {
+  const buttonClassName = `save-post-button save-radar-button${className ? ` ${className}` : ""}${
+    isSaved ? " is-saved" : ""
+  }`;
+
+  if (!subscriberUser) {
+    return (
+      <a className={buttonClassName} href="/signin?return=ai-radar">
+        Sign in to save
+      </a>
+    );
+  }
+
+  return (
+    <button className={buttonClassName} type="button" disabled={isBusy} onClick={onToggle}>
+      <ReaderMenuGlyph type="bookmark" />
+      {isBusy && !isSaved ? "Saving..." : isSaved ? "Saved" : "Save"}
+    </button>
+  );
+}
+
 type ReaderMenuProps = {
   isOpen: boolean;
   isSignedIn: boolean;
-  savedPosts: BlogPost[];
+  savedItemCount: number;
   subscriberName: string;
   onClose: () => void;
 };
@@ -2522,11 +2861,11 @@ type ReaderMenuProps = {
 function ReaderMenu({
   isOpen,
   isSignedIn,
-  savedPosts,
+  savedItemCount,
   subscriberName,
   onClose,
 }: ReaderMenuProps) {
-  const savedPostLabel = `${savedPosts.length} ${savedPosts.length === 1 ? "saved post" : "saved posts"}`;
+  const savedPostLabel = `${savedItemCount} ${savedItemCount === 1 ? "saved item" : "saved items"}`;
   const readerLinks = [
     { href: "/", icon: "home" as const, label: "Home" },
     { href: "/start", icon: "spark" as const, label: "Start Here" },
@@ -3545,7 +3884,11 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
 }
 
 type AiRadarPageProps = {
+  isAiRadarSaved: (signal: AiRadarSignal) => boolean;
+  savedPostsBusySlug: string;
+  subscriberUser: User | null;
   theme: Theme;
+  onToggleSavedAiRadar: (signal: AiRadarSignal) => void;
   onThemeToggle: () => void;
 };
 
@@ -3598,7 +3941,14 @@ function getAiRadarVisualStyle(signal: AiRadarSignal) {
   } as CSSProperties;
 }
 
-function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
+function AiRadarPage({
+  isAiRadarSaved,
+  savedPostsBusySlug,
+  subscriberUser,
+  theme,
+  onToggleSavedAiRadar,
+  onThemeToggle,
+}: AiRadarPageProps) {
   const [selectedCategory, setSelectedCategory] = useState(ALL_AI_RADAR_CATEGORIES);
   const [liveSignals, setLiveSignals] = useState<AiRadarSignal[]>(aiRadarSignals);
   const [radarStatus, setRadarStatus] = useState<"loading" | "live" | "fallback">("loading");
@@ -3799,9 +4149,18 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
                   <span>{formatAiRadarDate(activeStory.publishedAt)}</span>
                 </div>
                 <h1>{activeStory.title}</h1>
-                <a href={activeStory.href} target="_blank" rel="noreferrer">
-                  Read story
-                </a>
+                <div className="ai-radar-story-actions">
+                  <a href={activeStory.href} target="_blank" rel="noreferrer">
+                    Read story
+                  </a>
+                  <SaveAiRadarButton
+                    className="is-on-dark"
+                    isBusy={savedPostsBusySlug === getAiRadarSavedId(activeStory)}
+                    isSaved={isAiRadarSaved(activeStory)}
+                    subscriberUser={subscriberUser}
+                    onToggle={() => onToggleSavedAiRadar(activeStory)}
+                  />
+                </div>
               </div>
             </div>
 
@@ -3945,6 +4304,12 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
                 </div>
                 <div className="ai-radar-item-action">
                   <span>{signal.source}</span>
+                  <SaveAiRadarButton
+                    isBusy={savedPostsBusySlug === getAiRadarSavedId(signal)}
+                    isSaved={isAiRadarSaved(signal)}
+                    subscriberUser={subscriberUser}
+                    onToggle={() => onToggleSavedAiRadar(signal)}
+                  />
                   <a href={signal.href} target="_blank" rel="noreferrer">
                     Open
                   </a>
@@ -4344,28 +4709,28 @@ function BlogArticlePage({
 
 type SavedPostsPageProps = {
   authReady: boolean;
-  savedPosts: BlogPost[];
+  savedItems: SavedReaderItem[];
   savedPostsBusySlug: string;
   subscriberUser: User | null;
   subscriptionError: string;
   subscriptionMessage: string;
   theme: Theme;
-  onToggleSavedPost: (post: BlogPost) => void;
+  onRemoveSavedItem: (id: string) => void;
   onThemeToggle: () => void;
 };
 
 function SavedPostsPage({
   authReady,
-  savedPosts,
+  savedItems,
   savedPostsBusySlug,
   subscriberUser,
   subscriptionError,
   subscriptionMessage,
   theme,
-  onToggleSavedPost,
+  onRemoveSavedItem,
   onThemeToggle,
 }: SavedPostsPageProps) {
-  const savedPostCount = savedPosts.length;
+  const savedPostCount = savedItems.length;
 
   return (
     <>
@@ -4410,8 +4775,8 @@ function SavedPostsPage({
             <p className="eyebrow">Saved Posts</p>
             <h1>Your private reading shelf, minus the dust.</h1>
             <p>
-              Articles you save from the blog section appear here in a clean list, so useful
-              engineering notes are easy to reopen when the coffee is ready.
+              Articles and AI Radar stories you save appear here in a clean list, with tags that
+              make each useful note easy to reopen when the coffee is ready.
             </p>
             {subscriberUser ? (
               <div className="saved-posts-count" aria-label={`${savedPostCount} saved posts`}>
@@ -4444,38 +4809,40 @@ function SavedPostsPage({
                 Sign in to view saved posts
               </a>
             </div>
-          ) : savedPosts.length ? (
-            <div className="saved-posts-list" aria-label="Saved blog posts">
-              {savedPosts.map((post, index) => (
-                <article className="saved-posts-item" key={post.slug}>
+          ) : savedItems.length ? (
+            <div className="saved-posts-list" aria-label="Saved reader items">
+              {savedItems.map((item, index) => (
+                <article className="saved-posts-item" key={item.id}>
                   <span className="saved-posts-number">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <div className="saved-posts-copy">
                     <div className="blog-meta">
-                      <span>{post.category}</span>
-                      <span>{post.publishedAt}</span>
-                      <span>{post.readTime}</span>
+                      <span>{item.kind}</span>
+                      {item.tags.map((tag) => (
+                        <span key={`${item.id}-${tag}`}>{tag}</span>
+                      ))}
+                      {item.date ? <span>{item.date}</span> : null}
                     </div>
-                    <h2>{post.title}</h2>
-                    <p>{post.summary}</p>
+                    <h2>{item.title}</h2>
+                    <p>{item.summary}</p>
                   </div>
                   <div className="saved-posts-actions">
                     <a
                       className="button button-primary"
-                      href={getBlogArticleHref(post.slug)}
+                      href={item.href}
                       target="_blank"
                       rel="opener"
                     >
-                      Read article
+                      {item.actionLabel}
                     </a>
                     <button
                       className="button button-secondary"
                       type="button"
-                      disabled={savedPostsBusySlug === post.slug}
-                      onClick={() => onToggleSavedPost(post)}
+                      disabled={savedPostsBusySlug === item.id}
+                      onClick={() => onRemoveSavedItem(item.id)}
                     >
-                      {savedPostsBusySlug === post.slug ? "Removing..." : "Remove"}
+                      {savedPostsBusySlug === item.id ? "Removing..." : "Remove"}
                     </button>
                   </div>
                 </article>
@@ -5232,6 +5599,7 @@ function App() {
   const [authReady, setAuthReady] = useState(!auth);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [savedPostSlugs, setSavedPostSlugs] = useState<string[]>([]);
+  const [savedAiRadarItems, setSavedAiRadarItems] = useState<SavedAiRadarItem[]>([]);
   const [savedPostsBusySlug, setSavedPostsBusySlug] = useState("");
   const [subscriberView, setSubscriberView] = useState<SubscriberViewState>("guest");
   const [subscriptionBusy, setSubscriptionBusy] = useState(false);
@@ -5253,9 +5621,7 @@ function App() {
   const orderedBlogPosts = orderBlogPostsForAccess(visibleBlogPosts);
   const featuredBlog = orderedBlogPosts[0];
   const remainingBlogPosts = orderedBlogPosts.slice(1);
-  const savedPosts = savedPostSlugs
-    .map((slug) => blogPosts.find((post) => post.slug === slug))
-    .filter((post): post is BlogPost => Boolean(post));
+  const savedReaderItems = buildSavedReaderItems(savedPostSlugs, savedAiRadarItems);
   const featuredBlogIsLocked = Boolean(
     featuredBlog && !canReadBlogPost(featuredBlog, subscriberUser),
   );
@@ -5294,6 +5660,8 @@ function App() {
     .charAt(0)
     .toUpperCase();
   const isPostSaved = (slug: string) => savedPostSlugs.includes(slug);
+  const isAiRadarSaved = (signal: AiRadarSignal) =>
+    savedPostSlugs.includes(getAiRadarSavedId(signal));
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -5510,6 +5878,7 @@ function App() {
       if (!user) {
         setIsSubscribed(false);
         setSavedPostSlugs([]);
+        setSavedAiRadarItems([]);
         setSavedPostsBusySlug("");
         setReaderMenuOpen(false);
         setSubscriberView(manualSignOutViewRef.current ?? "guest");
@@ -5522,8 +5891,13 @@ function App() {
       Promise.all([ensureSubscriberProfile(user), getSavedPostSlugs(user.uid)])
         .then(([subscriber, nextSavedPostSlugs]) => {
           if (isMounted) {
+            const nextSavedAiRadarItems = getCachedSavedAiRadarItemsForSlugs(
+              user.uid,
+              nextSavedPostSlugs,
+            );
             setIsSubscribed(subscriber.subscribed);
             setSavedPostSlugs(nextSavedPostSlugs);
+            setSavedAiRadarItems(nextSavedAiRadarItems);
             cacheSavedPostSlugs(user.uid, nextSavedPostSlugs);
             setSubscriberView(getSignedInSubscriberView(subscriber));
           }
@@ -5553,7 +5927,12 @@ function App() {
 
     let isCurrentUser = true;
     const cachedSavedPostSlugs = readCachedSavedPostSlugs(subscriberUser.uid);
+    const cachedSavedAiRadarItems = getCachedSavedAiRadarItemsForSlugs(
+      subscriberUser.uid,
+      cachedSavedPostSlugs,
+    );
     setSavedPostSlugs(cachedSavedPostSlugs);
+    setSavedAiRadarItems(cachedSavedAiRadarItems);
 
     const unsubscribeFromSavedPosts = subscribeToSavedPostSlugs(
       subscriberUser.uid,
@@ -5562,7 +5941,12 @@ function App() {
           return;
         }
 
+        const nextSavedAiRadarItems = getCachedSavedAiRadarItemsForSlugs(
+          subscriberUser.uid,
+          nextSavedPostSlugs,
+        );
         setSavedPostSlugs(nextSavedPostSlugs);
+        setSavedAiRadarItems(nextSavedAiRadarItems);
         cacheSavedPostSlugs(subscriberUser.uid, nextSavedPostSlugs);
       },
       (error) => {
@@ -5584,14 +5968,26 @@ function App() {
     }
 
     const savedPostsStorageKey = getSavedPostsStorageKey(subscriberUser.uid);
+    const savedAiRadarStorageKey = getSavedAiRadarStorageKey(subscriberUser.uid);
 
     const handleSavedPostsStorage = (event: StorageEvent) => {
-      if (event.key !== savedPostsStorageKey || event.newValue === null) {
+      if (
+        (event.key !== savedPostsStorageKey && event.key !== savedAiRadarStorageKey) ||
+        event.newValue === null
+      ) {
         return;
       }
 
       try {
-        setSavedPostSlugs(normalizeSavedPostSlugs(JSON.parse(event.newValue)));
+        if (event.key === savedPostsStorageKey) {
+          const nextSavedPostSlugs = normalizeSavedPostSlugs(JSON.parse(event.newValue));
+          setSavedPostSlugs(nextSavedPostSlugs);
+          setSavedAiRadarItems(
+            getCachedSavedAiRadarItemsForSlugs(subscriberUser.uid, nextSavedPostSlugs),
+          );
+        } else {
+          setSavedAiRadarItems(normalizeSavedAiRadarItems(JSON.parse(event.newValue)));
+        }
       } catch {
         // Ignore malformed storage events; Firestore remains the source of truth.
       }
@@ -5620,11 +6016,16 @@ function App() {
           ensureSubscriberProfile(result.user),
           getSavedPostSlugs(result.user.uid),
         ]);
+        const nextSavedAiRadarItems = getCachedSavedAiRadarItemsForSlugs(
+          result.user.uid,
+          nextSavedPostSlugs,
+        );
 
         if (isMounted) {
           setSubscriberUser(result.user);
           setIsSubscribed(subscriber.subscribed);
           setSavedPostSlugs(nextSavedPostSlugs);
+          setSavedAiRadarItems(nextSavedAiRadarItems);
           cacheSavedPostSlugs(result.user.uid, nextSavedPostSlugs);
           setSubscriberView(getSignedInSubscriberView(subscriber));
           setSubscriptionMessage(
@@ -5636,6 +6037,8 @@ function App() {
 
           if (getSignInReturnTarget() === "saved-posts") {
             window.location.href = "/saved-posts";
+          } else if (getSignInReturnTarget() === "ai-radar") {
+            window.location.href = "/ai-radar";
           }
         }
       })
@@ -5686,9 +6089,14 @@ function App() {
         ensureSubscriberProfile(result.user),
         getSavedPostSlugs(result.user.uid),
       ]);
+      const nextSavedAiRadarItems = getCachedSavedAiRadarItemsForSlugs(
+        result.user.uid,
+        nextSavedPostSlugs,
+      );
       setSubscriberUser(result.user);
       setIsSubscribed(subscriber.subscribed);
       setSavedPostSlugs(nextSavedPostSlugs);
+      setSavedAiRadarItems(nextSavedAiRadarItems);
       cacheSavedPostSlugs(result.user.uid, nextSavedPostSlugs);
       setSubscriberView(getSignedInSubscriberView(subscriber));
       setSubscriptionMessage(
@@ -5699,6 +6107,8 @@ function App() {
 
       if (getSignInReturnTarget() === "saved-posts") {
         window.location.href = "/saved-posts";
+      } else if (getSignInReturnTarget() === "ai-radar") {
+        window.location.href = "/ai-radar";
       }
     } catch (error) {
       if (shouldUseRedirectSignIn(error)) {
@@ -5756,6 +6166,89 @@ function App() {
             : [...current, post.slug]
           : current.filter((slug) => slug !== post.slug),
       );
+      setSubscriptionError(getSubscriptionErrorMessage(error));
+    } finally {
+      setSavedPostsBusySlug("");
+    }
+  };
+
+  const handleToggleSavedAiRadar = async (signal: AiRadarSignal) => {
+    clearSubscriptionFeedback();
+
+    if (!subscriberUser) {
+      setSubscriptionMessage("Sign in first, then AI Radar stories get their own shelf pass.");
+      return;
+    }
+
+    const savedId = getAiRadarSavedId(signal);
+    const wasSaved = isAiRadarSaved(signal);
+    const previousSavedPostSlugs = savedPostSlugs;
+    const previousSavedAiRadarItems = savedAiRadarItems;
+    const nextSavedPostSlugs = normalizeSavedPostSlugs(
+      wasSaved
+        ? previousSavedPostSlugs.filter((slug) => slug !== savedId)
+        : [...previousSavedPostSlugs, savedId],
+    );
+    const nextSavedAiRadarItems = normalizeSavedAiRadarItems(
+      wasSaved
+        ? previousSavedAiRadarItems.filter((item) => item.id !== savedId)
+        : [...previousSavedAiRadarItems, getSavedAiRadarItem(signal)],
+    );
+
+    setSavedPostsBusySlug(savedId);
+    setSavedPostSlugs(nextSavedPostSlugs);
+    setSavedAiRadarItems(nextSavedAiRadarItems);
+    cacheSavedPostSlugs(subscriberUser.uid, nextSavedPostSlugs);
+    cacheSavedAiRadarItems(subscriberUser.uid, nextSavedAiRadarItems);
+
+    try {
+      if (wasSaved) {
+        setSubscriptionMessage("Removed from saved posts.");
+        await unsaveReaderPost(subscriberUser.uid, savedId);
+      } else {
+        setSubscriptionMessage("Saved to your reader menu.");
+        await saveReaderPost(subscriberUser, savedId);
+      }
+    } catch (error) {
+      setSavedPostSlugs(previousSavedPostSlugs);
+      setSavedAiRadarItems(previousSavedAiRadarItems);
+      cacheSavedPostSlugs(subscriberUser.uid, previousSavedPostSlugs);
+      cacheSavedAiRadarItems(subscriberUser.uid, previousSavedAiRadarItems);
+      setSubscriptionError(getSubscriptionErrorMessage(error));
+    } finally {
+      setSavedPostsBusySlug("");
+    }
+  };
+
+  const handleRemoveSavedItem = async (id: string) => {
+    clearSubscriptionFeedback();
+
+    if (!subscriberUser) {
+      setSubscriptionMessage("Sign in first, then your saved shelf opens properly.");
+      return;
+    }
+
+    const previousSavedPostSlugs = savedPostSlugs;
+    const previousSavedAiRadarItems = savedAiRadarItems;
+    const nextSavedPostSlugs = previousSavedPostSlugs.filter((slug) => slug !== id);
+    const nextSavedAiRadarItems = isSavedAiRadarId(id)
+      ? previousSavedAiRadarItems.filter((item) => item.id !== id)
+      : previousSavedAiRadarItems;
+
+    setSavedPostsBusySlug(id);
+    setSavedPostSlugs(nextSavedPostSlugs);
+    setSavedAiRadarItems(nextSavedAiRadarItems);
+    cacheSavedPostSlugs(subscriberUser.uid, nextSavedPostSlugs);
+    cacheSavedAiRadarItems(subscriberUser.uid, nextSavedAiRadarItems);
+
+    try {
+      await unsaveReaderPost(subscriberUser.uid, id);
+      setSubscriptionMessage("Removed from saved posts.");
+    } catch (error) {
+      setSavedPostSlugs(previousSavedPostSlugs);
+      setSavedAiRadarItems(previousSavedAiRadarItems);
+      cacheSavedPostSlugs(subscriberUser.uid, previousSavedPostSlugs);
+      cacheSavedAiRadarItems(subscriberUser.uid, previousSavedAiRadarItems);
       setSubscriptionError(getSubscriptionErrorMessage(error));
     } finally {
       setSavedPostsBusySlug("");
@@ -5822,6 +6315,7 @@ function App() {
       await signOut(auth);
       setReaderMenuOpen(false);
       setSavedPostSlugs([]);
+      setSavedAiRadarItems([]);
       setSubscriberView(signedOutView);
       setSubscriptionMessage(
         wasSubscribedBeforeSignOut
@@ -5872,13 +6366,13 @@ function App() {
     return renderWithAssistant(
       <SavedPostsPage
         authReady={authReady}
-        savedPosts={savedPosts}
+        savedItems={savedReaderItems}
         savedPostsBusySlug={savedPostsBusySlug}
         subscriberUser={subscriberUser}
         subscriptionError={subscriptionError}
         subscriptionMessage={subscriptionMessage}
         theme={theme}
-        onToggleSavedPost={handleToggleSavedPost}
+        onRemoveSavedItem={handleRemoveSavedItem}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
     );
@@ -5905,7 +6399,11 @@ function App() {
   if (isAiRadarPage) {
     return renderWithAssistant(
       <AiRadarPage
+        isAiRadarSaved={isAiRadarSaved}
+        savedPostsBusySlug={savedPostsBusySlug}
+        subscriberUser={subscriberUser}
         theme={theme}
+        onToggleSavedAiRadar={handleToggleSavedAiRadar}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
     );
@@ -6114,7 +6612,7 @@ function App() {
       <ReaderMenu
         isOpen={readerMenuOpen}
         isSignedIn={Boolean(subscriberUser)}
-        savedPosts={savedPosts}
+        savedItemCount={savedReaderItems.length}
         subscriberName={subscriberName}
         onClose={() => setReaderMenuOpen(false)}
       />

@@ -1,9 +1,9 @@
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 const DEFAULT_MODEL = "gemini-2.5-flash";
 const MAX_QUESTION_LENGTH = 600;
-const MAX_CONTEXT_ITEMS = 8;
+const MAX_CONTEXT_ITEMS = 10;
 const MAX_CONTEXT_TEXT_LENGTH = 7000;
-const MAX_OUTPUT_TOKENS = 520;
+const MAX_OUTPUT_TOKENS = 1000;
 const INCOMPLETE_ENDING_WORDS = new Set([
   "a",
   "about",
@@ -58,7 +58,7 @@ function sanitizeContextItem(item) {
     title: truncateText(item?.title, 120),
     summary: truncateText(item?.summary, 700),
     details: Array.isArray(item?.details)
-      ? item.details.slice(0, 4).map((detail) => truncateText(detail, 450))
+      ? item.details.slice(0, 6).map((detail) => truncateText(detail, 450))
       : [],
   };
 }
@@ -119,7 +119,8 @@ export default async function handler(request, response) {
     const body =
       typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body || {};
     const question = truncateText(body.question, MAX_QUESTION_LENGTH);
-    const fallbackText = truncateText(body.fallbackText, 900);
+    const fallbackText = truncateText(body.fallbackText, 1200);
+    const mode = body.mode === "generic" ? "generic" : "site";
     const history = Array.isArray(body.history)
       ? body.history
           .slice(-6)
@@ -138,14 +139,28 @@ export default async function handler(request, response) {
       return jsonResponse(response, 400, { error: "Question is required." });
     }
 
-    if (!contextText) {
+    if (mode === "site" && !contextText) {
       return jsonResponse(response, 200, {
         configured: true,
         text: fallbackText,
       });
     }
 
+    const contextSection =
+      mode === "generic"
+        ? "Website context: not required for this generic learning question. Answer with general software engineering knowledge."
+        : `Website context:\n${contextText}`;
+    const fallbackSection =
+      mode === "generic"
+        ? fallbackText
+          ? `If the question is too broad, answer the core concept directly and use this fallback tone as guidance:\n${fallbackText}`
+          : "If the question is too broad, answer the core concept directly and ask one helpful follow-up."
+        : fallbackText
+          ? `Fallback response if the model is unavailable or a Sai-specific answer is not supported by the website context:\n${fallbackText}`
+          : "For unsupported Sai-specific questions, say you do not know from the website yet.";
     const prompt = [
+      `Mode: ${mode}`,
+      "",
       `Question: ${question}`,
       "",
       history.length
@@ -154,11 +169,9 @@ export default async function handler(request, response) {
             .join("\n")}`
         : "Recent conversation: none",
       "",
-      `Website context:\n${contextText}`,
+      contextSection,
       "",
-      fallbackText
-        ? `Fallback response if the model is unavailable or a Sai-specific answer is not supported by the website context:\n${fallbackText}`
-        : "For unsupported Sai-specific questions, say you do not know from the website yet.",
+      fallbackSection,
     ].join("\n");
     const geminiResponse = await fetch(
       `${GEMINI_API_BASE_URL}/${process.env.GEMINI_MODEL || DEFAULT_MODEL}:generateContent`,
@@ -209,7 +222,11 @@ export default async function handler(request, response) {
     const text = extractGeminiResponseText(data);
     const finishReason = getGeminiFinishReason(data);
     const safeText =
-      finishReason === "MAX_TOKENS" || isLikelyIncompleteText(text) ? fallbackText : text;
+      mode === "generic"
+        ? text || fallbackText
+        : finishReason === "MAX_TOKENS" || isLikelyIncompleteText(text)
+          ? fallbackText
+          : text;
 
     return jsonResponse(response, 200, {
       configured: true,
