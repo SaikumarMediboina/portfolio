@@ -17,6 +17,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/portfolio",
+      "destination": "/index.html"
+    },
+    {
       "source": "/admin-update",
       "destination": "/index.html"
     }

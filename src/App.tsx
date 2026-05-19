@@ -1,5 +1,4 @@
 import {
-  Fragment,
   startTransition,
   useEffect,
   useRef,
@@ -38,7 +37,7 @@ import {
   unsubscribeSubscriber,
 } from "./lib/subscribers";
 
-const navLinks = [
+const portfolioNavLinks = [
   { id: "about", label: "About" },
   { id: "experience", label: "Experience" },
   { id: "work", label: "Work" },
@@ -47,6 +46,14 @@ const navLinks = [
   { id: "recognition", label: "Recognition" },
   { id: "credentials", label: "Credentials" },
   { id: "contact", label: "Contact" },
+] as const;
+
+const mainNavLinks = [
+  { href: "/portfolio", label: "Portfolio" },
+  { href: "#about", id: "about", label: "About" },
+  { href: "#blogs", id: "blogs", label: "Blogs" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "#contact", id: "contact", label: "Contact" },
 ] as const;
 
 type Theme = "light" | "dark";
@@ -77,7 +84,7 @@ function getInitialAssistantMessages(): AssistantMessage[] {
       role: "assistant",
       text: "Hey, I am Sai's portfolio assistant. I can help you find projects, blogs, tech stack details, and contact links.",
       links: [
-        { href: "#work", label: "Projects" },
+        { href: "/portfolio#work", label: "Projects" },
         { href: "#blogs", label: "Blogs" },
       ],
     },
@@ -148,6 +155,14 @@ function isDashboardPathname() {
   }
 
   return window.location.pathname.replace(/\/$/, "") === "/dashboard";
+}
+
+function isPortfolioPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/portfolio";
 }
 
 function getSignInReturnBlogSlug() {
@@ -241,7 +256,7 @@ function getBlogAnchorId(slug: string) {
 }
 
 function getPortfolioBlogHref(slug?: string) {
-  return slug ? `/#${getBlogAnchorId(slug)}` : "/#blogs";
+  return slug ? `/portfolio#${getBlogAnchorId(slug)}` : "/portfolio#blogs";
 }
 
 function getSubscriptionErrorMessage(error: unknown) {
@@ -618,7 +633,7 @@ function getAssistantResponse(
   ) {
     return {
       text: `The selected work focuses on backend systems for compliance screening, search, AI-assisted scoring, and performance tuning. A good starting path is: ${topProjects}.`,
-      links: [{ href: "#work", label: "Explore selected work" }],
+      links: [{ href: "/portfolio#work", label: "Explore selected work" }],
     };
   }
 
@@ -630,7 +645,7 @@ function getAssistantResponse(
   ) {
     return {
       text: `The core stack is backend-heavy: ${topSkills}. The strongest theme is where Java services, Oracle-heavy systems, search, and AI/LLM workflows meet.`,
-      links: [{ href: "#skills", label: "View tech stack" }],
+      links: [{ href: "/portfolio#skills", label: "View tech stack" }],
     };
   }
 
@@ -643,7 +658,7 @@ function getAssistantResponse(
     return {
       text: "The performance story is a major theme: 97% batch latency reduction, 85% real-time speedup, 100+ TPS runtime scale, and backend throughput improvements using database, cache, and async patterns.",
       links: [
-        { href: "#work", label: "See performance projects" },
+        { href: "/portfolio#work", label: "See performance projects" },
         { href: getBlogArticleHref(publicBlog.slug), label: "Read throughput blog", external: true },
       ],
     };
@@ -684,9 +699,9 @@ function getAssistantResponse(
   return {
     text: `I can guide you through ${profile.name}'s portfolio: projects, blogs, tech stack, performance highlights, contact details, and subscriber access. Try asking about "blogs", "performance work", "tech stack", or "contact".`,
     links: [
-      { href: "#work", label: "Projects" },
+      { href: "/portfolio#work", label: "Projects" },
       { href: "#blogs", label: "Blogs" },
-      { href: "#skills", label: "Tech stack" },
+      { href: "/portfolio#skills", label: "Tech stack" },
     ],
   };
 }
@@ -1082,7 +1097,7 @@ function ReaderMenu({
 }: ReaderMenuProps) {
   const readerLinks = [
     { href: "#top", icon: "home" as const, label: "Home" },
-    { href: "#work", icon: "briefcase" as const, label: "Portfolio" },
+    { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "#blogs", icon: "pen" as const, label: "Blogs" },
     { href: "/saved-posts", icon: "bookmark" as const, label: "Saved Posts" },
     { href: "#about", icon: "about" as const, label: "About" },
@@ -1400,7 +1415,7 @@ function BlogArticlePage({
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/#top">
+          <a className="brand" href="/portfolio#top">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -1514,7 +1529,7 @@ function BlogArticlePage({
               The article link may have changed. You can go back to the portfolio blogs and
               choose a post from the current list.
             </p>
-            <a className="button button-primary" href="/#blogs">
+            <a className="button button-primary" href="/portfolio#blogs">
               View blogs
             </a>
           </section>
@@ -1560,7 +1575,7 @@ function SavedPostsPage({
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/#top">
+          <a className="brand" href="/portfolio#top">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -1569,7 +1584,7 @@ function SavedPostsPage({
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href="/#blogs">
+            <a className="button button-secondary" href="/portfolio#blogs">
               Back to portfolio
             </a>
             <button
@@ -1670,7 +1685,7 @@ function SavedPostsPage({
                 Go rescue one sharp engineering note from the blog section, and this quiet little
                 shelf will instantly look productive.
               </p>
-              <a className="button button-primary" href="/#blogs">
+              <a className="button button-primary" href="/portfolio#blogs">
                 Browse blogs
               </a>
             </div>
@@ -1722,7 +1737,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/#top">
+          <a className="brand" href="/portfolio#top">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -1731,7 +1746,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href="/#top">
+            <a className="button button-secondary" href="/portfolio#top">
               Back to portfolio
             </a>
             <button
@@ -2048,7 +2063,7 @@ function SignInPage({
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/#top">
+          <a className="brand" href="/portfolio#top">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -2070,7 +2085,7 @@ function SignInPage({
                 Back to saved posts
               </a>
             ) : (
-              <a className="button button-secondary" href="/#top">
+              <a className="button button-secondary" href="/portfolio#top">
                 Back to portfolio
               </a>
             )}
@@ -2170,7 +2185,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 
       <header className="article-site-header">
         <div className="shell article-header-shell">
-          <a className="brand" href="/#top">
+          <a className="brand" href="/portfolio#top">
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
@@ -2179,7 +2194,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
           </a>
 
           <div className="article-header-actions">
-            <a className="button button-secondary" href="/#top">
+            <a className="button button-secondary" href="/portfolio#top">
               Back to portfolio
             </a>
             <button
@@ -2334,7 +2349,9 @@ function App() {
   const isSignInPage = isSignInPathname();
   const isSavedPostsPage = isSavedPostsPathname();
   const isDashboardPage = isDashboardPathname();
+  const isPortfolioPage = isPortfolioPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
+  const currentNavLinks = isPortfolioPage ? portfolioNavLinks : mainNavLinks;
   const signInReturnBlogSlug = getSignInReturnBlogSlug();
   const signInReturnTarget = getSignInReturnTarget();
   const signInReturnBlog = signInReturnBlogSlug
@@ -2349,7 +2366,12 @@ function App() {
   const isPostSaved = (slug: string) => savedPostSlugs.includes(slug);
 
   useEffect(() => {
-    const sectionIds = ["top", ...navLinks.map((link) => link.id)];
+    const sectionIds = [
+      "top",
+      ...currentNavLinks
+        .map((link) => ("id" in link ? link.id : ""))
+        .filter((id): id is string => Boolean(id)),
+    ];
     let frameId = 0;
 
     const updateActiveSection = () => {
@@ -2383,7 +2405,7 @@ function App() {
       window.removeEventListener("scroll", scheduleActiveSectionUpdate);
       window.removeEventListener("resize", scheduleActiveSectionUpdate);
     };
-  }, []);
+  }, [currentNavLinks]);
 
   useEffect(() => {
     let frameId = 0;
@@ -2849,21 +2871,15 @@ function App() {
             id="site-navigation"
             aria-label="Primary"
           >
-            {navLinks.map((link) => (
-              <Fragment key={link.id}>
-                <a
-                  className={activeSection === link.id ? "is-active" : ""}
-                  href={`#${link.id}`}
-                  onClick={closeMenu}
-                >
-                  {link.label}
-                </a>
-                {link.id === "blogs" ? (
-                  <a href="/dashboard" onClick={closeMenu}>
-                    Dashboard
-                  </a>
-                ) : null}
-              </Fragment>
+            {currentNavLinks.map((link) => (
+              <a
+                key={link.label}
+                className={"id" in link && activeSection === link.id ? "is-active" : ""}
+                href={"href" in link ? link.href : `#${link.id}`}
+                onClick={closeMenu}
+              >
+                {link.label}
+              </a>
             ))}
             <div ref={profileMenuRef}>
               <ProfileMenu
@@ -2952,7 +2968,7 @@ function App() {
             <p className="hero-body">{profile.summary}</p>
 
             <div className="hero-actions">
-              <a className="button button-primary" href="#work">
+              <a className="button button-primary" href={isPortfolioPage ? "#work" : "/portfolio#work"}>
                 Explore selected work
               </a>
               <a className="button button-secondary" href={`mailto:${profile.email}`}>
@@ -2998,15 +3014,17 @@ function App() {
           </aside>
         </section>
 
-        <section className="shell metric-grid" aria-label="Key career metrics">
-          {metrics.map((metric) => (
-            <article className="metric-card" key={metric.label}>
-              <p className="metric-value">{metric.value}</p>
-              <h2>{metric.label}</h2>
-              <p>{metric.detail}</p>
-            </article>
-          ))}
-        </section>
+        {isPortfolioPage ? (
+          <section className="shell metric-grid" aria-label="Key career metrics">
+            {metrics.map((metric) => (
+              <article className="metric-card" key={metric.label}>
+                <p className="metric-value">{metric.value}</p>
+                <h2>{metric.label}</h2>
+                <p>{metric.detail}</p>
+              </article>
+            ))}
+          </section>
+        ) : null}
 
         <section className="section shell" id="about">
           <SectionHeading
@@ -3026,136 +3044,140 @@ function App() {
           </div>
         </section>
 
-        <section className="section shell" id="experience">
-          <SectionHeading
-            eyebrow="Experience"
-            title="Most of my recent experience is deep backend work inside high-volume compliance and intelligence systems."
-            description="The emphasis has been cloud-native platform work, search-heavy architectures, AI-assisted relevance, and latency reduction across both real-time and batch screening paths."
-          />
+        {isPortfolioPage ? (
+          <>
+            <section className="section shell" id="experience">
+              <SectionHeading
+                eyebrow="Experience"
+                title="Most of my recent experience is deep backend work inside high-volume compliance and intelligence systems."
+                description="The emphasis has been cloud-native platform work, search-heavy architectures, AI-assisted relevance, and latency reduction across both real-time and batch screening paths."
+              />
 
-          <div className="timeline">
-            {experience.map((item) => (
-              <article className="timeline-card" key={item.company}>
-                <div className="timeline-meta">
-                  <p className="timeline-company">{item.company}</p>
-                  <p>{item.employmentType}</p>
-                  <p>{item.location}</p>
+              <div className="timeline">
+                {experience.map((item) => (
+                  <article className="timeline-card" key={item.company}>
+                    <div className="timeline-meta">
+                      <p className="timeline-company">{item.company}</p>
+                      <p>{item.employmentType}</p>
+                      <p>{item.location}</p>
+                    </div>
+
+                    <div className="timeline-body">
+                      <div className="role-stack" aria-label={`${item.company} role progression`}>
+                        {item.roles.map((role) => (
+                          <article className="role-entry" key={`${item.company}-${role.title}`}>
+                            <div className="role-entry-marker" aria-hidden="true" />
+                            <div>
+                              <p className="timeline-role">{role.title}</p>
+                              <p className="role-period">{role.period}</p>
+                              <p className="role-detail">{role.detail}</p>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+
+                      <p>{item.summary}</p>
+                      <ul className="bullet-list">
+                        {item.achievements.map((achievement) => (
+                          <li key={achievement}>{achievement}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="section shell" id="work">
+              <SectionHeading
+                eyebrow="Selected Work"
+                title="A few backend and AI-flavored case studies that represent the kind of problems I enjoy solving."
+                description="This section stays interactive so the work can be explored one case study at a time instead of disappearing into a long wall of cards."
+              />
+
+              <div className="work-layout">
+                <div className="project-selector" role="tablist" aria-label="Project case studies">
+                  {projects.map((project, index) => {
+                    const isActive = index === selectedProjectIndex;
+
+                    return (
+                      <button
+                        key={project.name}
+                        className={`project-tab${isActive ? " is-active" : ""}`}
+                        role="tab"
+                        aria-selected={isActive}
+                        type="button"
+                        onClick={() => setSelectedProjectIndex(index)}
+                      >
+                        <span className="project-tab-number">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="project-tab-copy">
+                          <strong>{project.name}</strong>
+                          <span>{project.impact}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
 
-                <div className="timeline-body">
-                  <div className="role-stack" aria-label={`${item.company} role progression`}>
-                    {item.roles.map((role) => (
-                      <article className="role-entry" key={`${item.company}-${role.title}`}>
-                        <div className="role-entry-marker" aria-hidden="true" />
-                        <div>
-                          <p className="timeline-role">{role.title}</p>
-                          <p className="role-period">{role.period}</p>
-                          <p className="role-detail">{role.detail}</p>
-                        </div>
-                      </article>
-                    ))}
+                <article className="project-spotlight" aria-live="polite">
+                  <div className="project-spotlight-heading">
+                    <p className="eyebrow">Case Study {selectedProjectNumber}</p>
+                    <h3>{selectedProject.name}</h3>
+                    <p>{selectedProject.summary}</p>
                   </div>
 
-                  <p>{item.summary}</p>
-                  <ul className="bullet-list">
-                    {item.achievements.map((achievement) => (
-                      <li key={achievement}>{achievement}</li>
-                    ))}
-                  </ul>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+                  <div className="project-spotlight-grid">
+                    <div className="project-impact-card">
+                      <p className="impact-label">Outcome</p>
+                      <p className="impact-value">{selectedProject.impact}</p>
+                    </div>
 
-        <section className="section shell" id="work">
-          <SectionHeading
-            eyebrow="Selected Work"
-            title="A few backend and AI-flavored case studies that represent the kind of problems I enjoy solving."
-            description="This section stays interactive so the work can be explored one case study at a time instead of disappearing into a long wall of cards."
-          />
+                    <div className="project-stack-card">
+                      <p className="impact-label">Stack</p>
+                      <ul className="stack-list">
+                        {selectedProject.stack.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
 
-          <div className="work-layout">
-            <div className="project-selector" role="tablist" aria-label="Project case studies">
-              {projects.map((project, index) => {
-                const isActive = index === selectedProjectIndex;
-
-                return (
-                  <button
-                    key={project.name}
-                    className={`project-tab${isActive ? " is-active" : ""}`}
-                    role="tab"
-                    aria-selected={isActive}
-                    type="button"
-                    onClick={() => setSelectedProjectIndex(index)}
-                  >
-                    <span className="project-tab-number">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span className="project-tab-copy">
-                      <strong>{project.name}</strong>
-                      <span>{project.impact}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <article className="project-spotlight" aria-live="polite">
-              <div className="project-spotlight-heading">
-                <p className="eyebrow">Case Study {selectedProjectNumber}</p>
-                <h3>{selectedProject.name}</h3>
-                <p>{selectedProject.summary}</p>
+                  <div className="project-highlights">
+                    <p className="impact-label">Highlights</p>
+                    <ul className="bullet-list">
+                      {selectedProject.highlights.map((highlight) => (
+                        <li key={highlight}>{highlight}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
               </div>
+            </section>
 
-              <div className="project-spotlight-grid">
-                <div className="project-impact-card">
-                  <p className="impact-label">Outcome</p>
-                  <p className="impact-value">{selectedProject.impact}</p>
-                </div>
+            <section className="section shell" id="skills">
+              <SectionHeading
+                eyebrow="Skills"
+                title="The strongest part of my stack is where backend services meet search, databases, and AI-enabled workflows."
+                description="I work most comfortably in Java-based backend environments, Oracle-heavy systems, and product flows where scale, explainability, and delivery speed all need to stay aligned."
+              />
 
-                <div className="project-stack-card">
-                  <p className="impact-label">Stack</p>
-                  <ul className="stack-list">
-                    {selectedProject.stack.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="skill-grid">
+                {skills.map((group) => (
+                  <article className="skill-card" key={group.title}>
+                    <h3>{group.title}</h3>
+                    <ul className="chip-list">
+                      {group.items.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
               </div>
-
-              <div className="project-highlights">
-                <p className="impact-label">Highlights</p>
-                <ul className="bullet-list">
-                  {selectedProject.highlights.map((highlight) => (
-                    <li key={highlight}>{highlight}</li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section className="section shell" id="skills">
-          <SectionHeading
-            eyebrow="Skills"
-            title="The strongest part of my stack is where backend services meet search, databases, and AI-enabled workflows."
-            description="I work most comfortably in Java-based backend environments, Oracle-heavy systems, and product flows where scale, explainability, and delivery speed all need to stay aligned."
-          />
-
-          <div className="skill-grid">
-            {skills.map((group) => (
-              <article className="skill-card" key={group.title}>
-                <h3>{group.title}</h3>
-                <ul className="chip-list">
-                  {group.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
+            </section>
+          </>
+        ) : null}
 
         <section className="section shell" id="blogs">
           <SectionHeading
@@ -3342,58 +3364,62 @@ function App() {
           </div>
         </section>
 
-        <section className="section shell" id="recognition">
-          <SectionHeading
-            eyebrow="Recognition"
-            title="A couple of external signals that back up the delivery story."
-            description="These are the recognition points I want front and center because they connect directly to execution, performance, and product-building impact."
-          />
+        {isPortfolioPage ? (
+          <>
+            <section className="section shell" id="recognition">
+              <SectionHeading
+                eyebrow="Recognition"
+                title="A couple of external signals that back up the delivery story."
+                description="These are the recognition points I want front and center because they connect directly to execution, performance, and product-building impact."
+              />
 
-          <div className="recognition-grid">
-            {recognitions.map((item) => (
-              <article className="recognition-card" key={item.title}>
-                <p className="recognition-highlight">{item.highlight}</p>
-                <h3>{item.title}</h3>
-                <p className="recognition-issuer">{item.issuer}</p>
-                <p>{item.detail}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+              <div className="recognition-grid">
+                {recognitions.map((item) => (
+                  <article className="recognition-card" key={item.title}>
+                    <p className="recognition-highlight">{item.highlight}</p>
+                    <h3>{item.title}</h3>
+                    <p className="recognition-issuer">{item.issuer}</p>
+                    <p>{item.detail}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
 
-        <section className="section shell" id="credentials">
-          <SectionHeading
-            eyebrow="Credentials"
-            title="Education and certifications that support the engineering work."
-              description="This section brings together my education and certifications, while awards and recognition are highlighted separately above."
-            />
+            <section className="section shell" id="credentials">
+              <SectionHeading
+                eyebrow="Credentials"
+                title="Education and certifications that support the engineering work."
+                description="This section brings together my education and certifications, while awards and recognition are highlighted separately above."
+              />
 
-          <div className="credentials-grid">
-            <div className="credential-panel">
-              <h3>Education</h3>
-              {education.map((item) => (
-                <article className="credential-item" key={`${item.school}-${item.degree}`}>
-                  <p className="credential-title">{item.degree}</p>
-                  <p className="credential-subtitle">{item.school}</p>
-                  <p className="credential-detail">
-                    {item.score}
-                  </p>
-                </article>
-              ))}
-            </div>
+              <div className="credentials-grid">
+                <div className="credential-panel">
+                  <h3>Education</h3>
+                  {education.map((item) => (
+                    <article className="credential-item" key={`${item.school}-${item.degree}`}>
+                      <p className="credential-title">{item.degree}</p>
+                      <p className="credential-subtitle">{item.school}</p>
+                      <p className="credential-detail">
+                        {item.score}
+                      </p>
+                    </article>
+                  ))}
+                </div>
 
-            <div className="credential-panel">
-              <h3>Certifications</h3>
-              {certifications.map((item) => (
-                <article className="credential-item" key={`${item.title}-${item.year}`}>
-                  <p className="credential-title">{item.title}</p>
-                  <p className="credential-subtitle">{item.issuer}</p>
-                  <p className="credential-detail">{item.year}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+                <div className="credential-panel">
+                  <h3>Certifications</h3>
+                  {certifications.map((item) => (
+                    <article className="credential-item" key={`${item.title}-${item.year}`}>
+                      <p className="credential-title">{item.title}</p>
+                      <p className="credential-subtitle">{item.issuer}</p>
+                      <p className="credential-detail">{item.year}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </>
+        ) : null}
 
         <section className="section shell" id="contact">
           <div className="contact-panel">
