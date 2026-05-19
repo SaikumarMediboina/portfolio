@@ -2047,9 +2047,11 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     const messagesContainer = messagesRef.current;
 
     if (isOpen && messagesContainer) {
+      const shouldKeepWelcomeAtTop = messages.length === 1 && messages[0]?.id === 1;
+
       messagesContainer.scrollTo({
-        top: messagesContainer.scrollHeight,
-        behavior: "smooth",
+        top: shouldKeepWelcomeAtTop ? 0 : messagesContainer.scrollHeight,
+        behavior: shouldKeepWelcomeAtTop ? "auto" : "smooth",
       });
     }
   }, [isOpen, messages]);
@@ -2291,11 +2293,17 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
         <div className="assistant-header">
           <div
             className="assistant-drag-region"
+            aria-label="Drag assistant"
             onPointerCancel={stopAssistantDrag}
             onPointerDown={startAssistantDrag}
             onPointerMove={moveAssistant}
             onPointerUp={stopAssistantDrag}
           >
+            <span className="assistant-grip" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
             <span className="assistant-avatar" aria-hidden="true">
               SK
             </span>
@@ -2303,6 +2311,9 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
               <h2>Sai&apos;s Bot</h2>
               <p>Portfolio guide</p>
             </div>
+            <span className="assistant-drag-hint" aria-hidden="true">
+              Drag
+            </span>
           </div>
           <div className="assistant-header-actions">
             <button className="assistant-clear" type="button" onClick={clearAssistantChat}>
@@ -2314,7 +2325,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
               aria-label="Close assistant"
               onClick={() => setIsOpen(false)}
             >
-              x
+              ×
             </button>
           </div>
         </div>

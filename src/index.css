@@ -4541,12 +4541,16 @@ dt {
   bottom: calc(100% + 0.75rem);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  width: min(24rem, calc(100vw - 1.5rem));
-  height: min(28rem, calc(100vh - 8rem));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  background: #201d1b;
-  box-shadow: 0 24px 64px rgba(4, 8, 14, 0.38);
+  width: min(25.5rem, calc(100vw - 1.5rem));
+  height: min(30rem, calc(100vh - 7rem));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 116, 79, 0.16), transparent 18rem),
+    linear-gradient(180deg, #211f1d 0%, #181614 100%);
+  box-shadow:
+    0 26px 70px rgba(4, 8, 14, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   color: #f8f4ef;
   opacity: 0;
   overflow: hidden;
@@ -4571,21 +4575,35 @@ dt {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.55rem;
-  min-height: 3.25rem;
-  padding: 0.48rem 0.56rem;
+  gap: 0.72rem;
+  min-height: 4.2rem;
+  padding: 0.72rem 0.78rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: #181614;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.045), transparent),
+    rgba(20, 18, 16, 0.94);
 }
 
 .assistant-drag-region {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.52rem;
+  gap: 0.6rem;
   min-width: 0;
+  min-height: 2.7rem;
+  padding: 0.26rem 0.42rem 0.26rem 0.32rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
   cursor: grab;
   touch-action: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.assistant-drag-region:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .assistant-drag-region:active {
@@ -4596,15 +4614,31 @@ dt {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  width: 1.95rem;
-  height: 1.95rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 999px;
   background: linear-gradient(135deg, #d94a38, #f06748);
   color: #fff;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.03em;
+}
+
+.assistant-grip {
+  display: grid;
+  gap: 0.18rem;
+  place-items: center;
+  width: 0.75rem;
+  opacity: 0.7;
+}
+
+.assistant-grip span {
+  display: block;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: rgba(248, 244, 239, 0.68);
 }
 
 .assistant-title {
@@ -4632,6 +4666,17 @@ dt {
   white-space: nowrap;
 }
 
+.assistant-drag-hint {
+  padding: 0.28rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  color: rgba(248, 244, 239, 0.52);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .assistant-header-actions {
   display: flex;
   align-items: center;
@@ -4639,23 +4684,32 @@ dt {
 }
 
 .assistant-clear {
-  min-height: 1.8rem;
+  min-height: 2.2rem;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.055);
   color: rgba(248, 244, 239, 0.72);
   cursor: pointer;
   font: inherit;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 800;
-  padding: 0.32rem 0.58rem;
+  padding: 0.42rem 0.72rem;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.assistant-clear:hover,
+.assistant-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8f4ef;
 }
 
 .assistant-close {
   display: grid;
   place-items: center;
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 2.2rem;
+  height: 2.2rem;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
@@ -4663,21 +4717,26 @@ dt {
   cursor: pointer;
   font-size: 1rem;
   font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .assistant-body {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   min-height: 0;
-  padding: 0.75rem;
+  padding: 0.82rem;
 }
 
 .assistant-messages {
   display: grid;
   align-content: start;
-  gap: 0.68rem;
+  gap: 0.72rem;
   overflow-y: auto;
-  padding-right: 0.12rem;
+  padding-right: 0.18rem;
   scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
   scrollbar-width: thin;
 }
@@ -4707,13 +4766,14 @@ dt {
 
 .assistant-message-bubble {
   display: grid;
-  gap: 0.58rem;
+  gap: 0.62rem;
   min-width: 0;
   max-width: 100%;
-  padding: 0.72rem 0.82rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.045);
+  padding: 0.86rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.095);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .assistant-message.is-assistant .assistant-message-bubble {
@@ -4728,9 +4788,9 @@ dt {
 
 .assistant-message p {
   color: #f8f4ef;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  line-height: 1.52;
+  line-height: 1.58;
 }
 
 .assistant-links {
@@ -4741,13 +4801,24 @@ dt {
 
 .assistant-links a,
 .assistant-prompts button {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 116, 79, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
   color: #ff744f;
   font-size: 0.82rem;
   font-weight: 800;
   text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.assistant-links a:hover,
+.assistant-prompts button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 116, 79, 0.32);
+  background: rgba(255, 116, 79, 0.1);
 }
 
 .assistant-links a {
@@ -4757,13 +4828,13 @@ dt {
 .assistant-prompts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.45rem;
-  margin-top: 0.7rem;
+  gap: 0.55rem;
+  margin-top: 0.82rem;
 }
 
 .assistant-prompts button {
-  min-height: 2.45rem;
-  padding: 0.48rem 0.58rem;
+  min-height: 2.8rem;
+  padding: 0.62rem 0.72rem;
   cursor: pointer;
   text-align: left;
 }
@@ -4771,22 +4842,22 @@ dt {
 .assistant-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.52rem;
-  padding: 0.72rem;
+  gap: 0.6rem;
+  padding: 0.82rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #181614;
+  background: rgba(20, 18, 16, 0.96);
 }
 
 .assistant-form input {
   min-width: 0;
-  min-height: 2.65rem;
+  min-height: 2.9rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
-  background: #2b2825;
+  background: rgba(255, 255, 255, 0.055);
   color: #f8f4ef;
   font: inherit;
   font-size: 0.88rem;
-  padding: 0.66rem 0.86rem;
+  padding: 0.7rem 0.95rem;
 }
 
 .assistant-form input::placeholder {
@@ -4796,8 +4867,8 @@ dt {
 .assistant-form button {
   display: grid;
   place-items: center;
-  width: 2.65rem;
-  height: 2.65rem;
+  width: 2.9rem;
+  height: 2.9rem;
   border: 1px solid rgba(255, 120, 92, 0.28);
   border-radius: 999px;
   background: linear-gradient(135deg, #d94a38, #f06748);
@@ -5803,9 +5874,10 @@ body::before {
   }
 
   .site-assistant {
-    left: auto;
-    right: 1rem;
-    bottom: 1rem;
+    left: auto !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+    top: auto !important;
     width: 3.4rem;
     height: 3.4rem;
   }
@@ -5817,12 +5889,77 @@ body::before {
 
   .assistant-panel {
     right: 0;
-    width: min(21rem, calc(100vw - 2rem));
-    height: min(25rem, calc(100vh - 8rem));
+    bottom: calc(100% + 0.62rem);
+    width: min(22.5rem, calc(100vw - 1.5rem));
+    height: min(31rem, calc(100dvh - 6.2rem));
+    border-radius: 22px;
+  }
+
+  .assistant-header {
+    gap: 0.45rem;
+    min-height: 3.8rem;
+    padding: 0.58rem;
+  }
+
+  .assistant-drag-region {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    gap: 0.5rem;
+    min-height: 2.6rem;
+    padding: 0.22rem 0.32rem;
+  }
+
+  .assistant-drag-hint {
+    display: none;
+  }
+
+  .assistant-avatar {
+    width: 2.05rem;
+    height: 2.05rem;
+  }
+
+  .assistant-header-actions {
+    gap: 0.25rem;
+  }
+
+  .assistant-clear {
+    min-height: 2rem;
+    padding: 0.34rem 0.55rem;
+    font-size: 0.7rem;
+  }
+
+  .assistant-close {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .assistant-body {
+    padding: 0.65rem;
+  }
+
+  .assistant-message-bubble {
+    padding: 0.74rem 0.82rem;
+    border-radius: 18px;
+  }
+
+  .assistant-prompts {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    margin-top: 0.65rem;
   }
 
   .assistant-form {
     grid-template-columns: minmax(0, 1fr) auto;
+    padding: 0.65rem;
+  }
+
+  .assistant-form input {
+    min-height: 2.65rem;
+    padding: 0.62rem 0.82rem;
+  }
+
+  .assistant-form button {
+    width: 2.65rem;
+    height: 2.65rem;
   }
 
   .blog-stat-grid {
