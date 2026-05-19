@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Sai Kumar Mediboina engineering notes preview</title>
+  <desc id="desc">Social preview card for backend engineering articles.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17130f"/>
+      <stop offset="0.52" stop-color="#2b211a"/>
+      <stop offset="1" stop-color="#5d2d20"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffb06b"/>
+      <stop offset="1" stop-color="#f06b4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <path d="M780 0h420v630H690c120-110 154-234 102-374C754 154 756 68 780 0z" fill="#fff2df" opacity="0.08"/>
+  <circle cx="112" cy="114" r="210" fill="#f06b4a" opacity="0.18"/>
+  <rect x="82" y="78" width="1036" height="474" rx="44" fill="#211b16" stroke="#ffe0c2" stroke-opacity="0.14" stroke-width="2"/>
+  <text x="130" y="163" font-family="Arial, sans-serif" font-size="20" font-weight="900" fill="#ffb06b" letter-spacing="7">ENGINEERING NOTES</text>
+  <text x="130" y="286" font-family="Arial, sans-serif" font-size="72" font-weight="850" fill="#fff7ed" letter-spacing="-3">Backend stories with</text>
+  <text x="130" y="363" font-family="Arial, sans-serif" font-size="72" font-weight="850" fill="#fff7ed" letter-spacing="-3">real performance signal.</text>
+  <text x="132" y="434" font-family="Arial, sans-serif" font-size="28" font-weight="650" fill="#d7c4b2">Search architecture, throughput tuning, AI relevance, and practical systems thinking.</text>
+  <g transform="translate(132 482)">
+    <rect width="170" height="44" rx="22" fill="url(#accent)"/>
+    <text x="85" y="29" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#20130e">Read notes</text>
+    <text x="208" y="29" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#fff2df">Sai Kumar Mediboina</text>
+  </g>
+  <g transform="translate(890 120)" opacity="0.9">
+    <rect width="128" height="128" rx="34" fill="#fff7ed"/>
+    <text x="64" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="46" font-weight="900" fill="#5d2d20">SK</text>
+  </g>
+</svg>

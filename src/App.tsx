@@ -130,6 +130,462 @@ const siteUpdates: SiteUpdate[] = [
 
 type Theme = "light" | "dark";
 
+const SITE_URL = "https://saikumarmediboina.com";
+const SITE_NAME = "Sai Kumar Mediboina";
+const DEFAULT_SEO_IMAGE_PATH = "/og-default.svg";
+const BLOG_SEO_IMAGE_PATH = "/og-blog.svg";
+const AI_RADAR_SEO_IMAGE_PATH = "/og-ai-radar.svg";
+const DASHBOARD_SEO_IMAGE_PATH = "/og-dashboard.svg";
+const DEFAULT_SEO_DESCRIPTION =
+  "Portfolio of Sai Kumar Mediboina, a Software Application Engineer specializing in high-throughput screening, search systems, and performance optimization.";
+
+type SeoMetadata = {
+  analyticsTitle: string;
+  canonicalPath: string;
+  description: string;
+  imageAlt: string;
+  imagePath: string;
+  noindex?: boolean;
+  publishedTime?: string;
+  structuredData: unknown[];
+  title: string;
+  type: "article" | "profile" | "website";
+};
+
+function getAbsoluteSiteUrl(path = "/") {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+  return `${SITE_URL}${cleanPath === "/" ? "/" : cleanPath}`;
+}
+
+function getSeoTitle(title: string) {
+  return `${title} | ${SITE_NAME}`;
+}
+
+function getBlogPublishedIsoDate(publishedAt: string) {
+  const match = publishedAt.match(/([A-Za-z]+)\s+(\d{4})/);
+
+  if (!match) {
+    return "2026-05-01";
+  }
+
+  const monthIndex = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+  ].indexOf(match[1].toLowerCase());
+
+  if (monthIndex < 0) {
+    return "2026-05-01";
+  }
+
+  return `${match[2]}-${String(monthIndex + 1).padStart(2, "0")}-01`;
+}
+
+function getBlogWordCount(post: BlogPost) {
+  return post.sections
+    .flatMap((section) => [
+      section.heading,
+      ...section.paragraphs,
+      ...(section.bullets ?? []),
+    ])
+    .join(" ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+function getPersonStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@id": `${SITE_URL}/#person`,
+    "@type": "Person",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "IN",
+      addressLocality: "Rajahmundry",
+      addressRegion: "Andhra Pradesh",
+    },
+    alumniOf: education.map((item) => ({
+      "@type": "CollegeOrUniversity",
+      name: item.school,
+    })),
+    email: `mailto:${profile.email}`,
+    image: getAbsoluteSiteUrl("/profile-avatar.png"),
+    jobTitle: profile.currentTitle,
+    knowsAbout: skills.flatMap((group) => group.items),
+    name: profile.name,
+    sameAs: [profile.linkedin],
+    url: getAbsoluteSiteUrl("/"),
+    worksFor: {
+      "@type": "Organization",
+      name: "Oracle",
+    },
+  };
+}
+
+function getWebsiteStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    description: DEFAULT_SEO_DESCRIPTION,
+    inLanguage: "en",
+    name: SITE_NAME,
+    publisher: {
+      "@id": `${SITE_URL}/#person`,
+    },
+    url: getAbsoluteSiteUrl("/"),
+  };
+}
+
+function getWebPageStructuredData(metadata: SeoMetadata, pageType = "WebPage") {
+  return {
+    "@context": "https://schema.org",
+    "@type": pageType,
+    about: {
+      "@id": `${SITE_URL}/#person`,
+    },
+    description: metadata.description,
+    image: getAbsoluteSiteUrl(metadata.imagePath),
+    inLanguage: "en",
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: getAbsoluteSiteUrl("/"),
+    },
+    mainEntity: {
+      "@id": `${SITE_URL}/#person`,
+    },
+    name: metadata.title,
+    url: getAbsoluteSiteUrl(metadata.canonicalPath),
+  };
+}
+
+function getBlogStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    blogPost: blogPosts.map((post) => ({
+      "@type": "BlogPosting",
+      datePublished: getBlogPublishedIsoDate(post.publishedAt),
+      headline: post.title,
+      url: getAbsoluteSiteUrl(getBlogArticleHref(post.slug)),
+    })),
+    description:
+      "Engineering notes on backend performance, search architecture, AI relevance, and cloud-native systems.",
+    name: "Sai Kumar Mediboina Engineering Notes",
+    url: getAbsoluteSiteUrl("/blogs"),
+  };
+}
+
+function getBlogArticleStructuredData(post: BlogPost) {
+  const articleUrl = getAbsoluteSiteUrl(getBlogArticleHref(post.slug));
+  const publishedDate = getBlogPublishedIsoDate(post.publishedAt);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    articleSection: post.category,
+    author: {
+      "@id": `${SITE_URL}/#person`,
+    },
+    dateModified: publishedDate,
+    datePublished: publishedDate,
+    description: post.summary,
+    headline: post.title,
+    image: getAbsoluteSiteUrl(BLOG_SEO_IMAGE_PATH),
+    inLanguage: "en",
+    keywords: [post.category, ...post.takeaways].join(", "),
+    mainEntityOfPage: articleUrl,
+    publisher: {
+      "@id": `${SITE_URL}/#person`,
+    },
+    url: articleUrl,
+    wordCount: getBlogWordCount(post),
+  };
+}
+
+function getSeoMetadata({
+  isAdminUpdatePage,
+  isAiRadarPage,
+  isBlogsPage,
+  isContactPage,
+  isDashboardPage,
+  isPortfolioPage,
+  isSavedPostsPage,
+  isShelfPage,
+  isSignInPage,
+  isStartPage,
+  isWhatsNewPage,
+  standaloneBlog,
+}: {
+  isAdminUpdatePage: boolean;
+  isAiRadarPage: boolean;
+  isBlogsPage: boolean;
+  isContactPage: boolean;
+  isDashboardPage: boolean;
+  isPortfolioPage: boolean;
+  isSavedPostsPage: boolean;
+  isShelfPage: boolean;
+  isSignInPage: boolean;
+  isStartPage: boolean;
+  isWhatsNewPage: boolean;
+  standaloneBlog?: BlogPost;
+}): SeoMetadata {
+  if (standaloneBlog) {
+    const publishedTime = getBlogPublishedIsoDate(standaloneBlog.publishedAt);
+
+    return {
+      analyticsTitle: `Blog: ${standaloneBlog.title}`,
+      canonicalPath: getBlogArticleHref(standaloneBlog.slug),
+      description: standaloneBlog.summary,
+      imageAlt: `${standaloneBlog.title} article preview`,
+      imagePath: BLOG_SEO_IMAGE_PATH,
+      publishedTime,
+      structuredData: [
+        getPersonStructuredData(),
+        getWebsiteStructuredData(),
+        getBlogArticleStructuredData(standaloneBlog),
+      ],
+      title: getSeoTitle(standaloneBlog.title),
+      type: "article",
+    };
+  }
+
+  const pageDefaults: SeoMetadata = {
+    analyticsTitle: "Home",
+    canonicalPath: "/",
+    description: DEFAULT_SEO_DESCRIPTION,
+    imageAlt: "Sai Kumar Mediboina portfolio preview card",
+    imagePath: DEFAULT_SEO_IMAGE_PATH,
+    structuredData: [],
+    title: getSeoTitle("Software Application Engineer"),
+    type: "profile",
+  };
+
+  const metadata = isStartPage
+    ? {
+        ...pageDefaults,
+        analyticsTitle: "Start Here",
+        canonicalPath: "/start",
+        description:
+          "Start here to explore Sai Kumar Mediboina's portfolio, engineering notes, AI Radar, saved resources, and latest updates.",
+        title: getSeoTitle("Start Here"),
+        type: "website" as const,
+      }
+    : isPortfolioPage
+      ? {
+          ...pageDefaults,
+          analyticsTitle: "Portfolio",
+          canonicalPath: "/portfolio",
+          description:
+            "Explore Sai Kumar Mediboina's backend engineering portfolio, Oracle experience, performance metrics, projects, skills, education, and certifications.",
+          title: getSeoTitle("Backend Engineering Portfolio"),
+          type: "profile" as const,
+        }
+      : isBlogsPage
+        ? {
+            ...pageDefaults,
+            analyticsTitle: "Blogs",
+            canonicalPath: "/blogs",
+            description:
+              "Read Sai Kumar Mediboina's engineering notes on backend performance, search architecture, AI relevance, and scalable systems.",
+            imageAlt: "Engineering notes by Sai Kumar Mediboina",
+            imagePath: BLOG_SEO_IMAGE_PATH,
+            title: getSeoTitle("Engineering Notes"),
+            type: "website" as const,
+          }
+        : isAiRadarPage
+          ? {
+              ...pageDefaults,
+              analyticsTitle: "AI Radar",
+              canonicalPath: "/ai-radar",
+              description:
+                "A curated AI Radar with trusted source links, short builder-focused context, and practical signals for AI engineers.",
+              imageAlt: "AI Radar preview by Sai Kumar Mediboina",
+              imagePath: AI_RADAR_SEO_IMAGE_PATH,
+              title: getSeoTitle("AI Radar"),
+              type: "website" as const,
+            }
+          : isWhatsNewPage
+            ? {
+                ...pageDefaults,
+                analyticsTitle: "What's New",
+                canonicalPath: "/whats-new",
+                description:
+                  "See the latest portfolio updates, engineering notes, AI Radar additions, and site changes from Sai Kumar Mediboina.",
+                title: getSeoTitle("What's New"),
+                type: "website" as const,
+              }
+            : isShelfPage
+              ? {
+                  ...pageDefaults,
+                  analyticsTitle: "Sai's Shelf",
+                  canonicalPath: "/shelf",
+                  description:
+                    "Sai's Shelf is a growing collection of useful engineering resources, CS fundamentals, AI notes, and practical learning material.",
+                  title: getSeoTitle("Sai's Shelf"),
+                  type: "website" as const,
+                }
+              : isDashboardPage
+                ? {
+                    ...pageDefaults,
+                    analyticsTitle: "Dashboard",
+                    canonicalPath: "/dashboard",
+                    description:
+                      "A creator dashboard showing portfolio content coverage, publishing rhythm, analytics signals, and engineering-note momentum.",
+                    imageAlt: "Creator dashboard preview by Sai Kumar Mediboina",
+                    imagePath: DASHBOARD_SEO_IMAGE_PATH,
+                    title: getSeoTitle("Creator Dashboard"),
+                    type: "website" as const,
+                  }
+                : isContactPage
+                  ? {
+                      ...pageDefaults,
+                      analyticsTitle: "Work With Me",
+                      canonicalPath: "/work-with-me",
+                      description:
+                        "Work with Sai Kumar Mediboina on backend performance, search-heavy systems, AI-assisted workflows, and scalable product engineering.",
+                      title: getSeoTitle("Work With Me"),
+                      type: "profile" as const,
+                    }
+                  : isSignInPage
+                    ? {
+                        ...pageDefaults,
+                        analyticsTitle: "Sign In",
+                        canonicalPath: "/signin",
+                        description:
+                          "Sign in to follow portfolio updates, unlock member reads, and save useful engineering posts.",
+                        noindex: true,
+                        title: getSeoTitle("Reader Sign In"),
+                        type: "website" as const,
+                      }
+                    : isSavedPostsPage
+                      ? {
+                          ...pageDefaults,
+                          analyticsTitle: "Saved Posts",
+                          canonicalPath: "/saved-posts",
+                          description:
+                            "Saved posts and AI Radar stories for signed-in readers of Sai Kumar Mediboina's portfolio.",
+                          noindex: true,
+                          title: getSeoTitle("Saved Posts"),
+                          type: "website" as const,
+                        }
+                      : isAdminUpdatePage
+                        ? {
+                            ...pageDefaults,
+                            analyticsTitle: "Admin Update",
+                            canonicalPath: "/admin-update",
+                            description:
+                              "Private admin update sender for Sai Kumar Mediboina portfolio subscribers.",
+                            noindex: true,
+                            title: getSeoTitle("Admin Updates"),
+                            type: "website" as const,
+                          }
+                        : pageDefaults;
+
+  const pageType = metadata.type === "profile" ? "ProfilePage" : "WebPage";
+
+  return {
+    ...metadata,
+    structuredData: [
+      getPersonStructuredData(),
+      getWebsiteStructuredData(),
+      getWebPageStructuredData(metadata, pageType),
+      ...(isBlogsPage ? [getBlogStructuredData()] : []),
+    ],
+  };
+}
+
+function setMetaTag(attribute: "name" | "property", key: string, content: string) {
+  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
+
+  if (!element) {
+    element = document.createElement("meta");
+    element.setAttribute(attribute, key);
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute("content", content);
+}
+
+function removeMetaTag(attribute: "name" | "property", key: string) {
+  document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)?.remove();
+}
+
+function setCanonicalUrl(path: string) {
+  let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+
+  if (!element) {
+    element = document.createElement("link");
+    element.setAttribute("rel", "canonical");
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute("href", getAbsoluteSiteUrl(path));
+}
+
+function setStructuredData(metadata: SeoMetadata) {
+  let element = document.getElementById("structured-data-seo") as HTMLScriptElement | null;
+
+  if (!element) {
+    element = document.createElement("script");
+    element.id = "structured-data-seo";
+    element.type = "application/ld+json";
+    document.head.appendChild(element);
+  }
+
+  element.textContent = JSON.stringify(metadata.structuredData);
+}
+
+function applySeoMetadata(metadata: SeoMetadata) {
+  const canonicalUrl = getAbsoluteSiteUrl(metadata.canonicalPath);
+  const imageUrl = getAbsoluteSiteUrl(metadata.imagePath);
+  const robotsValue = metadata.noindex
+    ? "noindex,nofollow"
+    : "index,follow,max-image-preview:large";
+
+  document.title = metadata.title;
+  setCanonicalUrl(metadata.canonicalPath);
+  setMetaTag("name", "description", metadata.description);
+  setMetaTag("name", "author", profile.name);
+  setMetaTag("name", "robots", robotsValue);
+  setMetaTag("property", "og:site_name", SITE_NAME);
+  setMetaTag("property", "og:title", metadata.title);
+  setMetaTag("property", "og:description", metadata.description);
+  setMetaTag("property", "og:type", metadata.type);
+  setMetaTag("property", "og:url", canonicalUrl);
+  setMetaTag("property", "og:image", imageUrl);
+  setMetaTag("property", "og:image:type", "image/svg+xml");
+  setMetaTag("property", "og:image:width", "1200");
+  setMetaTag("property", "og:image:height", "630");
+  setMetaTag("property", "og:image:alt", metadata.imageAlt);
+  setMetaTag("name", "twitter:card", "summary_large_image");
+  setMetaTag("name", "twitter:title", metadata.title);
+  setMetaTag("name", "twitter:description", metadata.description);
+  setMetaTag("name", "twitter:image", imageUrl);
+
+  if (metadata.publishedTime) {
+    setMetaTag("property", "article:published_time", metadata.publishedTime);
+    setMetaTag("property", "article:modified_time", metadata.publishedTime);
+    setMetaTag("property", "article:author", profile.name);
+  } else {
+    removeMetaTag("property", "article:published_time");
+    removeMetaTag("property", "article:modified_time");
+    removeMetaTag("property", "article:author");
+  }
+
+  setStructuredData(metadata);
+}
+
 type SectionHeadingProps = {
   eyebrow: string;
   title: string;
@@ -6088,31 +6544,21 @@ function App() {
   const isContactPage = isContactPathname();
   const isPortfolioPage = isPortfolioPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
-  const analyticsPageTitle = standaloneBlog
-    ? `Blog: ${standaloneBlog.title}`
-    : isSavedPostsPage
-      ? "Saved Posts"
-      : isStartPage
-        ? "Start Here"
-        : isWhatsNewPage
-          ? "What's New"
-          : isAiRadarPage
-            ? "AI Radar"
-            : isShelfPage
-              ? "Sai's Shelf"
-              : isDashboardPage
-                ? "Dashboard"
-                : isBlogsPage
-                  ? "Blogs"
-                  : isContactPage
-                    ? "Work With Me"
-                    : isSignInPage
-                      ? "Sign In"
-                      : isAdminUpdatePage
-                        ? "Admin Update"
-                        : isPortfolioPage
-                          ? "Portfolio"
-                          : "Home";
+  const seoMetadata = getSeoMetadata({
+    isAdminUpdatePage,
+    isAiRadarPage,
+    isBlogsPage,
+    isContactPage,
+    isDashboardPage,
+    isPortfolioPage,
+    isSavedPostsPage,
+    isShelfPage,
+    isSignInPage,
+    isStartPage,
+    isWhatsNewPage,
+    standaloneBlog,
+  });
+  const analyticsPageTitle = seoMetadata.analyticsTitle;
   const currentNavLinks = isPortfolioPage ? portfolioNavLinks : mainNavLinks;
   const signInReturnBlogSlug = getSignInReturnBlogSlug();
   const signInReturnTarget = getSignInReturnTarget();
@@ -6332,6 +6778,10 @@ function App() {
       // Ignore storage errors so the app still works in restricted environments.
     }
   }, [theme]);
+
+  useEffect(() => {
+    applySeoMetadata(seoMetadata);
+  }, [seoMetadata]);
 
   useEffect(() => {
     trackAnalyticsEvent("page_view", {

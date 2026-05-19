@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin-update
+Disallow: /signin
+Disallow: /saved-posts
+Disallow: /api/
+
+Sitemap: https://saikumarmediboina.com/sitemap.xml
