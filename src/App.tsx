@@ -1913,17 +1913,20 @@ type AssistantKnowledgeCategory =
   | "page"
   | "profile"
   | "project"
+  | "qa"
   | "recognition"
   | "skill"
   | "subscription"
   | "update";
 
 type AssistantKnowledgeEntry = {
+  answerStyle?: "direct" | "expanded";
   category: AssistantKnowledgeCategory;
   details?: string[];
   keywords: string[];
   links?: AssistantLink[];
   priority?: number;
+  questions?: string[];
   summary: string;
   title: string;
 };
@@ -2025,9 +2028,11 @@ const assistantSynonyms: Record<string, string[]> = {
   projects: ["work", "portfolio", "systems", "engines"],
   radar: ["news", "latest", "updates", "ai", "sources"],
   resume: ["experience", "projects", "skills", "education"],
+  saved: ["posts", "bookmark", "reading", "signin"],
   search: ["opensearch", "oracle", "text", "semantic"],
   signin: ["sign", "login", "subscribe", "unlock"],
   stack: ["skills", "technology", "tools", "tech"],
+  newsletter: ["subscribe", "updates", "email", "content"],
   subscribe: ["updates", "newsletter", "email", "signin"],
   tech: ["stack", "skills", "technology", "tools"],
 };
@@ -2043,6 +2048,8 @@ const siteSpecificQuestionWords = new Set([
   "dashboard",
   "education",
   "experience",
+  "login",
+  "newsletter",
   "portfolio",
   "project",
   "projects",
@@ -2052,9 +2059,12 @@ const siteSpecificQuestionWords = new Set([
   "sai",
   "saved",
   "shelf",
+  "signin",
+  "subscribe",
   "site",
   "stack",
   "tech",
+  "unsubscribe",
   "update",
   "updates",
   "website",
@@ -2273,8 +2283,11 @@ function isGenericLearningQuestion(input: string) {
       "education",
       "certification",
       "dashboard",
+      "newsletter",
       "saved",
       "shelf",
+      "signin",
+      "subscribe",
       "updates",
       "work",
     ].includes(word),
@@ -2318,6 +2331,7 @@ function getAssistantSearchText(entry: AssistantKnowledgeEntry) {
       entry.title,
       entry.summary,
       ...(entry.details ?? []),
+      ...(entry.questions ?? []),
       ...entry.keywords,
       entry.category,
     ].join(" "),
@@ -2399,6 +2413,250 @@ function createAssistantEntry(
   };
 }
 
+type CuratedAssistantQaOptions = {
+  currentCompany: string;
+  currentRoleTitle: string;
+  hasActiveSubscription: boolean;
+  isReaderSignedIn: boolean;
+  publicBlog: BlogPost;
+};
+
+function getCuratedAssistantQaEntries({
+  currentCompany,
+  currentRoleTitle,
+  hasActiveSubscription,
+  isReaderSignedIn,
+  publicBlog,
+}: CuratedAssistantQaOptions): AssistantKnowledgeEntry[] {
+  const featuredProjectNames = projects
+    .slice(0, 3)
+    .map((project) => project.name)
+    .join(", ");
+  const coreStack = skills
+    .flatMap((group) => group.items)
+    .slice(0, 12)
+    .join(", ");
+
+  return [
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: Experience",
+      summary: `Sai is currently ${currentRoleTitle} at ${currentCompany}. He has about ${getProfessionalExperienceDurationText()} of professional experience, with work focused on backend platform engineering, search systems, high-throughput screening, performance tuning, and practical AI-enabled workflows.`,
+      questions: [
+        "what is sai experience",
+        "how many years of experience does sai have",
+        "what is sai current role",
+        "where does sai work",
+        "tell me about sai career",
+      ],
+      keywords: [
+        "experience",
+        "career",
+        "current",
+        "role",
+        "oracle",
+        "software",
+        "application",
+        "engineer",
+      ],
+      links: [{ href: "/portfolio#experience", label: "Experience" }],
+      priority: 12,
+    }),
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: Projects",
+      summary: `Sai's main project work centers on ${featuredProjectNames}. The common theme is building scalable backend systems for screening, search, matching, data-heavy processing, and measurable latency or throughput improvements.`,
+      questions: [
+        "show sai projects",
+        "what projects has sai worked on",
+        "what are sai main projects",
+        "tell me about sai work",
+        "show portfolio projects",
+      ],
+      keywords: [
+        "project",
+        "projects",
+        "portfolio",
+        "work",
+        "matching",
+        "scoring",
+        "screening",
+        "search",
+      ],
+      links: [{ href: "/portfolio#work", label: "Projects" }],
+      priority: 12,
+    }),
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: Tech stack",
+      summary: `Sai's core stack is backend-first: ${coreStack}. His strongest areas are Java and Spring backend services, Oracle-backed data flows, search platforms, cloud-native deployment, and AI or LLM-assisted workflow patterns.`,
+      questions: [
+        "what is sai tech stack",
+        "what technologies does sai use",
+        "what are sai skills",
+        "show tech stack",
+        "what tools does sai know",
+      ],
+      keywords: [
+        "tech",
+        "stack",
+        "skills",
+        "technology",
+        "tools",
+        "java",
+        "spring",
+        "oracle",
+        "kubernetes",
+      ],
+      links: [{ href: "/portfolio#skills", label: "Tech stack" }],
+      priority: 12,
+    }),
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: Contact",
+      summary: `For professional conversations, use the Work With Me page, email Sai at ${profile.email}, or connect through LinkedIn. Best-fit topics are backend performance, search systems, cloud-native engineering, and practical AI product ideas.`,
+      questions: [
+        "how can i contact sai",
+        "how to reach sai",
+        "what is sai email",
+        "where is sai linkedin",
+        "can i work with sai",
+      ],
+      keywords: [
+        "contact",
+        "email",
+        "mail",
+        "linkedin",
+        "connect",
+        "hire",
+        "collaboration",
+        "work",
+      ],
+      links: [
+        { href: "/work-with-me", label: "Work With Me" },
+        { href: profile.linkedin, label: "LinkedIn", external: true },
+      ],
+      priority: 12,
+    }),
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: Saved posts",
+      summary: isReaderSignedIn
+        ? "Saved Posts is your personal reading list for blog articles and AI Radar items. Save something while reading, then open Saved Posts from the menu to revisit it later with tags."
+        : "Saved Posts becomes your personal reading list after sign-in. Until then, the shelf is politely waiting with a tiny bookmark helmet on.",
+      questions: [
+        "what are saved posts",
+        "how do saved posts work",
+        "where are my saved posts",
+        "why should i sign in to save posts",
+        "can i save blogs",
+      ],
+      keywords: [
+        "saved",
+        "posts",
+        "bookmark",
+        "bookmarks",
+        "save",
+        "reading",
+        "list",
+        "signin",
+        "login",
+      ],
+      links: isReaderSignedIn
+        ? [{ href: "/saved-posts", label: "Saved Posts" }]
+        : [{ href: "/signin", label: "Sign in to save" }],
+      priority: 12,
+    }),
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: Newsletter",
+      summary: hasActiveSubscription
+        ? "You are subscribed to updates. New selected notes can reach your inbox when Sai publishes or shares important content, and you can unsubscribe whenever you want."
+        : "The newsletter is for occasional engineering updates: backend performance notes, search-system ideas, AI workflow content, and new blog drops. You can subscribe from the page footer and unsubscribe anytime.",
+      questions: [
+        "what is newsletter",
+        "how do i get updates",
+        "how to subscribe",
+        "what emails will i get",
+        "can i unsubscribe",
+      ],
+      keywords: [
+        "newsletter",
+        "subscribe",
+        "unsubscribe",
+        "updates",
+        "email",
+        "inbox",
+        "content",
+      ],
+      links: [{ href: "#newsletter", label: "Newsletter" }],
+      priority: 12,
+    }),
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: AI Radar",
+      summary: "AI Radar is a curated feed of AI news and research links from free, public sources. It highlights useful articles, links to the original source, and lets signed-in readers save interesting items for later.",
+      questions: [
+        "what is ai radar",
+        "how does ai radar work",
+        "where do ai radar articles come from",
+        "is ai radar free",
+        "can i save ai radar posts",
+      ],
+      keywords: [
+        "ai",
+        "radar",
+        "news",
+        "articles",
+        "rss",
+        "feed",
+        "source",
+        "sources",
+        "latest",
+      ],
+      links: [{ href: "/ai-radar", label: "AI Radar" }],
+      priority: 12,
+    }),
+    createAssistantEntry({
+      answerStyle: "direct",
+      category: "qa",
+      title: "Q&A: Blogs",
+      summary: isReaderSignedIn
+        ? `Blogs are Sai's engineering write-ups on performance, search architecture, AI relevance, and backend design. You can read the public article "${publicBlog.title}" plus the unlocked member articles.`
+        : `Blogs are Sai's engineering write-ups on performance, search architecture, AI relevance, and backend design. "${publicBlog.title}" is public; the remaining articles unlock after sign-in.`,
+      questions: [
+        "what blogs are available",
+        "what does sai write about",
+        "how do blogs work",
+        "which blog is public",
+        "why are some blogs locked",
+      ],
+      keywords: [
+        "blog",
+        "blogs",
+        "article",
+        "articles",
+        "writing",
+        "locked",
+        "unlocked",
+        "read",
+      ],
+      links: [
+        { href: "/blogs", label: "Blogs" },
+        { href: getBlogArticleHref(publicBlog.slug), label: "Public article", external: true },
+      ],
+      priority: 12,
+    }),
+  ];
+}
+
 function getAssistantKnowledgeEntries(
   isReaderSignedIn: boolean,
   hasActiveSubscription: boolean,
@@ -2408,6 +2666,13 @@ function getAssistantKnowledgeEntries(
   const currentCompany = currentExperience?.company ?? profile.currentCompany;
   const publicBlog = blogPosts.find((post) => post.slug === PUBLIC_BLOG_SLUG) ?? blogPosts[0];
   const entries: AssistantKnowledgeEntry[] = [
+    ...getCuratedAssistantQaEntries({
+      currentCompany,
+      currentRoleTitle: currentRole?.title ?? profile.currentTitle,
+      hasActiveSubscription,
+      isReaderSignedIn,
+      publicBlog,
+    }),
     createAssistantEntry({
       category: "page",
       title: "What the assistant knows",
@@ -2845,6 +3110,20 @@ function scoreAssistantEntry(
     score += 10;
   }
 
+  if (
+    normalizedQuery.length > 4 &&
+    entry.questions?.some((question) => {
+      const normalizedQuestion = normalizeAssistantText(question);
+
+      return (
+        normalizedQuestion.includes(normalizedQuery) ||
+        normalizedQuery.includes(normalizedQuestion)
+      );
+    })
+  ) {
+    score += 14;
+  }
+
   tokens.forEach((token) => {
     if (hasAssistantToken(titleText, token)) {
       score += 5;
@@ -2902,8 +3181,9 @@ function formatAssistantEntryResponse(
   entry: AssistantKnowledgeEntry,
   relatedEntries: AssistantKnowledgeEntry[],
 ): AssistantResponseDraft {
+  const shouldAnswerDirectly = entry.answerStyle === "direct";
   const detailText = entry.details?.slice(0, 2).join(" ") ?? "";
-  const relatedText = relatedEntries.length
+  const relatedText = !shouldAnswerDirectly && relatedEntries.length
     ? ` Related on this site: ${relatedEntries
         .slice(0, 2)
         .map((relatedEntry) => relatedEntry.title)
@@ -2911,14 +3191,16 @@ function formatAssistantEntryResponse(
     : "";
   const links = getUniqueAssistantLinks([
     ...(entry.links ?? []),
-    ...relatedEntries.flatMap((relatedEntry) => relatedEntry.links ?? []),
+    ...(shouldAnswerDirectly
+      ? []
+      : relatedEntries.flatMap((relatedEntry) => relatedEntry.links ?? [])),
   ]).slice(0, 2);
 
   return {
     text: `${entry.summary}${detailText ? ` ${detailText}` : ""}${relatedText}`,
     links: links.length ? links : undefined,
     mode: "site",
-    shouldUseLlm: true,
+    shouldUseLlm: !shouldAnswerDirectly,
   };
 }
 
@@ -3126,8 +3408,8 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
 
   const quickPrompts = [
     "Show Sai's projects",
-    "Explain CAP theorem",
-    "Open AI Radar",
+    "What is Sai's tech stack?",
+    "What is AI Radar?",
   ];
 
   useEffect(() => {
