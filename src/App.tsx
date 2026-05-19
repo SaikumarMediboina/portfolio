@@ -224,6 +224,7 @@ const SAVED_AI_RADAR_STORAGE_KEY_PREFIX = "portfolio-saved-ai-radar:";
 const AI_RADAR_SAVE_ID_PREFIX = "ai-radar:";
 const ALL_BLOG_CATEGORIES = "All";
 const ALL_AI_RADAR_CATEGORIES = "All signals";
+const ALL_SAVED_POSTS_TAG = "All";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
 const LOCKED_BLOG_CAPTION =
   "This one is in the members-only lab. Sign in and the doors open.";
@@ -515,7 +516,7 @@ function buildSavedReaderItems(
           id: post.slug,
           kind: "Blog",
           summary: post.summary,
-          tags: [post.category, post.readTime],
+          tags: [post.category],
           title: post.title,
         };
       }
@@ -550,6 +551,10 @@ function buildSavedReaderItems(
       };
     })
     .filter((item): item is SavedReaderItem => Boolean(item));
+}
+
+function getSavedReaderItemTags(item: SavedReaderItem) {
+  return Array.from(new Set([item.kind, ...item.tags].filter(Boolean)));
 }
 
 function canReadBlogPost(post: BlogPost | undefined, user: User | null) {
@@ -4730,7 +4735,27 @@ function SavedPostsPage({
   onRemoveSavedItem,
   onThemeToggle,
 }: SavedPostsPageProps) {
+  const [selectedSavedTag, setSelectedSavedTag] = useState(ALL_SAVED_POSTS_TAG);
   const savedPostCount = savedItems.length;
+  const savedFilterTags = [
+    ALL_SAVED_POSTS_TAG,
+    ...Array.from(new Set(savedItems.flatMap(getSavedReaderItemTags))).sort((firstTag, secondTag) =>
+      firstTag.localeCompare(secondTag),
+    ),
+  ];
+  const filteredSavedItems =
+    selectedSavedTag === ALL_SAVED_POSTS_TAG
+      ? savedItems
+      : savedItems.filter((item) => getSavedReaderItemTags(item).includes(selectedSavedTag));
+
+  useEffect(() => {
+    if (
+      selectedSavedTag !== ALL_SAVED_POSTS_TAG &&
+      !savedItems.some((item) => getSavedReaderItemTags(item).includes(selectedSavedTag))
+    ) {
+      setSelectedSavedTag(ALL_SAVED_POSTS_TAG);
+    }
+  }, [savedItems, selectedSavedTag]);
 
   return (
     <>
@@ -4810,44 +4835,90 @@ function SavedPostsPage({
               </a>
             </div>
           ) : savedItems.length ? (
-            <div className="saved-posts-list" aria-label="Saved reader items">
-              {savedItems.map((item, index) => (
-                <article className="saved-posts-item" key={item.id}>
-                  <span className="saved-posts-number">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div className="saved-posts-copy">
-                    <div className="blog-meta">
-                      <span>{item.kind}</span>
-                      {item.tags.map((tag) => (
-                        <span key={`${item.id}-${tag}`}>{tag}</span>
-                      ))}
-                      {item.date ? <span>{item.date}</span> : null}
-                    </div>
-                    <h2>{item.title}</h2>
-                    <p>{item.summary}</p>
-                  </div>
-                  <div className="saved-posts-actions">
-                    <a
-                      className="button button-primary"
-                      href={item.href}
-                      target="_blank"
-                      rel="opener"
-                    >
-                      {item.actionLabel}
-                    </a>
+            <>
+              <div className="saved-posts-filter" aria-label="Filter saved posts by tag">
+                <span>Filter</span>
+                <div className="saved-posts-tags">
+                  {savedFilterTags.map((tag) => (
                     <button
-                      className="button button-secondary"
+                      className={`saved-tag-button${selectedSavedTag === tag ? " is-active" : ""}`}
                       type="button"
-                      disabled={savedPostsBusySlug === item.id}
-                      onClick={() => onRemoveSavedItem(item.id)}
+                      aria-pressed={selectedSavedTag === tag}
+                      key={tag}
+                      onClick={() => setSelectedSavedTag(tag)}
                     >
-                      {savedPostsBusySlug === item.id ? "Removing..." : "Remove"}
+                      {tag}
                     </button>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </div>
+
+              {filteredSavedItems.length ? (
+                <div className="saved-posts-list" aria-label="Saved reader items">
+                  {filteredSavedItems.map((item, index) => (
+                    <article className="saved-posts-item" key={item.id}>
+                      <span className="saved-posts-number">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <div className="saved-posts-copy">
+                        <div className="blog-meta saved-posts-meta">
+                          {getSavedReaderItemTags(item).map((tag) => (
+                            <button
+                              className={`saved-inline-tag${
+                                selectedSavedTag === tag ? " is-active" : ""
+                              }`}
+                              type="button"
+                              aria-pressed={selectedSavedTag === tag}
+                              key={`${item.id}-${tag}`}
+                              onClick={() => setSelectedSavedTag(tag)}
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                          {item.date ? <span>{item.date}</span> : null}
+                        </div>
+                        <h2>{item.title}</h2>
+                        <p>{item.summary}</p>
+                      </div>
+                      <div className="saved-posts-actions">
+                        <a
+                          className="button button-primary"
+                          href={item.href}
+                          target="_blank"
+                          rel="opener"
+                        >
+                          {item.actionLabel}
+                        </a>
+                        <button
+                          className="button button-secondary"
+                          type="button"
+                          disabled={savedPostsBusySlug === item.id}
+                          onClick={() => onRemoveSavedItem(item.id)}
+                        >
+                          {savedPostsBusySlug === item.id ? "Removing..." : "Remove"}
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="saved-posts-empty">
+                  <ReaderMenuGlyph type="bookmark" />
+                  <h2>No saved posts under {selectedSavedTag} yet.</h2>
+                  <p>
+                    That tag shelf is still waiting for its first resident. Switch back to All or
+                    save something new from Blogs or AI Radar.
+                  </p>
+                  <button
+                    className="button button-primary"
+                    type="button"
+                    onClick={() => setSelectedSavedTag(ALL_SAVED_POSTS_TAG)}
+                  >
+                    Show all saved posts
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="saved-posts-empty">
               <ReaderMenuGlyph type="bookmark" />

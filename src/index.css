@@ -93,7 +93,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -3824,6 +3824,74 @@ dt {
   font-weight: 800;
 }
 
+.saved-posts-filter {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--chip-border);
+  border-radius: var(--radius-lg);
+  background: var(--panel-soft);
+}
+
+.saved-posts-filter > span {
+  color: var(--ink-soft);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.saved-posts-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.saved-tag-button,
+.saved-inline-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.15rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--muted-button-bg);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.saved-tag-button {
+  padding: 0.52rem 0.72rem;
+}
+
+.saved-inline-tag {
+  padding: 0.28rem 0.55rem;
+}
+
+.saved-tag-button:hover,
+.saved-inline-tag:hover,
+.saved-tag-button.is-active,
+.saved-inline-tag.is-active {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--chip-border));
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.saved-posts-meta {
+  align-items: center;
+}
+
 .saved-posts-list {
   display: grid;
   gap: 0.95rem;
@@ -5563,6 +5631,41 @@ body::before {
     animation-timeline: view();
     animation-range: entry 0% cover 32%;
   }
+}
+
+.motion-reveal,
+.motion-reveal.is-visible {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  filter: none;
+  transition: none;
+  will-change: auto;
+}
+
+:is(
+  .metric-card,
+  .focus-card,
+  .project-tab,
+  .skill-card,
+  .recognition-card,
+  .blog-list-item,
+  .guide-card,
+  .ai-radar-top-card,
+  .ai-radar-item,
+  .collaboration-area-card,
+  .dashboard-stat-card,
+  .dashboard-card,
+  .saved-posts-item,
+  .shelf-plan-card
+).motion-reveal.is-visible:hover {
+  translate: 0 0;
+}
+
+*,
+*::before,
+*::after {
+  animation: none !important;
 }
 
 @media (max-width: 1080px) {
