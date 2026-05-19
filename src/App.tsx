@@ -30,6 +30,14 @@ import {
 } from "./data/portfolio";
 import { auth, googleProvider, isFirebaseConfigured } from "./lib/firebase";
 import {
+  ANALYTICS_EVENT_LABELS,
+  getCachedAnalyticsSnapshot,
+  loadAnalyticsSnapshot,
+  trackAnalyticsEvent,
+  type AnalyticsDashboardEvent,
+  type AnalyticsEventType,
+} from "./lib/analytics";
+import {
   ensureSubscriberProfile,
   getSavedPostSlugs,
   saveReaderPost,
@@ -2579,6 +2587,11 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     }
 
     const response = getAssistantResponse(trimmedValue, Boolean(subscriberUser), isSubscribed);
+    trackAnalyticsEvent("assistant_question", {
+      question: trimmedValue,
+      source: response.mode,
+      title: response.mode === "generic" ? "Generic question" : "Site question",
+    });
     const visitorMessageId = Date.now();
     const assistantMessageId = visitorMessageId + 1;
     const loadingText =
@@ -3386,6 +3399,7 @@ type BlogIndexSectionProps = {
   subscriberUser: User | null;
   visibleBlogPosts: BlogPost[];
   onSelectBlogCategory: (category: string) => void;
+  onTrackBlogOpen: (post: BlogPost, source: string) => void;
   onToggleSavedPost: (post: BlogPost) => void;
 };
 
@@ -3400,6 +3414,7 @@ function BlogIndexSection({
   subscriberUser,
   visibleBlogPosts,
   onSelectBlogCategory,
+  onTrackBlogOpen,
   onToggleSavedPost,
 }: BlogIndexSectionProps) {
   return (
@@ -3452,7 +3467,12 @@ function BlogIndexSection({
                 {featuredBlogIsLocked ? (
                   <span>{featuredBlog.title}</span>
                 ) : (
-                  <a href={getBlogArticleHref(featuredBlog.slug)} target="_blank" rel="opener">
+                  <a
+                    href={getBlogArticleHref(featuredBlog.slug)}
+                    target="_blank"
+                    rel="opener"
+                    onClick={() => onTrackBlogOpen(featuredBlog, "featured_title")}
+                  >
                     {featuredBlog.title}
                   </a>
                 )}
@@ -3484,6 +3504,7 @@ function BlogIndexSection({
                     target="_blank"
                     rel="opener"
                     aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
+                    onClick={() => onTrackBlogOpen(featuredBlog, "featured_cta")}
                   >
                     Read full post
                   </a>
@@ -3538,7 +3559,12 @@ function BlogIndexSection({
                       {isLocked ? (
                         <span>{post.title}</span>
                       ) : (
-                        <a href={getBlogArticleHref(post.slug)} target="_blank" rel="opener">
+                        <a
+                          href={getBlogArticleHref(post.slug)}
+                          target="_blank"
+                          rel="opener"
+                          onClick={() => onTrackBlogOpen(post, "list_title")}
+                        >
                           {post.title}
                         </a>
                       )}
@@ -3563,6 +3589,7 @@ function BlogIndexSection({
                         target="_blank"
                         rel="opener"
                         aria-label={`Read ${post.title}`}
+                        onClick={() => onTrackBlogOpen(post, "list_cta")}
                       >
                         Read full post
                       </a>
@@ -3718,6 +3745,10 @@ function NewsletterCallout({
       setNewsletterMessage(
         payload.message || "You are subscribed. Useful engineering notes will find you.",
       );
+      trackAnalyticsEvent("newsletter_subscribe", {
+        source: payload.alreadySubscribed ? "newsletter_existing_email" : "newsletter_email",
+        title: "Newsletter",
+      });
     } catch (error) {
       setNewsletterStatus("error");
       setNewsletterMessage(
@@ -4110,6 +4141,13 @@ function AiRadarPage({
     { label: "Sources", value: `${new Set(liveSignals.map((signal) => signal.source)).size}` },
     { label: "Mode", value: "Ranked" },
   ];
+  const trackAiRadarOpen = (signal: AiRadarSignal, source: string) => {
+    trackAnalyticsEvent("ai_radar_open", {
+      category: signal.category,
+      source,
+      title: signal.title,
+    });
+  };
 
   useEffect(() => {
     setActiveStoryIndex(0);
@@ -4280,7 +4318,12 @@ function AiRadarPage({
                 </div>
                 <h1>{activeStory.title}</h1>
                 <div className="ai-radar-story-actions">
-                  <a href={activeStory.href} target="_blank" rel="noreferrer">
+                  <a
+                    href={activeStory.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => trackAiRadarOpen(activeStory, "hero_story")}
+                  >
                     Read story
                   </a>
                   <SaveAiRadarButton
@@ -4367,6 +4410,7 @@ function AiRadarPage({
                 target="_blank"
                 rel="noreferrer"
                 style={getAiRadarVisualStyle(signal)}
+                onClick={() => trackAiRadarOpen(signal, "top_card")}
               >
                 <div className="ai-radar-card-art">
                   {signal.imageUrl ? (
@@ -4440,7 +4484,12 @@ function AiRadarPage({
                     subscriberUser={subscriberUser}
                     onToggle={() => onToggleSavedAiRadar(signal)}
                   />
-                  <a href={signal.href} target="_blank" rel="noreferrer">
+                  <a
+                    href={signal.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => trackAiRadarOpen(signal, "feed_item")}
+                  >
                     Open
                   </a>
                 </div>
@@ -4699,6 +4748,19 @@ function BlogArticlePage({
   onToggleSavedPost,
   onThemeToggle,
 }: BlogArticlePageProps) {
+  useEffect(() => {
+    if (!post || isAccessChecking || isLocked) {
+      return;
+    }
+
+    trackAnalyticsEvent("blog_open", {
+      category: post.category,
+      slug: post.slug,
+      source: "article_page",
+      title: post.title,
+    });
+  }, [isAccessChecking, isLocked, post]);
+
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -5164,8 +5226,85 @@ type DashboardPageProps = {
   onThemeToggle: () => void;
 };
 
+const dashboardSignalMetrics: Array<{
+  detail: string;
+  tone: string;
+  type: AnalyticsEventType;
+}> = [
+  {
+    detail: "Every major page visit.",
+    tone: "is-rust",
+    type: "page_view",
+  },
+  {
+    detail: "Article reads and blog clicks.",
+    tone: "is-blue",
+    type: "blog_open",
+  },
+  {
+    detail: "Reader bookmarks.",
+    tone: "is-gold",
+    type: "saved_post",
+  },
+  {
+    detail: "External AI story opens.",
+    tone: "is-green",
+    type: "ai_radar_open",
+  },
+  {
+    detail: "New update subscribers.",
+    tone: "is-violet",
+    type: "newsletter_subscribe",
+  },
+  {
+    detail: "Questions asked to Sai's bot.",
+    tone: "is-slate",
+    type: "assistant_question",
+  },
+];
+
+function formatAnalyticsSignalTime(value?: string) {
+  if (!value) {
+    return "Just now";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Recently";
+  }
+
+  const elapsedMs = Date.now() - date.getTime();
+  const elapsedMinutes = Math.max(0, Math.floor(elapsedMs / 60000));
+
+  if (elapsedMinutes < 1) {
+    return "Just now";
+  }
+
+  if (elapsedMinutes < 60) {
+    return `${elapsedMinutes}m ago`;
+  }
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+
+  if (elapsedHours < 24) {
+    return `${elapsedHours}h ago`;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
+function getAnalyticsEventTitle(event: AnalyticsDashboardEvent) {
+  return event.title || event.path || ANALYTICS_EVENT_LABELS[event.type];
+}
+
 function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
   const topics = getDashboardTopics(blogPosts);
+  const [analyticsSnapshot, setAnalyticsSnapshot] = useState(getCachedAnalyticsSnapshot);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const totalBlogCount = Math.max(blogPosts.length, 1);
   const totalReadMinutes = blogPosts.reduce((total, post) => total + getReadMinutes(post.readTime), 0);
   const averageReadMinutes = blogPosts.length ? Math.round(totalReadMinutes / blogPosts.length) : 0;
@@ -5183,6 +5322,38 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
     .sort((left, right) => right.contentScore - left.contentScore)
     .slice(0, 8);
   const maxArticleScore = Math.max(...topArticles.map((post) => post.contentScore), 1);
+  const totalTrackedSignals = dashboardSignalMetrics.reduce(
+    (total, metric) => total + analyticsSnapshot.counters[metric.type],
+    0,
+  );
+  const latestAnalyticsEvents = analyticsSnapshot.events.slice(0, 6);
+  const analyticsSourceText = analyticsSnapshot.configured
+    ? "Synced from Firestore"
+    : analyticsSnapshot.events.length
+      ? "Local preview until cloud signals connect"
+      : "Waiting for the first visitor signals";
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    const refreshAnalytics = async () => {
+      const nextSnapshot = await loadAnalyticsSnapshot();
+
+      if (isCurrent) {
+        setAnalyticsSnapshot(nextSnapshot);
+        setAnalyticsLoading(false);
+      }
+    };
+
+    refreshAnalytics();
+
+    const intervalId = window.setInterval(refreshAnalytics, 45000);
+
+    return () => {
+      isCurrent = false;
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <>
@@ -5258,6 +5429,60 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
               Get updates
             </a>
           </div>
+
+          <section className="dashboard-signal-panel" aria-label="Live portfolio analytics">
+            <div className="dashboard-signal-head">
+              <div>
+                <p className="eyebrow">Live Site Signals</p>
+                <h2>What visitors actually use.</h2>
+                <p>
+                  A clean interaction layer for page views, article opens, saved posts, AI Radar
+                  reads, newsletter joins, and assistant questions.
+                </p>
+              </div>
+              <div className="dashboard-signal-total">
+                <span>Tracked signals</span>
+                <strong>{totalTrackedSignals}</strong>
+                <small>{analyticsLoading ? "Refreshing..." : analyticsSourceText}</small>
+              </div>
+            </div>
+
+            <div className="dashboard-signal-grid">
+              {dashboardSignalMetrics.map((metric) => (
+                <article className={`dashboard-signal-card ${metric.tone}`} key={metric.type}>
+                  <span>{ANALYTICS_EVENT_LABELS[metric.type]}</span>
+                  <strong>{analyticsSnapshot.counters[metric.type]}</strong>
+                  <small>{metric.detail}</small>
+                </article>
+              ))}
+            </div>
+
+            <div className="dashboard-signal-stream">
+              <div className="dashboard-signal-stream-heading">
+                <h3>Recent activity</h3>
+                <span>{analyticsSnapshot.configured ? "Live feed" : "Preview feed"}</span>
+              </div>
+              {latestAnalyticsEvents.length ? (
+                <div className="dashboard-signal-events">
+                  {latestAnalyticsEvents.map((event, index) => (
+                    <article
+                      className="dashboard-signal-event"
+                      key={`${event.type}-${event.createdAt ?? index}-${event.title ?? event.path ?? index}`}
+                    >
+                      <span>{event.label}</span>
+                      <strong>{getAnalyticsEventTitle(event)}</strong>
+                      <small>{formatAnalyticsSignalTime(event.createdAt)}</small>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="dashboard-signal-empty">
+                  Signals will appear here as visitors read, save, subscribe, and ask Sai's bot
+                  questions.
+                </p>
+              )}
+            </div>
+          </section>
 
           <div className="dashboard-stat-grid" aria-label="Dashboard summary">
             <article className="dashboard-stat-card">
@@ -5363,6 +5588,14 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                   key={post.slug}
                   target="_blank"
                   rel="opener"
+                  onClick={() =>
+                    trackAnalyticsEvent("blog_open", {
+                      category: post.category,
+                      slug: post.slug,
+                      source: "dashboard_depth",
+                      title: post.title,
+                    })
+                  }
                   style={
                     {
                       "--article-bar": `${Math.max((post.contentScore / maxArticleScore) * 100, 10)}%`,
@@ -5435,7 +5668,19 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                     <tr key={post.slug}>
                       <td>
                         <span>{index + 1}</span>
-                        <a href={getBlogArticleHref(post.slug)} target="_blank" rel="opener">
+                        <a
+                          href={getBlogArticleHref(post.slug)}
+                          target="_blank"
+                          rel="opener"
+                          onClick={() =>
+                            trackAnalyticsEvent("blog_open", {
+                              category: post.category,
+                              slug: post.slug,
+                              source: "dashboard_table",
+                              title: post.title,
+                            })
+                          }
+                        >
                           {post.title}
                         </a>
                       </td>
@@ -5843,6 +6088,31 @@ function App() {
   const isContactPage = isContactPathname();
   const isPortfolioPage = isPortfolioPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
+  const analyticsPageTitle = standaloneBlog
+    ? `Blog: ${standaloneBlog.title}`
+    : isSavedPostsPage
+      ? "Saved Posts"
+      : isStartPage
+        ? "Start Here"
+        : isWhatsNewPage
+          ? "What's New"
+          : isAiRadarPage
+            ? "AI Radar"
+            : isShelfPage
+              ? "Sai's Shelf"
+              : isDashboardPage
+                ? "Dashboard"
+                : isBlogsPage
+                  ? "Blogs"
+                  : isContactPage
+                    ? "Work With Me"
+                    : isSignInPage
+                      ? "Sign In"
+                      : isAdminUpdatePage
+                        ? "Admin Update"
+                        : isPortfolioPage
+                          ? "Portfolio"
+                          : "Home";
   const currentNavLinks = isPortfolioPage ? portfolioNavLinks : mainNavLinks;
   const signInReturnBlogSlug = getSignInReturnBlogSlug();
   const signInReturnTarget = getSignInReturnTarget();
@@ -5858,6 +6128,14 @@ function App() {
   const isPostSaved = (slug: string) => savedPostSlugs.includes(slug);
   const isAiRadarSaved = (signal: AiRadarSignal) =>
     savedPostSlugs.includes(getAiRadarSavedId(signal));
+  const trackBlogOpen = (post: BlogPost, source: string) => {
+    trackAnalyticsEvent("blog_open", {
+      category: post.category,
+      slug: post.slug,
+      source,
+      title: post.title,
+    });
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -6054,6 +6332,13 @@ function App() {
       // Ignore storage errors so the app still works in restricted environments.
     }
   }, [theme]);
+
+  useEffect(() => {
+    trackAnalyticsEvent("page_view", {
+      source: "route",
+      title: analyticsPageTitle,
+    });
+  }, [analyticsPageTitle]);
 
   useEffect(() => {
     if (!auth) {
@@ -6346,12 +6631,24 @@ function App() {
       if (wasSaved) {
         updateSavedPostSlugs((current) => current.filter((slug) => slug !== post.slug));
         setSubscriptionMessage("Removed from saved posts.");
+        trackAnalyticsEvent("unsaved_post", {
+          category: post.category,
+          slug: post.slug,
+          source: "blog",
+          title: post.title,
+        });
         await unsaveReaderPost(subscriberUser.uid, post.slug);
       } else {
         updateSavedPostSlugs((current) =>
           current.includes(post.slug) ? current : [...current, post.slug],
         );
         setSubscriptionMessage("Saved to your reader menu.");
+        trackAnalyticsEvent("saved_post", {
+          category: post.category,
+          slug: post.slug,
+          source: "blog",
+          title: post.title,
+        });
         await saveReaderPost(subscriberUser, post.slug);
       }
     } catch (error) {
@@ -6400,9 +6697,21 @@ function App() {
     try {
       if (wasSaved) {
         setSubscriptionMessage("Removed from saved posts.");
+        trackAnalyticsEvent("unsaved_post", {
+          category: signal.category,
+          slug: savedId,
+          source: "ai_radar",
+          title: signal.title,
+        });
         await unsaveReaderPost(subscriberUser.uid, savedId);
       } else {
         setSubscriptionMessage("Saved to your reader menu.");
+        trackAnalyticsEvent("saved_post", {
+          category: signal.category,
+          slug: savedId,
+          source: "ai_radar",
+          title: signal.title,
+        });
         await saveReaderPost(subscriberUser, savedId);
       }
     } catch (error) {
@@ -6426,6 +6735,7 @@ function App() {
 
     const previousSavedPostSlugs = savedPostSlugs;
     const previousSavedAiRadarItems = savedAiRadarItems;
+    const removedSavedItem = savedReaderItems.find((item) => item.id === id);
     const nextSavedPostSlugs = previousSavedPostSlugs.filter((slug) => slug !== id);
     const nextSavedAiRadarItems = isSavedAiRadarId(id)
       ? previousSavedAiRadarItems.filter((item) => item.id !== id)
@@ -6438,6 +6748,12 @@ function App() {
     cacheSavedAiRadarItems(subscriberUser.uid, nextSavedAiRadarItems);
 
     try {
+      trackAnalyticsEvent("unsaved_post", {
+        category: removedSavedItem?.tags[0],
+        slug: id,
+        source: isSavedAiRadarId(id) ? "ai_radar" : "saved_posts",
+        title: removedSavedItem?.title,
+      });
       await unsaveReaderPost(subscriberUser.uid, id);
       setSubscriptionMessage("Removed from saved posts.");
     } catch (error) {
@@ -6466,6 +6782,10 @@ function App() {
       setIsSubscribed(true);
       setSubscriberView(getSubscribedSubscriberView(subscriberView));
       setSubscriptionMessage("You are subscribed to portfolio and blog updates.");
+      trackAnalyticsEvent("newsletter_subscribe", {
+        source: "signed_in_reader",
+        title: "Portfolio updates",
+      });
     } catch (error) {
       setSubscriptionError(getSubscriptionErrorMessage(error));
     } finally {
@@ -6637,6 +6957,7 @@ function App() {
         theme={theme}
         visibleBlogPosts={visibleBlogPosts}
         onSelectBlogCategory={selectBlogCategory}
+        onTrackBlogOpen={trackBlogOpen}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onToggleSavedPost={handleToggleSavedPost}
       />,
@@ -7047,6 +7368,7 @@ function App() {
             subscriberUser={subscriberUser}
             visibleBlogPosts={visibleBlogPosts}
             onSelectBlogCategory={selectBlogCategory}
+            onTrackBlogOpen={trackBlogOpen}
             onToggleSavedPost={handleToggleSavedPost}
           />
         ) : null}
