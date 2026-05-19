@@ -191,16 +191,80 @@ function getBlogPublishedIsoDate(publishedAt: string) {
   return `${match[2]}-${String(monthIndex + 1).padStart(2, "0")}-01`;
 }
 
-function getBlogWordCount(post: BlogPost) {
-  return post.sections
-    .flatMap((section) => [
+function getBlogReadableText(post: BlogPost) {
+  return [
+    post.title,
+    post.category,
+    post.summary,
+    ...post.tags,
+    ...post.takeaways,
+    ...post.stats.flatMap((stat) => [stat.label, stat.value]),
+    ...post.sections.flatMap((section) => [
       section.heading,
       ...section.paragraphs,
       ...(section.bullets ?? []),
-    ])
-    .join(" ")
+    ]),
+  ].join(" ");
+}
+
+function getBlogWordCount(post: BlogPost) {
+  return getBlogReadableText(post)
     .split(/\s+/)
     .filter(Boolean).length;
+}
+
+function getEstimatedReadMinutes(post: BlogPost) {
+  return Math.max(1, Math.ceil(getBlogWordCount(post) / 210));
+}
+
+function getEstimatedReadTimeLabel(post: BlogPost) {
+  return `${getEstimatedReadMinutes(post)} min read`;
+}
+
+function getBlogPostTags(post: BlogPost) {
+  return Array.from(new Set([post.category, ...post.tags].filter(Boolean)));
+}
+
+function getRelatedBlogPosts(currentPost: BlogPost, posts: BlogPost[], limit = 3) {
+  const currentTags = new Set(getBlogPostTags(currentPost).map((tag) => tag.toLowerCase()));
+
+  return posts
+    .filter((post) => post.slug !== currentPost.slug)
+    .map((post) => {
+      const relatedTags = getBlogPostTags(post).filter((tag) =>
+        currentTags.has(tag.toLowerCase()),
+      );
+      const categoryScore = post.category === currentPost.category ? 4 : 0;
+      const tagScore = relatedTags.length * 2;
+
+      return {
+        post,
+        relatedTags,
+        score: categoryScore + tagScore,
+      };
+    })
+    .sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+
+      return getEstimatedReadMinutes(left.post) - getEstimatedReadMinutes(right.post);
+    })
+    .slice(0, limit);
+}
+
+function getBlogCategorySummary(posts: BlogPost[]) {
+  return Array.from(
+    posts.reduce((categoryMap, post) => {
+      const currentCount = categoryMap.get(post.category) ?? 0;
+      categoryMap.set(post.category, currentCount + 1);
+
+      return categoryMap;
+    }, new Map<string, number>()),
+  ).map(([category, count]) => ({
+    category,
+    count,
+  }));
 }
 
 function getPersonStructuredData() {
@@ -303,7 +367,7 @@ function getBlogArticleStructuredData(post: BlogPost) {
     headline: post.title,
     image: getAbsoluteSiteUrl(BLOG_SEO_IMAGE_PATH),
     inLanguage: "en",
-    keywords: [post.category, ...post.takeaways].join(", "),
+    keywords: getBlogPostTags(post).join(", "),
     mainEntityOfPage: articleUrl,
     publisher: {
       "@id": `${SITE_URL}/#person`,
@@ -980,7 +1044,7 @@ function buildSavedReaderItems(
           id: post.slug,
           kind: "Blog",
           summary: post.summary,
-          tags: [post.category],
+          tags: getBlogPostTags(post),
           title: post.title,
         };
       }
@@ -1247,10 +1311,6 @@ function getDashboardActivityBars(updates: SiteUpdate[], days = 30) {
   });
 }
 
-function getReadMinutes(readTime: string) {
-  return Number.parseInt(readTime, 10) || 0;
-}
-
 const dashboardTopicColors = ["#e85b3f", "#f28443", "#1fb58f", "#e2b43c", "#7c3fe0", "#5f7ce5"];
 
 function getDashboardTopics(posts: BlogPost[]) {
@@ -1266,7 +1326,7 @@ function getDashboardTopics(posts: BlogPost[]) {
     topicMap.set(post.category, {
       ...current,
       posts: current.posts + 1,
-      readMinutes: current.readMinutes + getReadMinutes(post.readTime),
+      readMinutes: current.readMinutes + getEstimatedReadMinutes(post),
     });
   });
 
@@ -1745,6 +1805,100 @@ function BlogLockNote() {
       </span>
       <span>{LOCKED_BLOG_CAPTION}</span>
     </p>
+  );
+}
+
+function BlogTagList({ post }: { post: BlogPost }) {
+  return (
+    <div className="blog-tag-list" aria-label={`${post.title} tags`}>
+      {getBlogPostTags(post).map((tag) => (
+        <span key={`${post.slug}-${tag}`}>{tag}</span>
+      ))}
+    </div>
+  );
+}
+
+function BlogMetaLine({ accessLabel, post }: { accessLabel?: string; post: BlogPost }) {
+  return (
+    <div className="blog-meta">
+      <span>{post.category}</span>
+      <span>{post.publishedAt}</span>
+      <span>{getEstimatedReadTimeLabel(post)}</span>
+      {accessLabel ? <span>{accessLabel}</span> : null}
+    </div>
+  );
+}
+
+function ReadingProgressBar({ progress }: { progress: number }) {
+  return (
+    <div
+      className="reading-progress-track"
+      aria-label={`Reading progress ${Math.round(progress)} percent`}
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress)}
+    >
+      <span style={{ "--reading-progress": `${progress}%` } as CSSProperties} />
+    </div>
+  );
+}
+
+type RelatedPostsProps = {
+  currentPost: BlogPost;
+  subscriberUser: User | null;
+  onTrackBlogOpen: (post: BlogPost, source: string) => void;
+};
+
+function RelatedPosts({ currentPost, subscriberUser, onTrackBlogOpen }: RelatedPostsProps) {
+  const relatedPosts = getRelatedBlogPosts(currentPost, blogPosts);
+
+  if (!relatedPosts.length) {
+    return null;
+  }
+
+  return (
+    <section className="related-posts" aria-label="Related posts">
+      <div className="related-posts-heading">
+        <p className="eyebrow">Read Next</p>
+        <h2>Related engineering notes.</h2>
+        <p>
+          Curated from shared tags, topic lane, and how close the systems problem feels to this
+          article.
+        </p>
+      </div>
+
+      <div className="related-post-grid">
+        {relatedPosts.map(({ post, relatedTags }) => {
+          const isRelatedPostLocked = !canReadBlogPost(post, subscriberUser);
+          const href = isRelatedPostLocked ? getSignInHref(post.slug) : getBlogArticleHref(post.slug);
+
+          return (
+            <article
+              className={`related-post-card${isRelatedPostLocked ? " is-locked" : ""}`}
+              key={post.slug}
+            >
+              <BlogMetaLine accessLabel={isRelatedPostLocked ? "Locked" : "Open"} post={post} />
+              <h3>{post.title}</h3>
+              <p>{post.summary}</p>
+              <div className="related-post-tags">
+                {(relatedTags.length ? relatedTags : getBlogPostTags(post).slice(0, 2)).map((tag) => (
+                  <span key={`${post.slug}-related-${tag}`}>{tag}</span>
+                ))}
+              </div>
+              <a
+                href={href}
+                target="_blank"
+                rel="opener"
+                onClick={() => onTrackBlogOpen(post, "related_post")}
+              >
+                {isRelatedPostLocked ? "Unlock article" : "Read next"}
+              </a>
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -2630,11 +2784,13 @@ function getAssistantKnowledgeEntries(
           : `${post.title} is in the members-only lab. Sign in to unlock the full article; preview: ${post.summary}`,
         details: canReadPost
           ? [
-              `Category: ${post.category}. ${post.readTime}. Published ${post.publishedAt}.`,
+              `Category: ${post.category}. ${getEstimatedReadTimeLabel(post)}. Published ${post.publishedAt}.`,
               `Stats: ${post.stats.map((stat) => `${stat.label} ${stat.value}`).join(", ")}`,
               ...post.takeaways.slice(0, 2),
             ]
-          : [`Category: ${post.category}. ${post.readTime}. Sign in required for the full read.`],
+          : [
+              `Category: ${post.category}. ${getEstimatedReadTimeLabel(post)}. Sign in required for the full read.`,
+            ],
         keywords: [
           "blog",
           "article",
@@ -2643,6 +2799,7 @@ function getAssistantKnowledgeEntries(
           post.title,
           post.category,
           post.summary,
+          ...post.tags,
           ...post.takeaways,
           ...post.sections.map((section) => section.heading),
         ],
@@ -3873,6 +4030,8 @@ function BlogIndexSection({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: BlogIndexSectionProps) {
+  const categorySummary = getBlogCategorySummary(visibleBlogPosts);
+
   return (
     <section className="section shell blog-section" id="blogs">
       <SectionHeading
@@ -3904,6 +4063,15 @@ function BlogIndexSection({
         </div>
       </div>
 
+      <div className="blog-category-summary" aria-label="Visible blog categories">
+        {categorySummary.map((item) => (
+          <span key={item.category}>
+            <strong>{item.category}</strong>
+            {item.count} {item.count === 1 ? "post" : "posts"}
+          </span>
+        ))}
+      </div>
+
       <div className="blog-index">
         {featuredBlog ? (
           <article
@@ -3914,11 +4082,10 @@ function BlogIndexSection({
               <p className="eyebrow">
                 {featuredBlogIsLocked ? "Locked Article" : "Featured Article"}
               </p>
-              <div className="blog-meta">
-                <span>{featuredBlog.category}</span>
-                <span>{featuredBlog.publishedAt}</span>
-                <span>{featuredBlog.readTime}</span>
-              </div>
+              <BlogMetaLine
+                accessLabel={featuredBlogIsLocked ? "Members only" : "Unlocked"}
+                post={featuredBlog}
+              />
               <h3>
                 {featuredBlogIsLocked ? (
                   <span>{featuredBlog.title}</span>
@@ -3934,6 +4101,7 @@ function BlogIndexSection({
                 )}
               </h3>
               <p>{featuredBlog.summary}</p>
+              <BlogTagList post={featuredBlog} />
               {featuredBlogIsLocked ? (
                 <BlogLockNote />
               ) : (
@@ -4006,11 +4174,7 @@ function BlogIndexSection({
                 >
                   <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
                   <div className="blog-list-copy">
-                    <div className="blog-meta">
-                      <span>{post.category}</span>
-                      <span>{post.publishedAt}</span>
-                      <span>{post.readTime}</span>
-                    </div>
+                    <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
                     <h3>
                       {isLocked ? (
                         <span>{post.title}</span>
@@ -4026,6 +4190,7 @@ function BlogIndexSection({
                       )}
                     </h3>
                     <p>{post.summary}</p>
+                    <BlogTagList post={post} />
                     {isLocked ? <BlogLockNote /> : null}
                   </div>
                   {isLocked ? (
@@ -5189,6 +5354,7 @@ type BlogArticlePageProps = {
   savedPostsBusySlug: string;
   subscriberUser: User | null;
   theme: Theme;
+  onTrackBlogOpen: (post: BlogPost, source: string) => void;
   onToggleSavedPost: (post: BlogPost) => void;
   onThemeToggle: () => void;
 };
@@ -5201,9 +5367,13 @@ function BlogArticlePage({
   savedPostsBusySlug,
   subscriberUser,
   theme,
+  onTrackBlogOpen,
   onToggleSavedPost,
   onThemeToggle,
 }: BlogArticlePageProps) {
+  const [readingProgress, setReadingProgress] = useState(0);
+  const articleRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!post || isAccessChecking || isLocked) {
       return;
@@ -5215,6 +5385,49 @@ function BlogArticlePage({
       source: "article_page",
       title: post.title,
     });
+  }, [isAccessChecking, isLocked, post]);
+
+  useEffect(() => {
+    if (!post || isAccessChecking || isLocked) {
+      setReadingProgress(0);
+      return undefined;
+    }
+
+    let frameId = 0;
+
+    const updateReadingProgress = () => {
+      const article = articleRef.current;
+
+      if (!article) {
+        setReadingProgress(0);
+        return;
+      }
+
+      const rect = article.getBoundingClientRect();
+      const articleTop = window.scrollY + rect.top;
+      const articleHeight = article.offsetHeight;
+      const readableDistance = Math.max(articleHeight - window.innerHeight * 0.55, 1);
+      const rawProgress =
+        ((window.scrollY - articleTop + window.innerHeight * 0.22) / readableDistance) * 100;
+      const nextProgress = Math.min(Math.max(rawProgress, 0), 100);
+
+      setReadingProgress(nextProgress);
+    };
+
+    const scheduleReadingProgressUpdate = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(updateReadingProgress);
+    };
+
+    updateReadingProgress();
+    window.addEventListener("scroll", scheduleReadingProgressUpdate, { passive: true });
+    window.addEventListener("resize", scheduleReadingProgressUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", scheduleReadingProgressUpdate);
+      window.removeEventListener("resize", scheduleReadingProgressUpdate);
+    };
   }, [isAccessChecking, isLocked, post]);
 
   return (
@@ -5267,6 +5480,9 @@ function BlogArticlePage({
             </button>
           </div>
         </div>
+        {post && !isAccessChecking && !isLocked ? (
+          <ReadingProgressBar progress={readingProgress} />
+        ) : null}
       </header>
 
       <main className="article-page shell" id="main-content">
@@ -5299,31 +5515,55 @@ function BlogArticlePage({
               </span>
               <h1>{post.title}</h1>
             </div>
-            <div className="blog-meta">
-              <span>{post.category}</span>
-              <span>{post.publishedAt}</span>
-              <span>{post.readTime}</span>
-            </div>
+            <BlogMetaLine accessLabel="Members only" post={post} />
             <p>{post.summary}</p>
+            <BlogTagList post={post} />
             <BlogLockNote />
-            <a
-              className="button button-primary"
-              href={getSignInHref(post.slug)}
-            >
-              Sign in to unlock
-            </a>
+            <div className="standalone-lock-preview" aria-label="Locked article preview">
+              <span>
+                <strong>{getEstimatedReadTimeLabel(post)}</strong>
+                Full read time
+              </span>
+              <span>
+                <strong>{post.sections.length}</strong>
+                Structured sections
+              </span>
+              <span>
+                <strong>{post.takeaways.length}</strong>
+                Key takeaways
+              </span>
+            </div>
+            <div className="standalone-lock-actions">
+              <a className="button button-primary" href={getSignInHref(post.slug)}>
+                Sign in to unlock
+              </a>
+              <a className="button button-secondary" href="/blogs">
+                Browse all posts
+              </a>
+            </div>
           </section>
         ) : post ? (
-          <article className="standalone-blog">
+          <article className="standalone-blog" ref={articleRef}>
             <div className="standalone-blog-hero">
-              <p className="eyebrow">Standalone Article</p>
+              <p className="eyebrow">Unlocked Article</p>
               <h1>{post.title}</h1>
-              <div className="blog-meta">
-                <span>{post.category}</span>
-                <span>{post.publishedAt}</span>
-                <span>{post.readTime}</span>
-              </div>
+              <BlogMetaLine accessLabel="Reader view" post={post} />
               <p>{post.summary}</p>
+              <BlogTagList post={post} />
+              <div className="article-reader-panel" aria-label="Article reader details">
+                <span>
+                  <strong>{getBlogWordCount(post).toLocaleString()}</strong>
+                  Words
+                </span>
+                <span>
+                  <strong>{post.sections.length}</strong>
+                  Sections
+                </span>
+                <span>
+                  <strong>{Math.round(readingProgress)}%</strong>
+                  Progress
+                </span>
+              </div>
               <div className="blog-action-row">
                 <SavePostButton
                   isBusy={savedPostsBusySlug === post.slug}
@@ -5336,6 +5576,11 @@ function BlogArticlePage({
             </div>
 
             <BlogArticleBody post={post} />
+            <RelatedPosts
+              currentPost={post}
+              subscriberUser={subscriberUser}
+              onTrackBlogOpen={onTrackBlogOpen}
+            />
           </article>
         ) : (
           <section className="standalone-blog standalone-blog-empty">
@@ -5762,7 +6007,10 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
   const [analyticsSnapshot, setAnalyticsSnapshot] = useState(getCachedAnalyticsSnapshot);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const totalBlogCount = Math.max(blogPosts.length, 1);
-  const totalReadMinutes = blogPosts.reduce((total, post) => total + getReadMinutes(post.readTime), 0);
+  const totalReadMinutes = blogPosts.reduce(
+    (total, post) => total + getEstimatedReadMinutes(post),
+    0,
+  );
   const averageReadMinutes = blogPosts.length ? Math.round(totalReadMinutes / blogPosts.length) : 0;
   const publicFeatureCount = blogPosts.some((post) => post.slug === PUBLIC_BLOG_SLUG) ? 1 : 0;
   const maxTopicScore = Math.max(...topics.map((topic) => topic.score), 1);
@@ -5773,7 +6021,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
     .map((post) => ({
       ...post,
       contentScore:
-        getReadMinutes(post.readTime) * 8 + post.sections.length * 6 + post.takeaways.length * 4,
+        getEstimatedReadMinutes(post) * 8 + post.sections.length * 6 + post.takeaways.length * 4,
     }))
     .sort((left, right) => right.contentScore - left.contentScore)
     .slice(0, 8);
@@ -6141,7 +6389,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                         </a>
                       </td>
                       <td>{post.category}</td>
-                      <td>{post.readTime}</td>
+                      <td>{getEstimatedReadTimeLabel(post)}</td>
                       <td>{post.stats[0]?.value ?? "Ready"}</td>
                     </tr>
                   ))}
@@ -7322,6 +7570,7 @@ function App() {
         savedPostsBusySlug={savedPostsBusySlug}
         subscriberUser={subscriberUser}
         theme={theme}
+        onTrackBlogOpen={trackBlogOpen}
         onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,

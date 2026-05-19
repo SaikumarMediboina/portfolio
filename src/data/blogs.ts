@@ -14,8 +14,8 @@ export type BlogPost = {
   title: string;
   category: string;
   publishedAt: string;
-  readTime: string;
   summary: string;
+  tags: string[];
   stats: BlogStat[];
   takeaways: string[];
   sections: BlogSection[];
@@ -27,9 +27,9 @@ export const blogPosts: BlogPost[] = [
     title: "Cutting batch screening latency by 97 percent",
     category: "Performance",
     publishedAt: "April 2026",
-    readTime: "5 min read",
     summary:
       "A structured breakdown of how a slow batch screening workflow was diagnosed, optimized, and reduced from hours to minutes.",
+    tags: ["Batch Processing", "Database Indexing", "N+1 Queries", "Parallel Processing"],
     stats: [
       { label: "Latency reduction", value: "97%" },
       { label: "Before", value: "2h 5m" },
@@ -98,9 +98,9 @@ export const blogPosts: BlogPost[] = [
     title: "Migrating search-heavy screening from OpenSearch to Oracle Text",
     category: "Architecture",
     publishedAt: "April 2026",
-    readTime: "6 min read",
     summary:
       "A case study on moving matching closer to the data layer to improve scale, reduce operational overhead, and preserve screening reliability.",
+    tags: ["Oracle Text", "OpenSearch", "Search Migration", "Screening Systems"],
     stats: [
       { label: "Search layer", value: "Oracle Text" },
       { label: "Throughput", value: "100+ TPS" },
@@ -169,9 +169,9 @@ export const blogPosts: BlogPost[] = [
     title: "Blending AI relevance, semantic search, and LLM workflow ideas",
     category: "AI and LLM",
     publishedAt: "March 2026",
-    readTime: "4 min read",
     summary:
       "A practical view of where AI relevance, semantic retrieval, and LLM-assisted workflows fit inside enterprise backend systems.",
+    tags: ["Semantic Search", "AI Relevance", "LLM Workflows", "Hybrid Matching"],
     stats: [
       { label: "Focus", value: "AI relevance" },
       { label: "Search", value: "Semantic" },
@@ -240,9 +240,9 @@ export const blogPosts: BlogPost[] = [
     title: "Improving backend throughput with database, cache, and async patterns",
     category: "Performance",
     publishedAt: "May 2026",
-    readTime: "5 min read",
     summary:
       "A professional breakdown of how repeated data access, cache overhead, and blocking writes were reduced through database-side processing, selective caching, and asynchronous execution.",
+    tags: ["Async Processing", "Caching", "Stored Procedures", "Backend Throughput"],
     stats: [
       { label: "Client pacing", value: "~320ms" },
       { label: "Focus", value: "Throughput" },

@@ -90,16 +90,30 @@ function getBlogPublishedIsoDate(publishedAt) {
   return `${match[2]}-${String(monthIndex + 1).padStart(2, "0")}-01`;
 }
 
-function getBlogWordCount(post) {
-  return post.sections
-    .flatMap((section) => [
+function getBlogReadableText(post) {
+  return [
+    post.title,
+    post.category,
+    post.summary,
+    ...(post.tags ?? []),
+    ...post.takeaways,
+    ...post.stats.flatMap((stat) => [stat.label, stat.value]),
+    ...post.sections.flatMap((section) => [
       section.heading,
       ...section.paragraphs,
       ...(section.bullets ?? []),
-    ])
-    .join(" ")
+    ]),
+  ].join(" ");
+}
+
+function getBlogWordCount(post) {
+  return getBlogReadableText(post)
     .split(/\s+/)
     .filter(Boolean).length;
+}
+
+function getBlogPostTags(post) {
+  return Array.from(new Set([post.category, ...(post.tags ?? [])].filter(Boolean)));
 }
 
 function getPersonStructuredData() {
@@ -202,7 +216,7 @@ function getBlogArticleStructuredData(post) {
     headline: post.title,
     image: getAbsoluteSiteUrl(BLOG_SEO_IMAGE_PATH),
     inLanguage: "en",
-    keywords: [post.category, ...post.takeaways].join(", "),
+    keywords: getBlogPostTags(post).join(", "),
     mainEntityOfPage: articleUrl,
     publisher: {
       "@id": `${SITE_URL}/#person`,
