@@ -1347,6 +1347,7 @@ const assistantStopWords = new Set([
   "give",
   "has",
   "have",
+  "he",
   "how",
   "i",
   "in",
@@ -1395,6 +1396,7 @@ const assistantSynonyms: Record<string, string[]> = {
   education: ["college", "degree", "cgpa", "mtech", "btech"],
   email: ["contact", "mail", "connect"],
   experience: ["role", "oracle", "work", "career"],
+  exp: ["experience", "role", "oracle", "work", "career"],
   llm: ["ai", "semantic", "prompt", "mcp", "model"],
   mail: ["email", "contact"],
   mcp: ["model", "context", "protocol", "anthropic", "certification"],
@@ -1702,6 +1704,18 @@ function getAssistantSearchText(entry: AssistantKnowledgeEntry) {
       entry.category,
     ].join(" "),
   );
+}
+
+function hasAssistantToken(text: string, token: string) {
+  if (!token) {
+    return false;
+  }
+
+  if (token.length <= 3) {
+    return text.split(" ").includes(token);
+  }
+
+  return text.includes(token);
 }
 
 function getUniqueAssistantLinks(links: AssistantLink[]) {
@@ -2211,15 +2225,15 @@ function scoreAssistantEntry(
   }
 
   tokens.forEach((token) => {
-    if (titleText.includes(token)) {
+    if (hasAssistantToken(titleText, token)) {
       score += 5;
     }
 
-    if (keywordText.includes(token)) {
+    if (hasAssistantToken(keywordText, token)) {
       score += 3;
     }
 
-    if (searchText.includes(token)) {
+    if (hasAssistantToken(searchText, token)) {
       score += 1;
     }
   });
@@ -2287,6 +2301,100 @@ function formatAssistantEntryResponse(
   };
 }
 
+function parseAssistantMonthYear(value: string) {
+  const match = value.match(
+    /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(\d{4})\b/i,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const monthIndex = [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
+  ].indexOf(match[1].slice(0, 3).toLowerCase());
+
+  if (monthIndex < 0) {
+    return null;
+  }
+
+  return new Date(Number(match[2]), monthIndex, 1);
+}
+
+function getProfessionalExperienceDurationText() {
+  const rolePeriods = experience.flatMap((entry) => entry.roles.map((role) => role.period));
+  const startDates = rolePeriods
+    .map((period) => parseAssistantMonthYear(period.split("-")[0] ?? ""))
+    .filter((date): date is Date => Boolean(date));
+  const earliestStart = startDates.sort((left, right) => left.getTime() - right.getTime())[0];
+
+  if (!earliestStart) {
+    return "Sai's professional experience is listed in the Experience section.";
+  }
+
+  const now = new Date();
+  const totalMonths = Math.max(
+    0,
+    (now.getFullYear() - earliestStart.getFullYear()) * 12 +
+      (now.getMonth() - earliestStart.getMonth()),
+  );
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  const yearText = years ? `${years} ${years === 1 ? "year" : "years"}` : "";
+  const monthText = months ? `${months} ${months === 1 ? "month" : "months"}` : "";
+
+  return [yearText, monthText].filter(Boolean).join(" and ") || "less than a month";
+}
+
+function isExperienceDurationQuestion(normalizedQuery: string) {
+  const words = normalizedQuery.split(" ").filter(Boolean);
+  const hasExperienceWord = words.some((word) =>
+    ["experience", "exp", "career", "work"].includes(word),
+  );
+  const hasDurationWord = words.some((word) =>
+    ["year", "years", "yr", "yrs", "long", "total", "much", "many"].includes(word),
+  );
+
+  return hasExperienceWord && hasDurationWord;
+}
+
+function getExperienceDurationResponse(): AssistantResponseDraft {
+  const currentExperience = experience[0];
+  const currentRole = currentExperience?.roles[0];
+  const previousRole = currentExperience?.roles[1];
+
+  return {
+    text: `Sai has about ${getProfessionalExperienceDurationText()} of professional experience, starting at Oracle in Aug 2023. He is currently ${currentRole?.title ?? profile.currentTitle} at ${currentExperience?.company ?? profile.company}${
+      previousRole ? `, after working as ${previousRole.title} from ${previousRole.period}.` : "."
+    }`,
+    links: [{ href: "/portfolio#experience", label: "View experience" }],
+    mode: "site",
+    shouldUseLlm: false,
+  };
+}
+
+function getAssistantUnavailableResponse(): Pick<AssistantMessage, "links" | "text"> {
+  return {
+    text:
+      "I could not get a clean answer from the assistant brain this time. Please use the links below, or ask me something directly related to Sai's website, projects, blogs, experience, or tech stack.",
+    links: [
+      { href: "/start", label: "Start Here" },
+      { href: "/portfolio#work", label: "Projects" },
+    ],
+  };
+}
+
 function renderAssistantText(text: string) {
   const lines = text.split("\n");
   const content: ReactNode[] = [];
@@ -2337,6 +2445,10 @@ function getAssistantResponse(
 
   if (isSmallTalk) {
     return getAssistantSmallTalkResponse();
+  }
+
+  if (isExperienceDurationQuestion(normalizedQuery)) {
+    return getExperienceDurationResponse();
   }
 
   const genericResponse = getGenericAssistantResponse(input);
@@ -2439,11 +2551,23 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
     }
 
     const data = await response.json();
+    if (data?.configured === false) {
+      throw new Error("Assistant API is not configured.");
+    }
+
     const text = typeof data?.text === "string" ? data.text.trim() : "";
+
+    if (!text) {
+      throw new Error("Assistant API returned an empty response.");
+    }
+
+    if (text === fallbackResponse.text) {
+      throw new Error("Assistant API returned the fallback response.");
+    }
 
     return {
       links: fallbackResponse.links?.slice(0, 2),
-      text: text || fallbackResponse.text,
+      text,
     };
   };
 
@@ -2497,13 +2621,14 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
         );
       })
       .catch(() => {
+        const unavailableResponse = getAssistantUnavailableResponse();
         setMessages((current) =>
           current.map((message) =>
             message.id === assistantMessageId
               ? {
                   ...message,
-                  links: response.links?.slice(0, 2),
-                  text: response.text,
+                  links: unavailableResponse.links,
+                  text: unavailableResponse.text,
                 }
               : message,
           ),
