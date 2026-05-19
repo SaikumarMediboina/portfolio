@@ -3552,14 +3552,27 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
     selectedCategory === ALL_AI_RADAR_CATEGORIES
       ? liveSignals
       : liveSignals.filter((signal) => signal.category === selectedCategory);
-  const featuredSignal = visibleSignals[0] ?? liveSignals[0] ?? aiRadarSignals[0];
-  const topSignals = visibleSignals.slice(1, 4);
-  const listSignals = visibleSignals.slice(4);
+  const storySignals = visibleSignals.length ? visibleSignals.slice(0, 5) : liveSignals.slice(0, 5);
+  const [activeStoryIndex, setActiveStoryIndex] = useState(0);
+  const activeStory =
+    storySignals[activeStoryIndex % Math.max(storySignals.length, 1)] ??
+    liveSignals[0] ??
+    aiRadarSignals[0];
+  const topSignals = visibleSignals
+    .filter((signal) => signal.href !== activeStory.href)
+    .slice(0, 3);
+  const listSignals = visibleSignals
+    .filter((signal) => signal.href !== activeStory.href)
+    .slice(3);
   const radarHighlights = [
     { label: "Live Feed", value: radarStatus === "live" ? "On" : "Fallback" },
     { label: "Sources", value: `${new Set(liveSignals.map((signal) => signal.source)).size}` },
     { label: "Mode", value: "Ranked" },
   ];
+
+  useEffect(() => {
+    setActiveStoryIndex(0);
+  }, [selectedCategory, liveSignals]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -3640,6 +3653,18 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
     };
   }, [radarRefreshTick]);
 
+  useEffect(() => {
+    if (storySignals.length < 2) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveStoryIndex((index) => (index + 1) % storySignals.length);
+    }, 5200);
+
+    return () => window.clearInterval(intervalId);
+  }, [storySignals.length]);
+
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -3678,13 +3703,54 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
       </header>
 
       <main className="ai-radar-page shell" id="main-content">
-        <section className="ai-radar-hero">
-          <div className="ai-radar-hero-copy">
+        <section
+          className="ai-radar-hero"
+          aria-label="Live AI briefing"
+          style={getAiRadarVisualStyle(activeStory)}
+        >
+          <div className="ai-radar-hero-backdrop">
+            {activeStory.imageUrl ? (
+              <img src={activeStory.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+            ) : (
+              <span>{getAiRadarSourceInitials(activeStory.source)}</span>
+            )}
+          </div>
+
+          <div className="ai-radar-story-card" aria-live="polite">
+            <div className="ai-radar-story-topline">
+              <span className="ai-radar-live-dot">
+                {radarStatus === "loading" ? "Checking feeds" : "Live AI Briefing"}
+              </span>
+              <span>{activeStory.source}</span>
+            </div>
+
+            <div className="ai-radar-story-body">
+              <div className="ai-radar-story-thumb">
+                {activeStory.imageUrl ? (
+                  <img src={activeStory.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                ) : (
+                  <span>{getAiRadarSourceInitials(activeStory.source)}</span>
+                )}
+              </div>
+              <div>
+                <div className="ai-radar-source-line">
+                  <span>{activeStory.category}</span>
+                  <span>{formatAiRadarDate(activeStory.publishedAt)}</span>
+                </div>
+                <h1>{activeStory.title}</h1>
+                <a href={activeStory.href} target="_blank" rel="noreferrer">
+                  Read story
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="ai-radar-hero-panel">
             <p className="eyebrow">AI Radar</p>
-            <h1>AI signal, without the noise.</h1>
+            <h2>Stories rotate as the signal changes.</h2>
             <p>
-              A premium briefing board for model releases, agents, research, open-source AI, and
-              infrastructure moves. Fresh stories, ranked for builders.
+              Fresh AI updates from trusted feeds, ranked for model releases, agents, research,
+              open-source AI, and infrastructure moves.
             </p>
             <div className="ai-radar-signal-strip" aria-label="AI Radar summary">
               {radarHighlights.map((item) => (
@@ -3716,32 +3782,30 @@ function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
             </p>
           </div>
 
-          <aside
-            className="ai-radar-featured"
-            aria-label="Featured AI article"
-            style={getAiRadarVisualStyle(featuredSignal)}
-          >
-            <div className="ai-radar-cover">
-              {featuredSignal.imageUrl ? (
-                <img src={featuredSignal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
-              ) : (
-                <span>{getAiRadarSourceInitials(featuredSignal.source)}</span>
-              )}
+          <div className="ai-radar-story-controls" aria-label="AI story controls">
+            <div className="ai-radar-story-dots">
+              {storySignals.map((signal, index) => (
+                <button
+                  className={index === activeStoryIndex ? "is-active" : ""}
+                  key={`${signal.source}-${signal.href}`}
+                  type="button"
+                  aria-label={`Show story ${index + 1}`}
+                  onClick={() => setActiveStoryIndex(index)}
+                />
+              ))}
             </div>
-            <span className="ai-radar-live-dot">
-              {featuredSignal.isLive ? "Top Story" : "Featured Source"}
-            </span>
-            <h2>{featuredSignal.title}</h2>
-            <div className="ai-radar-source-line">
-              <span>{featuredSignal.source}</span>
-              <span>{featuredSignal.category}</span>
-              <span>{formatAiRadarDate(featuredSignal.publishedAt)}</span>
-            </div>
-            <p className="ai-radar-why">{featuredSignal.summary || featuredSignal.whyItMatters}</p>
-            <a href={featuredSignal.href} target="_blank" rel="noreferrer">
-              Open original
-            </a>
-          </aside>
+            <button
+              className="ai-radar-next-story"
+              type="button"
+              onClick={() =>
+                setActiveStoryIndex((index) =>
+                  storySignals.length ? (index + 1) % storySignals.length : 0,
+                )
+              }
+            >
+              Next story
+            </button>
+          </div>
         </section>
 
         {topSignals.length ? (

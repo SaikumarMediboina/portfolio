@@ -1880,73 +1880,228 @@ dt {
 }
 
 .ai-radar-hero {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
-  gap: 1rem;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.42fr);
+  gap: clamp(1rem, 3vw, 1.5rem);
+  align-items: end;
+  min-height: clamp(34rem, 66vw, 46rem);
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 16% 16%, color-mix(in srgb, var(--radar-primary, #f0643b) 30%, transparent), transparent 22rem),
+    radial-gradient(circle at 86% 22%, rgba(126, 166, 255, 0.18), transparent 20rem),
+    linear-gradient(135deg, rgba(8, 30, 39, 0.96), rgba(17, 28, 43, 0.94));
+  color: #fff8ef;
+  box-shadow: var(--shadow-card);
+  padding: clamp(1rem, 3vw, 1.7rem);
 }
 
-.ai-radar-hero-copy,
-.ai-radar-featured,
+.ai-radar-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(211, 71, 52, 0.22) 0 24%, transparent 24% 100%),
+    linear-gradient(145deg, transparent 0 54%, rgba(238, 244, 234, 0.22) 54% 100%);
+  mix-blend-mode: screen;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.ai-radar-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 86%);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.ai-radar-hero-backdrop {
+  position: absolute;
+  inset: auto clamp(1rem, 4vw, 3rem) -6rem clamp(1rem, 4vw, 3rem);
+  height: min(25rem, 46vw);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 28px 28px 0 0;
+  background:
+    radial-gradient(circle at 25% 30%, var(--radar-secondary, rgba(255, 255, 255, 0.36)), transparent 36%),
+    linear-gradient(135deg, color-mix(in srgb, var(--radar-primary, #f0643b) 74%, #111c2b), #eff2e7);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.28);
+  opacity: 0.72;
+}
+
+.ai-radar-hero-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.18)),
+    radial-gradient(circle at 68% 30%, rgba(255, 255, 255, 0.48), transparent 18rem);
+}
+
+.ai-radar-hero-backdrop img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.82);
+}
+
+.ai-radar-hero-backdrop span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.38);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(7rem, 24vw, 17rem);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+}
+
+.ai-radar-story-card,
+.ai-radar-hero-panel,
+.ai-radar-story-controls,
 .ai-radar-lens,
 .ai-radar-item {
+  position: relative;
+  z-index: 1;
   border: 1px solid var(--panel-border);
   background: var(--panel-strong);
   box-shadow: var(--shadow-soft);
 }
 
-.ai-radar-hero-copy {
+.ai-radar-story-card {
+  align-self: start;
+  display: grid;
+  gap: 1rem;
+  max-width: 48rem;
+  margin: clamp(2rem, 5vw, 4rem) 0 0 clamp(0.3rem, 6vw, 4.5rem);
+  padding: clamp(1rem, 2.6vw, 1.45rem);
+  border-color: rgba(255, 255, 255, 0.18);
+  border-radius: 30px;
+  background: rgba(23, 57, 65, 0.68);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.32);
+}
+
+.ai-radar-story-topline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.ai-radar-story-topline > span:last-child {
+  color: rgba(255, 248, 239, 0.68);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ai-radar-story-body {
+  display: grid;
+  grid-template-columns: 8.2rem minmax(0, 1fr);
+  gap: 1.15rem;
+  align-items: center;
+  padding: 1.25rem;
+  border-radius: 22px;
+  background: rgba(12, 22, 24, 0.68);
+}
+
+.ai-radar-story-thumb {
+  display: grid;
+  place-items: center;
+  width: 8.2rem;
+  height: 8.2rem;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 28% 22%, var(--radar-secondary, var(--accent-soft)), transparent 34%),
+    linear-gradient(135deg, var(--radar-primary, var(--accent)), #111c2b);
+}
+
+.ai-radar-story-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ai-radar-story-thumb span {
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "Outfit", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+}
+
+.ai-radar-story-body h1 {
+  display: -webkit-box;
+  margin-top: 0.65rem;
+  overflow: hidden;
+  color: #fff8ef;
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  text-wrap: balance;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.ai-radar-story-body a {
+  display: inline-flex;
+  margin-top: 0.75rem;
+  color: #9ebbb5;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-sm);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ai-radar-hero-panel {
+  align-self: stretch;
   display: grid;
   align-content: center;
   justify-items: start;
-  gap: 1rem;
-  min-height: 31rem;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(135deg, rgba(17, 28, 43, 0.96), rgba(20, 38, 59, 0.92)),
-    radial-gradient(circle at 18% 0%, rgba(255, 141, 102, 0.32), transparent 34%),
-    radial-gradient(circle at 92% 12%, rgba(126, 166, 255, 0.22), transparent 28%);
-  color: #fff8ef;
-  overflow: hidden;
-  position: relative;
+  gap: 0.9rem;
+  padding: clamp(1.2rem, 3vw, 1.55rem);
+  border-color: rgba(255, 255, 255, 0.14);
+  border-radius: 28px;
+  background: rgba(17, 28, 43, 0.52);
+  backdrop-filter: blur(18px);
 }
 
-.ai-radar-hero-copy::before {
-  content: "";
-  position: absolute;
-  inset: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: calc(var(--radius-xl) - 10px);
-  pointer-events: none;
+.ai-radar-hero-panel .eyebrow {
+  color: #ffb091;
 }
 
-.ai-radar-hero-copy > * {
-  position: relative;
-  z-index: 1;
-}
-
-.ai-radar-hero-copy h1 {
-  max-width: 12ch;
+.ai-radar-hero-panel h2 {
+  max-width: 11ch;
   color: #fff8ef;
   font-family: "Outfit", sans-serif;
-  font-size: clamp(3.1rem, 7vw, 6rem);
+  font-size: clamp(2.2rem, 4vw, 3.9rem);
   font-weight: 800;
-  letter-spacing: -0.055em;
-  line-height: 0.93;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
   text-wrap: balance;
 }
 
-.ai-radar-hero-copy p:not(.eyebrow) {
-  max-width: 42rem;
+.ai-radar-hero-panel p:not(.eyebrow):not(.ai-radar-status) {
+  max-width: 28rem;
   color: rgba(255, 248, 239, 0.68);
-  font-size: var(--text-lg);
   line-height: 1.7;
   text-wrap: pretty;
-}
-
-.ai-radar-hero-copy .eyebrow {
-  color: #ffb091;
 }
 
 .ai-radar-signal-strip {
@@ -2008,37 +2163,6 @@ dt {
   text-transform: uppercase;
 }
 
-.ai-radar-featured {
-  display: grid;
-  align-content: start;
-  gap: 0.9rem;
-  min-height: 31rem;
-  padding: clamp(1.35rem, 4vw, 2rem);
-  border-color: rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-xl);
-  background:
-    radial-gradient(circle at 82% 8%, color-mix(in srgb, var(--radar-primary, #ff8d66) 32%, transparent), transparent 14rem),
-    radial-gradient(circle at 0% 88%, rgba(101, 132, 255, 0.18), transparent 17rem),
-    linear-gradient(145deg, #111c2b 0%, #172233 52%, #251914 100%);
-  color: #fff8ef;
-  overflow: hidden;
-  position: relative;
-}
-
-.ai-radar-featured::before {
-  content: "";
-  position: absolute;
-  inset: 1.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: calc(var(--radius-xl) - 10px);
-  pointer-events: none;
-}
-
-.ai-radar-featured > * {
-  position: relative;
-  z-index: 1;
-}
-
 .ai-radar-live-dot {
   display: inline-flex;
   align-items: center;
@@ -2063,32 +2187,6 @@ dt {
   border-radius: 999px;
   background: #ff8d66;
   box-shadow: 0 0 0 6px rgba(255, 141, 102, 0.12);
-}
-
-.ai-radar-featured h2 {
-  max-width: 13ch;
-  color: #fff8ef;
-  font-family: "Outfit", sans-serif;
-  font-size: clamp(2rem, 4.5vw, 3.65rem);
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 0.98;
-  text-wrap: balance;
-}
-
-.ai-radar-featured p {
-  max-width: 43rem;
-  color: rgba(255, 248, 239, 0.72);
-  font-size: var(--text-md);
-  line-height: 1.82;
-  text-wrap: pretty;
-}
-
-.ai-radar-featured .ai-radar-why {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .ai-radar-source-line,
@@ -2124,7 +2222,6 @@ dt {
   padding-left: 0.85rem;
 }
 
-.ai-radar-featured a,
 .ai-radar-item-action a {
   justify-self: start;
   color: inherit;
@@ -2133,10 +2230,6 @@ dt {
   text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
   text-decoration-thickness: 0.12em;
   text-underline-offset: 0.28em;
-}
-
-.ai-radar-featured a {
-  color: #fff8ef;
 }
 
 .ai-radar-cover,
@@ -2190,6 +2283,54 @@ dt {
 
 .ai-radar-cover span {
   font-size: clamp(3.5rem, 8vw, 6.7rem);
+}
+
+.ai-radar-story-controls {
+  position: absolute;
+  left: clamp(1.2rem, 6vw, 5.2rem);
+  right: clamp(1.2rem, 4vw, 3rem);
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(17, 28, 43, 0.44);
+  backdrop-filter: blur(16px);
+}
+
+.ai-radar-story-dots {
+  display: flex;
+  gap: 0.42rem;
+}
+
+.ai-radar-story-dots button {
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  padding: 0;
+}
+
+.ai-radar-story-dots button.is-active {
+  width: 2rem;
+  background: #ff8d66;
+}
+
+.ai-radar-next-story {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 248, 239, 0.72);
+  cursor: pointer;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .ai-radar-top-grid {
@@ -4914,9 +5055,36 @@ section[id] {
     padding-top: 3rem;
   }
 
-  .ai-radar-hero-copy,
-  .ai-radar-featured {
+  .ai-radar-hero {
     min-height: auto;
+    padding-bottom: 4.6rem;
+  }
+
+  .ai-radar-story-card {
+    margin: 0;
+  }
+
+  .ai-radar-story-body {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-radar-story-thumb {
+    width: 100%;
+    height: 10rem;
+  }
+
+  .ai-radar-hero-panel {
+    align-self: auto;
+  }
+
+  .ai-radar-hero-backdrop {
+    inset: auto 0 -4rem;
+    height: 18rem;
+  }
+
+  .ai-radar-story-controls {
+    left: 1rem;
+    right: 1rem;
   }
 
   .ai-radar-item {
