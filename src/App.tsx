@@ -66,7 +66,7 @@ const mainNavLinks = [
   { href: "/shelf", label: "Sai's Shelf" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/work-with-me", label: "Work With Me" },
-  { href: "#about", id: "about", label: "About" },
+  { href: "/#about", id: "about", label: "About" },
 ] as const;
 
 type SiteUpdate = {
@@ -3689,7 +3689,12 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
         <AssistantChatIcon />
       </button>
 
-      <section className="assistant-panel" aria-label="Portfolio assistant">
+      <section
+        className="assistant-panel"
+        aria-label="Portfolio assistant"
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+      >
         <div className="assistant-header">
           <div
             className="assistant-drag-region"
@@ -3723,7 +3728,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
         </div>
 
         <div className="assistant-body">
-          <div className="assistant-messages" ref={messagesRef}>
+          <div className="assistant-messages" ref={messagesRef} aria-live="polite">
             {messages.map((message) => (
               <article className={`assistant-message is-${message.role}`} key={message.id}>
                 <div className="assistant-message-bubble">
@@ -3735,7 +3740,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
                           href={link.href}
                           key={`${message.id}-${link.label}`}
                           target={link.external ? "_blank" : undefined}
-                          rel={link.external ? "opener" : undefined}
+                          rel={link.external ? "noreferrer" : undefined}
                           onClick={() => {
                             if (!link.external) {
                               setIsOpen(false);
@@ -3844,6 +3849,9 @@ function SavePostButton({
     <button
       className={`save-post-button${isSaved ? " is-saved" : ""}`}
       type="button"
+      aria-busy={isBusy}
+      aria-label={`${isSaved ? "Remove" : "Save"} ${post.title}`}
+      aria-pressed={isSaved}
       disabled={isBusy}
       onClick={() => onToggle(post)}
     >
@@ -3881,7 +3889,15 @@ function SaveAiRadarButton({
   }
 
   return (
-    <button className={buttonClassName} type="button" disabled={isBusy} onClick={onToggle}>
+    <button
+      className={buttonClassName}
+      type="button"
+      aria-busy={isBusy}
+      aria-label={isSaved ? "Remove AI Radar item from saved posts" : "Save AI Radar item"}
+      aria-pressed={isSaved}
+      disabled={isBusy}
+      onClick={onToggle}
+    >
       <ReaderMenuGlyph type="bookmark" />
       {isBusy && !isSaved ? "Saving..." : isSaved ? "Saved" : "Save"}
     </button>
@@ -3922,7 +3938,11 @@ function ReaderMenu({
   ];
 
   return (
-    <div className={`reader-menu${isOpen ? " is-open" : ""}`} aria-hidden={!isOpen}>
+    <div
+      className={`reader-menu${isOpen ? " is-open" : ""}`}
+      aria-hidden={!isOpen}
+      inert={!isOpen}
+    >
       <button
         className="reader-menu-backdrop"
         type="button"
@@ -4032,7 +4052,7 @@ function ProfileMenu({
         )}
       </button>
 
-      <div className="profile-menu-panel" role="menu">
+      <div className="profile-menu-panel" role="menu" aria-hidden={!isOpen} inert={!isOpen}>
         <div className="profile-menu-header">
           <p className="impact-label">{subscriberUser ? "Profile" : "Subscriber Access"}</p>
           <strong>{subscriberUser ? subscriberName : "Sign in to unlock reader access"}</strong>
@@ -4050,7 +4070,7 @@ function ProfileMenu({
         ) : null}
 
         {!canUseSubscriptions ? (
-          <p className="status-message is-warning">
+          <p className="status-message is-warning" role="status">
             Sign-in is configured in code. Add the Firebase environment variables in Vercel to
             activate it online.
           </p>
@@ -4100,9 +4120,11 @@ function ProfileMenu({
         </div>
 
         {subscriptionMessage ? (
-          <p className="status-message is-success">{subscriptionMessage}</p>
+          <p className="status-message is-success" role="status">{subscriptionMessage}</p>
         ) : null}
-        {subscriptionError ? <p className="status-message is-error">{subscriptionError}</p> : null}
+        {subscriptionError ? (
+          <p className="status-message is-error" role="alert">{subscriptionError}</p>
+        ) : null}
       </div>
     </div>
   );
@@ -4174,7 +4196,7 @@ function MobileAccountPanel({
       )}
 
       {!canUseSubscriptions ? (
-        <p className="status-message is-warning">
+        <p className="status-message is-warning" role="status">
           Sign-in needs Firebase environment variables in Vercel before it can go live.
         </p>
       ) : null}
@@ -4203,7 +4225,7 @@ function SubscriptionAccessCard({
       <h3>{subscriberUser ? "Subscription preferences" : "Sign in with Google"}</h3>
 
       {!canUseSubscriptions ? (
-        <p className="status-message is-warning">
+        <p className="status-message is-warning" role="status">
           Google sign-in is added in code. Add the Firebase environment variables in Vercel to
           activate this panel online.
         </p>
@@ -4276,9 +4298,11 @@ function SubscriptionAccessCard({
       )}
 
       {subscriptionMessage ? (
-        <p className="status-message is-success">{subscriptionMessage}</p>
+        <p className="status-message is-success" role="status">{subscriptionMessage}</p>
       ) : null}
-      {subscriptionError ? <p className="status-message is-error">{subscriptionError}</p> : null}
+      {subscriptionError ? (
+        <p className="status-message is-error" role="alert">{subscriptionError}</p>
+      ) : null}
     </div>
   );
 }
@@ -4704,7 +4728,12 @@ function NewsletterCallout({
                 : "Subscribe"}
         </button>
         {newsletterMessage ? (
-          <p className={`newsletter-status is-${newsletterStatus}`}>{newsletterMessage}</p>
+          <p
+            className={`newsletter-status is-${newsletterStatus}`}
+            role={newsletterStatus === "error" ? "alert" : "status"}
+          >
+            {newsletterMessage}
+          </p>
         ) : null}
       </form>
     </section>
@@ -5982,9 +6011,11 @@ function SavedPostsPage({
           </div>
 
           {subscriptionMessage ? (
-            <p className="status-message is-success">{subscriptionMessage}</p>
+            <p className="status-message is-success" role="status">{subscriptionMessage}</p>
           ) : null}
-          {subscriptionError ? <p className="status-message is-error">{subscriptionError}</p> : null}
+          {subscriptionError ? (
+            <p className="status-message is-error" role="alert">{subscriptionError}</p>
+          ) : null}
 
           {!authReady ? (
             <div className="saved-posts-empty">
@@ -6998,10 +7029,10 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
             </button>
 
             {sendResult?.error ? (
-              <p className="status-message is-error">{sendResult.error}</p>
+              <p className="status-message is-error" role="alert">{sendResult.error}</p>
             ) : null}
             {sendResult && !sendResult.error ? (
-              <p className="status-message is-success">
+              <p className="status-message is-success" role="status">
                 Sent {sendResult.sent} of {sendResult.total} emails
                 {sendResult.failed ? `, ${sendResult.failed} failed` : ""}.
               </p>
@@ -7016,6 +7047,9 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isCompactNav, setIsCompactNav] = useState(() =>
+    typeof window === "undefined" ? false : window.matchMedia("(max-width: 1080px)").matches,
+  );
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [readerMenuOpen, setReaderMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
@@ -7090,6 +7124,7 @@ function App() {
   });
   const analyticsPageTitle = seoMetadata.analyticsTitle;
   const currentNavLinks = isPortfolioPage ? portfolioNavLinks : mainNavLinks;
+  const compactNavIsHidden = isCompactNav && !menuOpen;
   const signInReturnBlogSlug = getSignInReturnBlogSlug();
   const signInReturnTarget = getSignInReturnTarget();
   const signInReturnBlog = signInReturnBlogSlug
@@ -7236,16 +7271,36 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 1080) {
+    const compactNavQuery = window.matchMedia("(max-width: 1080px)");
+    const syncCompactNav = () => {
+      setIsCompactNav(compactNavQuery.matches);
+
+      if (!compactNavQuery.matches) {
         setMenuOpen(false);
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    syncCompactNav();
+    compactNavQuery.addEventListener("change", syncCompactNav);
 
-    return () => window.removeEventListener("resize", handleResize);
+    return () => compactNavQuery.removeEventListener("change", syncCompactNav);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!profileMenuOpen) {
@@ -8030,6 +8085,8 @@ function App() {
             className={`site-nav${menuOpen ? " is-open" : ""}`}
             id="site-navigation"
             aria-label="Primary"
+            aria-hidden={compactNavIsHidden}
+            inert={compactNavIsHidden}
           >
             {currentNavLinks.map((link) => (
               <a

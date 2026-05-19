@@ -39,13 +39,15 @@ service cloud.firestore {
 The site includes a manual admin sender at `/admin-update`.
 
 1. Add backend-only variables in Vercel:
-   `ADMIN_SEND_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, and Firebase service-account credentials.
-2. Prefer `FIREBASE_SERVICE_ACCOUNT_BASE64` for Firebase credentials. It should be the base64 value of the full service-account JSON file.
+   `ADMIN_SEND_SECRET`, `NEWSLETTER_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, and Firebase service-account credentials.
+2. Prefer `FIREBASE_SERVICE_ACCOUNT_BASE64` for Firebase credentials. It should be the base64 value of the full service-account JSON file. The API also supports `FIREBASE_SERVICE_ACCOUNT_JSON` or the split `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and private-key variables.
 3. Use `EMAIL_FROM` from a verified Resend sender/domain, for example `Sai Kumar <updates@saikumarmediboina.com>`.
 4. Open `/admin-update`, enter the admin secret, title, message, link, and a test recipient first.
 5. Leave test recipient blank only when sending to all Firestore subscribers where `subscribed` is `true`.
 
 Emails are sent from a Vercel Function, not from the browser, so API keys are not exposed to visitors.
+
+`NEWSLETTER_SECRET` signs unsubscribe links. It can match `ADMIN_SEND_SECRET`, but keeping it separate makes future rotation cleaner.
 
 ## Gemini Chat Assistant
 
