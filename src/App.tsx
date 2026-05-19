@@ -57,7 +57,7 @@ const mainNavLinks = [
   { href: "/whats-new", label: "What's New" },
   { href: "/shelf", label: "Sai's Shelf" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/contact", label: "Contact" },
+  { href: "/work-with-me", label: "Work With Me" },
 ] as const;
 
 type SiteUpdate = {
@@ -104,8 +104,8 @@ const siteUpdates: SiteUpdate[] = [
   {
     category: "Portfolio",
     date: "2026-05-14",
-    href: "/contact",
-    title: "Collaboration page added",
+    href: "/work-with-me",
+    title: "Work With Me page added",
     summary:
       "A dedicated page for professional conversations around backend performance, search systems, and practical AI workflows.",
   },
@@ -289,7 +289,7 @@ function isContactPathname() {
     return false;
   }
 
-  return window.location.pathname.replace(/\/$/, "") === "/contact";
+  return ["/contact", "/work-with-me"].includes(window.location.pathname.replace(/\/$/, ""));
 }
 
 function isPortfolioPathname() {
@@ -343,12 +343,15 @@ function getSavedPostsSignInHref() {
 function getReturnTargetConfig(target: string) {
   const returnTargets: Record<string, { href: string; label: string }> = {
     blogs: { href: "/blogs", label: "Back to blogs" },
-    contact: { href: "/contact", label: "Back to contact" },
+    contact: { href: "/work-with-me", label: "Back to work with me" },
     dashboard: { href: "/dashboard", label: "Back to dashboard" },
+    home: { href: "/", label: "Back home" },
+    portfolio: { href: "/portfolio", label: "Back to portfolio" },
     "saved-posts": { href: "/saved-posts", label: "Back to saved posts" },
     shelf: { href: "/shelf", label: "Back to shelf" },
     start: { href: "/start", label: "Back to start" },
     "whats-new": { href: "/whats-new", label: "Back to what's new" },
+    "work-with-me": { href: "/work-with-me", label: "Back to work with me" },
   };
 
   return returnTargets[target] ?? null;
@@ -1302,7 +1305,7 @@ function getAssistantKnowledgeEntries(
       category: "page",
       title: "What the assistant knows",
       summary:
-        "This assistant answers from the website content: portfolio sections, selected projects, blogs, latest updates, dashboard notes, credentials, sign-in access, saved posts, and contact links. If a question is outside that scope, it says so instead of guessing.",
+        "This assistant answers from the website content: portfolio sections, selected projects, blogs, latest updates, dashboard notes, credentials, sign-in access, saved posts, and work-with-me links. If a question is outside that scope, it says so instead of guessing.",
       keywords: [
         "assistant",
         "bot",
@@ -1373,12 +1376,12 @@ function getAssistantKnowledgeEntries(
     }),
     createAssistantEntry({
       category: "contact",
-      title: "Contact and links",
-      summary: `Best fit conversations are backend engineering, search systems, performance work, and practical AI or LLM product ideas. You can reach Sai through the contact page, email, or LinkedIn.`,
+      title: "Work With Me and links",
+      summary: `Best fit conversations are backend engineering, search systems, performance work, and practical AI or LLM product ideas. You can reach Sai through the Work With Me page, email, or LinkedIn.`,
       details: [`Email: ${profile.email}`, `LinkedIn: ${profile.linkedin}`],
-      keywords: ["contact", "email", "mail", "linkedin", "connect", "collaboration", "hire"],
+      keywords: ["contact", "email", "mail", "linkedin", "connect", "collaboration", "hire", "work with me"],
       links: [
-        { href: "/contact", label: "Contact page" },
+        { href: "/work-with-me", label: "Work With Me" },
         { href: `mailto:${profile.email}`, label: "Email" },
         { href: profile.linkedin, label: "LinkedIn", external: true },
       ],
@@ -2308,7 +2311,7 @@ function ReaderMenu({
       label: "Saved Posts",
     },
     { href: "/#about", icon: "about" as const, label: "About" },
-    { href: "/contact", icon: "mail" as const, label: "Contact" },
+    { href: "/work-with-me", icon: "mail" as const, label: "Work With Me" },
   ];
 
   return (
@@ -2961,10 +2964,28 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
 }
 
 type NewsletterCalloutProps = {
+  canUseSubscriptions?: boolean;
+  isSubscribed?: boolean;
   returnTarget: string;
+  subscriberUser?: User | null;
+  subscriptionBusy?: boolean;
+  onSubscribe?: () => void;
 };
 
-function NewsletterCallout({ returnTarget }: NewsletterCalloutProps) {
+function NewsletterCallout({
+  canUseSubscriptions = true,
+  isSubscribed = false,
+  returnTarget,
+  subscriberUser = null,
+  subscriptionBusy = false,
+  onSubscribe,
+}: NewsletterCalloutProps) {
+  const actionLabel = subscriberUser
+    ? isSubscribed
+      ? "Subscribed"
+      : "Subscribe"
+    : "Get updates";
+
   return (
     <section className="newsletter-callout" aria-label="Subscribe to updates">
       <div className="newsletter-icon" aria-hidden="true">
@@ -2978,10 +2999,49 @@ function NewsletterCallout({ returnTarget }: NewsletterCalloutProps) {
           updates. No noise, no spam, and you can unsubscribe anytime.
         </p>
       </div>
-      <a className="button button-primary" href={getUpdatesSignInHref(returnTarget)}>
-        Get updates
-      </a>
+      <div className="newsletter-actions">
+        {subscriberUser ? (
+          <button
+            className={`button ${isSubscribed ? "button-secondary" : "button-primary"}`}
+            type="button"
+            disabled={subscriptionBusy || isSubscribed || !canUseSubscriptions}
+            onClick={onSubscribe}
+          >
+            {subscriptionBusy ? "Updating..." : actionLabel}
+          </button>
+        ) : (
+          <a className="button button-primary" href={getUpdatesSignInHref(returnTarget)}>
+            {actionLabel}
+          </a>
+        )}
+        <span>
+          {subscriberUser
+            ? isSubscribed
+              ? "You are on the update list."
+              : "One click and future notes can find you."
+            : "Sign in once to manage preferences."}
+        </span>
+      </div>
     </section>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div className="shell footer-shell">
+        <p>
+          &copy; {new Date().getFullYear()} {profile.name}
+        </p>
+        <div className="footer-links">
+          <a href="/work-with-me">Work With Me</a>
+          <a href={`mailto:${profile.email}`}>Email</a>
+          <a href={profile.linkedin} target="_blank" rel="noreferrer">
+            LinkedIn
+          </a>
+        </div>
+      </div>
+    </footer>
   );
 }
 
@@ -3065,13 +3125,23 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
       </header>
 
       <main className="guide-page shell" id="main-content">
-        <section className="guide-hero">
-          <p className="eyebrow">Start Here</p>
-          <h1>New here? This is the fastest way to understand the site.</h1>
-          <p>
-            This page gives a quick path through the portfolio: what I build, where the technical
-            stories live, what changed recently, and how to follow future updates.
-          </p>
+        <section className="guide-hero is-start-guide">
+          <div>
+            <p className="eyebrow">Start Here</p>
+            <h1>New here? This is the fastest way to understand the site.</h1>
+            <p>
+              This page gives a quick path through the portfolio: what I build, where the technical
+              stories live, what changed recently, and how to follow future updates.
+            </p>
+          </div>
+          <div className="guide-hero-visual start-map-visual" aria-hidden="true">
+            <span className="guide-visual-node is-active">01</span>
+            <span className="guide-visual-line" />
+            <span className="guide-visual-node">02</span>
+            <span className="guide-visual-line" />
+            <span className="guide-visual-node">03</span>
+            <strong>Guided path</strong>
+          </div>
         </section>
 
         <section className="guide-grid" aria-label="Recommended first steps">
@@ -3104,8 +3174,6 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
             )}
           </div>
         </section>
-
-        <NewsletterCallout returnTarget="start" />
       </main>
     </>
   );
@@ -3157,13 +3225,21 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
       </header>
 
       <main className="guide-page shell" id="main-content">
-        <section className="guide-hero">
-          <p className="eyebrow">What's New</p>
-          <h1>Recent headlines from the last 30 days.</h1>
-          <p>
-            A clean changelog for new articles, shelf additions, page improvements, and useful
-            content updates added to this site.
-          </p>
+        <section className="guide-hero is-whats-new-guide">
+          <div>
+            <p className="eyebrow">What's New</p>
+            <h1>Recent headlines from the last 30 days.</h1>
+            <p>
+              A clean changelog for new articles, shelf additions, page improvements, and useful
+              content updates added to this site.
+            </p>
+          </div>
+          <div className="guide-hero-visual update-feed-visual" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <strong>Live update feed</strong>
+          </div>
         </section>
 
         <section className="whats-new-list" aria-label="Recent updates">
@@ -3190,8 +3266,6 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
             </div>
           )}
         </section>
-
-        <NewsletterCallout returnTarget="whats-new" />
       </main>
     </>
   );
@@ -3258,7 +3332,7 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
   return (
     <>
       <a className="skip-link" href="#main-content">
-        Skip to collaboration page
+        Skip to Work With Me page
       </a>
 
       <header className="article-site-header collaboration-header">
@@ -3267,7 +3341,7 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
-              <span>Collaboration</span>
+              <span>Work With Me</span>
             </span>
           </a>
 
@@ -5014,9 +5088,20 @@ function App() {
     }
   };
 
-  const renderWithAssistant = (page: ReactNode) => (
+  const renderWithAssistant = (page: ReactNode, newsletterReturnTarget = "home") => (
     <>
       {page}
+      <div className="site-newsletter-footer shell">
+        <NewsletterCallout
+          canUseSubscriptions={canUseSubscriptions}
+          isSubscribed={isSubscribed}
+          returnTarget={newsletterReturnTarget}
+          subscriberUser={subscriberUser}
+          subscriptionBusy={subscriptionBusy}
+          onSubscribe={handleSubscribe}
+        />
+      </div>
+      <SiteFooter />
       <SiteAssistant isSubscribed={isSubscribed} subscriberUser={subscriberUser} />
     </>
   );
@@ -5034,6 +5119,7 @@ function App() {
         onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "blogs",
     );
   }
 
@@ -5050,6 +5136,7 @@ function App() {
         onToggleSavedPost={handleToggleSavedPost}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "saved-posts",
     );
   }
 
@@ -5059,6 +5146,7 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "start",
     );
   }
 
@@ -5068,6 +5156,7 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "whats-new",
     );
   }
 
@@ -5077,6 +5166,7 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "shelf",
     );
   }
 
@@ -5086,6 +5176,7 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "dashboard",
     );
   }
 
@@ -5106,6 +5197,7 @@ function App() {
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onToggleSavedPost={handleToggleSavedPost}
       />,
+      "blogs",
     );
   }
 
@@ -5115,6 +5207,7 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "work-with-me",
     );
   }
 
@@ -5140,6 +5233,7 @@ function App() {
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
         onUnsubscribe={handleUnsubscribe}
       />,
+      signInReturnTarget || "home",
     );
   }
 
@@ -5149,6 +5243,7 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+      "home",
     );
   }
 
@@ -5295,8 +5390,8 @@ function App() {
               <a className="button button-primary" href={isPortfolioPage ? "#work" : "/portfolio#work"}>
                 Explore selected work
               </a>
-              <a className="button button-secondary" href="/contact">
-                Contact me
+              <a className="button button-secondary" href="/work-with-me">
+                Work with me
               </a>
             </div>
 
@@ -5577,21 +5672,8 @@ function App() {
         ) : null}
 
       </main>
-
-      <footer className="site-footer">
-        <div className="shell footer-shell">
-          <p>
-            &copy; {new Date().getFullYear()} {profile.name}
-          </p>
-          <div className="footer-links">
-            <a href={`mailto:${profile.email}`}>Email</a>
-            <a href={profile.linkedin} target="_blank" rel="noreferrer">
-              LinkedIn
-            </a>
-          </div>
-        </div>
-      </footer>
     </>,
+    isPortfolioPage ? "portfolio" : "home",
   );
 }
 
