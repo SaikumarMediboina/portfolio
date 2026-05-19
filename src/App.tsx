@@ -1727,6 +1727,31 @@ function formatAssistantEntryResponse(
   };
 }
 
+function renderAssistantText(text: string) {
+  const lines = text.split("\n");
+  const content: ReactNode[] = [];
+
+  lines.forEach((line, lineIndex) => {
+    const parts = line.split(/(\*\*[^*]+?\*\*)/g);
+
+    parts.forEach((part, partIndex) => {
+      const key = `${lineIndex}-${partIndex}`;
+
+      if (part.startsWith("**") && part.endsWith("**")) {
+        content.push(<strong key={key}>{part.slice(2, -2)}</strong>);
+      } else if (part) {
+        content.push(<span key={key}>{part.replace(/\*\*/g, "")}</span>);
+      }
+    });
+
+    if (lineIndex < lines.length - 1) {
+      content.push(<br key={`line-${lineIndex}`} />);
+    }
+  });
+
+  return content;
+}
+
 function getAssistantResponse(
   input: string,
   isReaderSignedIn: boolean,
@@ -2059,7 +2084,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
               SK
             </span>
             <div className="assistant-title">
-              <h2>Sai Bot</h2>
+              <h2>Sai&apos;s Bot</h2>
               <p>Portfolio guide</p>
             </div>
           </div>
@@ -2083,7 +2108,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
             {messages.map((message) => (
               <article className={`assistant-message is-${message.role}`} key={message.id}>
                 <div className="assistant-message-bubble">
-                  <p>{message.text}</p>
+                  <p>{renderAssistantText(message.text)}</p>
                   {message.links?.length ? (
                     <div className="assistant-links">
                       {message.links.map((link) => (
@@ -2204,7 +2229,7 @@ function SavePostButton({
       onClick={() => onToggle(post)}
     >
       <ReaderMenuGlyph type="bookmark" />
-      {isBusy ? "Updating..." : isSaved ? "Saved" : "Save post"}
+      {isBusy && !isSaved ? "Updating..." : isSaved ? "Saved" : "Save post"}
     </button>
   );
 }
@@ -4673,21 +4698,30 @@ function App() {
       return;
     }
 
+    const wasSaved = isPostSaved(post.slug);
+
     setSavedPostsBusySlug(post.slug);
 
     try {
-      if (isPostSaved(post.slug)) {
-        await unsaveReaderPost(subscriberUser.uid, post.slug);
+      if (wasSaved) {
         setSavedPostSlugs((current) => current.filter((slug) => slug !== post.slug));
         setSubscriptionMessage("Removed from saved posts.");
+        await unsaveReaderPost(subscriberUser.uid, post.slug);
       } else {
-        await saveReaderPost(subscriberUser, post.slug);
         setSavedPostSlugs((current) =>
           current.includes(post.slug) ? current : [...current, post.slug],
         );
         setSubscriptionMessage("Saved to your reader menu.");
+        await saveReaderPost(subscriberUser, post.slug);
       }
     } catch (error) {
+      setSavedPostSlugs((current) =>
+        wasSaved
+          ? current.includes(post.slug)
+            ? current
+            : [...current, post.slug]
+          : current.filter((slug) => slug !== post.slug),
+      );
       setSubscriptionError(getSubscriptionErrorMessage(error));
     } finally {
       setSavedPostsBusySlug("");

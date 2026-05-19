@@ -4333,29 +4333,41 @@ section[id] {
     grid-template-columns: 1fr;
   }
 
-  .article-header-shell,
-  .article-header-actions {
-    align-items: stretch;
-  }
-
   .article-header-shell {
-    flex-direction: column;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    min-height: 4.25rem;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .article-header-shell .brand-copy {
+    display: none;
   }
 
   .article-header-actions {
-    width: 100%;
-    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.42rem;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
-  .article-header-actions .button {
-    width: 100%;
+  .article-header-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .article-header-actions .button,
+  .article-header-actions .save-post-button {
+    flex: 0 0 auto;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.62rem;
+    font-size: var(--text-micro);
     justify-content: center;
   }
 
   .article-header-actions .theme-toggle {
-    align-self: center;
+    flex: 0 0 auto;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .article-page {
