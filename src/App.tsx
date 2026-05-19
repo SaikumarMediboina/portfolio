@@ -53,6 +53,7 @@ const mainNavLinks = [
   { href: "/start", label: "Start Here" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/blogs", label: "Blogs" },
+  { href: "/ai-radar", label: "AI Radar" },
   { href: "/whats-new", label: "What's New" },
   { href: "/shelf", label: "Sai's Shelf" },
   { href: "/dashboard", label: "Dashboard" },
@@ -69,6 +70,14 @@ type SiteUpdate = {
 };
 
 const siteUpdates: SiteUpdate[] = [
+  {
+    category: "AI Radar",
+    date: "2026-05-19",
+    href: "/ai-radar",
+    title: "AI Radar page added",
+    summary:
+      "A curated board of official AI sources, original short notes, and safe link-out reading paths.",
+  },
   {
     category: "Guide",
     date: "2026-05-19",
@@ -141,6 +150,7 @@ function getInitialAssistantMessages(): AssistantMessage[] {
       links: [
         { href: "/portfolio#work", label: "Projects" },
         { href: "/blogs", label: "Blogs" },
+        { href: "/ai-radar", label: "AI Radar" },
       ],
     },
   ];
@@ -162,9 +172,89 @@ type SubscriberViewState =
 const THEME_STORAGE_KEY = "portfolio-theme";
 const SAVED_POSTS_STORAGE_KEY_PREFIX = "portfolio-saved-posts:";
 const ALL_BLOG_CATEGORIES = "All";
+const ALL_AI_RADAR_CATEGORIES = "All signals";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
 const LOCKED_BLOG_CAPTION =
   "This one is in the members-only lab. Sign in and the doors open.";
+
+type AiRadarSignal = {
+  category: string;
+  cadence: string;
+  href: string;
+  source: string;
+  summary: string;
+  title: string;
+  whyItMatters: string;
+};
+
+const aiRadarSignals: AiRadarSignal[] = [
+  {
+    category: "Models",
+    cadence: "Official release notes",
+    href: "https://openai.com/news/",
+    source: "OpenAI News",
+    title: "Model and product release signal",
+    summary:
+      "Official updates on new models, product changes, developer capabilities, and safety notes.",
+    whyItMatters:
+      "Useful for tracking what is actually shipping, not just what is trending on social feeds.",
+  },
+  {
+    category: "Agents",
+    cadence: "Research and company updates",
+    href: "https://www.anthropic.com/news",
+    source: "Anthropic News",
+    title: "Agentic workflows and model behavior",
+    summary:
+      "A good source for model capability notes, safety framing, and practical AI workflow direction.",
+    whyItMatters:
+      "Helpful when thinking about assistants, tool use, MCP-style integrations, and enterprise adoption.",
+  },
+  {
+    category: "Research",
+    cadence: "Recent papers",
+    href: "https://arxiv.org/list/cs.AI/recent",
+    source: "arXiv CS.AI",
+    title: "Fresh AI research feed",
+    summary:
+      "A free research stream for AI papers, ideas, techniques, and early signals before they become products.",
+    whyItMatters:
+      "Best used as a source of direction. We link to papers instead of republishing paper text.",
+  },
+  {
+    category: "Open Source",
+    cadence: "Community engineering notes",
+    href: "https://huggingface.co/blog",
+    source: "Hugging Face Blog",
+    title: "Open-source models and developer tooling",
+    summary:
+      "Practical posts around models, datasets, evaluation, inference, and the open-source AI ecosystem.",
+    whyItMatters:
+      "Strong place to watch what builders can actually try, fine-tune, host, and integrate.",
+  },
+  {
+    category: "Industry",
+    cadence: "AI product and research updates",
+    href: "https://blog.google/technology/ai/",
+    source: "Google AI Blog",
+    title: "AI product and research movement",
+    summary:
+      "Official updates across search, Gemini, research, AI products, responsible AI, and developer tooling.",
+    whyItMatters:
+      "A useful view into how AI capabilities are moving into large-scale consumer and cloud products.",
+  },
+  {
+    category: "Enterprise",
+    cadence: "Cloud and platform updates",
+    href: "https://blogs.nvidia.com/blog/category/artificial-intelligence/",
+    source: "NVIDIA AI Blog",
+    title: "AI infrastructure and enterprise adoption",
+    summary:
+      "Updates around GPUs, inference, enterprise AI systems, robotics, healthcare, and industrial AI.",
+    whyItMatters:
+      "Good signal for the infrastructure side of AI, especially when models move from demos to production.",
+  },
+];
 
 function normalizeSavedPostSlugs(savedPostSlugs: unknown) {
   return Array.isArray(savedPostSlugs)
@@ -260,6 +350,14 @@ function isWhatsNewPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/whats-new";
 }
 
+function isAiRadarPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/ai-radar";
+}
+
 function isShelfPathname() {
   if (typeof window === "undefined") {
     return false;
@@ -342,6 +440,7 @@ function getReturnTargetConfig(target: string) {
     contact: { href: "/work-with-me", label: "Back to work with me" },
     dashboard: { href: "/dashboard", label: "Back to dashboard" },
     home: { href: "/", label: "Back home" },
+    "ai-radar": { href: "/ai-radar", label: "Back to AI Radar" },
     portfolio: { href: "/portfolio", label: "Back to portfolio" },
     "saved-posts": { href: "/saved-posts", label: "Back to saved posts" },
     shelf: { href: "/shelf", label: "Back to shelf" },
@@ -760,6 +859,7 @@ type ReaderMenuGlyphType =
   | "menu"
   | "news"
   | "pen"
+  | "radar"
   | "shelf"
   | "spark";
 
@@ -862,6 +962,14 @@ function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
         strokeLinejoin="round"
         strokeWidth="1.8"
       />
+    ),
+    radar: (
+      <>
+        <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1.7" />
+        <circle cx="12" cy="12" r="3.4" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M12 12 17.2 8" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+        <circle cx="16.7" cy="8.3" r="1.4" fill="currentColor" />
+      </>
     ),
     shelf: (
       <>
@@ -1022,9 +1130,11 @@ const assistantSynonyms: Record<string, string[]> = {
   mail: ["email", "contact"],
   mcp: ["model", "context", "protocol", "anthropic", "certification"],
   name: ["profile", "sai", "kumar", "mediboina"],
+  news: ["latest", "updates", "radar", "ai"],
   performance: ["latency", "throughput", "optimization", "scale", "speed"],
   project: ["work", "portfolio", "system", "engine"],
   projects: ["work", "portfolio", "systems", "engines"],
+  radar: ["news", "latest", "updates", "ai", "sources"],
   resume: ["experience", "projects", "skills", "education"],
   search: ["opensearch", "oracle", "text", "semantic"],
   signin: ["sign", "login", "subscribe", "unlock"],
@@ -1036,6 +1146,7 @@ const assistantSynonyms: Record<string, string[]> = {
 const siteSpecificQuestionWords = new Set([
   "blog",
   "blogs",
+  "news",
   "certificate",
   "certification",
   "certifications",
@@ -1046,6 +1157,7 @@ const siteSpecificQuestionWords = new Set([
   "portfolio",
   "project",
   "projects",
+  "radar",
   "resume",
   "role",
   "sai",
@@ -1324,7 +1436,7 @@ function getAssistantKnowledgeEntries(
       category: "page",
       title: "What the assistant knows",
       summary:
-        "This assistant answers from the website content: portfolio sections, selected projects, blogs, latest updates, dashboard notes, credentials, sign-in access, saved posts, and work-with-me links. If a question is outside that scope, it says so instead of guessing.",
+        "This assistant answers from the website content: portfolio sections, selected projects, blogs, AI Radar, latest updates, dashboard notes, credentials, sign-in access, saved posts, and work-with-me links. If a question is outside that scope, it says so instead of guessing.",
       keywords: [
         "assistant",
         "bot",
@@ -1342,6 +1454,7 @@ function getAssistantKnowledgeEntries(
         { href: "/start", label: "Start Here" },
         { href: "/portfolio#work", label: "Projects" },
         { href: "/blogs", label: "Blogs" },
+        { href: "/ai-radar", label: "AI Radar" },
       ],
       priority: 5,
     }),
@@ -1527,6 +1640,32 @@ function getAssistantKnowledgeEntries(
       keywords: ["what", "new", "latest", "updates", "recent", "last", "30", "days"],
       links: [{ href: "/whats-new", label: "Open What's New" }],
       priority: 4,
+    }),
+    createAssistantEntry({
+      category: "page",
+      title: "AI Radar",
+      summary:
+        "AI Radar is a curated link-out board for official and free AI sources. It shows source, category, cadence, and Sai's short original why-it-matters note instead of copying full articles.",
+      details: aiRadarSignals
+        .slice(0, 5)
+        .map((signal) => `${signal.source}: ${signal.title} (${signal.category})`),
+      keywords: [
+        "ai",
+        "artificial",
+        "intelligence",
+        "radar",
+        "news",
+        "latest",
+        "sources",
+        "openai",
+        "anthropic",
+        "arxiv",
+        "hugging",
+        "google",
+        "nvidia",
+      ],
+      links: [{ href: "/ai-radar", label: "Open AI Radar" }],
+      priority: 5,
     }),
     createAssistantEntry({
       category: "page",
@@ -1751,6 +1890,7 @@ function getAssistantUnknownResponse(): Pick<AssistantMessage, "links" | "text">
     links: [
       { href: "/start", label: "Start Here" },
       { href: "/blogs", label: "Blogs" },
+      { href: "/ai-radar", label: "AI Radar" },
       { href: "/portfolio#work", label: "Projects" },
     ],
   };
@@ -1764,6 +1904,7 @@ function getAssistantGreetingResponse(): Pick<AssistantMessage, "links" | "text"
       { href: "/start", label: "Start Here" },
       { href: "/portfolio#work", label: "Projects" },
       { href: "/blogs", label: "Blogs" },
+      { href: "/ai-radar", label: "AI Radar" },
     ],
   };
 }
@@ -1885,6 +2026,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
 
   const quickPrompts = [
     "What can you answer?",
+    "Show AI Radar",
     "Explain AI and LLM work",
     "What performance work stands out?",
     "How do I contact Sai?",
@@ -2318,6 +2460,7 @@ function ReaderMenu({
     { href: "/start", icon: "spark" as const, label: "Start Here" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
+    { href: "/ai-radar", icon: "radar" as const, label: "AI Radar" },
     { href: "/whats-new", icon: "news" as const, label: "What's New" },
     { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
     {
@@ -3101,6 +3244,7 @@ function SiteFooter() {
           &copy; {new Date().getFullYear()} {profile.name}
         </p>
         <div className="footer-links">
+          <a href="/ai-radar">AI Radar</a>
           <a href="/work-with-me">Work With Me</a>
           <a href={`mailto:${profile.email}`}>Email</a>
           <a href={profile.linkedin} target="_blank" rel="noreferrer">
@@ -3145,6 +3289,14 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
     },
     {
       eyebrow: "04",
+      title: "Scan the AI radar",
+      detail:
+        "Follow official and free AI source lanes with short original context and direct links to the source.",
+      href: "/ai-radar",
+      cta: "Open AI Radar",
+    },
+    {
+      eyebrow: "05",
       title: "Save the useful things",
       detail:
         "Use Sai's Shelf for curated resources and sign in when you want saved posts and content updates.",
@@ -3314,6 +3466,189 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
               </p>
             </div>
           )}
+        </section>
+      </main>
+    </>
+  );
+}
+
+type AiRadarPageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function AiRadarPage({ theme, onThemeToggle }: AiRadarPageProps) {
+  const [selectedCategory, setSelectedCategory] = useState(ALL_AI_RADAR_CATEGORIES);
+  const aiRadarCategories = [
+    ALL_AI_RADAR_CATEGORIES,
+    ...Array.from(new Set(aiRadarSignals.map((signal) => signal.category))),
+  ];
+  const visibleSignals =
+    selectedCategory === ALL_AI_RADAR_CATEGORIES
+      ? aiRadarSignals
+      : aiRadarSignals.filter((signal) => signal.category === selectedCategory);
+  const featuredSignal = aiRadarSignals[0];
+  const radarStats = [
+    { value: `${aiRadarSignals.length}`, label: "free source lanes" },
+    { value: "0", label: "full articles copied" },
+    { value: "100%", label: "link-out reading" },
+  ];
+  const radarPrinciples = [
+    {
+      title: "Link to originals",
+      detail:
+        "Readers open the publisher, research feed, or official newsroom directly so credit and traffic stay with the source.",
+    },
+    {
+      title: "Write original notes",
+      detail:
+        "The short context here is written for this site. No full article text, screenshots, or copied media are reused.",
+    },
+    {
+      title: "Keep it useful",
+      detail:
+        "The feed favors practical signals for builders: models, agents, research, open source, enterprise AI, and infrastructure.",
+    },
+  ];
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to AI Radar
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>AI Radar</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <PageBackButton fallbackHref="/" label="Back" />
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="ai-radar-page shell" id="main-content">
+        <section className="ai-radar-hero">
+          <div className="ai-radar-hero-copy">
+            <p className="eyebrow">AI Radar</p>
+            <h1>Latest AI signals without the noisy scroll.</h1>
+            <p>
+              A curated board of free and official AI sources, organized for engineers who want
+              useful model, agent, research, open-source, and infrastructure updates without
+              copying publisher content.
+            </p>
+            <div className="ai-radar-actions">
+              <a className="button button-primary" href="#radar-feed">
+                Scan sources
+              </a>
+              <a className="button button-secondary" href="#newsletter">
+                Get updates
+              </a>
+            </div>
+          </div>
+
+          <aside className="ai-radar-featured" aria-label="Featured AI source">
+            <span className="ai-radar-live-dot">Featured source</span>
+            <h2>{featuredSignal.title}</h2>
+            <p>{featuredSignal.summary}</p>
+            <div className="ai-radar-source-line">
+              <span>{featuredSignal.source}</span>
+              <span>{featuredSignal.category}</span>
+            </div>
+            <p className="ai-radar-why">{featuredSignal.whyItMatters}</p>
+            <a href={featuredSignal.href} target="_blank" rel="noreferrer">
+              Read original source
+            </a>
+          </aside>
+        </section>
+
+        <section className="ai-radar-stats" aria-label="AI Radar publishing rules">
+          {radarStats.map((stat) => (
+            <article key={stat.label}>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
+            </article>
+          ))}
+        </section>
+
+        <section className="ai-radar-layout" id="radar-feed">
+          <aside className="ai-radar-lens" aria-label="AI Radar filters">
+            <p className="eyebrow">Signal filters</p>
+            <h2>Choose the lane you care about.</h2>
+            <div className="ai-radar-filters">
+              {aiRadarCategories.map((category) => (
+                <button
+                  className={category === selectedCategory ? "is-active" : ""}
+                  key={category}
+                  type="button"
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+            <div className="ai-radar-note">
+              <strong>Copyright-safe by design.</strong>
+              <p>
+                This page points to original sources and adds short context. It does not republish
+                full articles, source images, or paywalled content.
+              </p>
+            </div>
+          </aside>
+
+          <div className="ai-radar-feed" aria-label="Curated AI source list">
+            {visibleSignals.map((signal, index) => (
+              <article className="ai-radar-item" key={signal.href}>
+                <span className="ai-radar-number">{String(index + 1).padStart(2, "0")}</span>
+                <div className="ai-radar-item-copy">
+                  <div className="ai-radar-item-meta">
+                    <span>{signal.category}</span>
+                    <span>{signal.cadence}</span>
+                  </div>
+                  <h3>{signal.title}</h3>
+                  <p>{signal.summary}</p>
+                  <p className="ai-radar-why">{signal.whyItMatters}</p>
+                </div>
+                <div className="ai-radar-item-action">
+                  <span>{signal.source}</span>
+                  <a href={signal.href} target="_blank" rel="noreferrer">
+                    Read original
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="ai-radar-principles" aria-label="AI Radar editorial principles">
+          {radarPrinciples.map((principle) => (
+            <article key={principle.title}>
+              <ReaderMenuGlyph type="radar" />
+              <h2>{principle.title}</h2>
+              <p>{principle.detail}</p>
+            </article>
+          ))}
         </section>
       </main>
     </>
@@ -4635,6 +4970,7 @@ function App() {
   const isSignInPage = isSignInPathname();
   const isStartPage = isStartPathname();
   const isWhatsNewPage = isWhatsNewPathname();
+  const isAiRadarPage = isAiRadarPathname();
   const isSavedPostsPage = isSavedPostsPathname();
   const isShelfPage = isShelfPathname();
   const isDashboardPage = isDashboardPathname();
@@ -5198,6 +5534,15 @@ function App() {
   if (isWhatsNewPage) {
     return renderWithAssistant(
       <WhatsNewPage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />,
+    );
+  }
+
+  if (isAiRadarPage) {
+    return renderWithAssistant(
+      <AiRadarPage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
