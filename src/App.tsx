@@ -4910,43 +4910,43 @@ function HomePage({
           </div>
         </div>
 
-        <aside className="home-command-card" aria-label="Portfolio command center">
+        <aside className="home-command-card" aria-label="Engineering focus overview">
           <div className="home-command-top">
             <div>
-              <p className="impact-label">System Snapshot</p>
-              <h2>Production backend impact map</h2>
+              <p className="impact-label">Engineering Focus</p>
+              <h2>Useful signals for the right conversation</h2>
             </div>
-            <span>Live</span>
+            <span>Focused</span>
           </div>
 
-          <div className="home-architecture-diagram" aria-hidden="true">
-            <div className="home-architecture-flow">
-              <span>Clients</span>
-              <i />
-              <span>API Layer</span>
-              <i />
-              <span>Screening Services</span>
+          <div className="home-value-map">
+            <div className="home-value-intro">
+              <span>Useful if you need</span>
+              <strong>Fast, reliable search-backed systems</strong>
             </div>
 
-            <div className="home-architecture-core">
-              <div className="home-architecture-node is-search">
-                <span>Search Index</span>
-                <strong>Oracle Text</strong>
+            <div className="home-value-grid">
+              <div className="home-value-node is-search">
+                <span>Search Quality</span>
+                <strong>Matching and ranking</strong>
+                <p>Noisy data, entity resolution, Oracle Text, semantic retrieval, and explainable scoring.</p>
               </div>
-              <div className="home-architecture-node is-ai">
-                <span>AI Scoring</span>
-                <strong>Similarity + Rules</strong>
+              <div className="home-value-node is-performance">
+                <span>Performance</span>
+                <strong>Latency and throughput</strong>
+                <p>Batch optimization, async processing, caching, indexing, and high-volume backend flows.</p>
               </div>
-              <div className="home-architecture-node is-data">
-                <span>Data Layer</span>
-                <strong>DB + Cache</strong>
+              <div className="home-value-node is-ai">
+                <span>AI Workflows</span>
+                <strong>Practical automation</strong>
+                <p>LLM-assisted workflows, hybrid scoring, decision support, and controlled AI behavior.</p>
               </div>
             </div>
 
-            <div className="home-architecture-outcomes">
-              <span>Real-time requests</span>
-              <span>Batch screening</span>
-              <span>Explainable results</span>
+            <div className="home-value-outcomes" aria-label="Primary outcomes">
+              <span>Lower latency</span>
+              <span>Better relevance</span>
+              <span>Scalable delivery</span>
             </div>
           </div>
 
