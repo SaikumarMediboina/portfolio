@@ -6849,6 +6849,15 @@ dt {
   width: 3.6rem;
   height: 3.6rem;
   pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    visibility 0.18s ease;
+}
+
+.site-assistant.is-suppressed {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .assistant-launcher {

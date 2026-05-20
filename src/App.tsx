@@ -3578,10 +3578,11 @@ function getAssistantResponse(
 
 type SiteAssistantProps = {
   isSubscribed: boolean;
+  isSuppressed?: boolean;
   subscriberUser: User | null;
 };
 
-function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
+function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: SiteAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | null>(
@@ -3865,7 +3866,7 @@ function SiteAssistant({ isSubscribed, subscriberUser }: SiteAssistantProps) {
 
   return (
     <div
-      className={`site-assistant${isOpen ? " is-open" : ""}`}
+      className={`site-assistant${isOpen ? " is-open" : ""}${isSuppressed ? " is-suppressed" : ""}`}
       ref={assistantRef}
       style={assistantStyle}
     >
@@ -9048,7 +9049,11 @@ function App() {
         />
       </div>
       <SiteFooter />
-      <SiteAssistant isSubscribed={isSubscribed} subscriberUser={subscriberUser} />
+      <SiteAssistant
+        isSubscribed={isSubscribed}
+        isSuppressed={menuOpen || readerMenuOpen || profileMenuOpen}
+        subscriberUser={subscriberUser}
+      />
     </>
   );
 
@@ -9294,7 +9299,22 @@ function App() {
                 {link.label}
               </a>
             ))}
-            {currentMoreNavLinks.length ? (
+            {currentMoreNavLinks.length && isCompactNav
+              ? currentMoreNavLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    className={isNavLinkActive(link) ? "is-active" : ""}
+                    href={link.href}
+                    onClick={closeMenu}
+                  >
+                    <span className="site-nav-icon">
+                      <ReaderMenuGlyph type={link.icon} />
+                    </span>
+                    {link.label}
+                  </a>
+                ))
+              : null}
+            {currentMoreNavLinks.length && !isCompactNav ? (
               <details
                 className={`site-nav-more${moreMenuOpen ? " is-open" : ""}${
                   currentMoreNavLinks.some(isNavLinkActive) ? " has-active" : ""
