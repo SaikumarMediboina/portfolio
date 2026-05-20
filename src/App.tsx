@@ -5149,35 +5149,35 @@ function HomePage({
   );
   const homeLanes = [
     {
-      cta: "Open portfolio",
-      detail: "Career proof, projects, skills, credentials.",
+      cta: "View work",
+      detail: "Projects, skills, role story, and proof.",
       href: "/portfolio",
       icon: "briefcase" as const,
-      meta: "Career proof",
+      meta: "Work",
       title: "Portfolio",
     },
     {
       cta: "Read notes",
-      detail: "Short backend notes and diagrams.",
+      detail: "Backend lessons with clean diagrams.",
       href: "/blogs",
       icon: "pen" as const,
       meta: `${blogPosts.length} field notes`,
       title: "Blogs",
     },
     {
-      cta: "Scan radar",
-      detail: "Curated AI stories with context.",
+      cta: "Scan updates",
+      detail: "AI stories worth tracking today.",
       href: "/ai-radar",
       icon: "radar" as const,
-      meta: "AI signals",
+      meta: "Live signals",
       title: "AI Radar",
     },
     {
-      cta: "View dashboard",
-      detail: "Site signals and reader insights.",
+      cta: "Open cockpit",
+      detail: "Content, analytics, and saved signals.",
       href: "/dashboard",
       icon: "news" as const,
-      meta: "Site cockpit",
+      meta: "Dashboard",
       title: "Dashboard",
     },
   ];
@@ -5242,11 +5242,11 @@ function HomePage({
     <>
       <section className="home-hero shell" id="top">
         <div className="home-hero-copy">
-          <p className="eyebrow">Backend Systems / AI Search / Performance Engineering</p>
+          <p className="eyebrow">Backend Systems / AI Search / Performance</p>
           <h1>Hey, Sai here.</h1>
           <p className="home-hero-lede">
-            {profile.currentTitle} at {profile.company}, building reliable backend, search, and
-            practical AI workflows for high-volume systems.
+            I build reliable backend systems, search workflows, and practical AI experiments for
+            high-volume products.
           </p>
 
           <div className="home-hero-actions">
@@ -5262,9 +5262,9 @@ function HomePage({
           </div>
 
           <div className="home-trust-strip" aria-label="Core strengths">
-            <span>Java and Spring backend systems</span>
-            <span>Oracle Text and semantic search</span>
-            <span>LLM workflow exploration</span>
+            <span>Spring backend systems</span>
+            <span>Search and matching</span>
+            <span>AI workflow experiments</span>
           </div>
         </div>
 
@@ -5275,7 +5275,7 @@ function HomePage({
                 <span aria-hidden="true" />
                 {homeRadarStatus === "live" ? "Live AI Radar" : "Curated AI Radar"}
               </span>
-              <h2>Fresh AI signals, kept lightweight.</h2>
+              <h2>Fresh AI signals for builders.</h2>
             </div>
             <a href="/ai-radar">Open radar</a>
           </div>
@@ -5355,11 +5355,11 @@ function HomePage({
 
       <section className="home-section shell home-lanes" id="about">
         <div className="home-section-heading">
-          <p className="eyebrow">Choose Your Path</p>
-          <h2>A cleaner way to explore the site.</h2>
+          <p className="eyebrow">Start Fast</p>
+          <h2>Get value in the first five minutes.</h2>
           <p>
-            Start with proof of work, technical writing, AI updates, or collaboration. The homepage
-            now works like a front desk instead of asking you to scroll through everything at once.
+            Pick a lane based on what you need: proof of work, backend notes, AI updates, or a quick
+            view of what is active.
           </p>
         </div>
 
@@ -5380,9 +5380,9 @@ function HomePage({
 
       <section className="home-section shell home-proof">
         <div className="home-proof-copy">
-          <p className="eyebrow">Proof Points</p>
-          <h2>Backend outcomes with measurable impact.</h2>
-          <p>Latency, throughput, and reliability improvements.</p>
+          <p className="eyebrow">Current Signal</p>
+          <h2>Backend work with measurable outcomes.</h2>
+          <p>Performance, search quality, and reliability.</p>
         </div>
 
         <div className="home-proof-grid">
@@ -5398,7 +5398,7 @@ function HomePage({
 
       <section className="home-section shell home-work-preview">
         <div className="home-work-card">
-          <p className="eyebrow">Featured Work</p>
+          <p className="eyebrow">Featured Build</p>
           <h2>{projects[0]?.name}</h2>
           <p>{projects[0]?.summary}</p>
           <div className="home-stack-row" aria-label="Featured project stack">
@@ -5432,11 +5432,11 @@ function HomePage({
 
       <section className="home-section shell home-writing">
         <div className="home-section-heading">
-          <p className="eyebrow">Writing</p>
-          <h2>Selected engineering notes.</h2>
+          <p className="eyebrow">Latest Notes</p>
+          <h2>Short reads. Real systems.</h2>
           <p>
-            Short, practical write-ups that explain the problem, tradeoffs, implementation approach,
-            and outcome behind real backend work.
+            Practical notes from backend performance, search, caching, async processing, and AI
+            system experiments.
           </p>
         </div>
 
