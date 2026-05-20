@@ -75,16 +75,66 @@ const mainMoreNavLinks = [
 ] as const;
 
 const emptyNavLinks = [] as const;
+const LEARN_ACCESS_STORAGE_KEY = "portfolio.learnWithMeAccess.v1";
 
 type SiteUpdate = {
   category: string;
   date: string;
+  details?: string[];
   href: string;
   summary: string;
   title: string;
 };
 
 const siteUpdates: SiteUpdate[] = [
+  {
+    category: "Access",
+    date: "2026-05-20",
+    href: "/learn-with-me",
+    title: "Learn With Me is now password protected",
+    summary:
+      "The learning room now opens only after password verification, keeping early notes, scripts, and experiments separate from the public portfolio.",
+    details: [
+      "Password verification runs through a Vercel API route, so the password is not placed directly in the frontend bundle.",
+      "After a successful unlock, access stays available for the current browser session.",
+    ],
+  },
+  {
+    category: "Navigation",
+    date: "2026-05-20",
+    href: "/",
+    title: "Main navigation cleaned up for desktop and mobile",
+    summary:
+      "The top menu now keeps the primary pages visible and moves secondary pages into More, making the header easier to scan on smaller screens.",
+    details: [
+      "Primary links stay focused on Start Here, Portfolio, Active Builds, AI Radar, Blogs, and Dashboard.",
+      "The mobile menu now opens with safer top spacing so the menu panel does not get clipped near the top of the screen.",
+    ],
+  },
+  {
+    category: "Reader Menu",
+    date: "2026-05-20",
+    href: "/saved-posts",
+    title: "Left side menu simplified",
+    summary:
+      "The side menu now focuses on reader actions and useful destinations instead of repeating every top-level page.",
+    details: [
+      "The menu order is Home, Saved Posts, Learn With Me, What's New, Sai's Shelf, Work With Me, and About.",
+      "Each item uses a distinct icon so the menu is quicker to recognize visually.",
+    ],
+  },
+  {
+    category: "Projects",
+    date: "2026-05-20",
+    href: "/active-builds",
+    title: "Active Builds page added",
+    summary:
+      "A new page now shows current experiments, learning ideas, and portfolio-side projects in one place.",
+    details: [
+      "The page separates polished work from ongoing builds, so visitors can understand what is actively evolving.",
+      "It gives space for future projects without crowding the main portfolio page.",
+    ],
+  },
   {
     category: "AI Radar",
     date: "2026-05-19",
@@ -5450,7 +5500,24 @@ type LearnWithMePageProps = {
   onThemeToggle: () => void;
 };
 
+function getStoredLearnAccess() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.sessionStorage.getItem(LEARN_ACCESS_STORAGE_KEY) === "granted";
+  } catch {
+    return false;
+  }
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
+  const [accessGranted, setAccessGranted] = useState(getStoredLearnAccess);
+  const [accessBusy, setAccessBusy] = useState(false);
+  const [accessError, setAccessError] = useState("");
+  const [accessPassword, setAccessPassword] = useState("");
+  const [accessMessage, setAccessMessage] = useState("");
   const learningTracks = [
     {
       detail:
@@ -5487,6 +5554,55 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     "Connect it to system design",
     "Apply it in a small build",
   ];
+
+  const handleLearnAccessSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const password = accessPassword.trim();
+
+    setAccessError("");
+    setAccessMessage("");
+
+    if (!password) {
+      setAccessError("Please enter the access password.");
+      return;
+    }
+
+    setAccessBusy(true);
+
+    try {
+      const response = await fetch("/api/learn-access", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setAccessError(
+          typeof payload.error === "string"
+            ? payload.error
+            : "Unable to verify the password right now.",
+        );
+        return;
+      }
+
+      try {
+        window.sessionStorage.setItem(LEARN_ACCESS_STORAGE_KEY, "granted");
+      } catch {
+        // Session storage is a convenience only; access still opens for the current render.
+      }
+
+      setAccessGranted(true);
+      setAccessPassword("");
+      setAccessMessage("Access granted. Welcome in.");
+    } catch {
+      setAccessError("Network hiccup. Please try the password again in a moment.");
+    } finally {
+      setAccessBusy(false);
+    }
+  };
 
   return (
     <>
@@ -5526,43 +5642,93 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       </header>
 
       <main className="guide-page learn-page shell" id="main-content">
-        <section className="guide-hero learn-hero">
-          <p className="eyebrow">Learn With Me</p>
-          <h1>Small lessons for strong computer science foundations.</h1>
-          <p>
-            A learning space for simple, practical explanations of backend systems, CS fundamentals,
-            search architecture, and AI workflows. The goal is clarity first, depth next.
-          </p>
-        </section>
+        {!accessGranted ? (
+          <section className="learn-access-panel" aria-labelledby="learn-access-title">
+            <div className="learn-access-copy">
+              <p className="eyebrow">Protected Learning Room</p>
+              <h1 id="learn-access-title">Enter the password to open Learn With Me.</h1>
+              <p>
+                This space is reserved for selected learning notes, experiments, and early drafts.
+                Once the password is verified, the room opens for this browser session.
+              </p>
+            </div>
 
-        <section className="learn-track-grid" aria-label="Learning tracks">
-          {learningTracks.map((track) => (
-            <article className="learn-track-card" key={track.title}>
+            <form className="learn-access-card" onSubmit={handleLearnAccessSubmit}>
               <div className="guide-feature-icon">
-                <ReaderMenuGlyph type={track.icon} />
+                <ReaderMenuGlyph type="spark" />
               </div>
-              <span>{track.label}</span>
-              <h2>{track.title}</h2>
-              <p>{track.detail}</p>
-            </article>
-          ))}
-        </section>
+              <label htmlFor="learn-access-password">
+                <span>Access password</span>
+                <input
+                  id="learn-access-password"
+                  type="password"
+                  value={accessPassword}
+                  autoComplete="current-password"
+                  placeholder="Enter password"
+                  onChange={(event) => {
+                    setAccessPassword(event.target.value);
+                    setAccessError("");
+                    setAccessMessage("");
+                  }}
+                />
+              </label>
+              <button className="button button-primary" type="submit" disabled={accessBusy}>
+                {accessBusy ? "Checking..." : "Unlock Learn With Me"}
+              </button>
+              {accessError ? (
+                <p className="status-message is-error" role="alert">
+                  {accessError}
+                </p>
+              ) : null}
+              {accessMessage ? (
+                <p className="status-message is-success" role="status">
+                  {accessMessage}
+                </p>
+              ) : null}
+            </form>
+          </section>
+        ) : (
+          <>
+            <section className="guide-hero learn-hero">
+              <p className="eyebrow">Learn With Me</p>
+              <h1>Small lessons for strong computer science foundations.</h1>
+              <p>
+                A learning space for simple, practical explanations of backend systems, CS
+                fundamentals, search architecture, and AI workflows. The goal is clarity first,
+                depth next.
+              </p>
+            </section>
 
-        <section className="learn-flow-panel" aria-label="Learning format">
-          <div>
-            <p className="eyebrow">Format</p>
-            <h2>Each topic will stay simple, visual, and useful.</h2>
-            <p>
-              I will keep this section friendly for new learners while still connecting concepts to
-              real backend engineering work.
-            </p>
-          </div>
-          <ol>
-            {learningFlow.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-        </section>
+            <section className="learn-track-grid" aria-label="Learning tracks">
+              {learningTracks.map((track) => (
+                <article className="learn-track-card" key={track.title}>
+                  <div className="guide-feature-icon">
+                    <ReaderMenuGlyph type={track.icon} />
+                  </div>
+                  <span>{track.label}</span>
+                  <h2>{track.title}</h2>
+                  <p>{track.detail}</p>
+                </article>
+              ))}
+            </section>
+
+            <section className="learn-flow-panel" aria-label="Learning format">
+              <div>
+                <p className="eyebrow">Format</p>
+                <h2>Each topic will stay simple, visual, and useful.</h2>
+                <p>
+                  I will keep this section friendly for new learners while still connecting concepts
+                  to real backend engineering work.
+                </p>
+              </div>
+              <ol>
+                {learningFlow.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </section>
+          </>
+        )}
       </main>
     </>
   );
@@ -5750,6 +5916,13 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
                 </div>
                 <h2>{update.title}</h2>
                 <p>{update.summary}</p>
+                {update.details?.length ? (
+                  <ul className="whats-new-details">
+                    {update.details.map((detail) => (
+                      <li key={detail}>{detail}</li>
+                    ))}
+                  </ul>
+                ) : null}
                 <a href={update.href}>Open update</a>
               </article>
             ))
