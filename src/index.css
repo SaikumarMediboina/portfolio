@@ -12417,3 +12417,127 @@ body::before {
     padding: 1.15rem;
   }
 }
+
+/* Homepage spacing correction: separates content bands and prevents stat cards from stretching. */
+.home-hero + .home-section,
+.home-section + .home-section {
+  margin-top: clamp(1.45rem, 3vw, 2.4rem);
+}
+
+.home-lane-grid,
+.home-writing-grid,
+.home-proof-grid,
+.home-work-preview {
+  gap: clamp(0.95rem, 1.5vw, 1.35rem);
+}
+
+.home-lane-card,
+.home-writing-card,
+.home-proof-card,
+.home-work-card,
+.home-update-card,
+.home-final-cta,
+.home-radar-board-top,
+.home-radar-lead-card,
+.home-radar-mini-card {
+  border-color: color-mix(in srgb, var(--panel-border) 86%, transparent);
+}
+
+.home-lane-card {
+  min-height: clamp(13.5rem, 17vw, 15.5rem);
+  padding: clamp(1.05rem, 1.7vw, 1.35rem);
+}
+
+.home-lane-card p {
+  max-width: 18rem;
+}
+
+.home-proof.home-section {
+  align-items: start;
+  margin-top: clamp(1.8rem, 3.5vw, 2.8rem);
+  padding-top: 0;
+}
+
+.home-proof-copy {
+  min-height: auto;
+  padding: clamp(0.2rem, 1vw, 0.6rem) 0;
+}
+
+.home-proof-copy h2 {
+  max-width: 14ch;
+  font-size: clamp(2.25rem, 4.4vw, 4rem);
+  line-height: 1.02;
+}
+
+.home-proof-grid {
+  align-self: start;
+  align-items: start;
+}
+
+.home-proof-card {
+  align-content: start;
+  min-height: clamp(11rem, 18vw, 14rem);
+  padding: clamp(1.1rem, 2vw, 1.35rem);
+}
+
+.home-proof-card strong {
+  margin-top: 0.45rem;
+  font-size: clamp(2.2rem, 3.8vw, 3.35rem);
+}
+
+.home-proof-card p {
+  margin-top: 0.1rem;
+}
+
+.home-work-preview,
+.home-writing,
+.home-final-cta {
+  margin-top: clamp(1.8rem, 3.5vw, 2.8rem);
+}
+
+:root[data-theme="dark"] .home-lane-card,
+:root[data-theme="dark"] .home-writing-card,
+:root[data-theme="dark"] .home-proof-card {
+  background:
+    linear-gradient(180deg, rgba(255, 248, 239, 0.055), rgba(255, 248, 239, 0.025)),
+    rgba(255, 248, 239, 0.045);
+}
+
+@media (max-width: 1080px) {
+  .home-proof.home-section {
+    grid-template-columns: 1fr;
+  }
+
+  .home-proof-copy h2 {
+    max-width: 18ch;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-hero + .home-section,
+  .home-section + .home-section,
+  .home-proof.home-section,
+  .home-work-preview,
+  .home-writing,
+  .home-final-cta {
+    margin-top: 1.15rem;
+  }
+
+  .home-lane-grid,
+  .home-writing-grid,
+  .home-proof-grid,
+  .home-work-preview {
+    gap: 0.85rem;
+  }
+
+  .home-lane-card,
+  .home-writing-card,
+  .home-proof-card {
+    min-height: auto;
+    padding: 1rem;
+  }
+
+  .home-proof-copy h2 {
+    font-size: clamp(2rem, 11vw, 2.9rem);
+  }
+}
