@@ -60,6 +60,8 @@ const portfolioNavLinks = [
 const mainNavLinks = [
   { href: "/start", label: "Start Here" },
   { href: "/portfolio", label: "Portfolio" },
+  { href: "/learn-with-me", label: "Learn With Me" },
+  { href: "/active-builds", label: "Active Builds" },
   { href: "/blogs", label: "Blogs" },
   { href: "/ai-radar", label: "AI Radar" },
   { href: "/whats-new", label: "What's New" },
@@ -383,6 +385,8 @@ function getSeoMetadata({
   isBlogsPage,
   isContactPage,
   isDashboardPage,
+  isActiveBuildsPage,
+  isLearnPage,
   isPortfolioPage,
   isSavedPostsPage,
   isShelfPage,
@@ -396,6 +400,8 @@ function getSeoMetadata({
   isBlogsPage: boolean;
   isContactPage: boolean;
   isDashboardPage: boolean;
+  isActiveBuildsPage: boolean;
+  isLearnPage: boolean;
   isPortfolioPage: boolean;
   isSavedPostsPage: boolean;
   isShelfPage: boolean;
@@ -511,50 +517,70 @@ function getSeoMetadata({
                     title: getSeoTitle("Creator Dashboard"),
                     type: "website" as const,
                   }
-                : isContactPage
+                : isLearnPage
                   ? {
                       ...pageDefaults,
-                      analyticsTitle: "Work With Me",
-                      canonicalPath: "/work-with-me",
+                      analyticsTitle: "Learn With Me",
+                      canonicalPath: "/learn-with-me",
                       description:
-                        "Work with Sai Kumar Mediboina on backend performance, search-heavy systems, AI-assisted workflows, and scalable product engineering.",
-                      title: getSeoTitle("Work With Me"),
-                      type: "profile" as const,
+                        "Learn backend fundamentals, performance patterns, search systems, and practical AI workflows with Sai Kumar Mediboina.",
+                      title: getSeoTitle("Learn With Me"),
+                      type: "website" as const,
                     }
-                  : isSignInPage
+                  : isActiveBuildsPage
                     ? {
                         ...pageDefaults,
-                        analyticsTitle: "Sign In",
-                        canonicalPath: "/signin",
+                        analyticsTitle: "Active Builds",
+                        canonicalPath: "/active-builds",
                         description:
-                          "Sign in to follow portfolio updates, unlock member reads, and save useful engineering posts.",
-                        noindex: true,
-                        title: getSeoTitle("Reader Sign In"),
+                          "See Sai Kumar Mediboina's current build ideas, active portfolio experiments, learning projects, and upcoming engineering content.",
+                        title: getSeoTitle("Active Builds"),
                         type: "website" as const,
                       }
-                    : isSavedPostsPage
+                    : isContactPage
                       ? {
                           ...pageDefaults,
-                          analyticsTitle: "Saved Posts",
-                          canonicalPath: "/saved-posts",
+                          analyticsTitle: "Work With Me",
+                          canonicalPath: "/work-with-me",
                           description:
-                            "Saved posts and AI Radar stories for signed-in readers of Sai Kumar Mediboina's portfolio.",
-                          noindex: true,
-                          title: getSeoTitle("Saved Posts"),
-                          type: "website" as const,
+                            "Work with Sai Kumar Mediboina on backend performance, search-heavy systems, AI-assisted workflows, and scalable product engineering.",
+                          title: getSeoTitle("Work With Me"),
+                          type: "profile" as const,
                         }
-                      : isAdminUpdatePage
+                      : isSignInPage
                         ? {
                             ...pageDefaults,
-                            analyticsTitle: "Admin Update",
-                            canonicalPath: "/admin-update",
+                            analyticsTitle: "Sign In",
+                            canonicalPath: "/signin",
                             description:
-                              "Private admin update sender for Sai Kumar Mediboina portfolio subscribers.",
+                              "Sign in to follow portfolio updates, unlock member reads, and save useful engineering posts.",
                             noindex: true,
-                            title: getSeoTitle("Admin Updates"),
+                            title: getSeoTitle("Reader Sign In"),
                             type: "website" as const,
                           }
-                        : pageDefaults;
+                        : isSavedPostsPage
+                          ? {
+                              ...pageDefaults,
+                              analyticsTitle: "Saved Posts",
+                              canonicalPath: "/saved-posts",
+                              description:
+                                "Saved posts and AI Radar stories for signed-in readers of Sai Kumar Mediboina's portfolio.",
+                              noindex: true,
+                              title: getSeoTitle("Saved Posts"),
+                              type: "website" as const,
+                            }
+                          : isAdminUpdatePage
+                            ? {
+                                ...pageDefaults,
+                                analyticsTitle: "Admin Update",
+                                canonicalPath: "/admin-update",
+                                description:
+                                  "Private admin update sender for Sai Kumar Mediboina portfolio subscribers.",
+                                noindex: true,
+                                title: getSeoTitle("Admin Updates"),
+                                type: "website" as const,
+                              }
+                            : pageDefaults;
 
   const pageType = metadata.type === "profile" ? "ProfilePage" : "WebPage";
 
@@ -1165,6 +1191,22 @@ function isDashboardPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/dashboard";
 }
 
+function isLearnPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/learn-with-me";
+}
+
+function isActiveBuildsPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/active-builds";
+}
+
 function isBlogsPathname() {
   if (typeof window === "undefined") {
     return false;
@@ -1232,6 +1274,8 @@ function getReturnTargetConfig(target: string) {
     dashboard: { href: "/dashboard", label: "Back to dashboard" },
     home: { href: "/", label: "Back home" },
     "ai-radar": { href: "/ai-radar", label: "Back to AI Radar" },
+    "active-builds": { href: "/active-builds", label: "Back to active builds" },
+    learn: { href: "/learn-with-me", label: "Back to learn with me" },
     portfolio: { href: "/portfolio", label: "Back to portfolio" },
     "saved-posts": { href: "/saved-posts", label: "Back to saved posts" },
     shelf: { href: "/shelf", label: "Back to shelf" },
@@ -3975,6 +4019,8 @@ function ReaderMenu({
     { href: "/", icon: "home" as const, label: "Home" },
     { href: "/start", icon: "spark" as const, label: "Start Here" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
+    { href: "/learn-with-me", icon: "spark" as const, label: "Learn With Me" },
+    { href: "/active-builds", icon: "briefcase" as const, label: "Active Builds" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
     { href: "/ai-radar", icon: "radar" as const, label: "AI Radar" },
     { href: "/whats-new", icon: "news" as const, label: "What's New" },
@@ -5392,6 +5438,246 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
             ) : (
               <p>No new headlines in the last 30 days. The shelf is calm, for once.</p>
             )}
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
+
+type LearnWithMePageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
+  const learningTracks = [
+    {
+      detail:
+        "Short, beginner-friendly explainers for distributed systems, databases, networking, and core CS ideas.",
+      icon: "spark" as const,
+      label: "Track 01",
+      title: "Back to Basics",
+    },
+    {
+      detail:
+        "Practical notes on latency, caching, indexing, async processing, and production backend tradeoffs.",
+      icon: "briefcase" as const,
+      label: "Track 02",
+      title: "Backend Performance",
+    },
+    {
+      detail:
+        "Simple breakdowns of matching, ranking, semantic retrieval, scoring, and search-heavy architecture.",
+      icon: "radar" as const,
+      label: "Track 03",
+      title: "Search Systems",
+    },
+    {
+      detail:
+        "Hands-on AI workflow ideas with clear boundaries, useful automation, and real engineering context.",
+      icon: "news" as const,
+      label: "Track 04",
+      title: "Practical AI",
+    },
+  ];
+  const learningFlow = [
+    "Understand the concept",
+    "See a real scenario",
+    "Connect it to system design",
+    "Apply it in a small build",
+  ];
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to learn with me
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Learn with me</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <PageBackButton fallbackHref="/" label="Back" />
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="guide-page learn-page shell" id="main-content">
+        <section className="guide-hero learn-hero">
+          <p className="eyebrow">Learn With Me</p>
+          <h1>Small lessons for strong computer science foundations.</h1>
+          <p>
+            A learning space for simple, practical explanations of backend systems, CS fundamentals,
+            search architecture, and AI workflows. The goal is clarity first, depth next.
+          </p>
+        </section>
+
+        <section className="learn-track-grid" aria-label="Learning tracks">
+          {learningTracks.map((track) => (
+            <article className="learn-track-card" key={track.title}>
+              <div className="guide-feature-icon">
+                <ReaderMenuGlyph type={track.icon} />
+              </div>
+              <span>{track.label}</span>
+              <h2>{track.title}</h2>
+              <p>{track.detail}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="learn-flow-panel" aria-label="Learning format">
+          <div>
+            <p className="eyebrow">Format</p>
+            <h2>Each topic will stay simple, visual, and useful.</h2>
+            <p>
+              I will keep this section friendly for new learners while still connecting concepts to
+              real backend engineering work.
+            </p>
+          </div>
+          <ol>
+            {learningFlow.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </section>
+      </main>
+    </>
+  );
+}
+
+type ActiveBuildsPageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
+  const activeBuilds = [
+    {
+      detail:
+        "A CS fundamentals content series with short explanations, story-first scripts, diagrams, and AI-assisted video experiments.",
+      status: "Building",
+      tags: ["CS fundamentals", "Story scripts", "Short videos"],
+      title: "Back to Basics",
+    },
+    {
+      detail:
+        "A smarter site assistant and reader experience powered by curated website knowledge, saved posts, and cleaner navigation paths.",
+      status: "Improving",
+      tags: ["Assistant", "Knowledge base", "Reader tools"],
+      title: "Portfolio Intelligence Layer",
+    },
+    {
+      detail:
+        "Practical notes and diagrams around search quality, matching, ranking, backend performance, and controlled AI workflows.",
+      status: "Drafting",
+      tags: ["Search", "Performance", "AI workflows"],
+      title: "Engineering Notes Pipeline",
+    },
+  ];
+  const buildPrinciples = [
+    "Useful before flashy",
+    "Explain the why",
+    "Show real tradeoffs",
+    "Ship in small iterations",
+  ];
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to active builds
+      </a>
+
+      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
+      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
+
+      <header className="article-site-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>Active builds</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <PageBackButton fallbackHref="/" label="Back" />
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="guide-page active-builds-page shell" id="main-content">
+        <section className="guide-hero active-builds-hero">
+          <p className="eyebrow">Active Builds</p>
+          <h1>Current experiments, learning ideas, and portfolio-side projects.</h1>
+          <p>
+            A transparent view of what I am building next. Some items are polished, some are in
+            progress, and some are early experiments that will grow into useful content.
+          </p>
+        </section>
+
+        <section className="active-builds-grid" aria-label="Current active builds">
+          {activeBuilds.map((build, index) => (
+            <article className="active-build-card" key={build.title}>
+              <div>
+                <span>{build.status}</span>
+                <strong>{String(index + 1).padStart(2, "0")}</strong>
+              </div>
+              <h2>{build.title}</h2>
+              <p>{build.detail}</p>
+              <ul>
+                {build.tags.map((tag) => (
+                  <li key={tag}>{tag}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </section>
+
+        <section className="build-principles-panel">
+          <div>
+            <p className="eyebrow">Build Principles</p>
+            <h2>How these projects will be shaped.</h2>
+          </div>
+          <div>
+            {buildPrinciples.map((principle) => (
+              <span key={principle}>{principle}</span>
+            ))}
           </div>
         </section>
       </main>
@@ -7612,6 +7898,8 @@ function App() {
   const isSavedPostsPage = isSavedPostsPathname();
   const isShelfPage = isShelfPathname();
   const isDashboardPage = isDashboardPathname();
+  const isLearnPage = isLearnPathname();
+  const isActiveBuildsPage = isActiveBuildsPathname();
   const isBlogsPage = isBlogsPathname();
   const isContactPage = isContactPathname();
   const isPortfolioPage = isPortfolioPathname();
@@ -7622,6 +7910,8 @@ function App() {
     isBlogsPage,
     isContactPage,
     isDashboardPage,
+    isActiveBuildsPage,
+    isLearnPage,
     isPortfolioPage,
     isSavedPostsPage,
     isShelfPage,
@@ -7702,6 +7992,8 @@ function App() {
     isBlogsPage,
     isContactPage,
     isDashboardPage,
+    isActiveBuildsPage,
+    isLearnPage,
     isPortfolioPage,
     isSavedPostsPage,
     isShelfPage,
@@ -8481,6 +8773,24 @@ function App() {
   if (isDashboardPage) {
     return renderWithAssistant(
       <DashboardPage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />,
+    );
+  }
+
+  if (isLearnPage) {
+    return renderWithAssistant(
+      <LearnWithMePage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />,
+    );
+  }
+
+  if (isActiveBuildsPage) {
+    return renderWithAssistant(
+      <ActiveBuildsPage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
