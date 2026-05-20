@@ -4811,6 +4811,279 @@ function SiteFooter() {
   );
 }
 
+type HomePageProps = Pick<
+  BlogIndexSectionProps,
+  | "featuredBlog"
+  | "isPostSaved"
+  | "remainingBlogPosts"
+  | "savedPostsBusySlug"
+  | "subscriberUser"
+  | "onTrackBlogOpen"
+  | "onToggleSavedPost"
+>;
+
+function HomePage({
+  featuredBlog,
+  isPostSaved,
+  remainingBlogPosts,
+  savedPostsBusySlug,
+  subscriberUser,
+  onTrackBlogOpen,
+  onToggleSavedPost,
+}: HomePageProps) {
+  const homeLanes = [
+    {
+      cta: "Open portfolio",
+      detail:
+        "Role story, backend impact, selected systems, skills, recognition, education, and certifications in one professional view.",
+      href: "/portfolio",
+      icon: "briefcase" as const,
+      meta: "Career proof",
+      title: "Portfolio",
+    },
+    {
+      cta: "Read notes",
+      detail:
+        "Practical engineering write-ups on backend performance, search systems, async patterns, and AI-enabled workflows.",
+      href: "/blogs",
+      icon: "pen" as const,
+      meta: `${blogPosts.length} field notes`,
+      title: "Blogs",
+    },
+    {
+      cta: "Scan radar",
+      detail:
+        "A curated AI signal board for important updates, original context, and useful link-out reading.",
+      href: "/ai-radar",
+      icon: "radar" as const,
+      meta: "AI signals",
+      title: "AI Radar",
+    },
+    {
+      cta: "View dashboard",
+      detail:
+        "Content momentum, topic coverage, analytics signals, publishing rhythm, and reader activity in a premium control-room view.",
+      href: "/dashboard",
+      icon: "news" as const,
+      meta: "Site cockpit",
+      title: "Dashboard",
+    },
+  ];
+  const homeProof = [
+    { label: "Batch screening", value: metrics[0]?.value ?? "97%", text: metrics[0]?.detail },
+    { label: "Real-time path", value: metrics[1]?.value ?? "85%", text: metrics[1]?.detail },
+    { label: "Runtime scale", value: metrics[2]?.value ?? "100+ TPS", text: metrics[2]?.detail },
+  ];
+  const homeWritingPreview = [featuredBlog, ...remainingBlogPosts]
+    .filter((post): post is BlogPost => Boolean(post))
+    .slice(0, 3);
+  const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
+
+  return (
+    <>
+      <section className="home-hero shell" id="top">
+        <div className="home-hero-copy">
+          <p className="eyebrow">Backend Systems · AI Search · Performance Engineering</p>
+          <h1>Engineering search-heavy systems that stay fast, explainable, and ready for scale.</h1>
+          <p className="home-hero-lede">
+            I am {profile.name}, a {profile.currentTitle} at {profile.company}. I work on
+            backend platforms where data volume, latency, search relevance, and production
+            reliability all matter at the same time.
+          </p>
+
+          <div className="home-hero-actions">
+            <a className="button button-primary" href="/portfolio">
+              View portfolio
+            </a>
+            <a className="button button-secondary" href="/work-with-me">
+              Work with me
+            </a>
+            <a className="home-text-link" href="/blogs">
+              Read engineering notes
+            </a>
+          </div>
+
+          <div className="home-trust-strip" aria-label="Core strengths">
+            <span>Java and Spring backend systems</span>
+            <span>Oracle Text and semantic search</span>
+            <span>LLM workflow exploration</span>
+          </div>
+        </div>
+
+        <aside className="home-command-card" aria-label="Portfolio command center">
+          <div className="home-command-top">
+            <div>
+              <p className="impact-label">System Snapshot</p>
+              <h2>Production-grade backend impact</h2>
+            </div>
+            <span>Live</span>
+          </div>
+
+          <div className="home-system-map" aria-hidden="true">
+            <span className="home-system-node is-primary">API</span>
+            <span className="home-system-node">Search</span>
+            <span className="home-system-node">Scoring</span>
+            <span className="home-system-node">Cache</span>
+            <span className="home-system-node">LLM</span>
+            <span className="home-system-node">OCI</span>
+          </div>
+
+          <div className="home-command-metrics">
+            {homeProof.map((item) => (
+              <div key={item.label}>
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </section>
+
+      <section className="home-section shell home-lanes" id="about">
+        <div className="home-section-heading">
+          <p className="eyebrow">Choose Your Path</p>
+          <h2>A cleaner way to explore the site.</h2>
+          <p>
+            Start with proof of work, technical writing, AI updates, or collaboration. The homepage
+            now works like a front desk instead of asking you to scroll through everything at once.
+          </p>
+        </div>
+
+        <div className="home-lane-grid">
+          {homeLanes.map((lane) => (
+            <article className="home-lane-card" key={lane.title}>
+              <div className="home-lane-icon">
+                <ReaderMenuGlyph type={lane.icon} />
+              </div>
+              <span>{lane.meta}</span>
+              <h3>{lane.title}</h3>
+              <p>{lane.detail}</p>
+              <a href={lane.href}>{lane.cta}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section shell home-proof">
+        <div className="home-proof-copy">
+          <p className="eyebrow">Proof Points</p>
+          <h2>Built around measurable backend outcomes, not just tool lists.</h2>
+          <p>{profile.focus}</p>
+        </div>
+
+        <div className="home-proof-grid">
+          {homeProof.map((item) => (
+            <article className="home-proof-card" key={item.label}>
+              <span>{item.label}</span>
+              <strong>{item.value}</strong>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-section shell home-work-preview">
+        <div className="home-work-card">
+          <p className="eyebrow">Featured Work</p>
+          <h2>{projects[0]?.name}</h2>
+          <p>{projects[0]?.summary}</p>
+          <div className="home-stack-row" aria-label="Featured project stack">
+            {projects[0]?.stack.slice(0, 5).map((item) => <span key={item}>{item}</span>)}
+          </div>
+          <a className="button button-primary" href="/portfolio#work">
+            Explore selected work
+          </a>
+        </div>
+
+        <div className="home-update-card">
+          <p className="eyebrow">Latest Update</p>
+          <h3>{latestUpdate?.title ?? "Fresh updates are coming"}</h3>
+          <p>{latestUpdate?.summary ?? "New engineering notes and site updates will appear here."}</p>
+          <a href={latestUpdate?.href ?? "/whats-new"}>Open what's new</a>
+        </div>
+      </section>
+
+      <section className="home-section shell home-writing">
+        <div className="home-section-heading">
+          <p className="eyebrow">Writing</p>
+          <h2>Selected engineering notes.</h2>
+          <p>
+            Short, practical write-ups that explain the problem, tradeoffs, implementation approach,
+            and outcome behind real backend work.
+          </p>
+        </div>
+
+        <div className="home-writing-grid">
+          {homeWritingPreview.map((post) => {
+            const isLocked = !canReadBlogPost(post, subscriberUser);
+
+            return (
+              <article className={`home-writing-card${isLocked ? " is-locked" : ""}`} key={post.slug}>
+                <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
+                <h3>{post.title}</h3>
+                <p>{post.summary}</p>
+                <BlogTagList post={post} />
+                {isLocked ? <BlogLockNote /> : null}
+                <div className="home-writing-actions">
+                  {isLocked ? (
+                    <a href={getSignInHref(post.slug)} target="_blank" rel="opener">
+                      Unlock article
+                    </a>
+                  ) : (
+                    <>
+                      <a
+                        href={getBlogArticleHref(post.slug)}
+                        target="_blank"
+                        rel="opener"
+                        onClick={() => onTrackBlogOpen(post, "home_preview")}
+                      >
+                        Read full post
+                      </a>
+                      <SavePostButton
+                        isBusy={savedPostsBusySlug === post.slug}
+                        isSaved={isPostSaved(post.slug)}
+                        post={post}
+                        subscriberUser={subscriberUser}
+                        onToggle={onToggleSavedPost}
+                      />
+                    </>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="home-writing-footer">
+          <a className="button button-secondary" href="/blogs">
+            View all blogs
+          </a>
+          <a className="home-text-link" href="#newsletter">
+            Get updates
+          </a>
+        </div>
+      </section>
+
+      <section className="home-section shell home-final-cta">
+        <p className="eyebrow">Work With Me</p>
+        <h2>Have a backend, search, performance, or AI workflow problem worth untangling?</h2>
+        <p>
+          Bring the messy system, the slow path, or the idea that needs sharper architecture. I will
+          meet it with practical engineering, clear thinking, and a bias toward measurable outcomes.
+        </p>
+        <div className="home-hero-actions">
+          <a className="button button-primary" href="/work-with-me">
+            Start a conversation
+          </a>
+          <a className="button button-secondary" href={profile.linkedin} target="_blank" rel="noreferrer">
+            LinkedIn
+          </a>
+        </div>
+      </section>
+    </>
+  );
+}
+
 type StartHerePageProps = {
   theme: Theme;
   onThemeToggle: () => void;
@@ -8381,6 +8654,8 @@ function App() {
       />
 
       <main id="main-content">
+        {isPortfolioPage ? (
+          <>
         <section className="hero shell" id="top">
           <div className="hero-copy">
             <p className="eyebrow">
@@ -8602,23 +8877,6 @@ function App() {
           </>
         ) : null}
 
-        {!isPortfolioPage ? (
-          <BlogIndexSection
-            blogCategories={blogCategories}
-            featuredBlog={featuredBlog}
-            featuredBlogIsLocked={featuredBlogIsLocked}
-            isPostSaved={isPostSaved}
-            remainingBlogPosts={remainingBlogPosts}
-            savedPostsBusySlug={savedPostsBusySlug}
-            selectedBlogCategory={selectedBlogCategory}
-            subscriberUser={subscriberUser}
-            visibleBlogPosts={visibleBlogPosts}
-            onSelectBlogCategory={selectBlogCategory}
-            onTrackBlogOpen={trackBlogOpen}
-            onToggleSavedPost={handleToggleSavedPost}
-          />
-        ) : null}
-
         {isPortfolioPage ? (
           <>
             <section className="section shell" id="recognition">
@@ -8676,6 +8934,18 @@ function App() {
           </>
         ) : null}
 
+          </>
+        ) : (
+          <HomePage
+            featuredBlog={featuredBlog}
+            isPostSaved={isPostSaved}
+            remainingBlogPosts={remainingBlogPosts}
+            savedPostsBusySlug={savedPostsBusySlug}
+            subscriberUser={subscriberUser}
+            onTrackBlogOpen={trackBlogOpen}
+            onToggleSavedPost={handleToggleSavedPost}
+          />
+        )}
       </main>
     </>,
   );
