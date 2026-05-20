@@ -6483,12 +6483,7 @@ function AiRadarPage({
     storySignals[activeStoryIndex % Math.max(storySignals.length, 1)] ??
     liveSignals[0] ??
     aiRadarSignals[0];
-  const topSignals = visibleSignals
-    .filter((signal) => signal.href !== activeStory.href)
-    .slice(0, 3);
-  const listSignals = visibleSignals
-    .filter((signal) => signal.href !== activeStory.href)
-    .slice(3);
+  const feedSignals = visibleSignals.filter((signal) => signal.href !== activeStory.href);
   const radarHighlights = [
     { label: "Live Feed", value: radarStatus === "live" ? "On" : "Fallback" },
     { label: "Sources", value: `${new Set(liveSignals.map((signal) => signal.source)).size}` },
@@ -6725,37 +6720,6 @@ function AiRadarPage({
           </div>
         </section>
 
-        {topSignals.length ? (
-          <section className="ai-radar-top-grid" aria-label="Top ranked AI stories">
-            {topSignals.map((signal) => (
-              <a
-                className="ai-radar-top-card"
-                href={signal.href}
-                key={`${signal.source}-${signal.href}`}
-                target="_blank"
-                rel="noreferrer"
-                style={getAiRadarVisualStyle(signal)}
-                onClick={() => trackAiRadarOpen(signal, "top_card")}
-              >
-                <div className="ai-radar-card-art">
-                  {signal.imageUrl ? (
-                    <img src={signal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
-                  ) : (
-                    <AiRadarSourceMark source={signal.source} />
-                  )}
-                </div>
-                <div className="ai-radar-card-copy">
-                  <AiRadarSourceBadge source={signal.source} />
-                  <h2>{signal.title}</h2>
-                  <small>
-                    {signal.category} / {formatAiRadarFreshness(signal.publishedAt)}
-                  </small>
-                </div>
-              </a>
-            ))}
-          </section>
-        ) : null}
-
         <section className="ai-radar-layout" id="radar-feed">
           <aside className="ai-radar-lens" aria-label="AI Radar filters">
             <p className="eyebrow">Signal filters</p>
@@ -6781,7 +6745,7 @@ function AiRadarPage({
           </aside>
 
           <div className="ai-radar-feed" aria-label="Curated AI source list">
-            {(listSignals.length ? listSignals : visibleSignals).map((signal, index) => (
+            {(feedSignals.length ? feedSignals : visibleSignals).map((signal, index) => (
               <article
                 className="ai-radar-item"
                 key={`${signal.source}-${signal.href}`}
@@ -6809,7 +6773,7 @@ function AiRadarPage({
                   </div>
                 </div>
                 <div className="ai-radar-item-action">
-                  <span>{getAiRadarSourceBrand(signal.source).label}</span>
+                  <AiRadarSourceBadge source={signal.source} />
                   <SaveAiRadarButton
                     isBusy={savedPostsBusySlug === getAiRadarSavedId(signal)}
                     isSaved={isAiRadarSaved(signal)}
