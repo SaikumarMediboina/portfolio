@@ -4872,6 +4872,152 @@ dt {
   padding: 0.42rem 0.62rem;
 }
 
+.ai-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  justify-self: start;
+  max-width: 100%;
+  min-height: 1.9rem;
+  padding: 0.22rem 0.58rem 0.22rem 0.24rem;
+  border: 1px solid color-mix(in srgb, var(--radar-primary, var(--accent)) 28%, var(--chip-border));
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--radar-secondary, var(--accent-soft)) 45%, transparent), transparent),
+    color-mix(in srgb, var(--panel-strong) 92%, var(--radar-secondary, var(--accent-soft)));
+  color: var(--ink-strong);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.ai-source-badge-mark {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.48rem;
+  height: 1.48rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.3), transparent 34%),
+    linear-gradient(135deg, var(--radar-primary, var(--accent)), color-mix(in srgb, var(--radar-primary, var(--accent)) 68%, #111c2b));
+  color: #fff;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: none;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--radar-primary, var(--accent)) 22%, transparent);
+}
+
+.ai-source-badge-label {
+  overflow: hidden;
+  max-width: 11rem;
+  text-overflow: ellipsis;
+}
+
+.ai-source-badge.is-compact {
+  gap: 0;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0.23rem;
+}
+
+.ai-source-badge.is-compact .ai-source-badge-mark {
+  min-width: 1.52rem;
+  height: 1.52rem;
+}
+
+.ai-source-badge.is-on-dark,
+.ai-radar-story-topline > .ai-source-badge.ai-source-badge {
+  border-color: rgba(255, 255, 255, 0.15);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)),
+    rgba(255, 255, 255, 0.06);
+  color: rgba(255, 248, 239, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.ai-radar-card-copy > .ai-source-badge.ai-source-badge,
+.ai-radar-item-action .ai-source-badge.ai-source-badge {
+  color: var(--ink-strong);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.ai-radar-item-action .ai-source-badge.ai-source-badge {
+  justify-self: end;
+}
+
+.ai-radar-item-action .ai-source-badge .ai-source-badge-mark {
+  color: #fff;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.ai-source-visual-mark {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.8rem;
+  min-height: 2.8rem;
+  padding: 0.34rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.3), transparent 36%),
+    linear-gradient(135deg, var(--radar-primary, var(--accent)), color-mix(in srgb, var(--radar-primary, var(--accent)) 66%, #0f1a24));
+  color: #fff;
+  font-family: "Outfit", sans-serif;
+  font-size: 1.18rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 20px 42px color-mix(in srgb, var(--radar-primary, var(--accent)) 22%, transparent);
+}
+
+.home-radar-lead-art .ai-source-visual-mark {
+  right: 1rem;
+  bottom: 1rem;
+  max-width: none;
+  min-width: 4.35rem;
+  min-height: 4.35rem;
+  font-size: clamp(1.45rem, 3.2vw, 2.45rem);
+  line-height: 1;
+}
+
+.home-radar-mini-art .ai-source-visual-mark,
+.ai-radar-card-art .ai-source-visual-mark,
+.ai-radar-mini-art .ai-source-visual-mark {
+  min-width: 2.9rem;
+  min-height: 2.9rem;
+  border-radius: 16px;
+  font-size: 1rem;
+}
+
+.ai-radar-story-thumb .ai-source-visual-mark,
+.ai-radar-hero-backdrop .ai-source-visual-mark {
+  min-width: clamp(5.5rem, 15vw, 10rem);
+  min-height: clamp(5.5rem, 15vw, 10rem);
+  border-radius: clamp(1.5rem, 4vw, 3rem);
+  font-size: clamp(2.1rem, 7vw, 5.5rem);
+  opacity: 0.86;
+}
+
 .newsletter-callout {
   display: grid;
   grid-template-columns: auto minmax(0, 0.95fr) minmax(300px, 0.7fr);

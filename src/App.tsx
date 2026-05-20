@@ -5164,7 +5164,7 @@ function HomePage({
               {leadRadarSignal.imageUrl ? (
                 <img src={leadRadarSignal.imageUrl} alt="" loading="lazy" />
               ) : (
-                <span>{leadRadarSignal.source}</span>
+                <AiRadarSourceMark className="is-large" source={leadRadarSignal.source} />
               )}
             </div>
             <div className="home-radar-lead-copy">
@@ -5192,7 +5192,7 @@ function HomePage({
           </article>
 
           <div className="home-radar-stack" aria-label="More AI Radar stories">
-            {secondaryRadarSignals.map((signal, index) => (
+            {secondaryRadarSignals.map((signal) => (
               <a
                 className="home-radar-mini-card"
                 href={signal.href}
@@ -5215,11 +5215,11 @@ function HomePage({
                   {signal.imageUrl ? (
                     <img src={signal.imageUrl} alt="" loading="lazy" />
                   ) : (
-                    getAiRadarSourceInitials(signal.source) || String(index + 2).padStart(2, "0")
+                    <AiRadarSourceMark source={signal.source} />
                   )}
                 </span>
                 <div>
-                  <small>{signal.source}</small>
+                  <AiRadarSourceBadge compact source={signal.source} />
                   <strong>{signal.title}</strong>
                   <AiRadarFreshness
                     className="home-radar-mini-freshness"
@@ -6169,6 +6169,28 @@ function getAiRadarSourceTone(source: string) {
   return sourceTones[source] ?? { primary: "#f0643b", secondary: "#ffe3da" };
 }
 
+function getAiRadarSourceStyle(source: string) {
+  const tone = getAiRadarSourceTone(source);
+
+  return {
+    "--radar-primary": tone.primary,
+    "--radar-secondary": tone.secondary,
+  } as CSSProperties;
+}
+
+function getAiRadarSourceBrand(source: string) {
+  const sourceBrands: Record<string, { label: string; mark: string }> = {
+    "Anthropic News": { label: "Anthropic", mark: "A" },
+    "arXiv CS.AI": { label: "arXiv", mark: "arXiv" },
+    "Google AI Blog": { label: "Google AI", mark: "G" },
+    "Hugging Face Blog": { label: "Hugging Face", mark: "HF" },
+    "NVIDIA AI Blog": { label: "NVIDIA", mark: "NV" },
+    "OpenAI News": { label: "OpenAI", mark: "OA" },
+  };
+
+  return sourceBrands[source] ?? { label: source, mark: getAiRadarSourceInitials(source) || "AI" };
+}
+
 function getAiRadarSourceInitials(source: string) {
   return source
     .replace(/\b(blog|news|cs\.ai)\b/gi, "")
@@ -6261,13 +6283,55 @@ function AiRadarFreshness({
   );
 }
 
-function getAiRadarVisualStyle(signal: AiRadarSignal) {
-  const tone = getAiRadarSourceTone(signal.source);
+function AiRadarSourceBadge({
+  compact = false,
+  onDark = false,
+  source,
+}: {
+  compact?: boolean;
+  onDark?: boolean;
+  source: string;
+}) {
+  const brand = getAiRadarSourceBrand(source);
 
-  return {
-    "--radar-primary": tone.primary,
-    "--radar-secondary": tone.secondary,
-  } as CSSProperties;
+  return (
+    <span
+      className={`ai-source-badge${compact ? " is-compact" : ""}${onDark ? " is-on-dark" : ""}`}
+      style={getAiRadarSourceStyle(source)}
+      aria-label={`${brand.label} source`}
+      title={brand.label}
+    >
+      <span className="ai-source-badge-mark" aria-hidden="true">
+        {brand.mark}
+      </span>
+      {!compact ? <span className="ai-source-badge-label">{brand.label}</span> : null}
+    </span>
+  );
+}
+
+function AiRadarSourceMark({
+  className = "",
+  source,
+}: {
+  className?: string;
+  source: string;
+}) {
+  const brand = getAiRadarSourceBrand(source);
+
+  return (
+    <span
+      className={`ai-source-visual-mark${className ? ` ${className}` : ""}`}
+      style={getAiRadarSourceStyle(source)}
+      aria-label={`${brand.label} source`}
+      title={brand.label}
+    >
+      {brand.mark}
+    </span>
+  );
+}
+
+function getAiRadarVisualStyle(signal: AiRadarSignal) {
+  return getAiRadarSourceStyle(signal.source);
 }
 
 function AiRadarPage({
@@ -6431,7 +6495,7 @@ function AiRadarPage({
             {activeStory.imageUrl ? (
               <img src={activeStory.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
             ) : (
-              <span>{getAiRadarSourceInitials(activeStory.source)}</span>
+              <AiRadarSourceMark className="is-hero" source={activeStory.source} />
             )}
           </div>
 
@@ -6440,7 +6504,7 @@ function AiRadarPage({
               <span className="ai-radar-live-dot">
                 {radarStatus === "loading" ? "Checking feeds" : "Live AI Briefing"}
               </span>
-              <span>{activeStory.source}</span>
+              <AiRadarSourceBadge onDark source={activeStory.source} />
             </div>
 
             <div className="ai-radar-story-body">
@@ -6448,7 +6512,7 @@ function AiRadarPage({
                 {activeStory.imageUrl ? (
                   <img src={activeStory.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
                 ) : (
-                  <span>{getAiRadarSourceInitials(activeStory.source)}</span>
+                  <AiRadarSourceMark className="is-hero" source={activeStory.source} />
                 )}
               </div>
               <div>
@@ -6556,11 +6620,11 @@ function AiRadarPage({
                   {signal.imageUrl ? (
                     <img src={signal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
                   ) : (
-                    <span>{getAiRadarSourceInitials(signal.source)}</span>
+                    <AiRadarSourceMark source={signal.source} />
                   )}
                 </div>
                 <div className="ai-radar-card-copy">
-                  <span>{signal.source}</span>
+                  <AiRadarSourceBadge source={signal.source} />
                   <h2>{signal.title}</h2>
                   <small>
                     {signal.category} / {formatAiRadarFreshness(signal.publishedAt)}
@@ -6607,7 +6671,7 @@ function AiRadarPage({
                   {signal.imageUrl ? (
                     <img src={signal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
                   ) : (
-                    <span>{getAiRadarSourceInitials(signal.source)}</span>
+                    <AiRadarSourceMark source={signal.source} />
                   )}
                 </div>
                 <div className="ai-radar-item-copy">
@@ -6624,7 +6688,7 @@ function AiRadarPage({
                   </div>
                 </div>
                 <div className="ai-radar-item-action">
-                  <span>{signal.source}</span>
+                  <AiRadarSourceBadge compact source={signal.source} />
                   <SaveAiRadarButton
                     isBusy={savedPostsBusySlug === getAiRadarSavedId(signal)}
                     isSaved={isAiRadarSaved(signal)}
