@@ -4914,9 +4914,28 @@ function HomePage({
           <div className="home-command-top">
             <div>
               <p className="impact-label">System Snapshot</p>
-              <h2>Production-grade backend impact</h2>
+              <h2>Production backend impact map</h2>
             </div>
             <span>Live</span>
+          </div>
+
+          <div className="home-flow-diagram" aria-hidden="true">
+            <div className="home-flow-core">
+              <span>Screening flow</span>
+              <strong>100+ TPS</strong>
+            </div>
+            <div className="home-flow-track">
+              <span>Ingest</span>
+              <i />
+              <span>Match</span>
+              <i />
+              <span>Rank</span>
+            </div>
+            <div className="home-flow-signals">
+              <span>Parallel DB calls</span>
+              <span>Result streaming</span>
+              <span>AI scoring</span>
+            </div>
           </div>
 
           <div className="home-system-map" aria-hidden="true">
