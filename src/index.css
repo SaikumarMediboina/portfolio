@@ -1106,14 +1106,14 @@ dt {
 }
 
 .home-hero-copy h1 {
-  max-width: 13.2ch;
-  margin-top: 1rem;
+  max-width: 15ch;
+  margin-top: 0.9rem;
   color: #fff8ef;
   font-family: "Outfit", sans-serif;
-  font-size: clamp(3rem, 5.3vw, 5.4rem);
+  font-size: clamp(2.55rem, 4.1vw, 4.2rem);
   font-weight: 850;
   letter-spacing: -0.04em;
-  line-height: 1.02;
+  line-height: 1.04;
   text-wrap: balance;
 }
 
@@ -1122,11 +1122,11 @@ dt {
 }
 
 .home-hero-lede {
-  max-width: 42rem;
-  margin-top: 1.1rem;
+  max-width: 36rem;
+  margin-top: 0.95rem;
   color: rgba(236, 247, 244, 0.82);
-  font-size: clamp(1.04rem, 1.45vw, 1.26rem);
-  line-height: 1.68;
+  font-size: clamp(0.98rem, 1.16vw, 1.12rem);
+  line-height: 1.62;
 }
 
 .home-hero .button-secondary {
@@ -9205,12 +9205,13 @@ body::before {
 
   .home-hero-copy h1 {
     max-width: 100%;
-    font-size: clamp(2.45rem, 10.5vw, 3.2rem);
+    font-size: clamp(2.2rem, 9.2vw, 2.85rem);
+    line-height: 1.06;
   }
 
   .home-hero-lede {
-    font-size: var(--text-md);
-    line-height: 1.72;
+    font-size: var(--text-sm);
+    line-height: 1.64;
   }
 
   .home-hero-actions .button,

@@ -5121,10 +5121,10 @@ function HomePage({
       <section className="home-hero shell" id="top">
         <div className="home-hero-copy">
           <p className="eyebrow">Backend Systems / AI Search / Performance Engineering</p>
-          <h1>Hey, Sai here. I build backend systems that scale.</h1>
+          <h1>Hey, Sai here.</h1>
           <p className="home-hero-lede">
-            {profile.currentTitle} at {profile.company}, focused on fast search, reliable data
-            flows, and practical AI workflows for high-volume platforms.
+            {profile.currentTitle} at {profile.company}, building reliable backend, search, and
+            practical AI workflows for high-volume systems.
           </p>
 
           <div className="home-hero-actions">
@@ -6687,7 +6687,7 @@ function AiRadarPage({
                   </div>
                 </div>
                 <div className="ai-radar-item-action">
-                  <AiRadarSourceBadge compact source={signal.source} />
+                  <span>{getAiRadarSourceBrand(signal.source).label}</span>
                   <SaveAiRadarButton
                     isBusy={savedPostsBusySlug === getAiRadarSavedId(signal)}
                     isSaved={isAiRadarSaved(signal)}
