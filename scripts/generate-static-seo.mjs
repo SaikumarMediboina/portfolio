@@ -270,6 +270,24 @@ const staticRoutes = [
     title: getSeoTitle("Backend Engineering Portfolio"),
     type: "profile",
   }),
+  withStructuredData({
+    ...baseMetadata,
+    canonicalPath: "/active-builds",
+    description:
+      "See Sai Kumar Mediboina's current build ideas, active portfolio experiments, learning projects, and upcoming engineering content.",
+    priority: "0.86",
+    title: getSeoTitle("Active Builds"),
+    type: "website",
+  }),
+  withStructuredData({
+    ...baseMetadata,
+    canonicalPath: "/learn-with-me",
+    description:
+      "Learn backend fundamentals, performance patterns, search systems, and practical AI workflows with Sai Kumar Mediboina.",
+    priority: "0.84",
+    title: getSeoTitle("Learn With Me"),
+    type: "website",
+  }),
   withStructuredData(
     {
       ...baseMetadata,

@@ -45,6 +45,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/learn-with-me",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/active-builds",
+      "destination": "/index.html"
+    },
+    {
       "source": "/whats-new",
       "destination": "/index.html"
     },

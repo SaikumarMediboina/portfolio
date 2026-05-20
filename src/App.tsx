@@ -60,16 +60,21 @@ const portfolioNavLinks = [
 const mainNavLinks = [
   { href: "/start", label: "Start Here" },
   { href: "/portfolio", label: "Portfolio" },
-  { href: "/learn-with-me", label: "Learn With Me" },
   { href: "/active-builds", label: "Active Builds" },
-  { href: "/blogs", label: "Blogs" },
   { href: "/ai-radar", label: "AI Radar" },
+  { href: "/blogs", label: "Blogs" },
+  { href: "/dashboard", label: "Dashboard" },
+] as const;
+
+const mainMoreNavLinks = [
+  { href: "/learn-with-me", label: "Learn With Me" },
   { href: "/whats-new", label: "What's New" },
   { href: "/shelf", label: "Sai's Shelf" },
-  { href: "/dashboard", label: "Dashboard" },
   { href: "/work-with-me", label: "Work With Me" },
   { href: "/#about", id: "about", label: "About" },
 ] as const;
+
+const emptyNavLinks = [] as const;
 
 type SiteUpdate = {
   category: string;
@@ -7841,6 +7846,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isCompactNav, setIsCompactNav] = useState(() =>
     typeof window === "undefined" ? false : window.matchMedia("(max-width: 1080px)").matches,
   );
@@ -7861,6 +7867,7 @@ function App() {
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [subscriptionError, setSubscriptionError] = useState("");
   const manualSignOutViewRef = useRef<SubscriberViewState | null>(null);
+  const moreMenuRef = useRef<HTMLDivElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   const selectedProject = projects[selectedProjectIndex];
@@ -7922,6 +7929,9 @@ function App() {
   });
   const analyticsPageTitle = seoMetadata.analyticsTitle;
   const currentNavLinks = isPortfolioPage ? portfolioNavLinks : mainNavLinks;
+  const currentMoreNavLinks = isPortfolioPage ? emptyNavLinks : mainMoreNavLinks;
+  const currentPathname =
+    typeof window === "undefined" ? "/" : window.location.pathname.replace(/\/$/, "") || "/";
   const compactNavIsHidden = isCompactNav && !menuOpen;
   const signInReturnBlogSlug = getSignInReturnBlogSlug();
   const signInReturnTarget = getSignInReturnTarget();
@@ -7937,6 +7947,22 @@ function App() {
   const isPostSaved = (slug: string) => savedPostSlugs.includes(slug);
   const isAiRadarSaved = (signal: AiRadarSignal) =>
     savedPostSlugs.includes(getAiRadarSavedId(signal));
+  const isNavLinkActive = (
+    link: (typeof currentNavLinks)[number] | (typeof currentMoreNavLinks)[number],
+  ) => {
+    if ("id" in link && link.id) {
+      return activeSection === link.id;
+    }
+
+    if (!("href" in link)) {
+      return false;
+    }
+
+    const [hrefPath] = link.href.split("#");
+    const normalizedHref = (hrefPath || "/").replace(/\/$/, "") || "/";
+
+    return currentPathname === normalizedHref;
+  };
   const trackBlogOpen = (post: BlogPost, source: string) => {
     trackAnalyticsEvent("blog_open", {
       category: post.category,
@@ -8011,6 +8037,7 @@ function App() {
     const sectionIds = [
       "top",
       ...currentNavLinks.flatMap((link) => ("id" in link ? [link.id] : [])),
+      ...currentMoreNavLinks.flatMap((link) => ("id" in link ? [link.id] : [])),
     ];
     let frameId = 0;
 
@@ -8045,7 +8072,7 @@ function App() {
       window.removeEventListener("scroll", scheduleActiveSectionUpdate);
       window.removeEventListener("resize", scheduleActiveSectionUpdate);
     };
-  }, [currentNavLinks]);
+  }, [currentMoreNavLinks, currentNavLinks]);
 
   useEffect(() => {
     let frameId = 0;
@@ -8131,6 +8158,42 @@ function App() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [profileMenuOpen]);
+
+  useEffect(() => {
+    if (!moreMenuOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        moreMenuRef.current &&
+        event.target instanceof Node &&
+        !moreMenuRef.current.contains(event.target)
+      ) {
+        setMoreMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMoreMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [moreMenuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen && isCompactNav) {
+      setMoreMenuOpen(false);
+    }
+  }, [isCompactNav, menuOpen]);
 
   useEffect(() => {
     if (!readerMenuOpen) {
@@ -8376,6 +8439,7 @@ function App() {
 
   const closeMenu = () => {
     setMenuOpen(false);
+    setMoreMenuOpen(false);
     setProfileMenuOpen(false);
     setReaderMenuOpen(false);
   };
@@ -8881,6 +8945,7 @@ function App() {
               onClick={() => {
                 setReaderMenuOpen((open) => !open);
                 setMenuOpen(false);
+                setMoreMenuOpen(false);
                 setProfileMenuOpen(false);
               }}
             >
@@ -8909,13 +8974,46 @@ function App() {
             {currentNavLinks.map((link) => (
               <a
                 key={link.label}
-                className={"id" in link && activeSection === link.id ? "is-active" : ""}
+                className={isNavLinkActive(link) ? "is-active" : ""}
                 href={"href" in link ? link.href : `#${link.id}`}
                 onClick={closeMenu}
               >
                 {link.label}
               </a>
             ))}
+            {currentMoreNavLinks.length ? (
+              <div
+                className={`site-nav-more${moreMenuOpen ? " is-open" : ""}`}
+                ref={moreMenuRef}
+              >
+                <button
+                  className="site-nav-more-button"
+                  type="button"
+                  aria-controls="site-navigation-more"
+                  aria-expanded={moreMenuOpen}
+                  onClick={() => {
+                    setMoreMenuOpen((open) => !open);
+                    setProfileMenuOpen(false);
+                  }}
+                >
+                  <span>More</span>
+                  <span className="site-nav-more-caret" aria-hidden="true" />
+                </button>
+
+                <div className="site-nav-more-panel" id="site-navigation-more">
+                  {currentMoreNavLinks.map((link) => (
+                    <a
+                      key={link.label}
+                      className={isNavLinkActive(link) ? "is-active" : ""}
+                      href={link.href}
+                      onClick={closeMenu}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <MobileAccountPanel
               canUseSubscriptions={canUseSubscriptions}
               isSubscribed={isSubscribed}
@@ -8946,7 +9044,10 @@ function App() {
                 onGoogleSignIn={handleGoogleSignIn}
                 onSignOut={handleSignOut}
                 onSubscribe={handleSubscribe}
-                onToggle={() => setProfileMenuOpen((open) => !open)}
+                onToggle={() => {
+                  setProfileMenuOpen((open) => !open);
+                  setMoreMenuOpen(false);
+                }}
                 onUnsubscribe={handleUnsubscribe}
               />
             </div>
@@ -8971,6 +9072,7 @@ function App() {
               aria-label="Toggle navigation"
               onClick={() => {
                 setMenuOpen((open) => !open);
+                setMoreMenuOpen(false);
                 setProfileMenuOpen(false);
               }}
             >
