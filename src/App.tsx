@@ -4022,21 +4022,16 @@ function ReaderMenu({
   const savedPostLabel = `${savedItemCount} ${savedItemCount === 1 ? "saved item" : "saved items"}`;
   const readerLinks = [
     { href: "/", icon: "home" as const, label: "Home" },
-    { href: "/start", icon: "spark" as const, label: "Start Here" },
-    { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
-    { href: "/learn-with-me", icon: "spark" as const, label: "Learn With Me" },
-    { href: "/active-builds", icon: "briefcase" as const, label: "Active Builds" },
-    { href: "/blogs", icon: "pen" as const, label: "Blogs" },
-    { href: "/ai-radar", icon: "radar" as const, label: "AI Radar" },
-    { href: "/whats-new", icon: "news" as const, label: "What's New" },
-    { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
     {
       href: isSignedIn ? "/saved-posts" : getSavedPostsSignInHref(),
       icon: "bookmark" as const,
       label: "Saved Posts",
     },
-    { href: "/#about", icon: "about" as const, label: "About" },
+    { href: "/learn-with-me", icon: "spark" as const, label: "Learn With Me" },
+    { href: "/whats-new", icon: "news" as const, label: "What's New" },
+    { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
     { href: "/work-with-me", icon: "mail" as const, label: "Work With Me" },
+    { href: "/#about", icon: "about" as const, label: "About" },
   ];
 
   return (
