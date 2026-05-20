@@ -2959,8 +2959,10 @@ dt {
 
 .reading-progress-track {
   position: relative;
+  flex: 1 1 auto;
   height: 0.22rem;
   overflow: hidden;
+  border-radius: 999px;
   background: color-mix(in srgb, var(--line) 70%, transparent);
 }
 
@@ -2972,6 +2974,51 @@ dt {
   background:
     linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent-cool) 72%, var(--accent)));
   box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+.reading-progress-panel {
+  border-top: 1px solid color-mix(in srgb, var(--line) 66%, transparent);
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+}
+
+.reading-progress-shell {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 3.3rem;
+}
+
+.reading-time-left-pill {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.52rem;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent-cool) 18%, transparent), transparent 68%),
+    var(--panel-soft);
+  color: var(--ink);
+  box-shadow: 0 12px 28px rgba(6, 12, 22, 0.12);
+}
+
+.reading-time-left-pill span {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-cool) 76%, var(--accent));
+  box-shadow: 0 0 0 0.28rem color-mix(in srgb, var(--accent-cool) 16%, transparent);
+}
+
+.reading-time-left-pill strong {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: var(--text-md);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .article-header-shell {
@@ -3038,9 +3085,16 @@ dt {
 .article-reader-panel,
 .standalone-lock-preview {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
   margin-top: 1.2rem;
+}
+
+.article-reader-panel {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.standalone-lock-preview {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .article-reader-panel span,
@@ -8820,6 +8874,21 @@ body::before {
     flex: 0 0 auto;
     width: 2.25rem;
     height: 2.25rem;
+  }
+
+  .reading-progress-shell {
+    gap: 0.55rem;
+    min-height: 3rem;
+  }
+
+  .reading-time-left-pill {
+    min-height: 2.05rem;
+    padding: 0.42rem 0.58rem;
+    border-radius: 12px;
+  }
+
+  .reading-time-left-pill strong {
+    font-size: var(--text-sm);
   }
 
   .article-page {

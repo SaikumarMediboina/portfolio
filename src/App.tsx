@@ -278,6 +278,40 @@ function getEstimatedReadTimeLabel(post: BlogPost) {
   return `${getEstimatedReadMinutes(post)} min read`;
 }
 
+function getEstimatedReadSeconds(post: BlogPost) {
+  const wordSeconds = (getBlogWordCount(post) / 210) * 60;
+  const structureSeconds = post.sections.length * 18 + post.takeaways.length * 8;
+
+  return Math.max(60, Math.round(wordSeconds + structureSeconds));
+}
+
+function getReadingSecondsLeft(post: BlogPost, progress: number) {
+  const totalSeconds = getEstimatedReadSeconds(post);
+  const remainingRatio = Math.max(0, Math.min(1, 1 - progress / 100));
+
+  return Math.ceil(totalSeconds * remainingRatio);
+}
+
+function formatReadingTimeLeft(secondsLeft: number) {
+  if (secondsLeft <= 0) {
+    return "Article complete";
+  }
+
+  const hours = Math.floor(secondsLeft / 3600);
+  const minutes = Math.floor((secondsLeft % 3600) / 60);
+  const seconds = secondsLeft % 60;
+
+  if (hours > 0) {
+    return `${hours} hr ${minutes} min left`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes} min ${seconds} sec left`;
+  }
+
+  return `${seconds} sec left`;
+}
+
 function getBlogPostTags(post: BlogPost) {
   return Array.from(new Set([post.category, ...post.tags].filter(Boolean)));
 }
@@ -1984,6 +2018,15 @@ function ReadingProgressBar({ progress }: { progress: number }) {
       aria-valuenow={Math.round(progress)}
     >
       <span style={{ "--reading-progress": `${progress}%` } as CSSProperties} />
+    </div>
+  );
+}
+
+function ReadingTimeLeftPill({ secondsLeft }: { secondsLeft: number }) {
+  return (
+    <div className="reading-time-left-pill" aria-live="polite">
+      <span aria-hidden="true" />
+      <strong>{formatReadingTimeLeft(secondsLeft)}</strong>
     </div>
   );
 }
@@ -6846,6 +6889,7 @@ function BlogArticlePage({
 }: BlogArticlePageProps) {
   const [readingProgress, setReadingProgress] = useState(0);
   const articleRef = useRef<HTMLElement | null>(null);
+  const readingSecondsLeft = post ? getReadingSecondsLeft(post, readingProgress) : 0;
 
   useEffect(() => {
     if (!post || isAccessChecking || isLocked) {
@@ -6954,7 +6998,12 @@ function BlogArticlePage({
           </div>
         </div>
         {post && !isAccessChecking && !isLocked ? (
-          <ReadingProgressBar progress={readingProgress} />
+          <div className="reading-progress-panel">
+            <div className="shell reading-progress-shell">
+              <ReadingProgressBar progress={readingProgress} />
+              <ReadingTimeLeftPill secondsLeft={readingSecondsLeft} />
+            </div>
+          </div>
         ) : null}
       </header>
 
@@ -7035,6 +7084,10 @@ function BlogArticlePage({
                 <span>
                   <strong>{Math.round(readingProgress)}%</strong>
                   Progress
+                </span>
+                <span>
+                  <strong>{formatReadingTimeLeft(readingSecondsLeft)}</strong>
+                  Time left
                 </span>
               </div>
               <div className="blog-action-row">
