@@ -1646,7 +1646,6 @@ type ReaderMenuGlyphType =
   | "menu"
   | "news"
   | "pen"
-  | "profile"
   | "radar"
   | "shelf"
   | "spark";
@@ -1750,23 +1749,6 @@ function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
         strokeLinejoin="round"
         strokeWidth="1.8"
       />
-    ),
-    profile: (
-      <>
-        <path
-          d="M5.2 5.4h13.6v13.2H5.2V5.4Z"
-          stroke="currentColor"
-          strokeLinejoin="round"
-          strokeWidth="1.8"
-        />
-        <circle cx="9.4" cy="10" r="1.8" stroke="currentColor" strokeWidth="1.6" />
-        <path
-          d="M7.2 15.5c.5-1.6 1.3-2.4 2.2-2.4s1.7.8 2.2 2.4M13.8 9h2.8M13.8 12h2.8M13.8 15h1.8"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeWidth="1.7"
-        />
-      </>
     ),
     radar: (
       <>
@@ -3991,7 +3973,6 @@ function ReaderMenu({
   const savedPostLabel = `${savedItemCount} ${savedItemCount === 1 ? "saved item" : "saved items"}`;
   const readerLinks = [
     { href: "/", icon: "home" as const, label: "Home" },
-    { href: "/#profile-snapshot", icon: "profile" as const, label: "Profile Snapshot" },
     { href: "/start", icon: "spark" as const, label: "Start Here" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
@@ -4978,41 +4959,6 @@ function HomePage({
             ))}
           </div>
         </aside>
-      </section>
-
-      <section className="home-section shell home-profile-snapshot" id="profile-snapshot">
-        <article className="home-profile-card">
-          <div className="home-profile-intro">
-            <p className="eyebrow">Profile Snapshot</p>
-            <h2>{profile.name}</h2>
-            <p>{profile.focus}</p>
-            <div className="home-profile-tags" aria-label="Profile focus areas">
-              <span>Backend Engineering</span>
-              <span>Semantic Search</span>
-              <span>AI Relevance</span>
-              <span>LLM Workflows</span>
-            </div>
-          </div>
-
-          <dl className="home-profile-facts">
-            <div>
-              <dt>Current role</dt>
-              <dd>{profile.currentTitle}</dd>
-            </div>
-            <div>
-              <dt>Company</dt>
-              <dd>{profile.currentCompany}</dd>
-            </div>
-            <div>
-              <dt>Location</dt>
-              <dd>{profile.location}</dd>
-            </div>
-            <div>
-              <dt>Best-fit conversations</dt>
-              <dd>Backend performance, search systems, cloud-native platforms, and practical AI workflows</dd>
-            </div>
-          </dl>
-        </article>
       </section>
 
       <section className="home-section shell home-lanes" id="about">

@@ -895,7 +895,6 @@ dt {
 
 .home-hero-copy,
 .home-command-card,
-.home-profile-card,
 .home-lane-card,
 .home-proof,
 .home-proof-card,
@@ -1231,129 +1230,6 @@ dt {
 
 .home-section {
   padding-top: clamp(4.2rem, 7vw, 6.5rem);
-}
-
-.home-profile-snapshot {
-  padding-top: clamp(2.8rem, 5vw, 4.4rem);
-}
-
-.home-profile-card {
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
-  gap: clamp(1rem, 3vw, 2rem);
-  align-items: stretch;
-  padding: clamp(1.2rem, 3vw, 1.7rem);
-  border-radius: 36px;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.home-profile-intro {
-  position: relative;
-  display: grid;
-  align-content: center;
-  gap: 1rem;
-  min-height: 23rem;
-  padding: clamp(1rem, 3vw, 1.8rem);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 18% 12%, var(--accent-soft), transparent 32%),
-    radial-gradient(circle at 90% 82%, var(--accent-cool), transparent 34%),
-    var(--panel-strong);
-}
-
-.home-profile-intro::before {
-  content: "";
-  position: absolute;
-  right: clamp(1rem, 4vw, 2.2rem);
-  top: clamp(1rem, 4vw, 2rem);
-  width: clamp(5.2rem, 11vw, 7.4rem);
-  aspect-ratio: 1;
-  border: 1px solid var(--chip-border);
-  border-radius: 32px;
-  background:
-    linear-gradient(135deg, var(--accent), #f1b661);
-  opacity: 0.9;
-}
-
-.home-profile-intro::after {
-  content: "SK";
-  position: absolute;
-  right: clamp(2.2rem, 5.4vw, 4rem);
-  top: clamp(2.2rem, 5.4vw, 3.8rem);
-  color: #111c2b;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-}
-
-.home-profile-intro h2 {
-  max-width: 11ch;
-  color: var(--ink-strong);
-  font-family: "Outfit", sans-serif;
-  font-size: clamp(2.35rem, 5vw, 4.1rem);
-  line-height: 0.98;
-  letter-spacing: -0.045em;
-  text-wrap: balance;
-}
-
-.home-profile-intro p:not(.eyebrow) {
-  max-width: 38rem;
-  color: var(--ink-soft);
-  font-size: var(--text-md);
-  line-height: 1.82;
-}
-
-.home-profile-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.62rem;
-  margin-top: 0.2rem;
-}
-
-.home-profile-tags span {
-  padding: 0.55rem 0.72rem;
-  border: 1px solid var(--chip-border);
-  border-radius: 999px;
-  background: var(--panel-soft);
-  color: var(--ink-soft);
-  font-size: var(--text-sm);
-  font-weight: 800;
-}
-
-.home-profile-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
-}
-
-.home-profile-facts div {
-  display: grid;
-  align-content: space-between;
-  gap: 0.9rem;
-  min-height: 10.8rem;
-  padding: 1.05rem;
-  border: 1px solid var(--chip-border);
-  border-radius: 24px;
-  background: var(--panel-strong);
-}
-
-.home-profile-facts dt {
-  color: var(--ink-soft);
-  font-family: "IBM Plex Mono", monospace;
-  font-size: var(--text-micro);
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.home-profile-facts dd {
-  color: var(--ink-strong);
-  font-family: "Outfit", sans-serif;
-  font-size: clamp(1.15rem, 2vw, 1.5rem);
-  font-weight: 750;
-  line-height: 1.18;
 }
 
 .home-section-heading {
@@ -8057,7 +7933,6 @@ body::before {
 
 @media (max-width: 1080px) {
   .home-hero,
-  .home-profile-card,
   .home-proof,
   .home-work-preview {
     grid-template-columns: 1fr;
@@ -8069,7 +7944,6 @@ body::before {
   }
 
   .home-lane-grid,
-  .home-profile-facts,
   .home-writing-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -8112,7 +7986,6 @@ body::before {
   }
 
   .home-command-card,
-  .home-profile-card,
   .home-work-card,
   .home-update-card,
   .home-final-cta {
@@ -8121,7 +7994,6 @@ body::before {
 
   .home-architecture-core,
   .home-command-metrics,
-  .home-profile-facts,
   .home-proof-grid,
   .home-lane-grid,
   .home-writing-grid {
@@ -8156,8 +8028,6 @@ body::before {
   }
 
   .home-lane-card,
-  .home-profile-intro,
-  .home-profile-facts div,
   .home-writing-card {
     min-height: auto;
   }
