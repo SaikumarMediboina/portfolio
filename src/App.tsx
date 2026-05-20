@@ -5069,7 +5069,7 @@ function HomePage({
     .slice(0, 3);
   const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
   const leadRadarSignal = homeRadarSignals[0] ?? aiRadarSignals[0];
-  const secondaryRadarSignals = homeRadarSignals.slice(1, 4);
+  const secondaryRadarSignals = homeRadarSignals.slice(1, 3);
 
   useEffect(() => {
     let isCurrent = true;
@@ -5207,7 +5207,17 @@ function HomePage({
                   })
                 }
               >
-                <span>{String(index + 2).padStart(2, "0")}</span>
+                <span
+                  className="home-radar-mini-art"
+                  style={getAiRadarVisualStyle(signal)}
+                  aria-hidden="true"
+                >
+                  {signal.imageUrl ? (
+                    <img src={signal.imageUrl} alt="" loading="lazy" />
+                  ) : (
+                    getAiRadarSourceInitials(signal.source) || String(index + 2).padStart(2, "0")
+                  )}
+                </span>
                 <div>
                   <small>{signal.source}</small>
                   <strong>{signal.title}</strong>
