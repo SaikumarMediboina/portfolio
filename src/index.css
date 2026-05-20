@@ -13832,6 +13832,38 @@ textarea:focus-visible {
   color: var(--rw-text-muted);
 }
 
+/* Latest Update contrast fix: this card is light in Redwood mode, so keep its text dark. */
+:root:not([data-theme="dark"]) .home-update-card {
+  background:
+    radial-gradient(circle at 86% 14%, rgba(202, 77, 60, 0.08), transparent 16rem),
+    var(--rw-region) !important;
+  color: var(--rw-text) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card :is(h1, h2, h3, h4, strong) {
+  color: var(--rw-text-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card p {
+  color: var(--rw-text-muted) !important;
+  opacity: 1 !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card a,
+:root:not([data-theme="dark"]) .home-update-card .eyebrow {
+  color: var(--rw-accent) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card .home-update-visual strong {
+  color: var(--rw-neutral-190) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card .home-update-sources span {
+  border-color: rgba(49, 45, 42, 0.12) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: var(--rw-neutral-170) !important;
+}
+
 /* Locked article notice: keep icon and caption visually separated. */
 .blog-lock-note,
 :root:not([data-theme="dark"]) .blog-lock-note,
