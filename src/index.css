@@ -14016,3 +14016,61 @@ textarea:focus-visible {
 ) :is(p, li, dd, small, span:not(.brand-mark):not(.ai-source-badge-mark), time) {
   color: var(--rw-text-muted);
 }
+
+/* Final Redwood polish guard: keep late legacy overrides from undoing light-mode readability. */
+:root:not([data-theme="dark"]) .home-update-card {
+  background:
+    radial-gradient(circle at 88% 14%, rgba(199, 69, 47, 0.1), transparent 15rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 239, 229, 0.94)) !important;
+  color: var(--rw-text) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card :is(.eyebrow, h3, p, a, strong, span, time, small) {
+  color: var(--rw-text-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card p,
+:root:not([data-theme="dark"]) .home-update-card :is(time, small) {
+  color: var(--rw-text-muted) !important;
+  opacity: 1 !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card :is(.eyebrow, a) {
+  color: var(--rw-accent) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card .home-update-visual {
+  border-color: rgba(49, 45, 42, 0.12) !important;
+  background:
+    linear-gradient(rgba(49, 45, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(49, 45, 42, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(199, 69, 47, 0.12), transparent 32%),
+    rgba(255, 255, 255, 0.62) !important;
+}
+
+:root:not([data-theme="dark"]) .home-update-card .home-update-sources span {
+  border-color: rgba(49, 45, 42, 0.12) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: var(--rw-neutral-170) !important;
+}
+
+.blog-lock-note {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.8rem !important;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.blog-lock-note .blog-lock-icon {
+  flex: 0 0 2.1rem !important;
+  width: 2.1rem !important;
+  height: 2.1rem !important;
+  margin-right: 0 !important;
+}
+
+.blog-lock-note > span:not(.blog-lock-icon) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.42 !important;
+}
