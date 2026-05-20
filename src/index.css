@@ -9285,6 +9285,275 @@ body::before {
   }
 }
 
+/* Site-wide typography rhythm: keeps labels readable and descriptions less cramped. */
+body {
+  text-rendering: optimizeLegibility;
+}
+
+body :is(
+  .brand-copy strong,
+  .site-nav a,
+  .site-nav-more-button,
+  .site-nav-more-panel a,
+  .button,
+  .home-text-link,
+  .article-header-actions .button,
+  .save-post-button,
+  .save-radar-button
+) {
+  letter-spacing: 0.004em;
+  line-height: 1.25;
+  word-spacing: 0.025em;
+}
+
+body .brand-mark {
+  letter-spacing: 0.04em;
+}
+
+body .brand-copy span {
+  letter-spacing: 0.004em;
+  line-height: 1.28;
+}
+
+body :is(
+  .eyebrow,
+  .focus-caption,
+  .timeline-meta p,
+  .credential-subtitle,
+  .recognition-issuer,
+  .impact-label,
+  .blog-meta span,
+  .home-command-top > span,
+  .home-value-intro span,
+  .home-value-outcomes span,
+  .home-value-node span,
+  .home-radar-live-pill,
+  .home-radar-meta-line span,
+  .home-radar-meta-line time,
+  .home-radar-mini-freshness,
+  .home-update-sources span,
+  .project-selector span,
+  .blog-diagram-step-label,
+  .guide-feature-card span,
+  .guide-tool-card span,
+  .guide-path-list span,
+  .learn-track-card span,
+  .active-build-card span,
+  .ai-radar-live-dot,
+  .ai-radar-status,
+  .ai-radar-signal-strip span,
+  .ai-radar-source-line span,
+  .ai-radar-source-line time,
+  .ai-radar-item-meta span,
+  .ai-radar-item-meta time,
+  .ai-radar-card-copy > span,
+  .ai-radar-card-copy small,
+  .ai-radar-freshness,
+  .ai-source-badge,
+  .newsletter-form-status,
+  .collaboration-kicker,
+  .dashboard-kicker,
+  .dashboard-stat-label,
+  .saved-posts-meta span,
+  .saved-posts-tag,
+  .shelf-plan-card span,
+  .updates-card time,
+  .assistant-status
+) {
+  letter-spacing: 0.075em;
+  line-height: 1.45;
+  word-spacing: 0.08em;
+}
+
+body :is(
+  .home-hero-copy h1,
+  .hero h1,
+  .standalone-blog-hero h1,
+  .standalone-blog-empty h1,
+  .guide-hero h1,
+  .learn-access-copy h1,
+  .collaboration-hero h1,
+  .dashboard-hero h1,
+  .saved-posts-hero h1,
+  .shelf-hero h1,
+  .signin-copy h1,
+  .admin-update-copy h1
+) {
+  letter-spacing: -0.022em;
+  line-height: 1.08;
+  word-spacing: normal;
+}
+
+body .home-hero-copy h1 {
+  max-width: 12.5ch;
+  font-size: clamp(2.4rem, 3.7vw, 3.85rem);
+}
+
+body :is(
+  .home-command-top h2,
+  .home-section-heading h2,
+  .home-proof-copy h2,
+  .home-work-card h2,
+  .home-update-card h3,
+  .home-writing-card h3,
+  .home-final-cta h2,
+  .section-heading h2,
+  .hero-panel h2,
+  .project-spotlight h3,
+  .project-spotlight-heading h3,
+  .updates-copy h2,
+  .updates-card h3,
+  .contact-copy h2,
+  .recognition-card h3,
+  .blog-featured h3,
+  .blog-list-item h3,
+  .blog-diagram-heading h2,
+  .guide-section-heading h2,
+  .guide-path-panel h2,
+  .guide-card h2,
+  .mini-updates-panel h2,
+  .whats-new-item h2,
+  .whats-new-empty h2,
+  .newsletter-callout h2,
+  .learn-track-card h2,
+  .active-build-card h2,
+  .learn-flow-panel h2,
+  .build-principles-panel h2,
+  .ai-radar-story-body h1,
+  .ai-radar-hero-panel h2,
+  .ai-radar-card-copy h2,
+  .ai-radar-lens h2,
+  .ai-radar-item h3,
+  .collaboration-section-heading h2,
+  .collaboration-proof h2,
+  .collaboration-cta h2,
+  .collaboration-signal-card h2,
+  .collaboration-area-card h3,
+  .collaboration-step h3,
+  .dashboard-email-callout h2,
+  .dashboard-signal-head h2,
+  .dashboard-card-heading h2,
+  .dashboard-topic-breakdown h3,
+  .saved-posts-copy h2,
+  .saved-posts-empty h2,
+  .shelf-coming-soon h2,
+  .shelf-plan-card h3,
+  .metric-card h2,
+  .focus-card h3,
+  .skill-card h3,
+  .timeline-role,
+  .timeline-company,
+  .credential-title
+) {
+  letter-spacing: -0.012em;
+  line-height: 1.18;
+  word-spacing: normal;
+}
+
+body :is(
+  .home-hero-lede,
+  .hero-lead,
+  .hero-body,
+  .section-heading p:last-child,
+  .home-section-heading p:not(.eyebrow),
+  .home-proof-copy p,
+  .home-lane-card p,
+  .home-work-card p,
+  .home-update-card p,
+  .home-writing-card p,
+  .home-final-cta p,
+  .focus-card p:last-child,
+  .timeline-body p,
+  .credential-detail,
+  .recognition-card p:last-child,
+  .blog-featured p,
+  .blog-list-item p,
+  .blog-diagram-heading p:not(.eyebrow),
+  .standalone-blog-hero > p:not(.eyebrow),
+  .standalone-blog-empty p,
+  .blog-article-section p,
+  .related-posts-heading p:not(.eyebrow),
+  .related-post-card p,
+  .guide-hero p:not(.eyebrow),
+  .guide-section-heading p:not(.eyebrow),
+  .guide-path-panel > div > p:not(.eyebrow),
+  .guide-feature-card p,
+  .guide-tool-card p,
+  .guide-path-list p,
+  .learn-flow-panel p:not(.eyebrow),
+  .learn-access-copy p:not(.eyebrow),
+  .whats-new-item p,
+  .whats-new-empty p,
+  .newsletter-callout p:not(.eyebrow),
+  .ai-radar-hero-panel p:not(.eyebrow):not(.ai-radar-status),
+  .ai-radar-item p,
+  .collaboration-hero p,
+  .collaboration-section-heading p,
+  .collaboration-proof p,
+  .collaboration-area-card p,
+  .collaboration-step p,
+  .dashboard-hero p:not(.eyebrow),
+  .dashboard-email-callout p,
+  .dashboard-signal-head p:not(.eyebrow),
+  .dashboard-card p,
+  .saved-posts-hero p:not(.eyebrow),
+  .saved-posts-copy p,
+  .saved-posts-empty p,
+  .shelf-hero p:not(.eyebrow),
+  .shelf-coming-soon p,
+  .shelf-plan-card p,
+  .signin-copy p:not(.eyebrow),
+  .admin-update-copy p:not(.eyebrow),
+  .updates-copy p,
+  .updates-card p,
+  .contact-copy p,
+  .metric-card p:last-child
+) {
+  letter-spacing: 0.002em;
+  line-height: 1.68;
+  word-spacing: 0.025em;
+}
+
+body .home-hero-lede {
+  max-width: 34rem;
+  line-height: 1.56;
+}
+
+@media (max-width: 720px) {
+  body :is(
+    .eyebrow,
+    .focus-caption,
+    .timeline-meta p,
+    .credential-subtitle,
+    .recognition-issuer,
+    .impact-label,
+    .blog-meta span,
+    .ai-source-badge
+  ) {
+    letter-spacing: 0.055em;
+    word-spacing: 0.04em;
+  }
+
+  body .home-hero-copy h1 {
+    font-size: clamp(2.05rem, 8.4vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  body :is(
+    .home-hero-lede,
+    .hero-lead,
+    .hero-body,
+    .section-heading p:last-child,
+    .standalone-blog-hero > p:not(.eyebrow),
+    .guide-hero p:not(.eyebrow),
+    .dashboard-hero p:not(.eyebrow),
+    .saved-posts-hero p:not(.eyebrow),
+    .shelf-hero p:not(.eyebrow)
+  ) {
+    line-height: 1.62;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
