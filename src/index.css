@@ -383,6 +383,16 @@ dt {
   align-items: center;
 }
 
+.site-nav-more summary {
+  list-style: none;
+}
+
+.site-nav-more summary::marker,
+.site-nav-more summary::-webkit-details-marker {
+  display: none;
+  content: "";
+}
+
 .site-nav-more-button {
   display: inline-flex;
   align-items: center;

@@ -8046,7 +8046,7 @@ function App() {
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [subscriptionError, setSubscriptionError] = useState("");
   const manualSignOutViewRef = useRef<SubscriberViewState | null>(null);
-  const moreMenuRef = useRef<HTMLDivElement | null>(null);
+  const moreMenuRef = useRef<HTMLDetailsElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   const selectedProject = projects[selectedProjectIndex];
@@ -9183,21 +9183,21 @@ function App() {
               </a>
             ))}
             {currentMoreNavLinks.length ? (
-              <div
+              <details
                 className={`site-nav-more${moreMenuOpen ? " is-open" : ""}${
                   currentMoreNavLinks.some(isNavLinkActive) ? " has-active" : ""
                 }`}
+                open={moreMenuOpen}
                 ref={moreMenuRef}
+                onToggle={(event) => {
+                  setMoreMenuOpen(event.currentTarget.open);
+                  setProfileMenuOpen(false);
+                }}
               >
-                <button
+                <summary
                   className="site-nav-more-button"
-                  type="button"
                   aria-controls="site-navigation-more"
                   aria-expanded={moreMenuOpen}
-                  onClick={() => {
-                    setMoreMenuOpen((open) => !open);
-                    setProfileMenuOpen(false);
-                  }}
                 >
                   <span className="site-nav-more-label">
                     <span className="site-nav-icon">
@@ -9206,7 +9206,7 @@ function App() {
                     <span>More</span>
                   </span>
                   <span className="site-nav-more-caret" aria-hidden="true" />
-                </button>
+                </summary>
 
                 <div className="site-nav-more-panel" id="site-navigation-more">
                   {currentMoreNavLinks.map((link) => (
@@ -9223,7 +9223,7 @@ function App() {
                     </a>
                   ))}
                 </div>
-              </div>
+              </details>
             ) : null}
             <MobileAccountPanel
               canUseSubscriptions={canUseSubscriptions}
