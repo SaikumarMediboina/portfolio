@@ -6143,6 +6143,71 @@ function formatAiRadarDate(publishedAt?: string) {
   }).format(date);
 }
 
+function formatAiRadarFreshness(publishedAt?: string) {
+  if (!publishedAt) {
+    return "Source monitored";
+  }
+
+  const publishedDate = new Date(publishedAt);
+
+  if (Number.isNaN(publishedDate.getTime())) {
+    return "Freshness unavailable";
+  }
+
+  const elapsedMinutes = Math.max(
+    0,
+    Math.floor((Date.now() - publishedDate.getTime()) / (1000 * 60)),
+  );
+
+  if (elapsedMinutes < 1) {
+    return "Published just now";
+  }
+
+  if (elapsedMinutes < 60) {
+    return `Published ${elapsedMinutes} min ago`;
+  }
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+
+  if (elapsedHours < 24) {
+    return `Published ${elapsedHours} hr${elapsedHours === 1 ? "" : "s"} ago`;
+  }
+
+  const elapsedDays = Math.floor(elapsedHours / 24);
+
+  if (elapsedDays < 30) {
+    return `Published ${elapsedDays} day${elapsedDays === 1 ? "" : "s"} ago`;
+  }
+
+  const elapsedMonths = Math.floor(elapsedDays / 30);
+
+  if (elapsedMonths < 12) {
+    return `Published ${elapsedMonths} mo ago`;
+  }
+
+  const elapsedYears = Math.floor(elapsedMonths / 12);
+
+  return `Published ${elapsedYears} yr${elapsedYears === 1 ? "" : "s"} ago`;
+}
+
+function AiRadarFreshness({
+  className = "",
+  publishedAt,
+}: {
+  className?: string;
+  publishedAt?: string;
+}) {
+  const label = formatAiRadarFreshness(publishedAt);
+
+  return publishedAt ? (
+    <time className={className} dateTime={publishedAt} title={formatAiRadarDate(publishedAt)}>
+      {label}
+    </time>
+  ) : (
+    <span className={className}>{label}</span>
+  );
+}
+
 function getAiRadarVisualStyle(signal: AiRadarSignal) {
   const tone = getAiRadarSourceTone(signal.source);
 
@@ -6336,7 +6401,7 @@ function AiRadarPage({
               <div>
                 <div className="ai-radar-source-line">
                   <span>{activeStory.category}</span>
-                  <span>{formatAiRadarDate(activeStory.publishedAt)}</span>
+                  <AiRadarFreshness publishedAt={activeStory.publishedAt} />
                 </div>
                 <h1>{activeStory.title}</h1>
                 <div className="ai-radar-story-actions">
@@ -6444,7 +6509,9 @@ function AiRadarPage({
                 <div className="ai-radar-card-copy">
                   <span>{signal.source}</span>
                   <h2>{signal.title}</h2>
-                  <small>{signal.category} / {formatAiRadarDate(signal.publishedAt)}</small>
+                  <small>
+                    {signal.category} / {formatAiRadarFreshness(signal.publishedAt)}
+                  </small>
                 </div>
               </a>
             ))}
@@ -6493,10 +6560,15 @@ function AiRadarPage({
                 <div className="ai-radar-item-copy">
                   <div className="ai-radar-item-meta">
                     <span>{signal.category}</span>
-                    <span>{formatAiRadarDate(signal.publishedAt)}</span>
                   </div>
                   <h3>{signal.title}</h3>
                   <p>{signal.summary || signal.whyItMatters}</p>
+                  <div className="ai-radar-freshness-row">
+                    <AiRadarFreshness
+                      className="ai-radar-freshness"
+                      publishedAt={signal.publishedAt}
+                    />
+                  </div>
                 </div>
                 <div className="ai-radar-item-action">
                   <span>{signal.source}</span>
