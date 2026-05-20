@@ -8983,7 +8983,9 @@ function App() {
             ))}
             {currentMoreNavLinks.length ? (
               <div
-                className={`site-nav-more${moreMenuOpen ? " is-open" : ""}`}
+                className={`site-nav-more${moreMenuOpen ? " is-open" : ""}${
+                  currentMoreNavLinks.some(isNavLinkActive) ? " has-active" : ""
+                }`}
                 ref={moreMenuRef}
               >
                 <button
@@ -9029,6 +9031,19 @@ function App() {
               onSubscribe={handleSubscribe}
               onUnsubscribe={handleUnsubscribe}
             />
+          </nav>
+
+          <div className="header-actions">
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+
             <div ref={profileMenuRef}>
               <ProfileMenu
                 canUseSubscriptions={canUseSubscriptions}
@@ -9051,18 +9066,6 @@ function App() {
                 onUnsubscribe={handleUnsubscribe}
               />
             </div>
-          </nav>
-
-          <div className="header-actions">
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
 
             <button
               className="menu-toggle"
