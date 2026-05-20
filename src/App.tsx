@@ -4910,36 +4910,36 @@ function HomePage({
           </div>
         </div>
 
-        <aside className="home-command-card" aria-label="Engineering focus overview">
+        <aside className="home-command-card" aria-label="Impact areas overview">
           <div className="home-command-top">
             <div>
-              <p className="impact-label">Engineering Focus</p>
-              <h2>Useful signals for the right conversation</h2>
+              <p className="impact-label">Where I Create Impact</p>
+              <h2>Clear focus, measurable engineering outcomes.</h2>
             </div>
-            <span>Focused</span>
+            <span>Useful</span>
           </div>
 
           <div className="home-value-map">
             <div className="home-value-intro">
-              <span>Useful if you need</span>
-              <strong>Fast, reliable search-backed systems</strong>
+              <span>Current focus</span>
+              <strong>Search quality, backend speed, and practical AI.</strong>
             </div>
 
             <div className="home-value-grid">
               <div className="home-value-node is-search">
-                <span>Search Quality</span>
-                <strong>Matching and ranking</strong>
-                <p>Noisy data, entity resolution, Oracle Text, semantic retrieval, and explainable scoring.</p>
+                <span>Search</span>
+                <strong>Better matching</strong>
+                <p>Cleaner ranking for noisy enterprise data.</p>
               </div>
               <div className="home-value-node is-performance">
-                <span>Performance</span>
-                <strong>Latency and throughput</strong>
-                <p>Batch optimization, async processing, caching, indexing, and high-volume backend flows.</p>
+                <span>Speed</span>
+                <strong>Lower latency</strong>
+                <p>Faster real-time and batch backend paths.</p>
               </div>
               <div className="home-value-node is-ai">
-                <span>AI Workflows</span>
-                <strong>Practical automation</strong>
-                <p>LLM-assisted workflows, hybrid scoring, decision support, and controlled AI behavior.</p>
+                <span>AI</span>
+                <strong>Useful automation</strong>
+                <p>LLM-assisted workflows with controlled output.</p>
               </div>
             </div>
 
