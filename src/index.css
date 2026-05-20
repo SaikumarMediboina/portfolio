@@ -1435,11 +1435,118 @@ dt {
 }
 
 .home-update-card {
-  align-content: end;
+  grid-template-rows: minmax(12rem, 1fr) auto auto auto auto;
+  align-content: stretch;
   background:
     linear-gradient(140deg, rgba(17, 28, 43, 0.94), rgba(42, 57, 80, 0.9)),
     var(--ink-strong);
   color: #fff;
+}
+
+.home-update-visual {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1rem;
+  min-height: 13rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(240, 100, 59, 0.18), transparent 30%),
+    rgba(255, 255, 255, 0.04);
+  background-size: 2rem 2rem, 2rem 2rem, auto, auto;
+  overflow: hidden;
+}
+
+.home-update-visual::before {
+  content: "";
+  position: absolute;
+  inset: -30% 44% -30% auto;
+  width: 42%;
+  background: linear-gradient(180deg, transparent, rgba(240, 100, 59, 0.22), transparent);
+  transform: rotate(28deg);
+}
+
+.home-radar-orbit {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(13rem, 54vw);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(255, 141, 102, 0.2), transparent 20%),
+    radial-gradient(circle, transparent 0 39%, rgba(255, 255, 255, 0.12) 40% 40.6%, transparent 41% 64%, rgba(255, 255, 255, 0.09) 64.5% 65%, transparent 66%);
+}
+
+.home-radar-orbit strong {
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ff8d66, #f1b661);
+  color: #101827;
+  font-family: "Outfit", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  box-shadow: 0 22px 48px rgba(240, 100, 59, 0.22);
+}
+
+.home-radar-dot {
+  position: absolute;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background: #ff8d66;
+  box-shadow: 0 0 0 0.45rem rgba(255, 141, 102, 0.12);
+}
+
+.home-radar-dot.is-one {
+  top: 18%;
+  right: 26%;
+}
+
+.home-radar-dot.is-two {
+  left: 18%;
+  bottom: 28%;
+  background: #9fc2ff;
+  box-shadow: 0 0 0 0.45rem rgba(159, 194, 255, 0.12);
+}
+
+.home-radar-dot.is-three {
+  right: 14%;
+  bottom: 20%;
+  width: 0.52rem;
+  height: 0.52rem;
+}
+
+.home-update-sources {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.home-update-sources span {
+  padding: 0.42rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.76);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .home-update-card .eyebrow,

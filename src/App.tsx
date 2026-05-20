@@ -5015,6 +5015,19 @@ function HomePage({
         </div>
 
         <div className="home-update-card">
+          <div className="home-update-visual" aria-hidden="true">
+            <div className="home-radar-orbit">
+              <span className="home-radar-dot is-one" />
+              <span className="home-radar-dot is-two" />
+              <span className="home-radar-dot is-three" />
+              <strong>AI</strong>
+            </div>
+            <div className="home-update-sources">
+              <span>Official sources</span>
+              <span>Curated notes</span>
+              <span>Safe links</span>
+            </div>
+          </div>
           <p className="eyebrow">Latest Update</p>
           <h3>{latestUpdate?.title ?? "Fresh updates are coming"}</h3>
           <p>{latestUpdate?.summary ?? "New engineering notes and site updates will appear here."}</p>
