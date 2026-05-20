@@ -59,6 +59,7 @@ const portfolioNavLinks = [
 
 const mainNavLinks = [
   { href: "/start", label: "Start Here" },
+  { href: "/#profile-snapshot", id: "profile-snapshot", label: "Snapshot" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/blogs", label: "Blogs" },
   { href: "/ai-radar", label: "AI Radar" },
@@ -3973,6 +3974,7 @@ function ReaderMenu({
   const savedPostLabel = `${savedItemCount} ${savedItemCount === 1 ? "saved item" : "saved items"}`;
   const readerLinks = [
     { href: "/", icon: "home" as const, label: "Home" },
+    { href: "/#profile-snapshot", icon: "about" as const, label: "Profile Snapshot" },
     { href: "/start", icon: "spark" as const, label: "Start Here" },
     { href: "/portfolio#work", icon: "briefcase" as const, label: "Portfolio" },
     { href: "/blogs", icon: "pen" as const, label: "Blogs" },
@@ -4959,6 +4961,41 @@ function HomePage({
             ))}
           </div>
         </aside>
+      </section>
+
+      <section className="home-section shell home-profile-snapshot" id="profile-snapshot">
+        <article className="home-profile-card">
+          <div className="home-profile-intro">
+            <p className="eyebrow">Profile Snapshot</p>
+            <h2>{profile.name}</h2>
+            <p>{profile.focus}</p>
+            <div className="home-profile-tags" aria-label="Profile focus areas">
+              <span>Backend Engineering</span>
+              <span>Semantic Search</span>
+              <span>AI Relevance</span>
+              <span>LLM Workflows</span>
+            </div>
+          </div>
+
+          <dl className="home-profile-facts">
+            <div>
+              <dt>Current role</dt>
+              <dd>{profile.currentTitle}</dd>
+            </div>
+            <div>
+              <dt>Company</dt>
+              <dd>{profile.currentCompany}</dd>
+            </div>
+            <div>
+              <dt>Location</dt>
+              <dd>{profile.location}</dd>
+            </div>
+            <div>
+              <dt>Best-fit conversations</dt>
+              <dd>Backend performance, search systems, cloud-native platforms, and practical AI workflows</dd>
+            </div>
+          </dl>
+        </article>
       </section>
 
       <section className="home-section shell home-lanes" id="about">
