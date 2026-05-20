@@ -13832,6 +13832,50 @@ textarea:focus-visible {
   color: var(--rw-text-muted);
 }
 
+/* Locked article notice: keep icon and caption visually separated. */
+.blog-lock-note,
+:root:not([data-theme="dark"]) .blog-lock-note,
+:root[data-theme="dark"] .blog-lock-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.72rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.28rem 0;
+  color: var(--rw-text-strong);
+  line-height: 1.35;
+}
+
+.blog-lock-note .blog-lock-icon,
+:root:not([data-theme="dark"]) .blog-lock-note .blog-lock-icon,
+:root[data-theme="dark"] .blog-lock-note .blog-lock-icon {
+  display: inline-grid;
+  flex: 0 0 2.05rem;
+  place-items: center;
+  width: 2.05rem;
+  height: 2.05rem;
+  margin-right: 0.04rem;
+  border-color: color-mix(in srgb, var(--rw-accent) 34%, var(--rw-border));
+  background: var(--rw-accent-soft);
+  color: var(--rw-accent);
+}
+
+.blog-lock-note > span:not(.blog-lock-icon),
+:root:not([data-theme="dark"]) .blog-lock-note > span:not(.blog-lock-icon),
+:root[data-theme="dark"] .blog-lock-note > span:not(.blog-lock-icon) {
+  display: inline;
+  min-width: 0;
+  color: var(--rw-text-strong);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+@media (max-width: 420px) {
+  .blog-lock-note {
+    align-items: flex-start;
+  }
+}
+
 :root:not([data-theme="dark"]) :is(
   .home-update-card,
   .ai-radar-story-body
