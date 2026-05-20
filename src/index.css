@@ -290,6 +290,9 @@ dt {
 }
 
 .brand-copy strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--ink-strong);
   font-family: "Outfit", sans-serif;
   font-size: clamp(1.05rem, 1vw, 1.18rem);
@@ -300,6 +303,9 @@ dt {
 }
 
 .brand-copy span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--ink-soft);
   font-size: clamp(0.88rem, 0.9vw, 0.96rem);
   font-weight: 650;
@@ -7725,14 +7731,14 @@ body::before {
 
   .site-nav {
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 6rem);
+    top: calc(env(safe-area-inset-top, 0px) + 7.15rem);
     right: max(0.85rem, calc((100vw - min(1180px, calc(100vw - 2rem))) / 2));
     left: auto;
     flex-direction: column;
     align-items: stretch;
     gap: 0.28rem;
     width: min(19rem, calc(100vw - 3.2rem));
-    max-height: min(34rem, calc(100dvh - env(safe-area-inset-top, 0px) - 7rem));
+    max-height: min(34rem, calc(100dvh - env(safe-area-inset-top, 0px) - 8.15rem));
     padding: 0.65rem;
     border: 1px solid var(--panel-border);
     border-radius: 22px;
@@ -7830,7 +7836,7 @@ body::before {
     order: -1;
     display: grid;
     gap: 0.7rem;
-    margin-bottom: 0.35rem;
+    margin: 0.2rem 0 0.35rem;
     padding: 0.8rem;
     border: 1px solid var(--chip-border);
     border-radius: 16px;
@@ -7887,22 +7893,37 @@ body::before {
 
 @media (max-width: 720px) {
   .header-shell {
-    padding: 0.82rem 0.92rem;
+    padding: 0.78rem 0.82rem;
     border-radius: 28px;
   }
 
+  .brand-cluster {
+    gap: 0.58rem;
+  }
+
+  .brand {
+    gap: 0.58rem;
+  }
+
+  .brand-mark {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 14px;
+    font-size: 0.78rem;
+  }
+
   .brand-copy {
-    max-width: clamp(10rem, 42vw, 13.5rem);
+    max-width: clamp(8.5rem, 38vw, 12.5rem);
   }
 
   .brand-copy strong {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: clamp(0.98rem, 4.4vw, 1.12rem);
+    line-height: 1.05;
   }
 
   .brand-copy span {
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: clamp(0.76rem, 3.45vw, 0.88rem);
+    line-height: 1.18;
   }
 
   .hero {
