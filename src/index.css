@@ -998,7 +998,7 @@ dt {
 .home-command-card {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(20rem, 1fr) auto;
+  grid-template-rows: auto minmax(20rem, 1fr);
   gap: 0.9rem;
   min-height: 35rem;
   padding: clamp(1.2rem, 3vw, 1.7rem);
@@ -1200,20 +1200,6 @@ dt {
   letter-spacing: 0.08em;
 }
 
-.home-command-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.72rem;
-}
-
-.home-command-metrics div {
-  padding: 0.92rem;
-  border: 1px solid var(--chip-border);
-  border-radius: 22px;
-  background: var(--panel-strong);
-}
-
-.home-command-metrics span,
 .home-proof-card span,
 .home-lane-card > span {
   color: var(--ink-soft);
@@ -1221,15 +1207,6 @@ dt {
   font-weight: 850;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-}
-
-.home-command-metrics strong {
-  display: block;
-  margin-top: 0.28rem;
-  color: var(--ink-strong);
-  font-family: "Outfit", sans-serif;
-  font-size: clamp(1.2rem, 2vw, 1.65rem);
-  line-height: 1;
 }
 
 .home-section {
@@ -7952,7 +7929,6 @@ body::before {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .home-command-metrics,
   .home-proof-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -7997,14 +7973,12 @@ body::before {
   }
 
   .home-value-grid,
-  .home-command-metrics,
   .home-proof-grid,
   .home-lane-grid,
   .home-writing-grid {
     grid-template-columns: 1fr;
   }
 
-  .home-command-metrics div,
   .home-proof-card {
     min-height: auto;
   }

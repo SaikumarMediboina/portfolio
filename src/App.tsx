@@ -4950,14 +4950,6 @@ function HomePage({
             </div>
           </div>
 
-          <div className="home-command-metrics">
-            {homeProof.map((item) => (
-              <div key={item.label}>
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-              </div>
-            ))}
-          </div>
         </aside>
       </section>
 
