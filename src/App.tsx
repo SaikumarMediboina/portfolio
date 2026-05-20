@@ -5121,11 +5121,10 @@ function HomePage({
       <section className="home-hero shell" id="top">
         <div className="home-hero-copy">
           <p className="eyebrow">Backend Systems / AI Search / Performance Engineering</p>
-          <h1>Backend systems for search, AI signals, and scale.</h1>
+          <h1>Hey, Sai here. I build backend systems that scale.</h1>
           <p className="home-hero-lede">
-            I am {profile.name}, a {profile.currentTitle} at {profile.company}. I build
-            high-volume backend platforms where search quality, latency, data reliability, and
-            AI-assisted workflows need to hold together.
+            {profile.currentTitle} at {profile.company}, focused on fast search, reliable data
+            flows, and practical AI workflows for high-volume platforms.
           </p>
 
           <div className="home-hero-actions">
