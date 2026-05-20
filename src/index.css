@@ -9577,6 +9577,12 @@ body :is(
   -webkit-line-clamp: 2;
 }
 
+body .home-lane-card p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: initial;
+}
+
 body .site-header {
   padding-top: clamp(0.75rem, 1.35vw, 1.15rem);
 }

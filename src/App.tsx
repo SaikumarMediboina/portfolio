@@ -5150,8 +5150,7 @@ function HomePage({
   const homeLanes = [
     {
       cta: "Open portfolio",
-      detail:
-        "Role story, backend impact, selected systems, skills, recognition, education, and certifications in one professional view.",
+      detail: "Career proof, projects, skills, credentials.",
       href: "/portfolio",
       icon: "briefcase" as const,
       meta: "Career proof",
@@ -5159,8 +5158,7 @@ function HomePage({
     },
     {
       cta: "Read notes",
-      detail:
-        "Practical engineering write-ups on backend performance, search systems, async patterns, and AI-enabled workflows.",
+      detail: "Short backend notes and diagrams.",
       href: "/blogs",
       icon: "pen" as const,
       meta: `${blogPosts.length} field notes`,
@@ -5168,8 +5166,7 @@ function HomePage({
     },
     {
       cta: "Scan radar",
-      detail:
-        "A curated AI signal board for important updates, original context, and useful link-out reading.",
+      detail: "Curated AI stories with context.",
       href: "/ai-radar",
       icon: "radar" as const,
       meta: "AI signals",
@@ -5177,8 +5174,7 @@ function HomePage({
     },
     {
       cta: "View dashboard",
-      detail:
-        "Content momentum, topic coverage, analytics signals, publishing rhythm, and reader activity in a premium control-room view.",
+      detail: "Site signals and reader insights.",
       href: "/dashboard",
       icon: "news" as const,
       meta: "Site cockpit",
