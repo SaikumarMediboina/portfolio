@@ -1,37 +1,41 @@
 :root {
   color-scheme: light;
-  --bg: #f7f1e8;
-  --bg-elevated: #fffaf3;
-  --panel: rgba(255, 250, 242, 0.82);
-  --panel-strong: rgba(255, 252, 247, 0.96);
-  --panel-soft: rgba(255, 247, 237, 0.68);
-  --panel-border: rgba(106, 76, 55, 0.13);
-  --chip-border: rgba(87, 62, 45, 0.12);
-  --ink: #2c251f;
-  --ink-strong: #1f1a16;
-  --ink-soft: #6f6257;
+  --bg: #f9f1e8;
+  --bg-elevated: #fffbf6;
+  --panel: rgba(255, 251, 246, 0.86);
+  --panel-strong: rgba(255, 253, 249, 0.97);
+  --panel-soft: rgba(255, 246, 235, 0.74);
+  --panel-border: rgba(111, 70, 45, 0.16);
+  --chip-border: rgba(96, 61, 41, 0.14);
+  --ink: #2b231d;
+  --ink-strong: #1e1814;
+  --ink-soft: #716255;
   --line: rgba(88, 62, 43, 0.13);
-  --accent: #a94832;
-  --accent-deep: #4a2b20;
-  --accent-soft: #f8dfd2;
-  --accent-cool: #e7eee6;
-  --hero-gradient: linear-gradient(135deg, #5b3025, #a94832);
-  --redwood-cedar: #3c2a22;
-  --redwood-clay: #a94832;
-  --redwood-terracotta: #c76543;
-  --redwood-sand: #f2e5d4;
-  --redwood-sage: #73816c;
-  --redwood-cream: #fffaf3;
+  --accent: #b24732;
+  --accent-deep: #513024;
+  --accent-soft: #f7dccc;
+  --accent-cool: #e7ede2;
+  --hero-gradient: linear-gradient(135deg, #563125, #b24732);
+  --redwood-cedar: #3b2a22;
+  --redwood-bark: #271d18;
+  --redwood-clay: #b24732;
+  --redwood-copper: #c96543;
+  --redwood-terracotta: #d07b54;
+  --redwood-ochre: #d8a45b;
+  --redwood-sand: #f4e4d2;
+  --redwood-stone: #e8d8c6;
+  --redwood-sage: #6f8067;
+  --redwood-cream: #fffbf6;
   --page-background:
-    radial-gradient(circle at 10% -6%, rgba(169, 72, 50, 0.15), transparent 26%),
-    radial-gradient(circle at 92% 9%, rgba(115, 129, 108, 0.16), transparent 24%),
-    radial-gradient(circle at 50% 115%, rgba(199, 101, 67, 0.12), transparent 34%),
-    linear-gradient(180deg, #fffaf3 0%, #f7f1e8 50%, #efe2d2 100%);
+    radial-gradient(circle at 10% -6%, rgba(178, 71, 50, 0.16), transparent 26%),
+    radial-gradient(circle at 92% 9%, rgba(111, 128, 103, 0.16), transparent 24%),
+    radial-gradient(circle at 50% 115%, rgba(208, 123, 84, 0.13), transparent 34%),
+    linear-gradient(180deg, #fffbf6 0%, #f9f1e8 50%, #efe0cf 100%);
   --grid-line: rgba(74, 48, 32, 0.04);
-  --header-bg: rgba(255, 250, 243, 0.84);
-  --header-border: rgba(106, 76, 55, 0.14);
-  --header-shadow: 0 18px 45px rgba(76, 51, 34, 0.1);
-  --soft-button-bg: rgba(255, 250, 243, 0.72);
+  --header-bg: rgba(255, 251, 246, 0.88);
+  --header-border: rgba(111, 70, 45, 0.16);
+  --header-shadow: 0 18px 45px rgba(79, 49, 31, 0.12);
+  --soft-button-bg: rgba(255, 251, 246, 0.76);
   --muted-button-bg: rgba(81, 54, 36, 0.06);
   --menu-bg: rgba(255, 250, 243, 0.98);
   --contact-background:
@@ -39,8 +43,8 @@
     linear-gradient(135deg, rgba(255, 250, 243, 0.92), rgba(244, 231, 216, 0.95));
   --orb-left: rgba(169, 72, 50, 0.14);
   --orb-right: rgba(115, 129, 108, 0.16);
-  --shadow-soft: 0 18px 50px rgba(74, 48, 32, 0.1);
-  --shadow-card: 0 30px 80px rgba(74, 48, 32, 0.16);
+  --shadow-soft: 0 18px 50px rgba(79, 49, 31, 0.11);
+  --shadow-card: 0 30px 80px rgba(79, 49, 31, 0.17);
   --radius-xl: 34px;
   --radius-lg: 24px;
   --radius-md: 18px;
@@ -10243,6 +10247,375 @@ textarea:focus-visible {
   .assistant-panel {
     height: min(29rem, calc(100vh - 7rem));
   }
+}
+
+/* Deeper Redwood pass: product-console polish, clay bands, and warmer surfaces. */
+body::before {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(178, 71, 50, 0.035) 0 1px, transparent 1px 16px);
+  background-size: 58px 58px, 58px 58px, 24px 24px;
+}
+
+.header-shell,
+.article-header-shell {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 18px 45px rgba(79, 49, 31, 0.12);
+}
+
+:root[data-theme="dark"] .header-shell,
+:root[data-theme="dark"] .article-header-shell {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 219, 0.08),
+    0 18px 48px rgba(0, 0, 0, 0.36);
+}
+
+.brand-mark {
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255, 220, 190, 0.18), transparent 38%),
+    linear-gradient(135deg, var(--redwood-bark), var(--redwood-clay));
+}
+
+.site-nav-more-panel,
+.profile-menu-panel,
+.reader-menu-panel {
+  border-color: var(--panel-border);
+  background:
+    radial-gradient(circle at top left, rgba(178, 71, 50, 0.08), transparent 42%),
+    var(--menu-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.home-hero {
+  background:
+    radial-gradient(circle at 18% 17%, rgba(216, 164, 91, 0.32), transparent 9rem),
+    radial-gradient(circle at 88% 34%, rgba(178, 71, 50, 0.36), transparent 18rem),
+    radial-gradient(circle at 64% 94%, rgba(111, 128, 103, 0.24), transparent 14rem),
+    linear-gradient(135deg, #4a3025 0%, #6e3a2b 44%, #231a15 100%);
+}
+
+.home-hero::before {
+  background:
+    linear-gradient(120deg, rgba(255, 251, 246, 0.14), transparent 34%),
+    linear-gradient(90deg, rgba(255, 251, 246, 0.065) 1px, transparent 1px),
+    linear-gradient(rgba(255, 251, 246, 0.055) 1px, transparent 1px),
+    linear-gradient(135deg, transparent 0 63%, rgba(208, 123, 84, 0.18) 63% 100%);
+}
+
+.home-hero-copy h1 {
+  text-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
+}
+
+.home-radar-board,
+.home-command-card,
+.home-lane-card,
+.home-proof,
+.home-proof-card,
+.home-work-card,
+.home-update-card,
+.home-writing-card,
+.home-final-cta,
+.hero-panel,
+.project-spotlight,
+.timeline-card,
+.skill-card,
+.credential-panel,
+.recognition-card,
+.updates-card,
+.contact-panel,
+.blog-featured,
+.blog-list-item,
+.standalone-blog,
+.guide-hero,
+.guide-card,
+.guide-feature-card,
+.guide-tool-card,
+.guide-path-panel,
+.mini-updates-panel,
+.whats-new-item,
+.learn-track-card,
+.active-build-card,
+.dashboard-card,
+.dashboard-stat-card,
+.dashboard-signal-panel,
+.saved-posts-item,
+.shelf-plan-card,
+.newsletter-callout {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.56),
+    0 18px 48px rgba(79, 49, 31, 0.11);
+}
+
+:root[data-theme="dark"] :is(
+  .home-radar-board,
+  .home-command-card,
+  .home-lane-card,
+  .home-proof,
+  .home-proof-card,
+  .home-work-card,
+  .home-update-card,
+  .home-writing-card,
+  .home-final-cta,
+  .hero-panel,
+  .project-spotlight,
+  .timeline-card,
+  .skill-card,
+  .credential-panel,
+  .recognition-card,
+  .updates-card,
+  .contact-panel,
+  .blog-featured,
+  .blog-list-item,
+  .standalone-blog,
+  .guide-hero,
+  .guide-card,
+  .guide-feature-card,
+  .guide-tool-card,
+  .guide-path-panel,
+  .mini-updates-panel,
+  .whats-new-item,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-panel,
+  .saved-posts-item,
+  .shelf-plan-card,
+  .newsletter-callout
+) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 219, 0.07),
+    0 22px 56px rgba(0, 0, 0, 0.31);
+}
+
+.home-lane-card,
+.home-writing-card,
+.blog-featured,
+.blog-list-item,
+.project-spotlight,
+.timeline-card,
+.skill-card,
+.credential-panel,
+.recognition-card,
+.updates-card,
+.contact-panel,
+.guide-card,
+.guide-feature-card,
+.guide-tool-card,
+.whats-new-item,
+.learn-track-card,
+.active-build-card,
+.dashboard-card,
+.dashboard-stat-card,
+.saved-posts-item,
+.shelf-plan-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-lane-card::before,
+.home-writing-card::before,
+.blog-featured::before,
+.blog-list-item::before,
+.project-spotlight::before,
+.timeline-card::before,
+.skill-card::before,
+.credential-panel::before,
+.recognition-card::before,
+.updates-card::before,
+.contact-panel::before,
+.guide-card::before,
+.guide-feature-card::before,
+.guide-tool-card::before,
+.whats-new-item::before,
+.learn-track-card::before,
+.active-build-card::before,
+.dashboard-card::before,
+.dashboard-stat-card::before,
+.saved-posts-item::before,
+.shelf-plan-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--redwood-clay), var(--redwood-ochre), var(--redwood-sage));
+  opacity: 0.58;
+  pointer-events: none;
+}
+
+.home-lane-card:hover::before,
+.home-writing-card:hover::before,
+.blog-list-item:hover::before,
+.project-spotlight:hover::before,
+.dashboard-card:hover::before,
+.saved-posts-item:hover::before {
+  opacity: 0.82;
+}
+
+.eyebrow,
+.focus-caption,
+.impact-label,
+.blog-meta span:first-child,
+.recognition-highlight {
+  color: var(--redwood-clay);
+}
+
+.home-trust-strip span,
+.home-stack-row span,
+.blog-tag-list span,
+.related-post-tags span,
+.ai-radar-filters button,
+.dashboard-chip-row span,
+.home-update-sources span,
+.hero-signal-list li,
+.stack-list li,
+.chip-list li {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), transparent),
+    color-mix(in srgb, var(--redwood-sand) 52%, var(--panel-strong));
+  color: color-mix(in srgb, var(--ink-soft) 78%, var(--ink-strong));
+}
+
+.button-primary {
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 220, 190, 0.18), transparent 40%),
+    linear-gradient(135deg, var(--redwood-bark), var(--redwood-clay) 58%, var(--redwood-copper));
+}
+
+.button-secondary:hover,
+.button-tertiary:hover,
+.blog-filter:hover,
+.blog-filter.is-active,
+.ai-radar-filters button:hover,
+.ai-radar-filters button.is-active {
+  border-color: color-mix(in srgb, var(--redwood-clay) 38%, var(--chip-border));
+  background: color-mix(in srgb, var(--accent-soft) 78%, var(--panel-strong));
+}
+
+.home-radar-board {
+  background:
+    radial-gradient(circle at 12% 12%, rgba(178, 71, 50, 0.12), transparent 13rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), transparent 44%),
+    var(--panel);
+}
+
+.home-radar-lead-card,
+.home-radar-mini-card,
+.ai-radar-item {
+  background:
+    linear-gradient(90deg, rgba(178, 71, 50, 0.035), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38), transparent 46%),
+    var(--panel-strong);
+}
+
+.home-radar-lead-art,
+.home-radar-mini-art,
+.ai-radar-mini-art,
+.ai-radar-card-art,
+.ai-radar-cover {
+  box-shadow: inset 0 0 0 1px rgba(255, 251, 246, 0.24);
+}
+
+.ai-radar-hero {
+  background:
+    radial-gradient(circle at 16% 16%, color-mix(in srgb, var(--radar-primary, var(--accent)) 30%, transparent), transparent 22rem),
+    radial-gradient(circle at 88% 24%, rgba(216, 164, 91, 0.24), transparent 18rem),
+    linear-gradient(135deg, #4a3025, #211915);
+}
+
+.ai-radar-story-card,
+.ai-radar-hero-panel,
+.ai-radar-story-controls,
+.assistant-panel {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 219, 0.08),
+    0 28px 78px rgba(0, 0, 0, 0.32);
+}
+
+.ai-radar-story-body {
+  border: 1px solid rgba(255, 251, 246, 0.1);
+}
+
+.ai-radar-signal-strip span,
+.ai-radar-source-line span,
+.ai-radar-source-line time,
+.ai-radar-status,
+.ai-radar-live-dot {
+  border-color: rgba(255, 239, 219, 0.13);
+  background: rgba(255, 251, 246, 0.075);
+  color: rgba(255, 248, 239, 0.76);
+}
+
+.ai-radar-lens {
+  background:
+    radial-gradient(circle at top left, rgba(178, 71, 50, 0.08), transparent 45%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent 44%),
+    var(--panel);
+}
+
+.dashboard-signal-panel {
+  background:
+    radial-gradient(circle at 86% 12%, color-mix(in srgb, var(--accent-soft) 68%, transparent), transparent 18rem),
+    linear-gradient(135deg, var(--panel-strong), var(--panel-soft));
+}
+
+.dashboard-signal-card.is-blue,
+.dashboard-signal-card.is-violet,
+.dashboard-signal-card.is-green,
+.dashboard-signal-card.is-gold,
+.dashboard-signal-card.is-rust,
+.dashboard-signal-card.is-slate {
+  background:
+    linear-gradient(135deg, rgba(178, 71, 50, 0.07), transparent),
+    var(--panel-strong);
+}
+
+.blog-article-section h4,
+.timeline-role,
+.timeline-company,
+.credential-title,
+.home-lane-card h3,
+.home-writing-card h3,
+.dashboard-card-heading h2,
+.ai-radar-item h3 {
+  color: var(--redwood-bark);
+}
+
+:root[data-theme="dark"] :is(
+  .blog-article-section h4,
+  .timeline-role,
+  .timeline-company,
+  .credential-title,
+  .home-lane-card h3,
+  .home-writing-card h3,
+  .dashboard-card-heading h2,
+  .ai-radar-item h3
+) {
+  color: var(--ink-strong);
+}
+
+.newsletter-callout,
+.site-newsletter-footer,
+.contact-panel,
+.collaboration-hero,
+.collaboration-cta {
+  background:
+    radial-gradient(circle at 12% 12%, rgba(216, 164, 91, 0.16), transparent 16rem),
+    radial-gradient(circle at 92% 18%, rgba(178, 71, 50, 0.12), transparent 14rem),
+    linear-gradient(135deg, var(--panel-strong), color-mix(in srgb, var(--redwood-sand) 62%, var(--panel-soft)));
+}
+
+.assistant-launcher,
+.assistant-form button {
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 220, 190, 0.2), transparent 42%),
+    linear-gradient(135deg, var(--redwood-bark), var(--redwood-clay) 64%, var(--redwood-copper));
+}
+
+.assistant-avatar {
+  background: linear-gradient(135deg, var(--redwood-bark), var(--redwood-clay));
 }
 
 @media (prefers-reduced-motion: reduce) {
