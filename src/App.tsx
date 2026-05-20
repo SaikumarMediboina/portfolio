@@ -5182,9 +5182,9 @@ function HomePage({
     },
   ];
   const homeProof = [
-    { label: "Batch screening", value: metrics[0]?.value ?? "97%", text: metrics[0]?.detail },
-    { label: "Real-time path", value: metrics[1]?.value ?? "85%", text: metrics[1]?.detail },
-    { label: "Runtime scale", value: metrics[2]?.value ?? "100+ TPS", text: metrics[2]?.detail },
+    { label: "Batch runs", value: metrics[0]?.value ?? "97%", text: "2h 5m to 3m" },
+    { label: "Real-time path", value: metrics[1]?.value ?? "85%", text: "2s to 300ms" },
+    { label: "Runtime scale", value: metrics[2]?.value ?? "100+ TPS", text: "Sub-2.5s latency" },
   ];
   const homeWritingPreview = [featuredBlog, ...remainingBlogPosts]
     .filter((post): post is BlogPost => Boolean(post))
@@ -5381,8 +5381,8 @@ function HomePage({
       <section className="home-section shell home-proof">
         <div className="home-proof-copy">
           <p className="eyebrow">Proof Points</p>
-          <h2>Built around measurable backend outcomes, not just tool lists.</h2>
-          <p>{profile.focus}</p>
+          <h2>Backend outcomes with measurable impact.</h2>
+          <p>Latency, throughput, and reliability improvements.</p>
         </div>
 
         <div className="home-proof-grid">
