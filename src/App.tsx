@@ -344,20 +344,6 @@ function getRelatedBlogPosts(currentPost: BlogPost, posts: BlogPost[], limit = 3
     .slice(0, limit);
 }
 
-function getBlogCategorySummary(posts: BlogPost[]) {
-  return Array.from(
-    posts.reduce((categoryMap, post) => {
-      const currentCount = categoryMap.get(post.category) ?? 0;
-      categoryMap.set(post.category, currentCount + 1);
-
-      return categoryMap;
-    }, new Map<string, number>()),
-  ).map(([category, count]) => ({
-    category,
-    count,
-  }));
-}
-
 function getPersonStructuredData() {
   return {
     "@context": "https://schema.org",
@@ -865,13 +851,14 @@ type SubscriberViewState =
 const THEME_STORAGE_KEY = "portfolio-theme";
 const SAVED_POSTS_STORAGE_KEY_PREFIX = "portfolio-saved-posts:";
 const SAVED_AI_RADAR_STORAGE_KEY_PREFIX = "portfolio-saved-ai-radar:";
+const NAV_RETURN_FLOW_STORAGE_KEY = "portfolio.navigationReturnFlow.v1";
+const NAV_PENDING_SCROLL_STORAGE_KEY = "portfolio.pendingScrollRestore.v1";
 const AI_RADAR_SAVE_ID_PREFIX = "ai-radar:";
 const ALL_BLOG_CATEGORIES = "All";
 const ALL_AI_RADAR_CATEGORIES = "All signals";
 const ALL_SAVED_POSTS_TAG = "All";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
-const LOCKED_BLOG_CAPTION =
-  "This one is in the members-only lab. Sign in and the doors open.";
+const LOCKED_BLOG_CAPTION = "Members-only. Sign in to unlock.";
 
 type AiRadarSignal = {
   category: string;
@@ -1409,6 +1396,146 @@ function getReturnTargetConfig(target: string) {
   return returnTargets[target] ?? null;
 }
 
+type NavigationReturnFlow = {
+  href: string;
+  scrollY: number;
+  savedAt: number;
+};
+
+function getCurrentRelativeHref() {
+  if (typeof window === "undefined") {
+    return "/";
+  }
+
+  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+}
+
+function rememberCurrentNavigationFlow(targetHref: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const targetUrl = new URL(targetHref, window.location.href);
+
+    if (targetUrl.origin !== window.location.origin) {
+      return;
+    }
+
+    const currentHref = getCurrentRelativeHref();
+    const targetRelativeHref = `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
+    const isSamePageJump =
+      targetUrl.pathname === window.location.pathname && targetUrl.search === window.location.search;
+
+    if (targetRelativeHref === currentHref || isSamePageJump) {
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      NAV_RETURN_FLOW_STORAGE_KEY,
+      JSON.stringify({
+        href: currentHref,
+        savedAt: Date.now(),
+        scrollY: Math.max(0, Math.round(window.scrollY)),
+      } satisfies NavigationReturnFlow),
+    );
+  } catch {
+    // Navigation still works even if storage is unavailable.
+  }
+}
+
+function getRememberedNavigationFlow() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const rawFlow = window.sessionStorage.getItem(NAV_RETURN_FLOW_STORAGE_KEY);
+    const flow = rawFlow ? (JSON.parse(rawFlow) as Partial<NavigationReturnFlow>) : null;
+
+    if (
+      !flow ||
+      typeof flow.href !== "string" ||
+      typeof flow.scrollY !== "number" ||
+      typeof flow.savedAt !== "number" ||
+      Date.now() - flow.savedAt > 30 * 60 * 1000
+    ) {
+      window.sessionStorage.removeItem(NAV_RETURN_FLOW_STORAGE_KEY);
+      return null;
+    }
+
+    return flow as NavigationReturnFlow;
+  } catch {
+    window.sessionStorage.removeItem(NAV_RETURN_FLOW_STORAGE_KEY);
+    return null;
+  }
+}
+
+function navigateToRememberedFlow(fallbackHref: string) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const flow = getRememberedNavigationFlow();
+
+  if (!flow || flow.href === getCurrentRelativeHref()) {
+    return false;
+  }
+
+  try {
+    window.sessionStorage.setItem(
+      NAV_PENDING_SCROLL_STORAGE_KEY,
+      JSON.stringify({
+        href: flow.href,
+        savedAt: Date.now(),
+        scrollY: flow.scrollY,
+      } satisfies NavigationReturnFlow),
+    );
+    window.sessionStorage.removeItem(NAV_RETURN_FLOW_STORAGE_KEY);
+  } catch {
+    // Fall through to navigation without scroll restoration.
+  }
+
+  window.location.href = flow.href || fallbackHref;
+  return true;
+}
+
+function restorePendingNavigationScroll() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const rawFlow = window.sessionStorage.getItem(NAV_PENDING_SCROLL_STORAGE_KEY);
+    const flow = rawFlow ? (JSON.parse(rawFlow) as Partial<NavigationReturnFlow>) : null;
+
+    if (
+      !flow ||
+      typeof flow.href !== "string" ||
+      typeof flow.scrollY !== "number" ||
+      typeof flow.savedAt !== "number" ||
+      Date.now() - flow.savedAt > 30 * 1000
+    ) {
+      window.sessionStorage.removeItem(NAV_PENDING_SCROLL_STORAGE_KEY);
+      return;
+    }
+
+    const currentHref = getCurrentRelativeHref();
+
+    if (currentHref !== flow.href) {
+      return;
+    }
+
+    window.sessionStorage.removeItem(NAV_PENDING_SCROLL_STORAGE_KEY);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: flow.scrollY, behavior: "auto" });
+      window.setTimeout(() => window.scrollTo({ top: flow.scrollY, behavior: "auto" }), 120);
+    });
+  } catch {
+    window.sessionStorage.removeItem(NAV_PENDING_SCROLL_STORAGE_KEY);
+  }
+}
+
 function getRecentSiteUpdates(updates: SiteUpdate[], days = 30) {
   const now = new Date();
   const maxAge = days * 24 * 60 * 60 * 1000;
@@ -1714,6 +1841,10 @@ function PageBackButton({ fallbackHref, label = "Back" }: PageBackButtonProps) {
       // Fall through to the explicit page fallback.
     }
 
+    if (navigateToRememberedFlow(fallbackHref)) {
+      return;
+    }
+
     window.location.href = fallbackHref;
   };
 
@@ -1986,12 +2117,17 @@ function BlogLockNote() {
   );
 }
 
-function BlogTagList({ post }: { post: BlogPost }) {
+function BlogTagList({ limit = 3, post }: { limit?: number; post: BlogPost }) {
+  const tags = getBlogPostTags(post);
+  const visibleTags = tags.slice(0, limit);
+  const hiddenTagCount = Math.max(tags.length - visibleTags.length, 0);
+
   return (
     <div className="blog-tag-list" aria-label={`${post.title} tags`}>
-      {getBlogPostTags(post).map((tag) => (
+      {visibleTags.map((tag) => (
         <span key={`${post.slug}-${tag}`}>{tag}</span>
       ))}
+      {hiddenTagCount ? <span>+{hiddenTagCount}</span> : null}
     </div>
   );
 }
@@ -4571,14 +4707,12 @@ function BlogIndexSection({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: BlogIndexSectionProps) {
-  const categorySummary = getBlogCategorySummary(visibleBlogPosts);
-
   return (
     <section className="section shell blog-section" id="blogs">
       <SectionHeading
         eyebrow="Blogs"
-        title="Short engineering write-ups that turn resume bullets into clearer technical stories."
-        description="Practical notes on performance engineering, search architecture, and AI-enabled backend systems."
+        title="Engineering notes, kept easy to scan."
+        description="Short reads on backend performance, search architecture, and practical AI systems."
       />
 
       <div className="blog-toolbar">
@@ -4602,15 +4736,6 @@ function BlogIndexSection({
             Get updates
           </a>
         </div>
-      </div>
-
-      <div className="blog-category-summary" aria-label="Visible blog categories">
-        {categorySummary.map((item) => (
-          <span key={item.category}>
-            <strong>{item.category}</strong>
-            {item.count} {item.count === 1 ? "post" : "posts"}
-          </span>
-        ))}
       </div>
 
       <div className="blog-index">
@@ -4643,15 +4768,7 @@ function BlogIndexSection({
               </h3>
               <p>{featuredBlog.summary}</p>
               <BlogTagList post={featuredBlog} />
-              {featuredBlogIsLocked ? (
-                <BlogLockNote />
-              ) : (
-                <ul className="bullet-list">
-                  {featuredBlog.takeaways.map((takeaway) => (
-                    <li key={takeaway}>{takeaway}</li>
-                  ))}
-                </ul>
-              )}
+              {featuredBlogIsLocked ? <BlogLockNote /> : null}
               {featuredBlogIsLocked ? (
                 <a
                   className="blog-featured-link"
@@ -5327,7 +5444,7 @@ function HomePage({
                 <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
                 <h3>{post.title}</h3>
                 <p>{post.summary}</p>
-                <BlogTagList post={post} />
+                <BlogTagList limit={2} post={post} />
                 {isLocked ? <BlogLockNote /> : null}
                 <div className="home-writing-actions">
                   {isLocked ? (
@@ -7112,7 +7229,7 @@ function BlogArticlePage({
             </div>
             <BlogMetaLine accessLabel="Members only" post={post} />
             <p>{post.summary}</p>
-            <BlogTagList post={post} />
+            <BlogTagList limit={6} post={post} />
             <BlogLockNote />
             <div className="standalone-lock-preview" aria-label="Locked article preview">
               <span>
@@ -7144,7 +7261,7 @@ function BlogArticlePage({
               <h1>{post.title}</h1>
               <BlogMetaLine accessLabel="Reader view" post={post} />
               <p>{post.summary}</p>
-              <BlogTagList post={post} />
+              <BlogTagList limit={6} post={post} />
               <div className="article-reader-panel" aria-label="Article reader details">
                 <span>
                   <strong>{getBlogWordCount(post).toLocaleString()}</strong>
@@ -8463,6 +8580,10 @@ function App() {
   };
 
   useEffect(() => {
+    restorePendingNavigationScroll();
+  }, []);
+
+  useEffect(() => {
     if (typeof window === "undefined") {
       return undefined;
     }
@@ -9482,28 +9603,38 @@ function App() {
               </button>
             </div>
 
-            {currentNavLinks.map((link) => (
-              <a
-                key={link.label}
-                className={isNavLinkActive(link) ? "is-active" : ""}
-                href={"href" in link ? link.href : `#${link.id}`}
-                onClick={closeMenu}
-              >
-                {"icon" in link ? (
-                  <span className="site-nav-icon">
-                    <ReaderMenuGlyph type={link.icon} />
-                  </span>
-                ) : null}
-                {link.label}
-              </a>
-            ))}
+            {currentNavLinks.map((link) => {
+              const linkHref = "href" in link ? link.href : `#${link.id}`;
+
+              return (
+                <a
+                  key={link.label}
+                  className={isNavLinkActive(link) ? "is-active" : ""}
+                  href={linkHref}
+                  onClick={() => {
+                    rememberCurrentNavigationFlow(linkHref);
+                    closeMenu();
+                  }}
+                >
+                  {"icon" in link ? (
+                    <span className="site-nav-icon">
+                      <ReaderMenuGlyph type={link.icon} />
+                    </span>
+                  ) : null}
+                  {link.label}
+                </a>
+              );
+            })}
             {currentMoreNavLinks.length && isCompactNav
               ? currentMoreNavLinks.map((link) => (
                   <a
                     key={link.label}
                     className={isNavLinkActive(link) ? "is-active" : ""}
                     href={link.href}
-                    onClick={closeMenu}
+                    onClick={() => {
+                      rememberCurrentNavigationFlow(link.href);
+                      closeMenu();
+                    }}
                   >
                     <span className="site-nav-icon">
                       <ReaderMenuGlyph type={link.icon} />
@@ -9544,7 +9675,10 @@ function App() {
                       key={link.label}
                       className={isNavLinkActive(link) ? "is-active" : ""}
                       href={link.href}
-                      onClick={closeMenu}
+                      onClick={() => {
+                        rememberCurrentNavigationFlow(link.href);
+                        closeMenu();
+                      }}
                     >
                       <span className="site-nav-icon">
                         <ReaderMenuGlyph type={link.icon} />
