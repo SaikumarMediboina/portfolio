@@ -58,20 +58,20 @@ const portfolioNavLinks = [
 ] as const;
 
 const mainNavLinks = [
-  { href: "/start", label: "Start Here" },
-  { href: "/portfolio", label: "Portfolio" },
-  { href: "/active-builds", label: "Active Builds" },
-  { href: "/ai-radar", label: "AI Radar" },
-  { href: "/blogs", label: "Blogs" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/start", icon: "spark" as const, label: "Start Here" },
+  { href: "/portfolio", icon: "briefcase" as const, label: "Portfolio" },
+  { href: "/active-builds", icon: "briefcase" as const, label: "Active Builds" },
+  { href: "/ai-radar", icon: "radar" as const, label: "AI Radar" },
+  { href: "/blogs", icon: "pen" as const, label: "Blogs" },
+  { href: "/dashboard", icon: "dashboard" as const, label: "Dashboard" },
 ] as const;
 
 const mainMoreNavLinks = [
-  { href: "/learn-with-me", label: "Learn With Me" },
-  { href: "/whats-new", label: "What's New" },
-  { href: "/shelf", label: "Sai's Shelf" },
-  { href: "/work-with-me", label: "Work With Me" },
-  { href: "/#about", id: "about", label: "About" },
+  { href: "/learn-with-me", icon: "spark" as const, label: "Learn With Me" },
+  { href: "/whats-new", icon: "news" as const, label: "What's New" },
+  { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
+  { href: "/work-with-me", icon: "mail" as const, label: "Work With Me" },
+  { href: "/#about", icon: "about" as const, id: "about", label: "About" },
 ] as const;
 
 const emptyNavLinks = [] as const;
@@ -1740,6 +1740,7 @@ type ReaderMenuGlyphType =
   | "about"
   | "bookmark"
   | "briefcase"
+  | "dashboard"
   | "home"
   | "mail"
   | "menu"
@@ -1779,6 +1780,16 @@ function ReaderMenuGlyph({ type }: { type: ReaderMenuGlyphType }) {
           strokeWidth="1.8"
         />
         <path d="M9 8.2V6h6v2.2M4.8 12h14.4" stroke="currentColor" strokeWidth="1.8" />
+      </>
+    ),
+    dashboard: (
+      <>
+        <path
+          d="M5.2 5.6h5.4v5.4H5.2V5.6ZM13.4 5.6h5.4v3.8h-5.4V5.6ZM13.4 12.2h5.4v6.2h-5.4v-6.2ZM5.2 13.8h5.4v4.6H5.2v-4.6Z"
+          stroke="currentColor"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+        />
       </>
     ),
     home: (
@@ -9132,6 +9143,13 @@ function App() {
             </a>
           </div>
 
+          <button
+            className={`site-nav-backdrop${menuOpen ? " is-open" : ""}`}
+            type="button"
+            aria-label="Close main menu"
+            onClick={closeMenu}
+          />
+
           <nav
             className={`site-nav${menuOpen ? " is-open" : ""}`}
             id="site-navigation"
@@ -9139,6 +9157,16 @@ function App() {
             aria-hidden={compactNavIsHidden}
             inert={compactNavIsHidden}
           >
+            <div className="site-nav-drawer-heading">
+              <div>
+                <p className="impact-label">Main Menu</p>
+                <h2>Explore the site</h2>
+              </div>
+              <button className="reader-menu-close" type="button" onClick={closeMenu}>
+                Close
+              </button>
+            </div>
+
             {currentNavLinks.map((link) => (
               <a
                 key={link.label}
@@ -9146,6 +9174,11 @@ function App() {
                 href={"href" in link ? link.href : `#${link.id}`}
                 onClick={closeMenu}
               >
+                {"icon" in link ? (
+                  <span className="site-nav-icon">
+                    <ReaderMenuGlyph type={link.icon} />
+                  </span>
+                ) : null}
                 {link.label}
               </a>
             ))}
@@ -9166,7 +9199,12 @@ function App() {
                     setProfileMenuOpen(false);
                   }}
                 >
-                  <span>More</span>
+                  <span className="site-nav-more-label">
+                    <span className="site-nav-icon">
+                      <ReaderMenuGlyph type="menu" />
+                    </span>
+                    <span>More</span>
+                  </span>
                   <span className="site-nav-more-caret" aria-hidden="true" />
                 </button>
 
@@ -9178,6 +9216,9 @@ function App() {
                       href={link.href}
                       onClick={closeMenu}
                     >
+                      <span className="site-nav-icon">
+                        <ReaderMenuGlyph type={link.icon} />
+                      </span>
                       {link.label}
                     </a>
                   ))}

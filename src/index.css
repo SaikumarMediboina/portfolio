@@ -330,6 +330,12 @@ dt {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+.site-nav-backdrop,
+.site-nav-drawer-heading,
+.site-nav-icon {
+  display: none;
+}
+
 .site-nav a,
 .site-nav-more-button {
   position: relative;
@@ -7729,20 +7735,45 @@ body::before {
     position: relative;
   }
 
+  .site-nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 88;
+    display: block;
+    border: 0;
+    background: rgba(7, 12, 20, 0.34);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition:
+      opacity 0.22s ease,
+      visibility 0.22s ease;
+  }
+
+  .site-nav-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
   .site-nav {
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 7.15rem);
-    right: max(0.85rem, calc((100vw - min(1180px, calc(100vw - 2rem))) / 2));
-    left: auto;
+    inset: 0 0 0 auto;
+    z-index: 92;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.28rem;
-    width: min(19rem, calc(100vw - 3.2rem));
-    max-height: min(34rem, calc(100dvh - env(safe-area-inset-top, 0px) - 8.15rem));
-    padding: 0.65rem;
-    border: 1px solid var(--panel-border);
-    border-radius: 22px;
-    background: var(--menu-bg);
+    justify-content: start;
+    gap: 0.38rem;
+    width: min(25rem, calc(100vw - 2rem));
+    height: 100dvh;
+    max-height: none;
+    padding: calc(env(safe-area-inset-top, 0px) + 1rem) clamp(1rem, 3vw, 1.35rem) 1.2rem;
+    border: 0;
+    border-left: 1px solid var(--panel-border);
+    border-radius: 28px 0 0 28px;
+    background:
+      radial-gradient(circle at top right, var(--accent-soft), transparent 30%),
+      var(--menu-bg);
     box-shadow: var(--shadow-card);
     opacity: 0;
     overflow-y: auto;
@@ -7752,8 +7783,8 @@ body::before {
     scrollbar-width: thin;
     touch-action: pan-y;
     visibility: hidden;
-    transform: translateY(-8px) scale(0.98);
-    transform-origin: top right;
+    transform: translateX(1.35rem);
+    transform-origin: right center;
     transition:
       opacity 0.2s ease,
       visibility 0.2s ease,
@@ -7764,14 +7795,39 @@ body::before {
     opacity: 1;
     pointer-events: auto;
     visibility: visible;
-    transform: translateY(0) scale(1);
+    transform: translateX(0);
+  }
+
+  .site-nav-drawer-heading {
+    order: -2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.2rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-nav-drawer-heading h2 {
+    margin-top: 0.2rem;
+    color: var(--ink-strong);
+    font-family: "Outfit", sans-serif;
+    font-size: 1.45rem;
+    line-height: 1.15;
   }
 
   .site-nav a,
   .site-nav-more-button {
-    padding: 0.68rem 0.78rem;
-    border-radius: 14px;
-    font-size: var(--text-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 3rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 16px;
+    color: var(--ink-soft);
+    font-size: var(--text-md);
+    font-weight: 800;
   }
 
   .site-nav a::after,
@@ -7785,6 +7841,24 @@ body::before {
   .site-nav-more.is-open .site-nav-more-button,
   .site-nav-more.has-active .site-nav-more-button {
     background: var(--muted-button-bg);
+    color: var(--ink-strong);
+  }
+
+  .site-nav-icon {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--chip-border);
+    border-radius: 12px;
+    background: var(--muted-button-bg);
+    color: var(--accent);
+  }
+
+  .site-nav-icon .reader-menu-icon {
+    width: 1.18rem;
+    height: 1.18rem;
   }
 
   .site-nav-more {
@@ -7795,6 +7869,12 @@ body::before {
   .site-nav-more-button {
     justify-content: space-between;
     width: 100%;
+  }
+
+  .site-nav-more-button > span:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
   }
 
   .site-nav-more-panel {
@@ -7823,9 +7903,16 @@ body::before {
   }
 
   .site-nav-more-panel a {
-    padding: 0.62rem 0.72rem;
+    padding: 0.56rem 0.72rem;
     border-left: 0;
     border-radius: 12px;
+    font-size: var(--text-sm);
+  }
+
+  .site-nav-more-panel .site-nav-icon {
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 10px;
   }
 
   .profile-menu {
