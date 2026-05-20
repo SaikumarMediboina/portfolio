@@ -5027,7 +5027,6 @@ function HomePage({
   const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
   const leadRadarSignal = homeRadarSignals[0] ?? aiRadarSignals[0];
   const secondaryRadarSignals = homeRadarSignals.slice(1, 4);
-  const homeRadarSourceCount = new Set(homeRadarSignals.map((signal) => signal.source)).size;
 
   useEffect(() => {
     let isCurrent = true;
@@ -5126,7 +5125,10 @@ function HomePage({
               )}
             </div>
             <div className="home-radar-lead-copy">
-              <span>{leadRadarSignal.category}</span>
+              <div className="home-radar-meta-line">
+                <span>{leadRadarSignal.category}</span>
+                <AiRadarFreshness publishedAt={leadRadarSignal.publishedAt} />
+              </div>
               <h3>{leadRadarSignal.title}</h3>
               <p>{leadRadarSignal.summary}</p>
               <a
@@ -5166,15 +5168,13 @@ function HomePage({
                 <div>
                   <small>{signal.source}</small>
                   <strong>{signal.title}</strong>
+                  <AiRadarFreshness
+                    className="home-radar-mini-freshness"
+                    publishedAt={signal.publishedAt}
+                  />
                 </div>
               </a>
             ))}
-          </div>
-
-          <div className="home-radar-board-footer" aria-label="AI Radar preview stats">
-            <span>{homeRadarStatus === "loading" ? "Checking feed" : "Source feed"}</span>
-            <span>{homeRadarSourceCount} sources</span>
-            <span>Save on AI Radar</span>
           </div>
         </aside>
       </section>

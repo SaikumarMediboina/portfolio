@@ -1363,8 +1363,7 @@ dt {
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 82%);
 }
 
-.home-radar-board-top,
-.home-radar-board-footer {
+.home-radar-board-top {
   position: relative;
   z-index: 1;
   display: flex;
@@ -1481,7 +1480,15 @@ dt {
   padding: 0 0.2rem 0.25rem;
 }
 
-.home-radar-lead-copy > span {
+.home-radar-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.home-radar-meta-line span,
+.home-radar-meta-line time {
   justify-self: start;
   padding: 0.36rem 0.52rem;
   border-radius: 999px;
@@ -1492,6 +1499,11 @@ dt {
   font-weight: 850;
   letter-spacing: 0.11em;
   text-transform: uppercase;
+}
+
+.home-radar-meta-line time {
+  background: rgba(255, 207, 181, 0.1);
+  color: #ffcfb5;
 }
 
 .home-radar-lead-copy h3 {
@@ -1576,17 +1588,10 @@ dt {
   white-space: nowrap;
 }
 
-.home-radar-board-footer {
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 0.62rem 0.72rem;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.055);
-}
-
-.home-radar-board-footer span {
-  color: rgba(255, 255, 255, 0.64);
+.home-radar-mini-freshness {
+  display: inline-flex;
+  margin-top: 0.32rem;
+  color: #ffcfb5;
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.66rem;
   font-weight: 850;
@@ -8911,8 +8916,7 @@ body::before {
     border-radius: 28px;
   }
 
-  .home-radar-board-top,
-  .home-radar-board-footer {
+  .home-radar-board-top {
     align-items: stretch;
     flex-direction: column;
   }
