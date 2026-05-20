@@ -4883,12 +4883,12 @@ function HomePage({
     <>
       <section className="home-hero shell" id="top">
         <div className="home-hero-copy">
-          <p className="eyebrow">Backend Systems · AI Search · Performance Engineering</p>
-          <h1>Engineering search-heavy systems that stay fast, explainable, and ready for scale.</h1>
+          <p className="eyebrow">Backend Systems / AI Search / Performance Engineering</p>
+          <h1>Backend and AI systems for search, scoring, and scale.</h1>
           <p className="home-hero-lede">
-            I am {profile.name}, a {profile.currentTitle} at {profile.company}. I work on
-            backend platforms where data volume, latency, search relevance, and production
-            reliability all matter at the same time.
+            I am {profile.name}, a {profile.currentTitle} at {profile.company}. I build
+            high-volume backend platforms where latency, search quality, data reliability, and
+            explainable AI decisions need to work together.
           </p>
 
           <div className="home-hero-actions">
@@ -4919,32 +4919,35 @@ function HomePage({
             <span>Live</span>
           </div>
 
-          <div className="home-flow-diagram" aria-hidden="true">
-            <div className="home-flow-core">
-              <span>Screening flow</span>
-              <strong>100+ TPS</strong>
-            </div>
-            <div className="home-flow-track">
-              <span>Ingest</span>
+          <div className="home-architecture-diagram" aria-hidden="true">
+            <div className="home-architecture-flow">
+              <span>Clients</span>
               <i />
-              <span>Match</span>
+              <span>API Layer</span>
               <i />
-              <span>Rank</span>
+              <span>Screening Services</span>
             </div>
-            <div className="home-flow-signals">
-              <span>Parallel DB calls</span>
-              <span>Result streaming</span>
-              <span>AI scoring</span>
-            </div>
-          </div>
 
-          <div className="home-system-map" aria-hidden="true">
-            <span className="home-system-node is-primary">API</span>
-            <span className="home-system-node">Search</span>
-            <span className="home-system-node">Scoring</span>
-            <span className="home-system-node">Cache</span>
-            <span className="home-system-node">LLM</span>
-            <span className="home-system-node">OCI</span>
+            <div className="home-architecture-core">
+              <div className="home-architecture-node is-search">
+                <span>Search Index</span>
+                <strong>Oracle Text</strong>
+              </div>
+              <div className="home-architecture-node is-ai">
+                <span>AI Scoring</span>
+                <strong>Similarity + Rules</strong>
+              </div>
+              <div className="home-architecture-node is-data">
+                <span>Data Layer</span>
+                <strong>DB + Cache</strong>
+              </div>
+            </div>
+
+            <div className="home-architecture-outcomes">
+              <span>Real-time requests</span>
+              <span>Batch screening</span>
+              <span>Explainable results</span>
+            </div>
           </div>
 
           <div className="home-command-metrics">
