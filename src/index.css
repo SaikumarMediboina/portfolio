@@ -9548,6 +9548,35 @@ body .home-hero-lede {
   line-height: 1.56;
 }
 
+body :is(
+  .home-lane-card p,
+  .home-proof-card p,
+  .home-work-card p,
+  .home-update-card p,
+  .home-writing-card p:not(.blog-lock-note),
+  .metric-card p:last-child,
+  .focus-card p:last-child,
+  .recognition-card p:last-child,
+  .guide-feature-card p,
+  .guide-tool-card p,
+  .guide-path-list p,
+  .learn-track-card p,
+  .active-build-card p,
+  .shelf-plan-card p,
+  .updates-card p,
+  .saved-posts-item p,
+  .ai-radar-item p,
+  .collaboration-area-card p,
+  .collaboration-step p,
+  .dashboard-card p,
+  .dashboard-topic-breakdown p
+) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 body .site-header {
   padding-top: clamp(0.75rem, 1.35vw, 1.15rem);
 }

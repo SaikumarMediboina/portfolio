@@ -316,6 +316,18 @@ function getBlogPostTags(post: BlogPost) {
   return Array.from(new Set([post.category, ...post.tags].filter(Boolean)));
 }
 
+function getBlogCardSummary(post: BlogPost) {
+  const summaries: Record<string, string> = {
+    "ai-relevance-semantic-search-llm-workflows": "Hybrid AI relevance for enterprise search.",
+    "backend-throughput-database-cache-async-optimization":
+      "Throughput gains with cache and async.",
+    "batch-screening-latency-97-percent": "Batch latency cut to minutes.",
+    "opensearch-to-oracle-text-migration": "Search migration closer to data.",
+  };
+
+  return summaries[post.slug] ?? post.title.split(/\s+/).slice(0, 6).join(" ");
+}
+
 function getRelatedBlogPosts(currentPost: BlogPost, posts: BlogPost[], limit = 3) {
   const currentTags = new Set(getBlogPostTags(currentPost).map((tag) => tag.toLowerCase()));
 
@@ -1179,7 +1191,7 @@ function buildSavedReaderItems(
           href: getBlogArticleHref(post.slug),
           id: post.slug,
           kind: "Blog",
-          summary: post.summary,
+          summary: getBlogCardSummary(post),
           tags: getBlogPostTags(post),
           title: post.title,
         };
@@ -2235,10 +2247,7 @@ function RelatedPosts({ currentPost, subscriberUser, onTrackBlogOpen }: RelatedP
       <div className="related-posts-heading">
         <p className="eyebrow">Read Next</p>
         <h2>Related engineering notes.</h2>
-        <p>
-          Curated from shared tags, topic lane, and how close the systems problem feels to this
-          article.
-        </p>
+        <p>Similar backend notes, kept short.</p>
       </div>
 
       <div className="related-post-grid">
@@ -2253,7 +2262,7 @@ function RelatedPosts({ currentPost, subscriberUser, onTrackBlogOpen }: RelatedP
             >
               <BlogMetaLine accessLabel={isRelatedPostLocked ? "Locked" : "Open"} post={post} />
               <h3>{post.title}</h3>
-              <p>{post.summary}</p>
+              <p>{getBlogCardSummary(post)}</p>
               <div className="related-post-tags">
                 {(relatedTags.length ? relatedTags : getBlogPostTags(post).slice(0, 2)).map((tag) => (
                   <span key={`${post.slug}-related-${tag}`}>{tag}</span>
@@ -4766,7 +4775,7 @@ function BlogIndexSection({
                   </a>
                 )}
               </h3>
-              <p>{featuredBlog.summary}</p>
+              <p>{getBlogCardSummary(featuredBlog)}</p>
               <BlogTagList post={featuredBlog} />
               {featuredBlogIsLocked ? <BlogLockNote /> : null}
               {featuredBlogIsLocked ? (
@@ -4847,7 +4856,7 @@ function BlogIndexSection({
                         </a>
                       )}
                     </h3>
-                    <p>{post.summary}</p>
+                    <p>{getBlogCardSummary(post)}</p>
                     <BlogTagList post={post} />
                     {isLocked ? <BlogLockNote /> : null}
                   </div>
@@ -5443,7 +5452,7 @@ function HomePage({
               <article className={`home-writing-card${isLocked ? " is-locked" : ""}`} key={post.slug}>
                 <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
                 <h3>{post.title}</h3>
-                <p>{post.summary}</p>
+                <p>{getBlogCardSummary(post)}</p>
                 <BlogTagList limit={2} post={post} />
                 {isLocked ? <BlogLockNote /> : null}
                 <div className="home-writing-actions">
@@ -9843,7 +9852,7 @@ function App() {
           <SectionHeading
             eyebrow="About"
             title="I like systems work where throughput, trust, search quality, and explainability all need to hold together."
-            description="My recent work sits at the intersection of backend architecture, search, AI-assisted relevance, and performance engineering. I enjoy making complex enterprise workflows feel more predictable, faster, and easier to scale."
+            description="Backend, search, AI relevance, and performance work."
           />
 
           <div className="focus-grid">
@@ -9863,7 +9872,7 @@ function App() {
               <SectionHeading
                 eyebrow="Experience"
                 title="Most of my recent experience is deep backend work inside high-volume compliance and intelligence systems."
-                description="The emphasis has been cloud-native platform work, search-heavy architectures, AI-assisted relevance, and latency reduction across both real-time and batch screening paths."
+                description="Cloud-native platform work and latency reduction."
               />
 
               <div className="timeline">
@@ -9905,7 +9914,7 @@ function App() {
               <SectionHeading
                 eyebrow="Selected Work"
                 title="A few backend and AI-flavored case studies that represent the kind of problems I enjoy solving."
-                description="This section stays interactive so the work can be explored one case study at a time instead of disappearing into a long wall of cards."
+                description="Explore one case study at a time."
               />
 
               <div className="work-layout">
@@ -9973,7 +9982,7 @@ function App() {
               <SectionHeading
                 eyebrow="Skills"
                 title="The strongest part of my stack is where backend services meet search, databases, and AI-enabled workflows."
-                description="I work most comfortably in Java-based backend environments, Oracle-heavy systems, and product flows where scale, explainability, and delivery speed all need to stay aligned."
+                description="Java backend, Oracle systems, search, and AI."
               />
 
               <div className="skill-grid">
@@ -9998,7 +10007,7 @@ function App() {
               <SectionHeading
                 eyebrow="Recognition"
                 title="A couple of external signals that back up the delivery story."
-                description="These are the recognition points I want front and center because they connect directly to execution, performance, and product-building impact."
+                description="Recognition tied to measurable execution."
               />
 
               <div className="recognition-grid">
@@ -10017,7 +10026,7 @@ function App() {
               <SectionHeading
                 eyebrow="Credentials"
                 title="Education and certifications that support the engineering work."
-                description="This section brings together my education and certifications, while awards and recognition are highlighted separately above."
+                description="Education and professional certifications."
               />
 
               <div className="credentials-grid">
