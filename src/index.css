@@ -12541,3 +12541,353 @@ body::before {
     font-size: clamp(2rem, 11vw, 2.9rem);
   }
 }
+
+/* Site-wide spacing rhythm: keeps every page breathable and consistent. */
+:root {
+  --site-page-padding-top: clamp(3.4rem, 6vw, 5.2rem);
+  --site-page-padding-bottom: clamp(4.2rem, 7vw, 6.5rem);
+  --site-section-gap: clamp(1.45rem, 3vw, 2.4rem);
+  --site-grid-gap: clamp(0.95rem, 1.55vw, 1.35rem);
+  --site-card-padding: clamp(1rem, 2vw, 1.35rem);
+  --site-panel-padding: clamp(1.15rem, 2.4vw, 1.8rem);
+}
+
+:is(
+  .blogs-page,
+  .guide-page,
+  .learn-page,
+  .active-builds-page,
+  .ai-radar-page,
+  .dashboard-page,
+  .collaboration-page,
+  .saved-posts-page,
+  .shelf-page,
+  .signin-page
+) {
+  padding-top: var(--site-page-padding-top);
+  padding-bottom: var(--site-page-padding-bottom);
+}
+
+:is(
+  .blogs-page,
+  .guide-page,
+  .learn-page,
+  .active-builds-page,
+  .ai-radar-page,
+  .dashboard-page,
+  .saved-posts-page,
+  .shelf-page
+) {
+  display: grid;
+  gap: var(--site-section-gap);
+}
+
+.collaboration-page {
+  display: grid;
+  gap: clamp(1.8rem, 4vw, 3.2rem);
+}
+
+:is(
+  .section,
+  .blog-section,
+  .guide-feature-panel,
+  .guide-tool-panel,
+  .guide-path-panel,
+  .learn-flow-panel,
+  .build-principles-panel,
+  .dashboard-shell,
+  .saved-posts-panel,
+  .shelf-panel,
+  .newsletter-callout,
+  .collaboration-section,
+  .collaboration-cta
+) {
+  margin-top: 0;
+}
+
+:is(
+  .hero,
+  .guide-hero,
+  .learn-hero,
+  .active-builds-hero,
+  .signin-hero,
+  .saved-posts-hero,
+  .shelf-hero,
+  .standalone-blog-hero,
+  .collaboration-hero,
+  .dashboard-hero
+) {
+  margin-bottom: 0;
+}
+
+:is(
+  .metric-grid,
+  .focus-grid,
+  .recognition-grid,
+  .skill-grid,
+  .credentials-grid,
+  .project-spotlight-grid,
+  .blog-index,
+  .blog-list,
+  .blog-stat-grid,
+  .blog-category-summary,
+  .related-posts-grid,
+  .guide-grid,
+  .guide-feature-grid,
+  .guide-tool-strip,
+  .guide-path-list,
+  .learn-track-grid,
+  .active-builds-grid,
+  .collaboration-card-grid,
+  .collaboration-proof-grid,
+  .collaboration-process,
+  .dashboard-grid,
+  .dashboard-grid-two,
+  .dashboard-stat-grid,
+  .dashboard-signal-grid,
+  .dashboard-topic-breakdown,
+  .dashboard-article-bars,
+  .saved-posts-list,
+  .saved-posts-tags,
+  .shelf-plan-grid,
+  .ai-radar-layout,
+  .ai-radar-feed,
+  .ai-radar-filters,
+  .newsletter-form
+) {
+  gap: var(--site-grid-gap);
+}
+
+:is(
+  .metric-card,
+  .focus-card,
+  .project-tab,
+  .project-spotlight,
+  .timeline-card,
+  .skill-card,
+  .credential-panel,
+  .recognition-card,
+  .updates-panel,
+  .updates-card,
+  .blog-featured,
+  .blog-list-item,
+  .blog-empty,
+  .blog-stat,
+  .related-post-card,
+  .guide-card,
+  .guide-feature-card,
+  .guide-tool-card,
+  .guide-path-list article,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .dashboard-note,
+  .saved-posts-item,
+  .saved-posts-empty,
+  .shelf-plan-card,
+  .shelf-coming-soon
+) {
+  padding: var(--site-card-padding);
+}
+
+:is(
+  .hero,
+  .guide-hero,
+  .learn-hero,
+  .active-builds-hero,
+  .signin-hero,
+  .saved-posts-hero,
+  .shelf-hero,
+  .standalone-blog,
+  .ai-radar-hero,
+  .dashboard-shell,
+  .collaboration-hero,
+  .collaboration-proof,
+  .collaboration-cta,
+  .newsletter-callout,
+  .saved-posts-panel,
+  .shelf-panel,
+  .learn-flow-panel,
+  .build-principles-panel,
+  .guide-feature-panel,
+  .guide-tool-panel,
+  .guide-path-panel
+) {
+  padding: var(--site-panel-padding);
+}
+
+:is(
+  .blog-toolbar,
+  .blog-controls,
+  .blog-toolbar-actions,
+  .saved-posts-filter,
+  .dashboard-card-heading,
+  .dashboard-signal-head,
+  .collaboration-section-heading,
+  .guide-section-heading,
+  .section-heading
+) {
+  gap: clamp(0.7rem, 1.2vw, 1rem);
+}
+
+:is(
+  .blog-toolbar,
+  .saved-posts-filter,
+  .dashboard-signal-head,
+  .collaboration-section-heading,
+  .guide-section-heading,
+  .section-heading
+) + :is(
+  .blog-index,
+  .blog-list,
+  .saved-posts-list,
+  .dashboard-grid,
+  .dashboard-card,
+  .collaboration-card-grid,
+  .guide-grid,
+  .guide-feature-grid,
+  .guide-tool-strip
+) {
+  margin-top: clamp(1rem, 2vw, 1.4rem);
+}
+
+.article-site-header + :is(.standalone-blog, .guide-page, .ai-radar-page, .dashboard-page, .saved-posts-page, .shelf-page) {
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+}
+
+.standalone-blog {
+  display: grid;
+  gap: clamp(1.15rem, 2.4vw, 1.8rem);
+}
+
+.blog-article,
+.related-posts,
+.blog-architecture-diagram {
+  margin-top: clamp(1.15rem, 2.4vw, 1.8rem);
+}
+
+.blog-article {
+  gap: clamp(1rem, 2vw, 1.45rem);
+}
+
+.blog-article-section {
+  padding-top: clamp(1rem, 2vw, 1.35rem);
+}
+
+.ai-radar-layout {
+  align-items: start;
+}
+
+.ai-radar-lens {
+  top: clamp(5.8rem, 8vw, 7rem);
+}
+
+.dashboard-shell {
+  display: grid;
+  gap: var(--site-section-gap);
+}
+
+.dashboard-page .dashboard-shell {
+  margin-top: 0;
+}
+
+.collaboration-section {
+  display: grid;
+  gap: clamp(1.15rem, 2.5vw, 1.8rem);
+}
+
+.saved-posts-panel,
+.shelf-panel {
+  display: grid;
+  gap: var(--site-section-gap);
+}
+
+.site-newsletter-footer {
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+@media (max-width: 1080px) {
+  :is(
+    .metric-grid,
+    .focus-grid,
+    .recognition-grid,
+    .skill-grid,
+    .credentials-grid,
+    .project-spotlight-grid,
+    .guide-feature-grid,
+    .guide-grid,
+    .guide-tool-strip,
+    .learn-track-grid,
+    .active-builds-grid,
+    .collaboration-card-grid,
+    .collaboration-proof-grid,
+    .dashboard-grid,
+    .dashboard-grid-two,
+    .dashboard-stat-grid,
+    .dashboard-signal-grid,
+    .saved-posts-list,
+    .shelf-plan-grid,
+    .ai-radar-layout
+  ) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --site-page-padding-top: 2.7rem;
+    --site-page-padding-bottom: 4rem;
+    --site-section-gap: 1.05rem;
+    --site-grid-gap: 0.8rem;
+    --site-card-padding: 0.95rem;
+    --site-panel-padding: 1rem;
+  }
+
+  :is(
+    .blogs-page,
+    .guide-page,
+    .learn-page,
+    .active-builds-page,
+    .ai-radar-page,
+    .dashboard-page,
+    .collaboration-page,
+    .saved-posts-page,
+    .shelf-page,
+    .signin-page
+  ) {
+    padding-top: var(--site-page-padding-top);
+  }
+
+  .blog-toolbar,
+  .saved-posts-filter,
+  .dashboard-signal-head,
+  .dashboard-card-heading,
+  .collaboration-section-heading,
+  .guide-section-heading,
+  .section-heading {
+    align-items: stretch;
+  }
+
+  .blog-toolbar,
+  .saved-posts-filter,
+  .dashboard-signal-head,
+  .dashboard-card-heading {
+    display: grid;
+  }
+
+  .blog-toolbar-actions,
+  .blog-controls,
+  .saved-posts-tags {
+    justify-content: flex-start;
+  }
+
+  .article-site-header + :is(.standalone-blog, .guide-page, .ai-radar-page, .dashboard-page, .saved-posts-page, .shelf-page) {
+    margin-top: 0.75rem;
+  }
+
+  .site-newsletter-footer {
+    margin-top: 1.4rem;
+  }
+}
