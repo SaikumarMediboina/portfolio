@@ -5615,6 +5615,19 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   };
 
+  const handleLearnAccessLogout = () => {
+    try {
+      window.sessionStorage.removeItem(LEARN_ACCESS_STORAGE_KEY);
+    } catch {
+      // If storage is blocked, still lock the room for the current render.
+    }
+
+    setAccessGranted(false);
+    setAccessPassword("");
+    setAccessError("");
+    setAccessMessage("Learn With Me is locked again. Password required to reopen.");
+  };
+
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -5639,6 +5652,15 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            {accessGranted ? (
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={handleLearnAccessLogout}
+              >
+                Logout
+              </button>
+            ) : null}
             <button
               className="theme-toggle"
               type="button"
