@@ -948,6 +948,39 @@ const aiRadarSignals: AiRadarSignal[] = [
   },
 ];
 
+function normalizeAiRadarApiItems(data: AiRadarApiResponse): AiRadarSignal[] {
+  const items: AiRadarApiItem[] = Array.isArray(data.items) ? data.items : [];
+
+  return items
+    .map((item): AiRadarSignal | null => {
+      if (
+        typeof item?.title !== "string" ||
+        typeof item?.href !== "string" ||
+        typeof item?.source !== "string"
+      ) {
+        return null;
+      }
+
+      return {
+        category: typeof item.category === "string" ? item.category : "AI",
+        cadence: typeof item.cadence === "string" ? item.cadence : "Live source feed",
+        href: item.href,
+        imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
+        isLive: Boolean(item.isLive),
+        publishedAt: typeof item.publishedAt === "string" ? item.publishedAt : undefined,
+        rank: typeof item.rank === "number" ? item.rank : undefined,
+        source: item.source,
+        summary: typeof item.summary === "string" ? item.summary : "",
+        title: item.title,
+        whyItMatters:
+          typeof item.whyItMatters === "string" && item.whyItMatters
+            ? item.whyItMatters
+            : "Fresh signal from a trusted AI source. Open the original article for the full context.",
+      };
+    })
+    .filter((item): item is AiRadarSignal => Boolean(item));
+}
+
 function normalizeSavedPostSlugs(savedPostSlugs: unknown) {
   return Array.isArray(savedPostSlugs)
     ? Array.from(new Set(savedPostSlugs.filter((slug): slug is string => typeof slug === "string")))
@@ -4938,6 +4971,12 @@ function HomePage({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: HomePageProps) {
+  const [homeRadarSignals, setHomeRadarSignals] = useState<AiRadarSignal[]>(
+    aiRadarSignals.slice(0, 4),
+  );
+  const [homeRadarStatus, setHomeRadarStatus] = useState<"loading" | "live" | "fallback">(
+    "loading",
+  );
   const homeLanes = [
     {
       cta: "Open portfolio",
@@ -4985,17 +5024,65 @@ function HomePage({
     .filter((post): post is BlogPost => Boolean(post))
     .slice(0, 3);
   const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
+  const leadRadarSignal = homeRadarSignals[0] ?? aiRadarSignals[0];
+  const secondaryRadarSignals = homeRadarSignals.slice(1, 4);
+  const homeRadarSourceCount = new Set(homeRadarSignals.map((signal) => signal.source)).size;
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    const loadHomeRadar = async () => {
+      setHomeRadarStatus("loading");
+
+      try {
+        const response = await fetch("/api/ai-radar?limit=4&surface=home", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("AI Radar feed is unavailable.");
+        }
+
+        const nextSignals = normalizeAiRadarApiItems((await response.json()) as AiRadarApiResponse);
+
+        if (!isCurrent) {
+          return;
+        }
+
+        if (nextSignals.length) {
+          setHomeRadarSignals(nextSignals);
+          setHomeRadarStatus("live");
+        } else {
+          setHomeRadarSignals(aiRadarSignals.slice(0, 4));
+          setHomeRadarStatus("fallback");
+        }
+      } catch {
+        if (!isCurrent) {
+          return;
+        }
+
+        setHomeRadarSignals(aiRadarSignals.slice(0, 4));
+        setHomeRadarStatus("fallback");
+      }
+    };
+
+    loadHomeRadar();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   return (
     <>
       <section className="home-hero shell" id="top">
         <div className="home-hero-copy">
           <p className="eyebrow">Backend Systems / AI Search / Performance Engineering</p>
-          <h1>Backend and AI systems for search, scoring, and scale.</h1>
+          <h1>Backend systems for search, AI signals, and scale.</h1>
           <p className="home-hero-lede">
             I am {profile.name}, a {profile.currentTitle} at {profile.company}. I build
-            high-volume backend platforms where latency, search quality, data reliability, and
-            explainable AI decisions need to work together.
+            high-volume backend platforms where search quality, latency, data reliability, and
+            AI-assisted workflows need to hold together.
           </p>
 
           <div className="home-hero-actions">
@@ -5017,46 +5104,77 @@ function HomePage({
           </div>
         </div>
 
-        <aside className="home-command-card" aria-label="Impact areas overview">
-          <div className="home-command-top">
+        <aside className="home-radar-board" aria-label="AI Radar live preview">
+          <div className="home-radar-board-top">
             <div>
-              <p className="impact-label">Where I Create Impact</p>
-              <h2>Clear focus, measurable engineering outcomes.</h2>
+              <span className="home-radar-live-pill">
+                <span aria-hidden="true" />
+                {homeRadarStatus === "live" ? "Live AI Radar" : "Curated AI Radar"}
+              </span>
+              <h2>Fresh AI signals, kept lightweight.</h2>
             </div>
-            <span>Useful</span>
+            <a href="/ai-radar">Open radar</a>
           </div>
 
-          <div className="home-value-map">
-            <div className="home-value-intro">
-              <span>Current focus</span>
-              <strong>Search quality, backend speed, and practical AI.</strong>
+          <article className="home-radar-lead-card">
+            <div className="home-radar-lead-art" style={getAiRadarVisualStyle(leadRadarSignal)}>
+              {leadRadarSignal.imageUrl ? (
+                <img src={leadRadarSignal.imageUrl} alt="" loading="lazy" />
+              ) : (
+                <span>{leadRadarSignal.source}</span>
+              )}
             </div>
+            <div className="home-radar-lead-copy">
+              <span>{leadRadarSignal.category}</span>
+              <h3>{leadRadarSignal.title}</h3>
+              <p>{leadRadarSignal.summary}</p>
+              <a
+                href={leadRadarSignal.href}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  trackAnalyticsEvent("ai_radar_open", {
+                    category: leadRadarSignal.category,
+                    source: "home_hero",
+                    title: leadRadarSignal.title,
+                  })
+                }
+              >
+                Read original signal
+              </a>
+            </div>
+          </article>
 
-            <div className="home-value-grid">
-              <div className="home-value-node is-search">
-                <span>Search</span>
-                <strong>Better matching</strong>
-                <p>Cleaner ranking for noisy enterprise data.</p>
-              </div>
-              <div className="home-value-node is-performance">
-                <span>Speed</span>
-                <strong>Lower latency</strong>
-                <p>Faster real-time and batch backend paths.</p>
-              </div>
-              <div className="home-value-node is-ai">
-                <span>AI</span>
-                <strong>Useful automation</strong>
-                <p>LLM-assisted workflows with controlled output.</p>
-              </div>
-            </div>
-
-            <div className="home-value-outcomes" aria-label="Primary outcomes">
-              <span>Lower latency</span>
-              <span>Better relevance</span>
-              <span>Scalable delivery</span>
-            </div>
+          <div className="home-radar-stack" aria-label="More AI Radar stories">
+            {secondaryRadarSignals.map((signal, index) => (
+              <a
+                className="home-radar-mini-card"
+                href={signal.href}
+                key={signal.href}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  trackAnalyticsEvent("ai_radar_open", {
+                    category: signal.category,
+                    source: "home_stack",
+                    title: signal.title,
+                  })
+                }
+              >
+                <span>{String(index + 2).padStart(2, "0")}</span>
+                <div>
+                  <small>{signal.source}</small>
+                  <strong>{signal.title}</strong>
+                </div>
+              </a>
+            ))}
           </div>
 
+          <div className="home-radar-board-footer" aria-label="AI Radar preview stats">
+            <span>{homeRadarStatus === "loading" ? "Checking feed" : "Source feed"}</span>
+            <span>{homeRadarSourceCount} sources</span>
+            <span>Save on AI Radar</span>
+          </div>
         </aside>
       </section>
 
@@ -6101,35 +6219,7 @@ function AiRadarPage({
         }
 
         const data = (await response.json()) as AiRadarApiResponse;
-        const items: AiRadarApiItem[] = Array.isArray(data.items) ? data.items : [];
-        const nextSignals = items
-          .map((item): AiRadarSignal | null => {
-            if (
-              typeof item?.title !== "string" ||
-              typeof item?.href !== "string" ||
-              typeof item?.source !== "string"
-            ) {
-              return null;
-            }
-
-            return {
-              category: typeof item.category === "string" ? item.category : "AI",
-              cadence: typeof item.cadence === "string" ? item.cadence : "Live source feed",
-              href: item.href,
-              imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
-              isLive: Boolean(item.isLive),
-              publishedAt: typeof item.publishedAt === "string" ? item.publishedAt : undefined,
-              rank: typeof item.rank === "number" ? item.rank : undefined,
-              source: item.source,
-              summary: typeof item.summary === "string" ? item.summary : "",
-              title: item.title,
-              whyItMatters:
-                typeof item.whyItMatters === "string" && item.whyItMatters
-                  ? item.whyItMatters
-                  : "Fresh signal from a trusted AI source. Open the original article for the full context.",
-            };
-          })
-          .filter((item): item is AiRadarSignal => Boolean(item));
+        const nextSignals = normalizeAiRadarApiItems(data);
 
         if (!isCurrent) {
           return;

@@ -1028,6 +1028,7 @@ dt {
 
 .home-hero-copy,
 .home-command-card,
+.home-radar-board,
 .home-lane-card,
 .home-proof,
 .home-proof-card,
@@ -1331,6 +1332,266 @@ dt {
   background: var(--muted-button-bg);
   color: var(--ink-soft);
   letter-spacing: 0.08em;
+}
+
+.home-radar-board {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  min-height: 35rem;
+  padding: clamp(1.05rem, 2.6vw, 1.45rem);
+  border-radius: clamp(30px, 4vw, 48px);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(107, 229, 191, 0.18), transparent 28%),
+    radial-gradient(circle at 92% 22%, rgba(240, 100, 59, 0.2), transparent 30%),
+    linear-gradient(145deg, rgba(12, 28, 35, 0.96), rgba(25, 29, 33, 0.94));
+  color: #f7fbf7;
+}
+
+.home-radar-board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 2.1rem 2.1rem;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent 82%);
+}
+
+.home-radar-board-top,
+.home-radar-board-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home-radar-board-top h2 {
+  max-width: 15rem;
+  margin-top: 0.65rem;
+  color: #fff;
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.home-radar-board-top > a {
+  flex: 0 0 auto;
+  padding: 0.58rem 0.76rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.86);
+  font-size: var(--text-xs);
+  font-weight: 850;
+}
+
+.home-radar-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.58rem;
+  border: 1px solid rgba(107, 229, 191, 0.22);
+  border-radius: 999px;
+  background: rgba(107, 229, 191, 0.1);
+  color: #bff8df;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.home-radar-live-pill span {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0.34rem rgba(107, 229, 191, 0.1);
+}
+
+.home-radar-lead-card {
+  position: relative;
+  display: grid;
+  gap: 0.9rem;
+  padding: 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.065)),
+    rgba(255, 255, 255, 0.06);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.22);
+}
+
+.home-radar-lead-art {
+  position: relative;
+  min-height: 13.5rem;
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 24% 25%, var(--radar-primary, #ff8d66), transparent 34%),
+    radial-gradient(circle at 82% 30%, var(--radar-secondary, #9fc2ff), transparent 38%),
+    linear-gradient(135deg, #22313b, #101820);
+}
+
+.home-radar-lead-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 46%, rgba(0, 0, 0, 0.5)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.13), transparent 36%);
+}
+
+.home-radar-lead-art img {
+  width: 100%;
+  height: 100%;
+  min-height: 13.5rem;
+  object-fit: cover;
+  filter: saturate(0.95) contrast(1.04);
+}
+
+.home-radar-lead-art span {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1;
+  max-width: 13rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.2rem, 3vw, 2.1rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  text-align: right;
+}
+
+.home-radar-lead-copy {
+  display: grid;
+  gap: 0.58rem;
+  padding: 0 0.2rem 0.25rem;
+}
+
+.home-radar-lead-copy > span {
+  justify-self: start;
+  padding: 0.36rem 0.52rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.72);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.home-radar-lead-copy h3 {
+  color: #fff;
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.home-radar-lead-copy p {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.home-radar-lead-copy a {
+  justify-self: start;
+  color: #ffcfb5;
+  font-size: var(--text-sm);
+  font-weight: 900;
+}
+
+.home-radar-stack {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.home-radar-mini-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.065);
+  color: #fff;
+}
+
+.home-radar-mini-card > span {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #bff8df;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.home-radar-mini-card div {
+  min-width: 0;
+}
+
+.home-radar-mini-card small {
+  display: block;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.home-radar-mini-card strong {
+  display: block;
+  overflow: hidden;
+  margin-top: 0.15rem;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--text-sm);
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-radar-board-footer {
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.62rem 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.home-radar-board-footer span {
+  color: rgba(255, 255, 255, 0.64);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .home-proof-card span,
@@ -8546,7 +8807,8 @@ body::before {
   }
 
   .home-hero-copy,
-  .home-command-card {
+  .home-command-card,
+  .home-radar-board {
     min-height: auto;
   }
 
@@ -8592,10 +8854,26 @@ body::before {
   }
 
   .home-command-card,
+  .home-radar-board,
   .home-work-card,
   .home-update-card,
   .home-final-cta {
     border-radius: 28px;
+  }
+
+  .home-radar-board-top,
+  .home-radar-board-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .home-radar-board-top > a {
+    align-self: start;
+  }
+
+  .home-radar-lead-art,
+  .home-radar-lead-art img {
+    min-height: 11rem;
   }
 
   .home-value-grid,
