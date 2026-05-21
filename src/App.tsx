@@ -1411,7 +1411,7 @@ function getReturnTargetConfig(target: string) {
     "active-builds": { href: "/active-builds", label: "Back to active builds" },
     learn: { href: "/learn-with-me", label: "Back to learn with me" },
     portfolio: { href: "/portfolio", label: "Back to portfolio" },
-    "saved-posts": { href: "/saved-posts", label: "Back to saved posts" },
+    "saved-posts": { href: "/saved-posts", label: "Back" },
     shelf: { href: "/shelf", label: "Back to shelf" },
     start: { href: "/start", label: "Back to start" },
     "whats-new": { href: "/whats-new", label: "Back to what's new" },

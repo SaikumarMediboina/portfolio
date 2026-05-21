@@ -20230,3 +20230,77 @@ body {
     width: 100%;
   }
 }
+
+/* Drawer bug pass: reader menu above header, mobile menu scrolls like a real drawer. */
+.reader-menu {
+  z-index: 420 !important;
+}
+
+.reader-menu-backdrop {
+  z-index: 0 !important;
+}
+
+.reader-menu-panel {
+  z-index: 1 !important;
+}
+
+@media (min-width: 1081px) {
+  .reader-menu-panel {
+    width: min(27rem, calc(100vw - 2rem)) !important;
+    border-right: 1px solid var(--panel-border) !important;
+    box-shadow:
+      inset -1px 0 0 rgba(255, 255, 255, 0.08),
+      0 30px 90px rgba(29, 17, 10, 0.28) !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  .site-nav-backdrop {
+    z-index: 360 !important;
+  }
+
+  .site-nav {
+    inset: max(0.72rem, calc(env(safe-area-inset-top, 0px) + 0.72rem)) 0.72rem calc(0.72rem + env(safe-area-inset-bottom, 0px)) auto !important;
+    z-index: 370 !important;
+    height: calc(100dvh - 1.44rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+    max-height: none !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    scrollbar-gutter: stable both-edges;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+  }
+
+  .site-nav *,
+  .site-nav-drawer-heading,
+  .mobile-account-panel {
+    touch-action: pan-y !important;
+  }
+
+  .site-nav .reader-menu-close,
+  .site-nav a,
+  .site-nav button,
+  .site-nav summary {
+    touch-action: pan-y !important;
+  }
+
+  .site-nav-drawer-heading {
+    position: static !important;
+    flex: 0 0 auto !important;
+  }
+
+  .site-nav > a,
+  .site-nav-more,
+  .mobile-account-panel {
+    flex: 0 0 auto !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-nav {
+    inset: max(0.58rem, calc(env(safe-area-inset-top, 0px) + 0.58rem)) 0.58rem calc(0.58rem + env(safe-area-inset-bottom, 0px)) auto !important;
+    width: min(20rem, calc(100vw - 1.16rem)) !important;
+    height: calc(100dvh - 1.16rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
