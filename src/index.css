@@ -17350,3 +17350,76 @@ body {
     overflow: visible !important;
   }
 }
+
+/* Solid dark assistant layer: prevents page content from bleeding through the chat body. */
+.site-assistant {
+  isolation: isolate;
+}
+
+.assistant-panel {
+  isolation: isolate !important;
+}
+
+.assistant-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.assistant-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+:root[data-theme="dark"] .assistant-panel {
+  background: #2b1e19 !important;
+  backdrop-filter: none !important;
+}
+
+:root[data-theme="dark"] .assistant-panel::before {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 157, 124, 0.16), transparent 13rem),
+    linear-gradient(180deg, #3b2a22 0%, #2b1e19 44%, #211713 100%) !important;
+}
+
+:root[data-theme="dark"] .assistant-body {
+  background:
+    linear-gradient(180deg, rgba(43, 30, 25, 0.99), rgba(35, 24, 20, 0.99)) !important;
+}
+
+:root[data-theme="dark"] .assistant-messages {
+  background: #2a1d18 !important;
+}
+
+:root[data-theme="dark"] .assistant-header,
+:root[data-theme="dark"] .assistant-form {
+  background: #3a2821 !important;
+}
+
+:root[data-theme="dark"] .assistant-message-bubble,
+:root[data-theme="dark"] .assistant-message.is-assistant .assistant-message-bubble,
+:root[data-theme="dark"] .assistant-prompts button {
+  border-color: rgba(255, 218, 190, 0.2) !important;
+  background: #4a352c !important;
+  color: #fff1e6 !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .assistant-message.is-visitor .assistant-message-bubble {
+  border-color: rgba(255, 157, 124, 0.38) !important;
+  background: #5a372c !important;
+}
+
+:root[data-theme="dark"] .assistant-links a,
+:root[data-theme="dark"] .assistant-prompts button {
+  color: #ffd7c8 !important;
+}
+
+:root[data-theme="dark"] .assistant-form input {
+  border-color: rgba(255, 218, 190, 0.22) !important;
+  background: #4a352c !important;
+  color: #fff7ef !important;
+}
