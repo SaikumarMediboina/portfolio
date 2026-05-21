@@ -6130,46 +6130,42 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
     { label: "Scope", value: "Website + Tech" },
     { label: "Output", value: "Answers + Actions" },
   ];
-  const blueprintNodes = [
+  const architectureFlow = [
     {
-      detail: "Asks about Sai, blogs, projects, or backend topics.",
-      label: "Website visitor",
-      meta: "Input",
+      after: "Chat UI",
+      before: "Website Visitor",
+      detail: "The user asks about Sai, blogs, projects, Spring, backend, cloud, CS, or AI.",
+      title: "Capture intent",
     },
     {
-      detail: "Captures the message and keeps the chat experience simple.",
-      label: "Chat UI",
-      meta: "Frontend",
+      after: "Vercel Assistant API",
+      before: "Chat UI",
+      detail: "The frontend sends the message, recent context, and safe UI actions to the API.",
+      title: "Send request",
     },
     {
-      detail: "Sanitizes the request and prepares the response path.",
-      label: "Vercel Assistant API",
-      meta: "Backend",
+      after: "Question Classifier",
+      before: "Vercel Assistant API",
+      detail: "The API sanitizes input, keeps the request controlled, and prepares routing.",
+      title: "Prepare safely",
     },
     {
-      detail: "Chooses site retrieval, model reasoning, or safe fallback.",
-      label: "Question router",
-      meta: "Decision",
-    },
-  ];
-  const routeCards = [
-    {
-      detail: "Retrieves trusted facts from portfolio, blogs, AI Radar, updates, and reader features.",
-      label: "Website question",
-      result: "Knowledge retrieval",
-      tone: "site",
+      after: "Website path / LLM path / Fallback",
+      before: "Question Classifier",
+      detail: "The classifier decides whether the answer should come from site knowledge, the LLM, or a polite fallback.",
+      title: "Choose route",
     },
     {
-      detail: "Routes Spring, backend, cloud, AI, and CS questions directly to the model.",
-      label: "Generic tech question",
-      result: "LLM reasoning",
-      tone: "llm",
+      after: "Grounded Prompt Builder",
+      before: "Website question",
+      detail: "Website questions retrieve trusted context from portfolio, blogs, AI Radar, updates, and reader features.",
+      title: "Retrieve knowledge",
     },
     {
-      detail: "Returns a clean message instead of guessing when the request is outside scope.",
-      label: "Unsupported question",
-      result: "Polite fallback",
-      tone: "fallback",
+      after: "Answer with links/actions",
+      before: "Grounded Prompt / LLM",
+      detail: "The assistant returns a concise answer and points the visitor to the next useful page or article.",
+      title: "Respond with direction",
     },
   ];
   const codeFlow = [
@@ -6324,7 +6320,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
               <path className="assistant-flow-edge" d="M441 201 C510 214 606 222 608 252" markerEnd="url(#assistant-screen-arrow)" />
               <path className="assistant-flow-edge" d="M266 292 V350" markerEnd="url(#assistant-screen-arrow)" />
               <path className="assistant-flow-edge" d="M341 292 C385 304 445 314 446 350" markerEnd="url(#assistant-screen-arrow)" />
-              <path className="assistant-flow-edge" d="M191 292 C136 318 111 340 111 420 V529" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M191 292 C136 318 111 340 111 420 V549 H142" markerEnd="url(#assistant-screen-arrow)" />
               <path className="assistant-flow-edge" d="M445 391 C408 414 375 423 373 450" markerEnd="url(#assistant-screen-arrow)" />
               <path className="assistant-flow-edge" d="M505 390 C558 407 598 421 598 450" markerEnd="url(#assistant-screen-arrow)" />
               <path className="assistant-flow-edge" d="M598 490 V529" markerEnd="url(#assistant-screen-arrow)" />
@@ -6379,34 +6375,20 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
             </svg>
           </div>
 
-          <div className="assistant-blueprint" aria-label="Sai's Assistant architecture diagram">
-            <div className="assistant-blueprint-main">
-              {blueprintNodes.map((node, index) => (
-                <article className="assistant-blueprint-node" key={node.label}>
-                  <span>{node.meta}</span>
-                  <h3>{node.label}</h3>
-                  <p>{node.detail}</p>
-                  {index < blueprintNodes.length - 1 ? <i aria-hidden="true" /> : null}
+          <div className="assistant-blueprint" aria-label="Sai's Assistant architecture explanation">
+            <div className="assistant-stage-flow">
+              {architectureFlow.map((stage, index) => (
+                <article className="assistant-stage-card" key={stage.title}>
+                  <span className="assistant-stage-index">{String(index + 1).padStart(2, "0")}</span>
+                  <div className="assistant-stage-links" aria-label={`${stage.title} flow context`}>
+                    <span>{stage.before}</span>
+                    <strong aria-hidden="true">→</strong>
+                    <span>{stage.after}</span>
+                  </div>
+                  <h3>{stage.title}</h3>
+                  <p>{stage.detail}</p>
                 </article>
               ))}
-            </div>
-
-            <div className="assistant-route-grid" aria-label="Question routing branches">
-              {routeCards.map((route) => (
-                <article className={`assistant-route-card is-${route.tone}`} key={route.label}>
-                  <span>{route.label}</span>
-                  <h3>{route.result}</h3>
-                  <p>{route.detail}</p>
-                </article>
-              ))}
-            </div>
-
-            <div className="assistant-output-line" aria-label="Final response flow">
-              <span>Knowledge Base</span>
-              <span>Vector DB ready</span>
-              <span>Grounded Prompt</span>
-              <span>LLM</span>
-              <strong>Answer + links/actions</strong>
             </div>
           </div>
         </section>

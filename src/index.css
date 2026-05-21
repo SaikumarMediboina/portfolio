@@ -19026,3 +19026,209 @@ body {
     font-size: clamp(0.68rem, 0.7vw, 0.8rem) !important;
   }
 }
+
+/* Active Builds card palette and stage-by-stage architecture explanation. */
+.active-assistant-signal-row span {
+  --signal-color: #c75d46;
+  --signal-soft: rgba(199, 93, 70, 0.14);
+  border-color: color-mix(in srgb, var(--signal-color) 30%, var(--panel-border)) !important;
+  background:
+    radial-gradient(circle at 88% 0%, var(--signal-soft), transparent 9rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.18)),
+    color-mix(in srgb, var(--signal-color) 7%, var(--panel-strong)) !important;
+  color: color-mix(in srgb, var(--signal-color) 70%, var(--ink-strong)) !important;
+}
+
+.active-assistant-signal-row span:nth-child(2) {
+  --signal-color: #697f58;
+  --signal-soft: rgba(105, 127, 88, 0.16);
+}
+
+.active-assistant-signal-row span:nth-child(3) {
+  --signal-color: #567f92;
+  --signal-soft: rgba(86, 127, 146, 0.16);
+}
+
+.active-assistant-signal-row strong {
+  color: var(--ink-strong) !important;
+}
+
+.assistant-blueprint {
+  gap: 1rem !important;
+  background:
+    radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 17rem),
+    radial-gradient(circle at 92% 100%, color-mix(in srgb, var(--redwood-sage, #7e9771) 10%, transparent), transparent 18rem),
+    color-mix(in srgb, var(--panel-soft) 78%, transparent) !important;
+}
+
+.assistant-stage-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.assistant-stage-card {
+  --stage-color: #c75d46;
+  --stage-soft: rgba(199, 93, 70, 0.12);
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.72rem;
+  min-height: 13.5rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--stage-color) 28%, var(--panel-border));
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 92% 0%, var(--stage-soft), transparent 11rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.12)),
+    var(--panel-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    0 18px 42px color-mix(in srgb, var(--stage-color) 10%, transparent);
+}
+
+.assistant-stage-card:nth-child(2) {
+  --stage-color: #d08a46;
+  --stage-soft: rgba(208, 138, 70, 0.13);
+}
+
+.assistant-stage-card:nth-child(3) {
+  --stage-color: #687f58;
+  --stage-soft: rgba(104, 127, 88, 0.14);
+}
+
+.assistant-stage-card:nth-child(4) {
+  --stage-color: #567f92;
+  --stage-soft: rgba(86, 127, 146, 0.14);
+}
+
+.assistant-stage-card:nth-child(5) {
+  --stage-color: #8a6aa7;
+  --stage-soft: rgba(138, 106, 167, 0.13);
+}
+
+.assistant-stage-card:nth-child(6) {
+  --stage-color: #bf624f;
+  --stage-soft: rgba(191, 98, 79, 0.14);
+}
+
+.assistant-stage-index {
+  width: fit-content;
+  padding: 0.26rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--stage-color) 30%, var(--chip-border));
+  border-radius: 999px;
+  background: var(--stage-soft);
+  color: color-mix(in srgb, var(--stage-color) 78%, var(--ink-strong));
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 950;
+}
+
+.assistant-stage-links {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.38rem;
+  align-items: center;
+}
+
+.assistant-stage-links span,
+.assistant-stage-links strong {
+  display: inline-grid;
+  place-items: center;
+  min-height: 2.2rem;
+  padding: 0.42rem 0.56rem;
+  border-radius: 14px;
+  font-size: var(--text-micro);
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.assistant-stage-links span {
+  border: 1px solid color-mix(in srgb, var(--stage-color) 20%, var(--chip-border));
+  background: color-mix(in srgb, var(--stage-soft) 70%, var(--panel-soft));
+  color: color-mix(in srgb, var(--stage-color) 72%, var(--ink-strong));
+}
+
+.assistant-stage-links strong {
+  color: var(--stage-color);
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.assistant-stage-card h3 {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
+  line-height: 1.08;
+}
+
+.assistant-stage-card p {
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+:root[data-theme="dark"] .active-assistant-signal-row span {
+  background:
+    radial-gradient(circle at 88% 0%, color-mix(in srgb, var(--signal-color) 34%, transparent), transparent 9rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.13), rgba(255, 246, 236, 0.04)),
+    color-mix(in srgb, var(--signal-color) 20%, #30231d) !important;
+  border-color: color-mix(in srgb, var(--signal-color) 42%, rgba(255, 232, 211, 0.16)) !important;
+  color: #f0d2c4 !important;
+}
+
+:root[data-theme="dark"] .active-assistant-signal-row strong {
+  color: #fff8ef !important;
+}
+
+:root[data-theme="dark"] .assistant-blueprint {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 157, 124, 0.13), transparent 17rem),
+    radial-gradient(circle at 94% 100%, rgba(169, 200, 143, 0.11), transparent 18rem),
+    #2b211c !important;
+}
+
+:root[data-theme="dark"] .assistant-stage-card {
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--stage-color) 35%, transparent), transparent 11rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.11), rgba(255, 246, 236, 0.035)),
+    color-mix(in srgb, var(--stage-color) 16%, #281f1a) !important;
+  border-color: color-mix(in srgb, var(--stage-color) 42%, rgba(255, 232, 211, 0.16)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.11),
+    0 20px 48px rgba(8, 5, 3, 0.24);
+}
+
+:root[data-theme="dark"] .assistant-stage-card h3 {
+  color: #fff8ef;
+}
+
+:root[data-theme="dark"] .assistant-stage-card p {
+  color: #dcc6b6;
+}
+
+:root[data-theme="dark"] .assistant-stage-index,
+:root[data-theme="dark"] .assistant-stage-links span {
+  border-color: color-mix(in srgb, var(--stage-color) 36%, rgba(255, 232, 211, 0.14));
+  background: color-mix(in srgb, var(--stage-color) 22%, rgba(255, 246, 236, 0.08));
+  color: #ffe2d4;
+}
+
+:root[data-theme="dark"] .assistant-stage-links strong {
+  color: #ffd0bd;
+}
+
+@media (max-width: 1080px) {
+  .assistant-stage-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .assistant-stage-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .assistant-stage-card {
+    min-height: auto;
+  }
+}
