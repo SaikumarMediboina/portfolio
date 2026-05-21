@@ -466,6 +466,7 @@ function getBlogArticleStructuredData(post: BlogPost) {
 }
 
 function getSeoMetadata({
+  activeBuildSlug,
   isAdminUpdatePage,
   isAiRadarPage,
   isBlogsPage,
@@ -481,6 +482,7 @@ function getSeoMetadata({
   isWhatsNewPage,
   standaloneBlog,
 }: {
+  activeBuildSlug?: string;
   isAdminUpdatePage: boolean;
   isAiRadarPage: boolean;
   isBlogsPage: boolean;
@@ -613,7 +615,17 @@ function getSeoMetadata({
                       title: getSeoTitle("Learn With Me"),
                       type: "website" as const,
                     }
-                  : isActiveBuildsPage
+                  : activeBuildSlug === "sai-assistant"
+                    ? {
+                        ...pageDefaults,
+                        analyticsTitle: "Build: Sai's Assistant",
+                        canonicalPath: "/active-builds/sai-assistant",
+                        description:
+                          "Explore the architecture, code flow, tech stack, and design principles behind Sai's Assistant, a website knowledge base plus LLM assistant.",
+                        title: getSeoTitle("Sai's Assistant Build"),
+                        type: "website" as const,
+                      }
+                    : activeBuildSlug || isActiveBuildsPage
                     ? {
                         ...pageDefaults,
                         analyticsTitle: "Active Builds",
@@ -1339,6 +1351,21 @@ function isActiveBuildsPathname() {
   }
 
   return window.location.pathname.replace(/\/$/, "") === "/active-builds";
+}
+
+function getActiveBuildSlugFromPathname() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const pathname = window.location.pathname.replace(/\/$/, "");
+  const prefix = "/active-builds/";
+
+  if (!pathname.startsWith(prefix)) {
+    return "";
+  }
+
+  return decodeURIComponent(pathname.slice(prefix.length));
 }
 
 function isBlogsPathname() {
@@ -6120,11 +6147,13 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
 }
 
 type ActiveBuildsPageProps = {
+  activeBuildSlug?: string;
   theme: Theme;
   onThemeToggle: () => void;
 };
 
-function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
+function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: ActiveBuildsPageProps) {
+  const isSaiAssistantBuildPage = activeBuildSlug === "sai-assistant";
   const assistantSignals = [
     { label: "Mode", value: "Hybrid AI" },
     { label: "Scope", value: "Website + Tech" },
@@ -6134,7 +6163,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
     {
       description:
         "Website knowledge base, smart routing, LLM support, source chips, and guided actions.",
-      href: "#sai-assistant-build",
+      href: "/active-builds/sai-assistant",
       status: "Open build",
       tags: ["Live", "Assistant", "LLM"],
       title: "Tech behind Sai's Assistant",
@@ -6160,11 +6189,11 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
     },
     {
       description:
-        "A structured learning space for Spring, distributed systems, and AI backend projects from basics to advanced.",
+        "Train NLP models on curated text datasets with distributed workers, evaluation jobs, embeddings, and deployment-ready inference.",
       href: undefined,
       status: "Planned",
-      tags: ["Learning", "Roadmaps", "Projects"],
-      title: "Learn With Me Systems Lab",
+      tags: ["NLP", "Datasets", "Distributed ML"],
+      title: "Distributed NLP Model Training Pipeline",
       tone: "is-gold",
     },
   ];
@@ -6286,7 +6315,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
             <span className="brand-mark">SK</span>
             <span className="brand-copy">
               <strong>{profile.name}</strong>
-              <span>Active builds</span>
+              <span>{isSaiAssistantBuildPage ? "Sai's Assistant" : "Active builds"}</span>
             </span>
           </a>
 
@@ -6294,7 +6323,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
             <a className="button button-secondary" href="/">
               Home
             </a>
-            <PageBackButton fallbackHref="/" label="Back" />
+            <PageBackButton fallbackHref={isSaiAssistantBuildPage ? "/active-builds" : "/"} label="Back" />
             <button
               className="theme-toggle"
               type="button"
@@ -6309,6 +6338,8 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
       </header>
 
       <main className="guide-page active-builds-page shell" id="main-content">
+        {!isSaiAssistantBuildPage ? (
+          <>
         <section className="guide-hero active-builds-hero active-builds-catalog-hero" id="active-builds-top">
           <p className="eyebrow">Active Builds</p>
           <h1>Build lab for current engineering experiments.</h1>
@@ -6318,7 +6349,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
           </p>
 
           <div className="active-builds-catalog-actions">
-            <a className="button button-primary" href="#sai-assistant-build">
+            <a className="button button-primary" href="/active-builds/sai-assistant">
               Open current build
             </a>
             <a className="button button-secondary" href="/">
@@ -6370,7 +6401,11 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
             })}
           </div>
         </section>
+          </>
+        ) : null}
 
+        {isSaiAssistantBuildPage ? (
+          <>
         <section className="guide-hero active-builds-hero active-assistant-hero" id="sai-assistant-build">
           <p className="eyebrow">Live Build</p>
           <h1>Sai&apos;s Assistant: website knowledge base plus LLM.</h1>
@@ -6572,6 +6607,8 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
             ))}
           </div>
         </section>
+          </>
+        ) : null}
       </main>
     </>
   );
@@ -8914,11 +8951,13 @@ function App() {
   const isDashboardPage = isDashboardPathname();
   const isLearnPage = isLearnPathname();
   const isActiveBuildsPage = isActiveBuildsPathname();
+  const activeBuildSlug = getActiveBuildSlugFromPathname();
   const isBlogsPage = isBlogsPathname();
   const isContactPage = isContactPathname();
   const isPortfolioPage = isPortfolioPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
   const seoMetadata = getSeoMetadata({
+    activeBuildSlug,
     isAdminUpdatePage,
     isAiRadarPage,
     isBlogsPage,
@@ -8968,7 +9007,7 @@ function App() {
     const [hrefPath] = link.href.split("#");
     const normalizedHref = (hrefPath || "/").replace(/\/$/, "") || "/";
 
-    return currentPathname === normalizedHref;
+    return currentPathname === normalizedHref || currentPathname.startsWith(`${normalizedHref}/`);
   };
   const trackBlogOpen = (post: BlogPost, source: string) => {
     trackAnalyticsEvent("blog_open", {
@@ -9029,6 +9068,7 @@ function App() {
     isBlogsPage,
     isContactPage,
     isDashboardPage,
+    activeBuildSlug,
     isActiveBuildsPage,
     isLearnPage,
     isPortfolioPage,
@@ -9867,9 +9907,10 @@ function App() {
     );
   }
 
-  if (isActiveBuildsPage) {
+  if (isActiveBuildsPage || activeBuildSlug) {
     return renderWithAssistant(
       <ActiveBuildsPage
+        activeBuildSlug={activeBuildSlug}
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,

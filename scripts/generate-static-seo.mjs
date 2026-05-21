@@ -281,6 +281,15 @@ const staticRoutes = [
   }),
   withStructuredData({
     ...baseMetadata,
+    canonicalPath: "/active-builds/sai-assistant",
+    description:
+      "Explore the architecture, code flow, tech stack, and design principles behind Sai's Assistant, a website knowledge base plus LLM assistant.",
+    priority: "0.84",
+    title: getSeoTitle("Sai's Assistant Build"),
+    type: "website",
+  }),
+  withStructuredData({
+    ...baseMetadata,
     canonicalPath: "/learn-with-me",
     description:
       "Learn backend fundamentals, performance patterns, search systems, and practical AI workflows with Sai Kumar Mediboina.",

@@ -53,6 +53,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/active-builds/:slug",
+      "destination": "/index.html"
+    },
+    {
       "source": "/whats-new",
       "destination": "/index.html"
     },
