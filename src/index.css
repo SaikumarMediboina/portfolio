@@ -16823,3 +16823,89 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* AI Radar hero must stay readable as a dark media card, even in light theme. */
+.ai-radar-story-card {
+  color: #fff8ef !important;
+}
+
+.ai-radar-story-body {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.12), transparent 17rem),
+    linear-gradient(135deg, rgba(8, 14, 18, 0.9), rgba(13, 22, 31, 0.86)) !important;
+  color: #fff8ef !important;
+}
+
+.ai-radar-story-body::after {
+  background:
+    linear-gradient(90deg, rgba(5, 10, 14, 0.94), rgba(5, 10, 14, 0.68) 58%, rgba(5, 10, 14, 0.32)),
+    linear-gradient(0deg, rgba(5, 10, 14, 0.88), rgba(5, 10, 14, 0.18) 66%, transparent) !important;
+}
+
+.ai-radar-story-thumb img {
+  filter: saturate(0.9) contrast(1.02) brightness(0.82) !important;
+}
+
+.ai-radar-story-thumb span {
+  color: rgba(255, 255, 255, 0.34) !important;
+  opacity: 0.36 !important;
+}
+
+.ai-radar-story-body h1 {
+  color: #fff8ef !important;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.34) !important;
+}
+
+.ai-radar-story-body a,
+.ai-radar-story-actions .save-radar-button {
+  border-color: rgba(255, 248, 239, 0.28) !important;
+  background: rgba(255, 248, 239, 0.12) !important;
+  color: #fff8ef !important;
+}
+
+.ai-radar-story-body a:hover,
+.ai-radar-story-actions .save-radar-button:hover {
+  background: rgba(255, 248, 239, 0.18) !important;
+}
+
+.ai-radar-source-line span,
+.ai-radar-source-line time {
+  border-color: rgba(255, 248, 239, 0.2) !important;
+  background: rgba(255, 248, 239, 0.12) !important;
+  color: rgba(255, 248, 239, 0.88) !important;
+}
+
+.ai-radar-story-topline .ai-source-badge.is-on-dark {
+  border-color: rgba(255, 248, 239, 0.22) !important;
+  background: rgba(255, 248, 239, 0.12) !important;
+  color: #fff8ef !important;
+}
+
+.ai-radar-story-topline .ai-source-badge.is-on-dark .ai-source-badge-label {
+  color: #fff8ef !important;
+}
+
+:root:not([data-theme="dark"]) .ai-radar-story-controls {
+  border-color: rgba(79, 49, 31, 0.14) !important;
+  background: rgba(255, 253, 249, 0.88) !important;
+  box-shadow: 0 14px 36px rgba(79, 49, 31, 0.1) !important;
+}
+
+:root:not([data-theme="dark"]) .ai-radar-story-dots button {
+  background: rgba(79, 49, 31, 0.22) !important;
+}
+
+:root:not([data-theme="dark"]) .ai-radar-story-dots button.is-active {
+  background: var(--accent) !important;
+}
+
+:root:not([data-theme="dark"]) .ai-radar-next-story {
+  border-color: rgba(79, 49, 31, 0.16) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  color: var(--ink-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .ai-radar-next-story:hover {
+  background: color-mix(in srgb, var(--accent) 10%, #fffaf4) !important;
+  color: var(--accent-deep) !important;
+}
