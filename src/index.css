@@ -14402,3 +14402,265 @@ textarea:focus-visible {
   background: linear-gradient(135deg, var(--rw-accent), #d96e58) !important;
   color: #211814 !important;
 }
+
+/* Dark Redwood elevation pass: preserve the light theme's layered, warm, premium feel. */
+:root[data-theme="dark"] {
+  --rw-canvas: #211915;
+  --rw-canvas-soft: #2a211c;
+  --rw-region: #342a24;
+  --rw-region-muted: #3d322b;
+  --rw-region-raised: #493a31;
+  --rw-region-sunken: #1b1512;
+  --rw-border: rgba(255, 232, 211, 0.18);
+  --rw-border-soft: rgba(255, 232, 211, 0.11);
+  --rw-text: #f1e7dc;
+  --rw-text-strong: #fffaf4;
+  --rw-text-muted: #d7c7b8;
+  --rw-accent: #f28b72;
+  --rw-accent-hover: #ffc0ad;
+  --rw-accent-soft: rgba(242, 139, 114, 0.18);
+  --rw-sienna-glow: rgba(176, 103, 68, 0.18);
+  --rw-pine-glow: rgba(126, 151, 113, 0.14);
+  --rw-sand-glow: rgba(255, 214, 170, 0.09);
+  --header-bg: rgba(58, 46, 39, 0.9);
+  --menu-bg: #3b3029;
+  --shadow-card: 0 22px 58px rgba(12, 8, 6, 0.42);
+  --page-background:
+    radial-gradient(circle at 8% -4%, rgba(242, 139, 114, 0.18), transparent 23rem),
+    radial-gradient(circle at 90% 7%, rgba(176, 103, 68, 0.16), transparent 25rem),
+    radial-gradient(circle at 52% 112%, rgba(126, 151, 113, 0.13), transparent 31rem),
+    linear-gradient(180deg, #2b211b 0%, #211915 48%, #17100d 100%);
+}
+
+:root[data-theme="dark"] body {
+  background: var(--page-background) !important;
+}
+
+:root[data-theme="dark"] body::before {
+  opacity: 0.44;
+  background-image:
+    linear-gradient(rgba(255, 232, 211, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 232, 211, 0.032) 1px, transparent 1px),
+    radial-gradient(circle at 1px 1px, rgba(255, 214, 170, 0.038) 1px, transparent 0);
+  background-size: 58px 58px, 58px 58px, 18px 18px;
+}
+
+:root[data-theme="dark"] body::after {
+  opacity: 1;
+  background:
+    linear-gradient(118deg, transparent 0 56%, rgba(242, 139, 114, 0.085) 56% 64%, transparent 64%),
+    linear-gradient(74deg, transparent 0 12%, rgba(255, 232, 211, 0.04) 12% 15%, transparent 15%),
+    radial-gradient(ellipse at 16% 0%, rgba(255, 238, 218, 0.07), transparent 35rem),
+    radial-gradient(ellipse at 100% 18%, rgba(176, 103, 68, 0.08), transparent 28rem);
+}
+
+:root[data-theme="dark"] :is(.header-shell, .article-header-shell) {
+  background:
+    linear-gradient(180deg, rgba(255, 241, 225, 0.1), rgba(255, 241, 225, 0.035)),
+    rgba(58, 46, 39, 0.9) !important;
+  border-color: rgba(255, 232, 211, 0.19) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.08),
+    0 20px 52px rgba(13, 8, 6, 0.36) !important;
+}
+
+:root[data-theme="dark"] :is(.site-nav, .site-nav-more-panel, .profile-menu-panel, .reader-menu-panel, .mobile-account-panel) {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(242, 139, 114, 0.09), transparent 15rem),
+    linear-gradient(180deg, rgba(255, 241, 225, 0.08), rgba(255, 241, 225, 0.025)),
+    var(--menu-bg) !important;
+  border-color: rgba(255, 232, 211, 0.17) !important;
+  box-shadow: 0 18px 48px rgba(12, 8, 6, 0.34) !important;
+}
+
+:root[data-theme="dark"] :is(.home-hero, .hero, .guide-hero, .learn-hero, .active-builds-hero, .signin-hero, .saved-posts-hero, .shelf-hero, .standalone-blog, .ai-radar-hero, .dashboard-shell, .collaboration-hero) {
+  background:
+    radial-gradient(circle at 82% 8%, rgba(242, 139, 114, 0.16), transparent 19rem),
+    radial-gradient(circle at 12% 90%, rgba(126, 151, 113, 0.11), transparent 22rem),
+    linear-gradient(135deg, rgba(76, 59, 49, 0.92), rgba(49, 39, 33, 0.96) 52%, rgba(38, 30, 26, 0.98)) !important;
+  border-color: rgba(255, 232, 211, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.08),
+    0 26px 70px rgba(12, 8, 6, 0.38) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-featured,
+  .blog-list-item,
+  .related-post-card,
+  .guide-card,
+  .guide-feature-card,
+  .guide-tool-card,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .dashboard-topic-breakdown section,
+  .saved-posts-item,
+  .shelf-plan-card,
+  .contact-panel,
+  .collaboration-cta,
+  .newsletter-callout,
+  .site-newsletter-footer,
+  .assistant-panel
+) {
+  background:
+    linear-gradient(180deg, rgba(255, 241, 225, 0.085), rgba(255, 241, 225, 0.024) 48%),
+    radial-gradient(circle at 88% 0%, rgba(242, 139, 114, 0.08), transparent 14rem),
+    #332a24 !important;
+  border-color: rgba(255, 232, 211, 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.065),
+    0 18px 48px rgba(12, 8, 6, 0.34) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .metric-card,
+  .focus-card,
+  .project-tab,
+  .project-spotlight,
+  .timeline-card,
+  .skill-card,
+  .credential-panel,
+  .recognition-card,
+  .updates-panel,
+  .updates-card,
+  .home-proof-card,
+  .blog-stat,
+  .blog-empty,
+  .saved-posts-empty,
+  .shelf-coming-soon,
+  .dashboard-note,
+  .dashboard-email-callout
+) {
+  background:
+    linear-gradient(180deg, rgba(255, 241, 225, 0.072), rgba(255, 241, 225, 0.018)),
+    #2f261f !important;
+  border-color: rgba(255, 232, 211, 0.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.055),
+    0 12px 34px rgba(12, 8, 6, 0.28) !important;
+}
+
+:root[data-theme="dark"] :is(.home-work-card, .home-update-card, .home-final-cta, .ai-radar-story-body) {
+  background:
+    radial-gradient(circle at 82% 12%, rgba(242, 139, 114, 0.2), transparent 17rem),
+    radial-gradient(circle at 14% 88%, rgba(255, 214, 170, 0.09), transparent 19rem),
+    linear-gradient(135deg, #4d382f, #2f241f 62%, #251b17) !important;
+  border-color: rgba(255, 214, 170, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.09),
+    0 28px 76px rgba(12, 8, 6, 0.44) !important;
+}
+
+:root[data-theme="dark"] :is(.blog-architecture-diagram, .blog-diagram-canvas) {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(242, 139, 114, 0.12), transparent 17rem),
+    radial-gradient(circle at 92% 16%, rgba(126, 151, 113, 0.1), transparent 18rem),
+    linear-gradient(135deg, #3c312a, #29211d) !important;
+  border-color: rgba(255, 232, 211, 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.07),
+    0 20px 54px rgba(12, 8, 6, 0.34) !important;
+}
+
+:root[data-theme="dark"] .blog-diagram-node {
+  background:
+    linear-gradient(180deg, rgba(255, 241, 225, 0.07), rgba(255, 241, 225, 0.015)),
+    #302720 !important;
+  border-color: rgba(255, 232, 211, 0.13) !important;
+}
+
+:root[data-theme="dark"] .blog-diagram-lane-title {
+  background:
+    linear-gradient(180deg, rgba(255, 241, 225, 0.1), rgba(255, 241, 225, 0.035)),
+    #46382f !important;
+}
+
+:root[data-theme="dark"] .home-proof-card:nth-child(1),
+:root[data-theme="dark"] .home-lane-card:nth-child(1),
+:root[data-theme="dark"] .home-writing-card:nth-child(1) {
+  background:
+    radial-gradient(circle at 86% 0%, rgba(242, 139, 114, 0.12), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 241, 225, 0.08), rgba(255, 241, 225, 0.02)),
+    #362a23 !important;
+}
+
+:root[data-theme="dark"] .home-proof-card:nth-child(2),
+:root[data-theme="dark"] .home-lane-card:nth-child(2),
+:root[data-theme="dark"] .home-writing-card:nth-child(2) {
+  background:
+    radial-gradient(circle at 86% 0%, rgba(126, 151, 113, 0.13), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 241, 225, 0.08), rgba(255, 241, 225, 0.02)),
+    #332b24 !important;
+}
+
+:root[data-theme="dark"] .home-proof-card:nth-child(3),
+:root[data-theme="dark"] .home-lane-card:nth-child(3),
+:root[data-theme="dark"] .home-writing-card:nth-child(3) {
+  background:
+    radial-gradient(circle at 86% 0%, rgba(255, 214, 170, 0.11), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 241, 225, 0.08), rgba(255, 241, 225, 0.02)),
+    #352a23 !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:hover, .home-writing-card:hover, .blog-list-item:hover, .blog-featured:hover, .dashboard-card:hover, .saved-posts-item:hover) {
+  transform: translateY(-2px);
+  border-color: rgba(255, 190, 164, 0.26) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.08),
+    0 28px 74px rgba(12, 8, 6, 0.48) !important;
+}
+
+:root[data-theme="dark"] :is(.site-nav a:hover, .site-nav a.is-active, .site-nav-more-button:hover, .site-nav-more.is-open .site-nav-more-button, .site-nav-more.has-active .site-nav-more-button, .site-nav-more-panel a:hover, .site-nav-more-panel a.is-active) {
+  background: rgba(255, 246, 236, 0.1) !important;
+  color: var(--rw-text-strong) !important;
+}
+
+:root[data-theme="dark"] :is(.brand-mark, .home-lane-icon, .newsletter-icon, .site-nav-icon, .dashboard-stat-card .reader-menu-icon, .blog-lock-icon, .guide-feature-icon, .guide-tool-card > .reader-menu-icon, .collaboration-card-icon) {
+  background:
+    linear-gradient(135deg, rgba(242, 139, 114, 0.24), rgba(255, 214, 170, 0.12)) !important;
+  border-color: rgba(255, 190, 164, 0.22) !important;
+  color: #ffd6c8 !important;
+}
+
+:root[data-theme="dark"] .brand-mark {
+  color: #271b16 !important;
+  background: linear-gradient(135deg, #ffb59f, #f28b72) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-trust-strip span,
+  .home-stack-row span,
+  .hero-signal-list li,
+  .stack-list li,
+  .chip-list li,
+  .blog-category-summary span,
+  .blog-tag-list span,
+  .related-post-tags span,
+  .ai-radar-filters button,
+  .dashboard-chip-row span,
+  .home-update-sources span,
+  .ai-radar-source-line span,
+  .ai-radar-source-line time,
+  .ai-radar-item-meta span,
+  .ai-radar-item-meta time,
+  .ai-radar-freshness,
+  .ai-source-badge,
+  .dashboard-legend span,
+  .saved-posts-tag,
+  .blog-diagram-highlights span
+) {
+  background:
+    linear-gradient(180deg, rgba(255, 241, 225, 0.095), rgba(255, 241, 225, 0.035)) !important;
+  border-color: rgba(255, 232, 211, 0.16) !important;
+  color: #dfcfc0 !important;
+}
+
+:root[data-theme="dark"] :is(.eyebrow, .focus-caption, .impact-label, .blog-meta span:first-child, .recognition-highlight, .collaboration-eyebrow, .collaboration-card-kicker) {
+  color: #ffb59f !important;
+  letter-spacing: 0.15em;
+}
