@@ -16448,3 +16448,73 @@ textarea:focus-visible {
     min-height: auto;
   }
 }
+
+/* Final chat assistant fix: simple tap-to-open behavior with safe viewport sizing. */
+.site-assistant {
+  z-index: 180 !important;
+}
+
+.assistant-launcher {
+  touch-action: manipulation !important;
+}
+
+.assistant-drag-region {
+  cursor: default !important;
+  touch-action: auto !important;
+}
+
+.assistant-drag-region:active {
+  cursor: default !important;
+}
+
+.assistant-panel {
+  z-index: 181 !important;
+  max-width: calc(100vw - 1.5rem);
+  max-height: calc(100dvh - 6.5rem);
+}
+
+.site-nav .site-nav-icon,
+.site-nav .reader-menu-icon,
+.site-nav svg {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .site-assistant {
+    right: 0.75rem !important;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    left: auto !important;
+    top: auto !important;
+  }
+
+  .site-assistant.is-open .assistant-panel {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    height: min(32rem, calc(100dvh - 6.25rem));
+    max-height: calc(100dvh - 6.25rem);
+    transform-origin: bottom right;
+  }
+
+  .assistant-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .assistant-title h2,
+  .assistant-title p {
+    max-width: 10rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .assistant-clear {
+    display: none;
+  }
+
+  .assistant-title h2,
+  .assistant-title p {
+    max-width: 8rem;
+  }
+}

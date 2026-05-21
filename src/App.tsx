@@ -5,7 +5,6 @@ import {
   useState,
   type CSSProperties,
   type FormEvent,
-  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import type { User } from "firebase/auth";
@@ -3784,20 +3783,7 @@ type SiteAssistantProps = {
 function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: SiteAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | null>(
-    null,
-  );
   const [messages, setMessages] = useState<AssistantMessage[]>(getInitialAssistantMessages);
-  const assistantRef = useRef<HTMLDivElement | null>(null);
-  const assistantDragRef = useRef<{
-    pointerId: number;
-    startX: number;
-    startY: number;
-    originX: number;
-    originY: number;
-  } | null>(null);
-  const assistantMovedRef = useRef(false);
-  const suppressAssistantClickRef = useRef(false);
   const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const quickPrompts = [
@@ -3948,126 +3934,14 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
     setInput("");
   };
 
-  const clampAssistantPosition = (x: number, y: number) => {
-    if (typeof window === "undefined") {
-      return { x, y };
-    }
-
-    const margin = 12;
-    const panelGap = 12;
-    const topSafeArea = 32;
-    const launcherSize = assistantRef.current?.getBoundingClientRect().width || 64;
-    const panel = assistantRef.current?.querySelector<HTMLElement>(".assistant-panel");
-    const panelRect = panel?.getBoundingClientRect();
-    const minX =
-      isOpen && panelRect ? Math.max(margin, panelRect.width - launcherSize + margin) : margin;
-    const minY =
-      isOpen && panelRect
-        ? Math.max(margin, panelRect.height + panelGap + topSafeArea)
-        : margin;
-    const maxX = window.innerWidth - launcherSize - margin;
-    const maxY = window.innerHeight - launcherSize - margin;
-    const safeMaxX = Math.max(margin, maxX);
-    const safeMaxY = Math.max(margin, maxY);
-    const safeMinX = Math.min(minX, safeMaxX);
-    const safeMinY = Math.min(minY, safeMaxY);
-
-    return {
-      x: Math.min(Math.max(safeMinX, x), safeMaxX),
-      y: Math.min(Math.max(safeMinY, y), safeMaxY),
-    };
-  };
-
-  useEffect(() => {
-    if (!isOpen || !assistantPosition) {
-      return;
-    }
-
-    setAssistantPosition((currentPosition) =>
-      currentPosition
-        ? clampAssistantPosition(currentPosition.x, currentPosition.y)
-        : currentPosition,
-    );
-  }, [isOpen]);
-
-  const startAssistantDrag = (event: ReactPointerEvent<HTMLElement>) => {
-    if (event.button !== 0 || !assistantRef.current) {
-      return;
-    }
-
-    const rect = assistantRef.current.getBoundingClientRect();
-
-    assistantDragRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: rect.left,
-      originY: rect.top,
-    };
-    assistantMovedRef.current = false;
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const moveAssistant = (event: ReactPointerEvent<HTMLElement>) => {
-    const dragState = assistantDragRef.current;
-
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const deltaX = event.clientX - dragState.startX;
-    const deltaY = event.clientY - dragState.startY;
-
-    if (Math.abs(deltaX) + Math.abs(deltaY) > 4) {
-      assistantMovedRef.current = true;
-    }
-
-    setAssistantPosition(
-      clampAssistantPosition(dragState.originX + deltaX, dragState.originY + deltaY),
-    );
-  };
-
-  const stopAssistantDrag = (event: ReactPointerEvent<HTMLElement>) => {
-    const dragState = assistantDragRef.current;
-
-    if (!dragState || dragState.pointerId !== event.pointerId) {
-      return;
-    }
-
-    if (assistantMovedRef.current) {
-      suppressAssistantClickRef.current = true;
-    }
-
-    assistantDragRef.current = null;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  };
-
   const toggleAssistant = () => {
-    if (suppressAssistantClickRef.current) {
-      suppressAssistantClickRef.current = false;
-      return;
-    }
-
     setIsOpen((open) => !open);
   };
-
-  const assistantStyle: CSSProperties | undefined = assistantPosition
-    ? {
-        bottom: "auto",
-        left: assistantPosition.x,
-        right: "auto",
-        top: assistantPosition.y,
-      }
-    : undefined;
   const shouldShowQuickPrompts = messages.length === 1;
 
   return (
     <div
       className={`site-assistant${isOpen ? " is-open" : ""}${isSuppressed ? " is-suppressed" : ""}`}
-      ref={assistantRef}
-      style={assistantStyle}
     >
       <button
         className="assistant-launcher"
@@ -4075,10 +3949,6 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         aria-expanded={isOpen}
         aria-label={isOpen ? "Close portfolio assistant" : "Open portfolio assistant"}
         onClick={toggleAssistant}
-        onPointerCancel={stopAssistantDrag}
-        onPointerDown={startAssistantDrag}
-        onPointerMove={moveAssistant}
-        onPointerUp={stopAssistantDrag}
       >
         <AssistantChatIcon />
       </button>
@@ -4092,11 +3962,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         <div className="assistant-header">
           <div
             className="assistant-drag-region"
-            aria-label="Drag assistant"
-            onPointerCancel={stopAssistantDrag}
-            onPointerDown={startAssistantDrag}
-            onPointerMove={moveAssistant}
-            onPointerUp={stopAssistantDrag}
+            aria-label="Assistant title"
           >
             <span className="assistant-avatar" aria-hidden="true">
               SK
