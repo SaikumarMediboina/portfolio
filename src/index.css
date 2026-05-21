@@ -16526,3 +16526,300 @@ textarea:focus-visible {
     max-width: 8rem;
   }
 }
+
+/* Theme visibility pass: keep light mode crisp and dark mode equally readable. */
+html,
+body {
+  overflow-x: clip;
+}
+
+:root {
+  --readable-card: rgba(255, 253, 249, 0.98);
+  --readable-card-soft: rgba(255, 248, 239, 0.86);
+  --readable-border: rgba(79, 49, 31, 0.16);
+  --readable-shadow: 0 20px 56px rgba(79, 49, 31, 0.1);
+}
+
+:root[data-theme="dark"] {
+  --readable-card: rgba(58, 45, 37, 0.98);
+  --readable-card-soft: rgba(255, 244, 232, 0.08);
+  --readable-border: rgba(255, 232, 211, 0.16);
+  --readable-shadow: 0 24px 64px rgba(8, 5, 3, 0.34);
+}
+
+:root:not([data-theme="dark"]) :is(
+  .home-radar-briefing-card,
+  .ai-radar-story-card,
+  .ai-radar-story-body,
+  .ai-radar-lens,
+  .ai-radar-item
+) {
+  color: var(--ink-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-card {
+  min-height: clamp(20rem, 33vw, 28rem);
+  border-color: color-mix(in srgb, var(--radar-primary, var(--accent)) 24%, var(--readable-border)) !important;
+  background:
+    radial-gradient(circle at 16% 12%, color-mix(in srgb, var(--radar-secondary, #fff) 58%, transparent), transparent 12rem),
+    radial-gradient(circle at 96% 94%, color-mix(in srgb, var(--radar-primary, var(--accent)) 18%, transparent), transparent 15rem),
+    linear-gradient(145deg, rgba(255, 253, 249, 0.96), rgba(250, 239, 226, 0.9)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 28px 70px rgba(79, 49, 31, 0.13) !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-card::before {
+  background:
+    linear-gradient(90deg, rgba(79, 49, 31, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(79, 49, 31, 0.05) 1px, transparent 1px);
+  opacity: 0.45;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-card::after {
+  opacity: 0.24;
+}
+
+:root:not([data-theme="dark"]) :is(
+  .home-radar-live-pill,
+  .home-radar-briefing-top > a,
+  .home-radar-briefing-actions > a,
+  .home-radar-briefing-meta > span
+) {
+  border-color: color-mix(in srgb, var(--radar-primary, var(--accent)) 20%, var(--chip-border)) !important;
+  background: rgba(255, 255, 255, 0.68) !important;
+  color: color-mix(in srgb, var(--radar-primary, var(--accent)) 60%, var(--ink-strong)) !important;
+  text-shadow: none !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-copy h2 {
+  color: var(--ink-strong) !important;
+  text-shadow: none !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-copy p,
+:root:not([data-theme="dark"]) .home-radar-briefing-actions .home-radar-feed-freshness {
+  color: var(--ink-soft) !important;
+}
+
+.home-radar-briefing-copy h2 {
+  max-width: min(22ch, 100%);
+  overflow-wrap: anywhere;
+}
+
+.home-radar-briefing-copy p {
+  max-width: 34rem;
+}
+
+.home-radar-briefing-art {
+  max-width: 7.2rem;
+}
+
+.home-radar-briefing-meta {
+  max-width: 100%;
+}
+
+.home-radar-briefing-meta > span,
+.ai-source-badge {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ai-source-badge-label {
+  overflow: hidden;
+  max-width: 12rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guide-path-list article {
+  align-items: start;
+  overflow: hidden;
+}
+
+.guide-path-list article > span,
+.blog-diagram-lane-title span {
+  background: color-mix(in srgb, var(--accent) 18%, var(--ink-strong)) !important;
+  color: var(--bg-elevated) !important;
+}
+
+:root:not([data-theme="dark"]) .guide-path-list article > span,
+:root:not([data-theme="dark"]) .blog-diagram-lane-title span {
+  color: #fffaf4 !important;
+}
+
+.guide-path-list article h3,
+.guide-path-list article p {
+  overflow-wrap: anywhere;
+}
+
+.blog-architecture-diagram {
+  overflow: hidden;
+}
+
+.blog-diagram-canvas {
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scroll-snap-type: x proximity;
+}
+
+.blog-diagram-lane {
+  min-width: min(17rem, 72vw);
+  scroll-snap-align: start;
+}
+
+.blog-diagram-lane-title {
+  align-items: flex-start;
+}
+
+.blog-diagram-lane-title h3,
+.blog-diagram-node strong,
+.blog-diagram-node p {
+  overflow-wrap: anywhere;
+}
+
+.blog-diagram-node {
+  min-height: 0;
+}
+
+.dashboard-cadence-stats span {
+  border: 1px solid var(--readable-border);
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 7rem),
+    var(--readable-card) !important;
+  color: var(--ink-soft) !important;
+  box-shadow: var(--readable-shadow);
+}
+
+.dashboard-cadence-stats strong {
+  color: var(--ink-strong) !important;
+}
+
+.dashboard-cadence-chart {
+  border: 1px solid var(--readable-border);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--readable-card-soft) 82%, transparent), var(--readable-card)) !important;
+}
+
+.dashboard-cadence-chart span {
+  background: color-mix(in srgb, var(--ink-soft) 18%, transparent) !important;
+}
+
+.dashboard-cadence-chart span.is-published {
+  background: linear-gradient(180deg, #d85a45, #b94834) !important;
+  box-shadow: 0 0 18px rgba(184, 72, 52, 0.22) !important;
+}
+
+:root[data-theme="dark"] .dashboard-cadence-chart span.is-published {
+  background: linear-gradient(180deg, #ff9d7c, #d85a45) !important;
+  box-shadow: 0 0 22px rgba(255, 157, 124, 0.28) !important;
+}
+
+.dashboard-cadence-axis,
+.dashboard-cadence-legend,
+.dashboard-card-helper,
+.dashboard-topic-column small,
+.dashboard-article-bar span {
+  color: var(--ink-soft) !important;
+}
+
+.assistant-panel {
+  border-color: var(--readable-border) !important;
+  background:
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 14rem),
+    linear-gradient(180deg, var(--readable-card), color-mix(in srgb, var(--readable-card) 88%, var(--bg))) !important;
+  color: var(--ink) !important;
+  box-shadow: var(--readable-shadow) !important;
+}
+
+.assistant-header,
+.assistant-form {
+  border-color: var(--line) !important;
+  background: color-mix(in srgb, var(--readable-card) 92%, var(--bg)) !important;
+}
+
+.assistant-header h2,
+.assistant-message p,
+.assistant-form input {
+  color: var(--ink-strong) !important;
+}
+
+.assistant-header p,
+.assistant-clear,
+.assistant-close,
+.assistant-form input::placeholder {
+  color: var(--ink-soft) !important;
+}
+
+.assistant-message-bubble,
+.assistant-message.is-assistant .assistant-message-bubble {
+  border-color: var(--readable-border) !important;
+  background: color-mix(in srgb, var(--readable-card-soft) 86%, transparent) !important;
+}
+
+.assistant-message.is-visitor .assistant-message-bubble {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--readable-border)) !important;
+  background: color-mix(in srgb, var(--accent) 12%, var(--readable-card)) !important;
+}
+
+.assistant-links a,
+.assistant-prompts button,
+.assistant-clear,
+.assistant-close,
+.assistant-form input {
+  border-color: var(--readable-border) !important;
+  background: color-mix(in srgb, var(--readable-card-soft) 88%, transparent) !important;
+}
+
+.assistant-links a,
+.assistant-prompts button {
+  color: color-mix(in srgb, var(--accent) 84%, var(--ink-strong)) !important;
+}
+
+:root[data-theme="dark"] .assistant-links a,
+:root[data-theme="dark"] .assistant-prompts button {
+  color: #ffd0bd !important;
+}
+
+@media (min-width: 721px) {
+  .blog-diagram-canvas {
+    grid-template-columns: repeat(4, minmax(15rem, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .home-radar-briefing-card {
+    border-radius: 24px;
+    padding: 1rem;
+  }
+
+  .home-radar-briefing-top {
+    align-items: flex-start;
+  }
+
+  .home-radar-briefing-art {
+    max-width: 6.6rem;
+  }
+
+  .home-radar-briefing-copy h2 {
+    -webkit-line-clamp: 2;
+    font-size: clamp(1.35rem, 6.2vw, 2rem);
+  }
+
+  .home-radar-briefing-copy p {
+    -webkit-line-clamp: 2;
+  }
+
+  .guide-path-panel,
+  .mini-updates-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-path-list article {
+    padding: 0.85rem;
+  }
+
+  .dashboard-cadence-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
