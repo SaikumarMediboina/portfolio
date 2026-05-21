@@ -17041,3 +17041,106 @@ body {
     padding-inline: 0.7rem !important;
   }
 }
+
+/* Home AI Radar consistency: readable chips, visible carousel dots, matching dark/light framing. */
+.home-radar-briefing-card {
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-card {
+  border-color: color-mix(in srgb, var(--radar-primary, var(--accent)) 22%, rgba(79, 49, 31, 0.16)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 26px 68px rgba(79, 49, 31, 0.12) !important;
+}
+
+:root[data-theme="dark"] .home-radar-briefing-card {
+  border-color: color-mix(in srgb, var(--radar-primary, var(--accent)) 24%, rgba(255, 232, 211, 0.2)) !important;
+  background:
+    radial-gradient(circle at 18% 10%, color-mix(in srgb, var(--radar-secondary, #fff) 16%, transparent), transparent 13rem),
+    radial-gradient(circle at 92% 88%, color-mix(in srgb, var(--radar-primary, var(--accent)) 24%, transparent), transparent 16rem),
+    linear-gradient(145deg, rgba(255, 246, 236, 0.12), rgba(255, 246, 236, 0.045)),
+    #342821 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.12),
+    0 28px 74px rgba(10, 7, 5, 0.36) !important;
+}
+
+.home-radar-briefing-meta .ai-source-badge,
+.home-radar-briefing-meta > span,
+.home-radar-live-pill,
+.home-radar-briefing-top > a {
+  min-height: 2.05rem;
+  border-width: 1px !important;
+  border-style: solid !important;
+  text-shadow: none !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-meta .ai-source-badge {
+  border-color: color-mix(in srgb, var(--radar-primary, var(--accent)) 24%, rgba(79, 49, 31, 0.16)) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), color-mix(in srgb, var(--radar-secondary, #fff) 36%, #fffaf4)) !important;
+  color: var(--ink-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-meta .ai-source-badge-label {
+  color: var(--ink-strong) !important;
+  opacity: 1 !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-meta .ai-source-badge-mark {
+  color: #fff !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-meta > span:not(.ai-source-badge),
+:root:not([data-theme="dark"]) .home-radar-live-pill,
+:root:not([data-theme="dark"]) .home-radar-briefing-top > a {
+  border-color: rgba(79, 49, 31, 0.15) !important;
+  background: rgba(255, 253, 249, 0.82) !important;
+  color: var(--ink-strong) !important;
+}
+
+:root[data-theme="dark"] .home-radar-briefing-meta .ai-source-badge,
+:root[data-theme="dark"] .home-radar-briefing-meta > span,
+:root[data-theme="dark"] .home-radar-live-pill,
+:root[data-theme="dark"] .home-radar-briefing-top > a {
+  border-color: rgba(255, 232, 211, 0.22) !important;
+  background: rgba(255, 246, 236, 0.1) !important;
+  color: #fff2e8 !important;
+}
+
+:root[data-theme="dark"] .home-radar-briefing-meta .ai-source-badge-label {
+  color: #fff2e8 !important;
+  opacity: 1 !important;
+}
+
+.home-radar-briefing-controls {
+  align-items: center;
+  min-height: 1.5rem;
+  padding-top: 0.1rem;
+}
+
+.home-radar-briefing-controls button {
+  height: 0.44rem !important;
+  min-width: 2rem;
+  opacity: 1 !important;
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-controls button {
+  background: rgba(79, 49, 31, 0.22) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-controls button.is-active {
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--radar-primary, var(--accent)) 70%, var(--accent))) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--radar-primary, var(--accent)) 25%, transparent);
+}
+
+:root[data-theme="dark"] .home-radar-briefing-controls button {
+  background: rgba(255, 246, 236, 0.24) !important;
+}
+
+:root[data-theme="dark"] .home-radar-briefing-controls button.is-active {
+  background: linear-gradient(90deg, #fff6ec, color-mix(in srgb, var(--radar-secondary, #fff) 62%, #fff6ec)) !important;
+}
