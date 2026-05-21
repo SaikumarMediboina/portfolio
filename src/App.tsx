@@ -6130,6 +6130,18 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
     { label: "Scope", value: "Website + Tech" },
     { label: "Output", value: "Answers + Actions" },
   ];
+  const activeBuildMenu = [
+    {
+      description: "Website knowledge base, LLM routing, source chips, and action links.",
+      status: "Active now",
+      title: "Sai's Assistant",
+    },
+    {
+      description: "Future builds will be added here as they move from idea to active work.",
+      status: "Reserved",
+      title: "Next build slot",
+    },
+  ];
   const architectureFlow = [
     {
       after: "Chat UI",
@@ -6271,7 +6283,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
       </header>
 
       <main className="guide-page active-builds-page shell" id="main-content">
-        <section className="guide-hero active-builds-hero active-assistant-hero">
+        <section className="guide-hero active-builds-hero active-assistant-hero" id="sai-assistant-build">
           <p className="eyebrow">Active Build</p>
           <h1>Sai&apos;s Assistant: website knowledge base plus LLM.</h1>
           <p>
@@ -6284,6 +6296,27 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
                 <strong>{signal.value}</strong>
                 {signal.label}
               </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="active-builds-menu-panel" aria-label="Active builds menu">
+          <div>
+            <p className="eyebrow">Build Menu</p>
+            <h2>Current active builds.</h2>
+            <p>Sai&apos;s Assistant starts the active-build catalog. More builds can be added here without changing the page structure.</p>
+          </div>
+          <div className="active-builds-menu-list">
+            {activeBuildMenu.map((item, index) => (
+              <a
+                className={`active-builds-menu-item${index === 0 ? " is-active" : " is-muted"}`}
+                href={index === 0 ? "#sai-assistant-build" : "#active-builds-roadmap"}
+                key={item.title}
+              >
+                <span>{item.status}</span>
+                <strong>{item.title}</strong>
+                <small>{item.description}</small>
+              </a>
             ))}
           </div>
         </section>
@@ -6382,7 +6415,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
                   <span className="assistant-stage-index">{String(index + 1).padStart(2, "0")}</span>
                   <div className="assistant-stage-links" aria-label={`${stage.title} flow context`}>
                     <span>{stage.before}</span>
-                    <strong aria-hidden="true">→</strong>
+                    <strong aria-hidden="true">-&gt;</strong>
                     <span>{stage.after}</span>
                   </div>
                   <h3>{stage.title}</h3>
@@ -6456,7 +6489,7 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
           </div>
         </section>
 
-        <section className="active-assistant-section active-assistant-roadmap-section">
+        <section className="active-assistant-section active-assistant-roadmap-section" id="active-builds-roadmap">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">Next Build</p>
             <h2>Where this assistant goes next.</h2>
