@@ -17598,6 +17598,7 @@ body {
     inset: 0.75rem 0.75rem 0.75rem auto !important;
     width: min(20.5rem, calc(100vw - 1.5rem)) !important;
     height: auto !important;
+    min-height: calc(100dvh - 1.5rem) !important;
     max-height: calc(100dvh - 1.5rem) !important;
     padding: clamp(1rem, 2.4vw, 1.45rem) !important;
     border: 1px solid var(--panel-border) !important;
@@ -17607,6 +17608,7 @@ body {
       color-mix(in srgb, var(--menu-bg) 96%, var(--bg-elevated)) !important;
     box-shadow: var(--shadow-card) !important;
     backdrop-filter: none !important;
+    isolation: isolate !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     transform: translateX(0.85rem) scale(0.98) !important;
@@ -17615,6 +17617,28 @@ body {
 
   .site-nav.is-open {
     transform: translateX(0) scale(1) !important;
+  }
+
+  .site-nav-drawer-heading,
+  .site-nav > a,
+  .site-nav-more,
+  .mobile-account-panel {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+  }
+
+  .site-nav > a,
+  .site-nav-more-button {
+    background: transparent !important;
+  }
+
+  .site-nav > a:hover,
+  .site-nav > a.is-active,
+  .site-nav-more-button:hover,
+  .site-nav-more.is-open .site-nav-more-button,
+  .site-nav-more.has-active .site-nav-more-button {
+    background: color-mix(in srgb, var(--accent-soft) 54%, transparent) !important;
   }
 
   :root:not([data-theme="dark"]) .site-nav {
