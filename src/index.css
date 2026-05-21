@@ -15963,3 +15963,309 @@ textarea:focus-visible {
     white-space: normal;
   }
 }
+
+/* Homepage AI Radar v2: one rotating briefing card instead of stacked cards. */
+.home-radar-board {
+  align-self: stretch;
+  display: grid;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.home-radar-briefing-card {
+  position: relative;
+  display: grid;
+  align-content: stretch;
+  gap: clamp(1rem, 2vw, 1.4rem);
+  min-height: clamp(24rem, 39vw, 33rem);
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid color-mix(in srgb, var(--radar-primary, var(--accent)) 32%, rgba(255, 255, 255, 0.22));
+  border-radius: clamp(28px, 3.2vw, 38px);
+  background:
+    radial-gradient(circle at 18% 10%, color-mix(in srgb, var(--radar-secondary, #fff) 36%, transparent), transparent 13rem),
+    radial-gradient(circle at 92% 88%, color-mix(in srgb, var(--radar-primary, var(--accent)) 30%, transparent), transparent 16rem),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.07)),
+    color-mix(in srgb, var(--radar-primary, var(--accent)) 18%, #1f1a16);
+  color: #fffaf4;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 34px 86px rgba(6, 10, 14, 0.24);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.home-radar-briefing-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.065) 1px, transparent 1px);
+  background-size: 3.8rem 3.8rem;
+  mask-image: linear-gradient(140deg, rgba(0, 0, 0, 0.76), transparent 72%);
+  opacity: 0.5;
+}
+
+.home-radar-briefing-card::after {
+  content: "";
+  position: absolute;
+  right: -7rem;
+  bottom: -8rem;
+  z-index: -1;
+  width: 18rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--radar-primary, var(--accent)) 42%, transparent);
+  filter: blur(10px);
+  opacity: 0.72;
+}
+
+.home-radar-briefing-top,
+.home-radar-briefing-actions,
+.home-radar-briefing-meta,
+.home-radar-briefing-controls {
+  display: flex;
+  align-items: center;
+}
+
+.home-radar-briefing-top {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home-radar-briefing-top > a,
+.home-radar-briefing-actions > a {
+  flex: 0 0 auto;
+  padding: 0.58rem 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff8ef;
+  font-size: var(--text-sm);
+  font-weight: 900;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.home-radar-briefing-body {
+  display: grid;
+  grid-template-columns: minmax(5.2rem, 7.4rem) minmax(0, 1fr);
+  gap: clamp(0.9rem, 2.4vw, 1.35rem);
+  align-items: center;
+}
+
+.home-radar-briefing-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.32), transparent 36%),
+    linear-gradient(135deg, var(--radar-primary, var(--accent)), color-mix(in srgb, var(--radar-primary, var(--accent)) 62%, #15110e));
+  box-shadow: 0 24px 54px color-mix(in srgb, var(--radar-primary, var(--accent)) 24%, transparent);
+  overflow: hidden;
+}
+
+.home-radar-briefing-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-radar-briefing-art .ai-source-visual-mark {
+  min-width: clamp(3.8rem, 8vw, 5.5rem);
+  min-height: clamp(3.8rem, 8vw, 5.5rem);
+  border-radius: 22px;
+  font-size: clamp(1.25rem, 3vw, 2.1rem);
+}
+
+.home-radar-briefing-copy {
+  display: grid;
+  gap: 0.72rem;
+  min-width: 0;
+}
+
+.home-radar-briefing-meta {
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.home-radar-briefing-meta > span {
+  padding: 0.32rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 250, 244, 0.84);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.home-radar-briefing-meta .ai-source-badge {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff8ef !important;
+}
+
+.home-radar-briefing-copy h2 {
+  display: -webkit-box;
+  overflow: hidden;
+  max-width: 19ch;
+  color: #fffaf4;
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.55rem, 3.4vw, 2.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.055em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.home-radar-briefing-copy p {
+  display: -webkit-box;
+  overflow: hidden;
+  max-width: 31rem;
+  color: rgba(255, 250, 244, 0.76);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  line-height: 1.52;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.home-radar-briefing-actions {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.home-radar-briefing-actions .home-radar-feed-freshness {
+  color: #ffe0c8;
+}
+
+.home-radar-briefing-controls {
+  gap: 0.42rem;
+  align-self: end;
+}
+
+.home-radar-briefing-controls button {
+  width: 2rem;
+  height: 0.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    transform 0.18s ease,
+    width 0.18s ease;
+}
+
+.home-radar-briefing-controls button.is-active {
+  width: 3rem;
+  background: linear-gradient(90deg, #fffaf4, color-mix(in srgb, var(--radar-secondary, #fff) 72%, #fffaf4));
+  transform: translateY(-1px);
+}
+
+:root:not([data-theme="dark"]) .home-radar-briefing-card {
+  color: #fffaf4;
+}
+
+:root[data-theme="dark"] .home-radar-briefing-card {
+  background:
+    radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--radar-secondary, #fff) 24%, transparent), transparent 14rem),
+    radial-gradient(circle at 90% 90%, color-mix(in srgb, var(--radar-primary, var(--accent)) 34%, transparent), transparent 18rem),
+    linear-gradient(145deg, rgba(255, 246, 236, 0.12), rgba(255, 246, 236, 0.04)),
+    #352921 !important;
+  border-color: color-mix(in srgb, var(--radar-primary, var(--accent)) 36%, rgba(255, 232, 211, 0.18)) !important;
+}
+
+@media (max-width: 720px) {
+  .home-radar-briefing-card {
+    min-height: auto;
+  }
+
+  .home-radar-briefing-body {
+    grid-template-columns: 1fr;
+  }
+
+  .home-radar-briefing-art {
+    width: min(8rem, 42vw);
+  }
+
+  .home-radar-briefing-copy h2 {
+    max-width: none;
+    font-size: clamp(1.5rem, 8vw, 2.25rem);
+  }
+}
+
+/* Final main menu reset: match the cleaner portfolio-style navigation. */
+.site-nav a,
+.site-nav-more-button {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ink-soft) !important;
+  font-weight: 700 !important;
+}
+
+.site-nav a:hover,
+.site-nav-more-button:hover,
+.site-nav-more.is-open .site-nav-more-button,
+.site-nav-more.has-active .site-nav-more-button {
+  background: var(--muted-button-bg) !important;
+  color: var(--ink-strong) !important;
+}
+
+.site-nav a.is-active,
+.site-nav-more.has-active > .site-nav-more-button {
+  border: 0 !important;
+  background: var(--muted-button-bg) !important;
+  color: var(--accent) !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+.site-nav-more-panel a.is-active {
+  border: 0 !important;
+  background: var(--muted-button-bg) !important;
+  color: var(--accent) !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+.site-nav a.is-active::after,
+.site-nav-more.has-active > .site-nav-more-button::after {
+  transform: scaleX(1) !important;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--ink-strong))) !important;
+}
+
+:root[data-theme="dark"] :is(.site-nav a, .site-nav-more-button, .site-nav-more-panel a) {
+  color: rgba(255, 241, 228, 0.74) !important;
+  font-weight: 700 !important;
+}
+
+:root[data-theme="dark"] :is(.site-nav a:hover, .site-nav-more-button:hover, .site-nav-more.is-open .site-nav-more-button, .site-nav-more.has-active .site-nav-more-button, .site-nav-more-panel a:hover) {
+  background: rgba(255, 246, 236, 0.075) !important;
+  color: #fff8ef !important;
+}
+
+:root[data-theme="dark"] :is(.site-nav a.is-active, .site-nav-more.has-active > .site-nav-more-button, .site-nav-more-panel a.is-active) {
+  border: 0 !important;
+  background: rgba(255, 246, 236, 0.075) !important;
+  color: #ffb59f !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+@media (min-width: 1081px) {
+  .site-nav > a .site-nav-icon,
+  .site-nav-more-button .site-nav-icon {
+    display: none !important;
+  }
+}

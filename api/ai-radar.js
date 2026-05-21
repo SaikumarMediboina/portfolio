@@ -1,27 +1,67 @@
 const MAX_FEED_ITEMS = 6;
 const DEFAULT_LIMIT = 12;
 const REQUEST_TIMEOUT_MS = 6500;
-const AI_KEYWORDS = [
-  "agent",
-  "agents",
-  "ai",
-  "artificial intelligence",
-  "benchmark",
-  "developer",
-  "eval",
-  "evaluation",
-  "gemini",
-  "inference",
-  "llm",
+const HOT_TOPIC_WEIGHTS = [
+  {
+    keywords: ["agent", "agents", "agentic", "tool use", "mcp", "workflow", "workflows"],
+    score: 30,
+  },
+  {
+    keywords: ["reasoning", "benchmark", "benchmarks", "eval", "evaluation", "frontier"],
+    score: 26,
+  },
+  {
+    keywords: ["coding agent", "code assistant", "developer", "codex", "ide", "software engineering"],
+    score: 24,
+  },
+  {
+    keywords: ["multimodal", "voice", "audio", "video", "image", "vision", "realtime"],
+    score: 20,
+  },
+  {
+    keywords: ["inference", "latency", "serving", "throughput", "cost", "deployment"],
+    score: 18,
+  },
+  {
+    keywords: ["rag", "retrieval", "embedding", "embeddings", "vector", "semantic search"],
+    score: 17,
+  },
+  {
+    keywords: ["open source", "open-source", "model release", "fine-tuning", "fine tuning", "dataset"],
+    score: 15,
+  },
+  {
+    keywords: ["security", "governance", "enterprise", "safety", "privacy"],
+    score: 13,
+  },
+  {
+    keywords: ["gpu", "accelerated", "training", "cluster", "nvidia"],
+    score: 12,
+  },
+];
+const BUILDER_VALUE_KEYWORDS = [
+  "api",
+  "sdk",
+  "framework",
+  "guide",
+  "build",
+  "launch",
+  "release",
   "model",
   "models",
-  "multimodal",
-  "open source",
-  "reasoning",
-  "research",
-  "safety",
+  "platform",
+  "production",
   "tool",
   "tools",
+];
+const MARKETING_HEAVY_KEYWORDS = [
+  "award",
+  "customer story",
+  "partner",
+  "partnership",
+  "webinar",
+  "event",
+  "summit",
 ];
 
 const FEEDS = [
@@ -30,49 +70,49 @@ const FEEDS = [
     feedUrl: "https://openai.com/news/rss.xml",
     homepage: "https://openai.com/news/",
     source: "OpenAI",
-    weight: 18,
+    weight: 22,
   },
   {
     category: "Agents",
     feedUrl: "https://www.anthropic.com/news/rss.xml",
     homepage: "https://www.anthropic.com/news",
     source: "Anthropic",
-    weight: 16,
+    weight: 21,
   },
   {
     category: "Open Source",
     feedUrl: "https://huggingface.co/blog/feed.xml",
     homepage: "https://huggingface.co/blog",
     source: "Hugging Face",
-    weight: 15,
+    weight: 16,
   },
   {
     category: "Research",
     feedUrl: "https://deepmind.google/discover/blog/rss.xml",
     homepage: "https://deepmind.google/discover/blog/",
     source: "Google/DeepMind",
-    weight: 13,
+    weight: 20,
   },
   {
     category: "Infrastructure",
     feedUrl: "https://blogs.nvidia.com/blog/category/artificial-intelligence/feed/",
     homepage: "https://blogs.nvidia.com/blog/category/artificial-intelligence/",
     source: "NVIDIA",
-    weight: 12,
+    weight: 15,
   },
   {
     category: "Agents",
     feedUrl: "https://blog.langchain.com/rss/",
     homepage: "https://blog.langchain.com/",
     source: "LangChain",
-    weight: 11,
+    weight: 14,
   },
   {
     category: "Cloud AI",
     feedUrl: "https://aws.amazon.com/blogs/machine-learning/feed/",
     homepage: "https://aws.amazon.com/blogs/machine-learning/",
     source: "AWS ML",
-    weight: 10,
+    weight: 12,
   },
 ];
 
@@ -165,11 +205,38 @@ function normalizeDate(value) {
   return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
 }
 
-function getKeywordScore(title, summary) {
+function getTextHaystack(title, summary) {
+  return `${title} ${summary}`.toLowerCase();
+}
+
+function getWeightedKeywordScore(title, summary, weightedGroups) {
+  const haystack = getTextHaystack(title, summary);
+
+  return weightedGroups.reduce((score, group) => {
+    const matches = group.keywords.filter((keyword) => haystack.includes(keyword.toLowerCase()));
+
+    if (!matches.length) {
+      return score;
+    }
+
+    return score + group.score + Math.min(matches.length - 1, 3) * 3;
+  }, 0);
+}
+
+function getBuilderValueScore(title, summary) {
+  const haystack = getTextHaystack(title, summary);
+
+  return BUILDER_VALUE_KEYWORDS.reduce(
+    (score, keyword) => score + (haystack.includes(keyword.toLowerCase()) ? 4 : 0),
+    0,
+  );
+}
+
+function getMarketingPenalty(title, summary) {
   const haystack = `${title} ${summary}`.toLowerCase();
 
-  return AI_KEYWORDS.reduce(
-    (score, keyword) => score + (haystack.includes(keyword.toLowerCase()) ? 4 : 0),
+  return MARKETING_HEAVY_KEYWORDS.reduce(
+    (penalty, keyword) => penalty + (haystack.includes(keyword.toLowerCase()) ? 6 : 0),
     0,
   );
 }
@@ -200,9 +267,33 @@ function scoreItem(item) {
   return (
     item.sourceWeight +
     getRecencyScore(item.publishedAt) +
-    getKeywordScore(item.title, item.summary) +
-    (item.imageUrl ? 5 : 0)
+    getWeightedKeywordScore(item.title, item.summary, HOT_TOPIC_WEIGHTS) +
+    getBuilderValueScore(item.title, item.summary) +
+    (item.imageUrl ? 2 : 0) -
+    getMarketingPenalty(item.title, item.summary)
   );
+}
+
+function applySourceDiversity(items, limit) {
+  const selected = [];
+  const remaining = [...items];
+  const sourceCounts = new Map();
+
+  while (selected.length < limit && remaining.length) {
+    const selectedIndex = remaining.findIndex((item) => {
+      const currentCount = sourceCounts.get(item.source) || 0;
+      const topFiveLimit = selected.length < 5 ? 1 : 2;
+
+      return currentCount < topFiveLimit;
+    });
+    const nextIndex = selectedIndex >= 0 ? selectedIndex : 0;
+    const [nextItem] = remaining.splice(nextIndex, 1);
+
+    selected.push(nextItem);
+    sourceCounts.set(nextItem.source, (sourceCounts.get(nextItem.source) || 0) + 1);
+  }
+
+  return selected;
 }
 
 async function fetchFeed(feed) {
@@ -292,13 +383,15 @@ export default async function handler(request, response) {
 
   try {
     const results = await Promise.allSettled(FEEDS.map(fetchFeed));
-    const items = dedupeItems(results.flatMap((result) => (result.status === "fulfilled" ? result.value : [])))
+    const rankedItems = dedupeItems(
+      results.flatMap((result) => (result.status === "fulfilled" ? result.value : [])),
+    )
       .map((item) => ({
         ...item,
         rank: scoreItem(item),
       }))
-      .sort((left, right) => right.rank - left.rank)
-      .slice(0, limit)
+      .sort((left, right) => right.rank - left.rank);
+    const items = applySourceDiversity(rankedItems, limit)
       .map(({ sourceWeight, ...item }) => item);
 
     return jsonResponse(response, 200, {

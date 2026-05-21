@@ -5158,6 +5158,7 @@ function HomePage({
   const [homeRadarStatus, setHomeRadarStatus] = useState<"loading" | "live" | "fallback">(
     "loading",
   );
+  const [homeRadarActiveIndex, setHomeRadarActiveIndex] = useState(0);
   const homeLanes = [
     {
       cta: "View work",
@@ -5205,6 +5206,9 @@ function HomePage({
     0,
     5,
   );
+  const homeRadarActiveSignal =
+    homeRadarPreviewSignals[homeRadarActiveIndex % homeRadarPreviewSignals.length] ??
+    aiRadarSignals[0];
 
   useEffect(() => {
     let isCurrent = true;
@@ -5251,6 +5255,22 @@ function HomePage({
     };
   }, []);
 
+  useEffect(() => {
+    setHomeRadarActiveIndex(0);
+  }, [homeRadarSignals]);
+
+  useEffect(() => {
+    if (homeRadarPreviewSignals.length <= 1) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setHomeRadarActiveIndex((index) => (index + 1) % homeRadarPreviewSignals.length);
+    }, 4600);
+
+    return () => window.clearInterval(intervalId);
+  }, [homeRadarPreviewSignals.length]);
+
   return (
     <>
       <section className="home-hero shell" id="top">
@@ -5281,57 +5301,87 @@ function HomePage({
           </div>
         </div>
 
-        <aside className="home-radar-board" aria-label="AI Radar live preview">
-          <div className="home-radar-board-top">
-            <div>
+        <aside
+          className="home-radar-board"
+          aria-label="AI Radar live preview"
+          style={getAiRadarVisualStyle(homeRadarActiveSignal)}
+        >
+          <article className="home-radar-briefing-card">
+            <div className="home-radar-briefing-top">
               <span className="home-radar-live-pill">
                 <span aria-hidden="true" />
                 {homeRadarStatus === "live" ? "Live Radar" : "Curated Radar"}
               </span>
-              <h2>AI stories worth scanning now.</h2>
+              <a href="/ai-radar">Open radar</a>
             </div>
-            <a href="/ai-radar">Open radar</a>
-          </div>
 
-          <div className="home-radar-feed" aria-label="Latest AI Radar stories">
-            {homeRadarPreviewSignals.map((signal, index) => (
-              <a
-                className="home-radar-feed-card"
-                href={signal.href}
-                key={signal.href}
-                style={getAiRadarVisualStyle(signal)}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() =>
-                  trackAnalyticsEvent("ai_radar_open", {
-                    category: signal.category,
-                    source: "home_feed",
-                    title: signal.title,
-                  })
-                }
-              >
-                <span className="home-radar-feed-index">{String(index + 1).padStart(2, "0")}</span>
-                <span className="home-radar-feed-art" aria-hidden="true">
-                  {signal.imageUrl ? (
-                    <img src={signal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
-                  ) : (
-                    <AiRadarSourceMark source={signal.source} />
-                  )}
-                </span>
-                <span className="home-radar-feed-copy">
-                  <span className="home-radar-feed-meta">
-                    <AiRadarSourceBadge source={signal.source} />
-                    <span>{signal.category}</span>
+            <div className="home-radar-briefing-body" aria-live="polite">
+              <div className="home-radar-briefing-art" aria-hidden="true">
+                {homeRadarActiveSignal.imageUrl ? (
+                  <img
+                    src={homeRadarActiveSignal.imageUrl}
+                    alt=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <AiRadarSourceMark className="is-large" source={homeRadarActiveSignal.source} />
+                )}
+              </div>
+
+              <div className="home-radar-briefing-copy">
+                <div className="home-radar-briefing-meta">
+                  <span>
+                    {String((homeRadarActiveIndex % homeRadarPreviewSignals.length) + 1).padStart(
+                      2,
+                      "0",
+                    )}
+                    /{String(homeRadarPreviewSignals.length).padStart(2, "0")}
                   </span>
-                  <strong>{signal.title}</strong>
+                  <AiRadarSourceBadge source={homeRadarActiveSignal.source} />
+                  <span>{homeRadarActiveSignal.category}</span>
+                </div>
+                <h2>{homeRadarActiveSignal.title}</h2>
+                <p>{homeRadarActiveSignal.summary || homeRadarActiveSignal.whyItMatters}</p>
+                <div className="home-radar-briefing-actions">
                   <AiRadarFreshness
                     className="home-radar-feed-freshness"
-                    publishedAt={signal.publishedAt}
+                    publishedAt={homeRadarActiveSignal.publishedAt}
                   />
-                </span>
-              </a>
-            ))}
-          </div>
+                  <a
+                    href={homeRadarActiveSignal.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() =>
+                      trackAnalyticsEvent("ai_radar_open", {
+                        category: homeRadarActiveSignal.category,
+                        source: "home_rotating_card",
+                        title: homeRadarActiveSignal.title,
+                      })
+                    }
+                  >
+                    Read signal
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="home-radar-briefing-controls" aria-label="Top AI Radar stories">
+              {homeRadarPreviewSignals.map((signal, index) => (
+                <button
+                  className={
+                    index === homeRadarActiveIndex % homeRadarPreviewSignals.length
+                      ? "is-active"
+                      : ""
+                  }
+                  key={`${signal.source}-${signal.href}`}
+                  type="button"
+                  aria-label={`Show AI Radar story ${index + 1}`}
+                  onClick={() => setHomeRadarActiveIndex(index)}
+                />
+              ))}
+            </div>
+          </article>
         </aside>
       </section>
 
