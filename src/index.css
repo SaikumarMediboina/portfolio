@@ -17449,3 +17449,145 @@ body {
     inset 0 1px 0 rgba(255, 248, 239, 0.12),
     0 28px 74px rgba(10, 7, 5, 0.36) !important;
 }
+
+/* Dashboard depth cards: keep chart colors honest and richer in both themes. */
+.dashboard-page {
+  --cadence-live-start: #de634a;
+  --cadence-live-end: #aa3c2b;
+  --cadence-live-glow: rgba(191, 71, 48, 0.24);
+  --depth-card-border: rgba(140, 80, 50, 0.18);
+  --depth-track: rgba(95, 58, 38, 0.08);
+  --depth-track-border: rgba(120, 70, 45, 0.1);
+  --depth-accent-a: #df6a4f;
+  --depth-accent-b: #c6543d;
+  --depth-fill: linear-gradient(90deg, rgba(222, 99, 74, 0.96), rgba(246, 159, 124, 0.72));
+}
+
+:root[data-theme="dark"] .dashboard-page {
+  --cadence-live-start: #ffad8e;
+  --cadence-live-end: #d75e45;
+  --cadence-live-glow: rgba(255, 157, 124, 0.32);
+  --depth-card-border: rgba(255, 199, 166, 0.22);
+  --depth-track: rgba(255, 239, 219, 0.075);
+  --depth-track-border: rgba(255, 239, 219, 0.1);
+  --depth-accent-a: #ffad8e;
+  --depth-accent-b: #df684f;
+  --depth-fill: linear-gradient(90deg, rgba(255, 173, 142, 0.98), rgba(223, 104, 79, 0.82));
+}
+
+.dashboard-cadence-chart span.is-published,
+:root[data-theme="dark"] .dashboard-cadence-chart span.is-published {
+  background: linear-gradient(180deg, var(--cadence-live-start), var(--cadence-live-end)) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--cadence-live-start) 36%, transparent),
+    0 0 22px var(--cadence-live-glow) !important;
+}
+
+.dashboard-legend i.is-published,
+.dashboard-cadence-legend i.is-published,
+:root[data-theme="dark"] .dashboard-legend i.is-published,
+:root[data-theme="dark"] .dashboard-cadence-legend i.is-published {
+  background: linear-gradient(90deg, var(--cadence-live-start), var(--cadence-live-end)) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cadence-live-start) 24%, transparent);
+}
+
+.dashboard-legend i.is-quiet,
+.dashboard-cadence-legend i.is-quiet {
+  background: color-mix(in srgb, var(--ink-soft) 22%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink-soft) 18%, transparent);
+}
+
+:root[data-theme="dark"] .dashboard-legend i.is-quiet,
+:root[data-theme="dark"] .dashboard-cadence-legend i.is-quiet {
+  background: rgba(255, 239, 219, 0.13) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 239, 219, 0.12);
+}
+
+.dashboard-depth-card {
+  border-color: var(--depth-card-border) !important;
+  background:
+    radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--depth-accent-a) 18%, transparent), transparent 18rem) padding-box,
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--redwood-ochre) 16%, transparent), transparent 20rem) padding-box,
+    linear-gradient(135deg, color-mix(in srgb, var(--panel-strong) 92%, var(--redwood-sand)), color-mix(in srgb, var(--panel-soft) 84%, #fff7ef)) padding-box,
+    linear-gradient(135deg, color-mix(in srgb, var(--depth-accent-a) 34%, transparent), color-mix(in srgb, var(--redwood-sage) 18%, transparent)) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 26px 70px rgba(90, 52, 30, 0.14) !important;
+}
+
+:root[data-theme="dark"] .dashboard-depth-card {
+  background:
+    radial-gradient(circle at 9% 2%, rgba(255, 173, 142, 0.2), transparent 18rem) padding-box,
+    radial-gradient(circle at 94% 0%, rgba(244, 196, 111, 0.16), transparent 19rem) padding-box,
+    radial-gradient(circle at 82% 92%, rgba(169, 200, 143, 0.12), transparent 19rem) padding-box,
+    linear-gradient(135deg, #5a3e2c, #342922 58%, #233127) padding-box,
+    linear-gradient(135deg, rgba(255, 173, 142, 0.42), rgba(244, 196, 111, 0.2), rgba(169, 200, 143, 0.2)) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.14),
+    inset 0 0 0 999px rgba(255, 246, 236, 0.012),
+    0 34px 88px rgba(14, 8, 5, 0.46) !important;
+}
+
+.dashboard-article-bars {
+  gap: 0.9rem;
+}
+
+.dashboard-article-bar {
+  border: 1px solid var(--depth-track-border);
+  background:
+    linear-gradient(90deg, var(--depth-track), color-mix(in srgb, var(--depth-track) 58%, transparent));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 10px 26px rgba(84, 48, 28, 0.08);
+}
+
+.dashboard-article-bar::before {
+  background: var(--depth-fill) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 12px 28px color-mix(in srgb, var(--depth-accent-a) 22%, transparent);
+}
+
+.dashboard-article-bar:nth-child(2) {
+  --depth-accent-a: #d7894d;
+  --depth-accent-b: #b76735;
+  --depth-fill: linear-gradient(90deg, rgba(215, 137, 77, 0.96), rgba(244, 196, 111, 0.68));
+}
+
+.dashboard-article-bar:nth-child(3) {
+  --depth-accent-a: #738d68;
+  --depth-accent-b: #536a4f;
+  --depth-fill: linear-gradient(90deg, rgba(115, 141, 104, 0.96), rgba(169, 200, 143, 0.66));
+}
+
+.dashboard-article-bar:nth-child(4) {
+  --depth-accent-a: #7b9aae;
+  --depth-accent-b: #55788e;
+  --depth-fill: linear-gradient(90deg, rgba(123, 154, 174, 0.96), rgba(143, 201, 222, 0.66));
+}
+
+.dashboard-article-bar strong {
+  color: var(--ink-strong);
+}
+
+.dashboard-article-bar span {
+  color: color-mix(in srgb, var(--depth-accent-b) 82%, var(--ink-strong)) !important;
+}
+
+:root[data-theme="dark"] .dashboard-article-bar {
+  border-color: rgba(255, 239, 219, 0.12);
+  background:
+    linear-gradient(90deg, rgba(255, 239, 219, 0.08), rgba(255, 239, 219, 0.035));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    0 16px 34px rgba(9, 6, 4, 0.24);
+}
+
+:root[data-theme="dark"] .dashboard-article-bar strong {
+  color: #fff7ef;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+
+:root[data-theme="dark"] .dashboard-article-bar span {
+  color: #ffe0d1 !important;
+}

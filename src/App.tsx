@@ -7899,7 +7899,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
             </article>
           </div>
 
-          <article className="dashboard-card">
+          <article className="dashboard-card dashboard-depth-card">
             <div className="dashboard-card-heading">
               <h2>Top Content by Reading Depth</h2>
               <span>Derived from article length and structure</span>
@@ -7933,7 +7933,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
             </div>
           </article>
 
-          <article className="dashboard-card">
+          <article className="dashboard-card dashboard-cadence-card">
             <div className="dashboard-card-heading">
               <h2>Publishing Rhythm</h2>
               <span>Last 30 days</span>
