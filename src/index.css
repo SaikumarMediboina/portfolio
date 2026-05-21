@@ -14664,3 +14664,242 @@ textarea:focus-visible {
   color: #ffb59f !important;
   letter-spacing: 0.15em;
 }
+
+/* Redwood Night Pro: richer elevation, premium texture, and warmer dark surfaces. */
+:root[data-theme="dark"] {
+  --rw-canvas: #281f1a;
+  --rw-canvas-soft: #31261f;
+  --rw-region: #3d3129;
+  --rw-region-muted: #4a3b31;
+  --rw-region-raised: #554338;
+  --rw-region-sunken: #201813;
+  --rw-border: rgba(255, 231, 209, 0.2);
+  --rw-border-soft: rgba(255, 231, 209, 0.12);
+  --rw-text: #f5eadf;
+  --rw-text-strong: #fffaf5;
+  --rw-text-muted: #dbcbbc;
+  --rw-accent: #f69a7f;
+  --rw-accent-hover: #ffc8b7;
+  --rw-accent-soft: rgba(246, 154, 127, 0.18);
+  --rw-pro-border: linear-gradient(135deg, rgba(255, 211, 185, 0.34), rgba(246, 154, 127, 0.16) 38%, rgba(136, 161, 124, 0.14) 72%, rgba(255, 255, 255, 0.08));
+  --rw-pro-surface: linear-gradient(180deg, rgba(255, 244, 232, 0.105), rgba(255, 244, 232, 0.03) 45%, rgba(0, 0, 0, 0.055));
+  --rw-pro-card: #3a2e27;
+  --rw-pro-card-raised: #46382f;
+  --rw-pro-card-soft: #332922;
+  --header-bg: rgba(69, 55, 46, 0.88);
+  --menu-bg: #44362d;
+  --page-background:
+    radial-gradient(circle at 8% -4%, rgba(246, 154, 127, 0.2), transparent 24rem),
+    radial-gradient(circle at 86% 5%, rgba(184, 112, 73, 0.18), transparent 28rem),
+    radial-gradient(circle at 50% 114%, rgba(136, 161, 124, 0.14), transparent 34rem),
+    linear-gradient(180deg, #31261f 0%, #281f1a 46%, #1e1713 100%);
+}
+
+:root[data-theme="dark"] body {
+  background: var(--page-background) !important;
+}
+
+:root[data-theme="dark"] body::before {
+  opacity: 0.58;
+  background-image:
+    linear-gradient(rgba(255, 231, 209, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 231, 209, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 1px 1px, rgba(255, 216, 184, 0.05) 1px, transparent 0);
+  background-size: 64px 64px, 64px 64px, 19px 19px;
+}
+
+:root[data-theme="dark"] body::after {
+  background:
+    linear-gradient(118deg, transparent 0 55%, rgba(246, 154, 127, 0.09) 55% 63%, transparent 63%),
+    linear-gradient(72deg, transparent 0 13%, rgba(255, 231, 209, 0.045) 13% 16%, transparent 16%),
+    radial-gradient(ellipse at 15% 0%, rgba(255, 239, 221, 0.08), transparent 36rem),
+    radial-gradient(ellipse at 98% 16%, rgba(184, 112, 73, 0.1), transparent 30rem);
+}
+
+:root[data-theme="dark"] :is(.header-shell, .article-header-shell, .site-nav, .site-nav-more-panel, .profile-menu-panel, .reader-menu-panel, .mobile-account-panel) {
+  border: 1px solid transparent !important;
+  background:
+    var(--rw-pro-surface) padding-box,
+    var(--rw-pro-border) border-box,
+    rgba(69, 55, 46, 0.9) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    0 20px 58px rgba(15, 9, 6, 0.38) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-hero,
+  .hero,
+  .guide-hero,
+  .learn-hero,
+  .active-builds-hero,
+  .signin-hero,
+  .saved-posts-hero,
+  .shelf-hero,
+  .standalone-blog,
+  .ai-radar-hero,
+  .dashboard-shell,
+  .collaboration-hero
+) {
+  border: 1px solid transparent !important;
+  background:
+    radial-gradient(circle at 82% 8%, rgba(246, 154, 127, 0.2), transparent 21rem) padding-box,
+    radial-gradient(circle at 12% 94%, rgba(136, 161, 124, 0.14), transparent 24rem) padding-box,
+    linear-gradient(135deg, rgba(83, 65, 54, 0.96), rgba(56, 44, 37, 0.98) 54%, rgba(43, 34, 29, 0.99)) padding-box,
+    var(--rw-pro-border) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.09),
+    0 30px 86px rgba(15, 9, 6, 0.42) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-featured,
+  .blog-list-item,
+  .related-post-card,
+  .guide-card,
+  .guide-feature-card,
+  .guide-tool-card,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .dashboard-topic-breakdown section,
+  .saved-posts-item,
+  .shelf-plan-card,
+  .contact-panel,
+  .collaboration-cta,
+  .newsletter-callout,
+  .site-newsletter-footer,
+  .assistant-panel
+) {
+  border: 1px solid transparent !important;
+  background:
+    var(--rw-pro-surface) padding-box,
+    radial-gradient(circle at 92% 0%, rgba(246, 154, 127, 0.1), transparent 15rem) padding-box,
+    var(--rw-pro-card) padding-box,
+    var(--rw-pro-border) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.075),
+    0 20px 56px rgba(15, 9, 6, 0.34) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .metric-card,
+  .focus-card,
+  .project-tab,
+  .project-spotlight,
+  .timeline-card,
+  .skill-card,
+  .credential-panel,
+  .recognition-card,
+  .updates-panel,
+  .updates-card,
+  .home-proof-card,
+  .blog-stat,
+  .blog-empty,
+  .saved-posts-empty,
+  .shelf-coming-soon,
+  .dashboard-note,
+  .dashboard-email-callout,
+  .blog-diagram-node
+) {
+  border: 1px solid transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 232, 0.075), rgba(255, 244, 232, 0.018)) padding-box,
+    var(--rw-pro-card-soft) padding-box,
+    linear-gradient(135deg, rgba(255, 231, 209, 0.18), rgba(246, 154, 127, 0.08), rgba(255, 255, 255, 0.04)) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.055),
+    0 12px 34px rgba(15, 9, 6, 0.28) !important;
+}
+
+:root[data-theme="dark"] :is(.home-work-card, .home-update-card, .home-final-cta, .ai-radar-story-body) {
+  border: 1px solid transparent !important;
+  background:
+    radial-gradient(circle at 84% 10%, rgba(246, 154, 127, 0.24), transparent 18rem) padding-box,
+    radial-gradient(circle at 12% 88%, rgba(255, 216, 184, 0.12), transparent 20rem) padding-box,
+    linear-gradient(135deg, #5b4338, #392b24 62%, #2b211c) padding-box,
+    linear-gradient(135deg, rgba(255, 219, 193, 0.38), rgba(246, 154, 127, 0.18), rgba(136, 161, 124, 0.12)) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    0 30px 84px rgba(15, 9, 6, 0.46) !important;
+}
+
+:root[data-theme="dark"] :is(.blog-architecture-diagram, .blog-diagram-canvas) {
+  border: 1px solid transparent !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(246, 154, 127, 0.15), transparent 18rem) padding-box,
+    radial-gradient(circle at 92% 16%, rgba(136, 161, 124, 0.13), transparent 19rem) padding-box,
+    linear-gradient(135deg, #45372e, #2e241f) padding-box,
+    var(--rw-pro-border) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.home-proof-card:nth-child(1), .home-lane-card:nth-child(1), .home-writing-card:nth-child(1)) {
+  background:
+    var(--rw-pro-surface) padding-box,
+    radial-gradient(circle at 86% 0%, rgba(246, 154, 127, 0.15), transparent 13rem) padding-box,
+    #3f3028 padding-box,
+    var(--rw-pro-border) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.home-proof-card:nth-child(2), .home-lane-card:nth-child(2), .home-writing-card:nth-child(2)) {
+  background:
+    var(--rw-pro-surface) padding-box,
+    radial-gradient(circle at 86% 0%, rgba(136, 161, 124, 0.16), transparent 13rem) padding-box,
+    #3a3129 padding-box,
+    var(--rw-pro-border) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.home-proof-card:nth-child(3), .home-lane-card:nth-child(3), .home-writing-card:nth-child(3)) {
+  background:
+    var(--rw-pro-surface) padding-box,
+    radial-gradient(circle at 86% 0%, rgba(255, 216, 184, 0.13), transparent 13rem) padding-box,
+    #3e3028 padding-box,
+    var(--rw-pro-border) border-box !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-hero-copy h1,
+  .hero h1,
+  .guide-hero h1,
+  .learn-hero h1,
+  .active-builds-hero h1,
+  .standalone-blog-hero h1,
+  .dashboard-hero h1,
+  .saved-posts-hero h1,
+  .shelf-hero h1,
+  .collaboration-hero h1,
+  .signin-copy h1,
+  .blog-diagram-heading h2,
+  .section-heading h2,
+  .guide-section-heading h2,
+  .dashboard-card-heading h2,
+  .collaboration-section-heading h2
+) {
+  color: #fff8f1 !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22), 0 0 28px rgba(255, 190, 164, 0.08);
+}
+
+:root[data-theme="dark"] :is(.button-primary, .home-hero .button-primary, .assistant-launcher, .assistant-form button) {
+  background:
+    linear-gradient(135deg, #ffc0ad, #f69a7f 54%, #de7a61) !important;
+  color: #2a1812 !important;
+  box-shadow: 0 14px 34px rgba(246, 154, 127, 0.22) !important;
+}
+
+:root[data-theme="dark"] :is(.button-secondary, .button-tertiary, .theme-toggle, .menu-toggle, .profile-menu-trigger, .reader-menu-trigger, .save-post-button, .save-radar-button, .blog-filter, input, textarea, .newsletter-form input, .assistant-form input) {
+  background:
+    linear-gradient(180deg, rgba(255, 244, 232, 0.095), rgba(255, 244, 232, 0.032)) !important;
+  border-color: rgba(255, 231, 209, 0.18) !important;
+  color: #fff8f1 !important;
+}
+
+:root[data-theme="dark"] :is(.home-trust-strip span, .home-stack-row span, .hero-signal-list li, .stack-list li, .chip-list li, .blog-category-summary span, .blog-tag-list span, .related-post-tags span, .ai-radar-filters button, .dashboard-chip-row span, .home-update-sources span, .ai-radar-source-line span, .ai-radar-source-line time, .ai-radar-item-meta span, .ai-radar-item-meta time, .ai-radar-freshness, .ai-source-badge, .dashboard-legend span, .saved-posts-tag, .blog-diagram-highlights span) {
+  background:
+    linear-gradient(180deg, rgba(255, 244, 232, 0.105), rgba(255, 244, 232, 0.038)) !important;
+  border-color: rgba(255, 231, 209, 0.18) !important;
+  color: #e4d2c2 !important;
+}
