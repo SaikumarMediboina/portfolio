@@ -16909,3 +16909,135 @@ body {
   background: color-mix(in srgb, var(--accent) 10%, #fffaf4) !important;
   color: var(--accent-deep) !important;
 }
+
+/* Work With Me light theme: remove leftover dark-page contrast rules. */
+:root:not([data-theme="dark"]) .collaboration-header {
+  border-bottom-color: var(--line) !important;
+  background: color-mix(in srgb, var(--bg-elevated) 86%, transparent) !important;
+  color: var(--ink) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-header .article-header-shell {
+  border-color: var(--readable-border) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.42)),
+    var(--header-bg) !important;
+  box-shadow: var(--header-shadow) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-header .brand-copy strong {
+  color: var(--ink-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-header .brand-copy span {
+  color: var(--ink-soft) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-header .button-secondary,
+:root:not([data-theme="dark"]) .collaboration-header .theme-toggle {
+  border-color: var(--readable-border) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  color: var(--ink-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-page {
+  background: var(--page-background) !important;
+  color: var(--ink) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-signal-card {
+  border-color: var(--readable-border) !important;
+  background:
+    radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 16rem),
+    linear-gradient(145deg, rgba(255, 253, 249, 0.96), rgba(248, 238, 226, 0.9)) !important;
+  box-shadow: var(--readable-shadow) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-signal-card h2,
+:root:not([data-theme="dark"]) .collaboration-contact-list dd {
+  color: var(--ink-strong) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-contact-list dt,
+:root:not([data-theme="dark"]) .collaboration-signal-card p,
+:root:not([data-theme="dark"]) .collaboration-contact-list span {
+  color: var(--ink-soft) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-radar {
+  border-color: var(--readable-border) !important;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.74), transparent),
+    color-mix(in srgb, var(--panel-soft) 74%, transparent) !important;
+}
+
+:root:not([data-theme="dark"]) .radar-ring {
+  border-color: rgba(79, 49, 31, 0.16) !important;
+}
+
+:root:not([data-theme="dark"]) .radar-ring-two {
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent) !important;
+}
+
+:root:not([data-theme="dark"]) .radar-line {
+  background: rgba(79, 49, 31, 0.16) !important;
+}
+
+/* Keep the More widget and dropdown aligned inside the navigation shell. */
+.header-shell,
+.site-nav {
+  overflow: visible;
+}
+
+.site-nav-more {
+  flex: 0 0 auto;
+  max-width: 100%;
+}
+
+.site-nav-more-button {
+  min-height: 2.45rem;
+  padding-inline: 0.78rem !important;
+  border-radius: 14px !important;
+}
+
+.site-nav-more-label {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.site-nav-more-panel {
+  right: 0 !important;
+  min-width: 11.5rem;
+  max-width: min(18rem, calc(100vw - 2rem));
+  overflow: hidden;
+  transform-origin: top right;
+}
+
+.site-nav-more-panel a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1081px) {
+  .site-nav-more-panel {
+    top: calc(100% + 0.55rem) !important;
+  }
+
+  .site-nav-more.has-active > .site-nav-more-button,
+  .site-nav-more.is-open > .site-nav-more-button {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent) !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  .site-nav,
+  .site-nav-more-panel {
+    overflow: visible;
+  }
+
+  .site-nav-more-button {
+    min-height: 3rem;
+    padding-inline: 0.7rem !important;
+  }
+}
