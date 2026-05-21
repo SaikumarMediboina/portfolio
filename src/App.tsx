@@ -5161,9 +5161,8 @@ function HomePage({
           </div>
 
           <div className="home-trust-strip" aria-label="Core strengths">
-            <span>Spring backend systems</span>
-            <span>Search and matching</span>
-            <span>AI workflow experiments</span>
+            <a href="/active-builds">Active builds</a>
+            <a href="/learn-with-me">Learn with me</a>
           </div>
         </div>
 
@@ -6734,18 +6733,21 @@ type ContactPageProps = {
 function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
   const collaborationAreas = [
     {
+      icon: "briefcase" as const,
       title: "Backend Performance",
       summary:
         "Diagnose latency, remove repeated work, and make high-volume request paths more predictable.",
       points: ["Database hot paths", "Async execution", "Throughput tuning"],
     },
     {
+      icon: "radar" as const,
       title: "Search and Matching Systems",
       summary:
         "Design search-heavy workflows where relevance, scale, and explainability need to work together.",
       points: ["Oracle Text", "OpenSearch", "Hybrid scoring"],
     },
     {
+      icon: "spark" as const,
       title: "AI and LLM Workflows",
       summary:
         "Bring practical AI into backend systems without losing control, auditability, or engineering clarity.",
@@ -6881,7 +6883,9 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
           <div className="collaboration-card-grid">
             {collaborationAreas.map((area) => (
               <article className="collaboration-area-card" key={area.title}>
-                <span className="collaboration-card-icon" aria-hidden="true" />
+                <span className="collaboration-card-icon" aria-hidden="true">
+                  <ReaderMenuGlyph type={area.icon} />
+                </span>
                 <h3>{area.title}</h3>
                 <p>{area.summary}</p>
                 <ul>

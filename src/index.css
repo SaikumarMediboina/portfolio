@@ -17144,3 +17144,209 @@ body {
 :root[data-theme="dark"] .home-radar-briefing-controls button.is-active {
   background: linear-gradient(90deg, #fff6ec, color-mix(in srgb, var(--radar-secondary, #fff) 62%, #fff6ec)) !important;
 }
+
+/* Final cross-theme bug pass: assistant, Work With Me, home links, and mobile menu scroll. */
+.home-trust-strip {
+  align-items: center;
+}
+
+.home-trust-strip a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.85rem;
+  padding: 0.62rem 0.92rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 16px;
+  background: var(--muted-button-bg);
+  color: var(--ink-strong);
+  font-weight: 900;
+  text-decoration: none;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.home-trust-strip a:hover {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--chip-border));
+  background: color-mix(in srgb, var(--accent-soft) 55%, var(--panel-strong));
+  color: var(--accent-deep);
+  transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .home-trust-strip a {
+  border-color: rgba(255, 232, 211, 0.16);
+  background: rgba(255, 246, 236, 0.08);
+  color: #fff2e8;
+}
+
+:root[data-theme="dark"] .home-trust-strip a:hover {
+  border-color: rgba(255, 157, 124, 0.42);
+  background: rgba(255, 157, 124, 0.14);
+  color: #ffd0bd;
+}
+
+.collaboration-card-icon {
+  display: grid;
+  place-items: center;
+  width: 2.85rem;
+  height: 2.85rem;
+}
+
+.collaboration-card-icon .reader-menu-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+:root:not([data-theme="dark"]) :is(.collaboration-area-card, .collaboration-proof, .collaboration-step, .collaboration-cta) {
+  border-color: var(--readable-border) !important;
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 13rem),
+    linear-gradient(145deg, rgba(255, 253, 249, 0.96), rgba(249, 239, 228, 0.9)) !important;
+  box-shadow: var(--readable-shadow) !important;
+}
+
+:root:not([data-theme="dark"]) :is(
+  .collaboration-area-card h3,
+  .collaboration-step h3,
+  .collaboration-proof h2,
+  .collaboration-cta h2
+) {
+  color: var(--ink-strong) !important;
+}
+
+:root:not([data-theme="dark"]) :is(
+  .collaboration-area-card p,
+  .collaboration-step p,
+  .collaboration-proof p,
+  .collaboration-cta p,
+  .collaboration-proof-grid span
+) {
+  color: var(--ink-soft) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-area-card li {
+  color: color-mix(in srgb, var(--ink-strong) 82%, var(--ink-soft)) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-card-icon {
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--readable-border)) !important;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.78), transparent 28%),
+    color-mix(in srgb, var(--accent-soft) 76%, #fffaf4) !important;
+  color: var(--accent) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-proof-grid article {
+  border-color: var(--readable-border) !important;
+  background: rgba(255, 255, 255, 0.58) !important;
+}
+
+:root[data-theme="dark"] :is(.collaboration-area-card, .collaboration-proof, .collaboration-step, .collaboration-cta) {
+  border-color: rgba(255, 232, 211, 0.16) !important;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255, 157, 124, 0.16), transparent 13rem),
+    linear-gradient(145deg, rgba(78, 58, 48, 0.94), rgba(48, 36, 30, 0.96)) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .collaboration-area-card h3,
+  .collaboration-step h3,
+  .collaboration-proof h2,
+  .collaboration-cta h2
+) {
+  color: #fff8ef !important;
+}
+
+:root[data-theme="dark"] :is(
+  .collaboration-area-card p,
+  .collaboration-step p,
+  .collaboration-proof p,
+  .collaboration-cta p,
+  .collaboration-proof-grid span
+) {
+  color: #d8c4b4 !important;
+}
+
+:root[data-theme="dark"] .collaboration-area-card li {
+  color: #f2dfd1 !important;
+}
+
+:root[data-theme="dark"] .collaboration-card-icon {
+  border-color: rgba(255, 157, 124, 0.24) !important;
+  background: rgba(255, 157, 124, 0.16) !important;
+  color: #ffd0bd !important;
+}
+
+.assistant-panel::after {
+  display: none !important;
+}
+
+:root[data-theme="dark"] .assistant-panel {
+  border-color: rgba(255, 218, 190, 0.18) !important;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 157, 124, 0.16), transparent 13rem),
+    linear-gradient(180deg, #3d2d25 0%, #271c17 100%) !important;
+  color: #fff2e8 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.08),
+    0 28px 74px rgba(8, 5, 3, 0.48) !important;
+}
+
+:root[data-theme="dark"] .assistant-header,
+:root[data-theme="dark"] .assistant-form {
+  border-color: rgba(255, 218, 190, 0.13) !important;
+  background: rgba(49, 35, 29, 0.98) !important;
+}
+
+:root[data-theme="dark"] .assistant-message-bubble,
+:root[data-theme="dark"] .assistant-message.is-assistant .assistant-message-bubble {
+  border-color: rgba(255, 218, 190, 0.14) !important;
+  background: rgba(255, 246, 236, 0.075) !important;
+}
+
+:root[data-theme="dark"] .assistant-message.is-visitor .assistant-message-bubble {
+  border-color: rgba(255, 157, 124, 0.34) !important;
+  background: rgba(255, 157, 124, 0.14) !important;
+}
+
+:root[data-theme="dark"] .assistant-message p,
+:root[data-theme="dark"] .assistant-header h2,
+:root[data-theme="dark"] .assistant-form input {
+  color: #fff8ef !important;
+}
+
+:root[data-theme="dark"] .assistant-header p,
+:root[data-theme="dark"] .assistant-form input::placeholder,
+:root[data-theme="dark"] .assistant-clear,
+:root[data-theme="dark"] .assistant-close {
+  color: #d8c4b4 !important;
+}
+
+:root[data-theme="dark"] .assistant-prompts button,
+:root[data-theme="dark"] .assistant-links a,
+:root[data-theme="dark"] .assistant-form input,
+:root[data-theme="dark"] .assistant-clear,
+:root[data-theme="dark"] .assistant-close {
+  border-color: rgba(255, 218, 190, 0.16) !important;
+  background: rgba(255, 246, 236, 0.08) !important;
+}
+
+@media (max-width: 1080px) {
+  .site-nav {
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    padding-bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)) !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .site-nav-more-panel {
+    overflow: visible !important;
+  }
+}
