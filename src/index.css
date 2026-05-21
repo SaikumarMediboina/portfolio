@@ -20032,3 +20032,201 @@ body {
 ) {
   color: #fff8ef !important;
 }
+
+/* Active Builds catalog: professional build-lab cards before the detailed case study. */
+.active-builds-catalog-hero {
+  min-height: auto !important;
+  padding-block: clamp(2.2rem, 4vw, 3.4rem) !important;
+  background:
+    radial-gradient(circle at 84% 8%, color-mix(in srgb, var(--redwood-sage, #6f8067) 15%, transparent), transparent 18rem),
+    radial-gradient(circle at 8% 90%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 18rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel-strong) 95%, #fff8ee), color-mix(in srgb, var(--panel-soft) 82%, #efe0d2)) !important;
+}
+
+.active-builds-catalog-hero h1 {
+  max-width: 14ch;
+}
+
+.active-builds-catalog-hero > p:not(.eyebrow) {
+  max-width: 46rem;
+}
+
+.active-builds-catalog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.78rem;
+  margin-top: clamp(1.1rem, 2vw, 1.45rem);
+}
+
+.active-builds-catalog-panel {
+  grid-template-columns: minmax(15rem, 0.46fr) minmax(0, 1fr) !important;
+  align-items: start !important;
+  margin-top: clamp(1rem, 2vw, 1.35rem);
+}
+
+.active-builds-catalog-panel .active-builds-menu-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.active-builds-menu-item {
+  --build-color: #c75d46;
+  --build-wash: rgba(199, 93, 70, 0.12);
+  position: relative;
+  isolation: isolate;
+  min-height: 13.2rem !important;
+  align-content: start;
+  gap: 0.72rem !important;
+  padding: clamp(1rem, 2vw, 1.18rem) !important;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--build-color) 30%, var(--panel-border)) !important;
+  background:
+    radial-gradient(circle at 96% 0%, var(--build-wash), transparent 10.5rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.1)),
+    color-mix(in srgb, var(--build-color) 5%, var(--panel-strong)) !important;
+}
+
+.active-builds-menu-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.32rem;
+  background: linear-gradient(180deg, var(--build-color), color-mix(in srgb, var(--build-color) 45%, #d8a45b));
+  opacity: 0.9;
+}
+
+.active-builds-menu-item.is-coral {
+  --build-color: #c75d46;
+  --build-wash: rgba(199, 93, 70, 0.14);
+}
+
+.active-builds-menu-item.is-sage {
+  --build-color: #6f8067;
+  --build-wash: rgba(111, 128, 103, 0.15);
+}
+
+.active-builds-menu-item.is-blue {
+  --build-color: #567f92;
+  --build-wash: rgba(86, 127, 146, 0.14);
+}
+
+.active-builds-menu-item.is-gold {
+  --build-color: #d08b45;
+  --build-wash: rgba(208, 139, 69, 0.14);
+}
+
+.active-builds-menu-item.is-clickable {
+  cursor: pointer;
+}
+
+.active-builds-menu-item.is-clickable::after {
+  content: "View details";
+  width: fit-content;
+  margin-top: auto;
+  padding: 0.45rem 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--build-color) 30%, var(--chip-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--build-color) 11%, transparent);
+  color: color-mix(in srgb, var(--build-color) 74%, var(--ink-strong));
+  font-size: var(--text-micro);
+  font-weight: 950;
+}
+
+.active-builds-menu-item.is-coming-soon {
+  cursor: default;
+}
+
+.active-builds-menu-item.is-coming-soon::after {
+  content: "Coming soon";
+  width: fit-content;
+  margin-top: auto;
+  padding: 0.45rem 0.72rem;
+  border: 1px dashed color-mix(in srgb, var(--build-color) 36%, var(--chip-border));
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--build-color) 70%, var(--ink-soft));
+  font-size: var(--text-micro);
+  font-weight: 950;
+}
+
+.active-builds-menu-item.is-clickable:hover {
+  transform: translateY(-3px);
+}
+
+.active-builds-menu-item > span {
+  color: color-mix(in srgb, var(--build-color) 78%, var(--ink-strong)) !important;
+}
+
+.active-builds-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.active-builds-card-tags em {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.8rem;
+  padding: 0.26rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--build-color) 24%, var(--chip-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--build-color) 8%, transparent);
+  color: color-mix(in srgb, var(--build-color) 70%, var(--ink));
+  font-style: normal;
+  font-size: var(--text-micro);
+  font-weight: 850;
+}
+
+.active-builds-catalog-panel + .active-assistant-hero {
+  margin-top: clamp(1.2rem, 2vw, 1.7rem);
+}
+
+:root[data-theme="dark"] .active-builds-catalog-hero {
+  background:
+    radial-gradient(circle at 84% 8%, rgba(126, 167, 142, 0.16), transparent 18rem),
+    radial-gradient(circle at 8% 90%, rgba(255, 134, 95, 0.18), transparent 18rem),
+    linear-gradient(135deg, rgba(66, 49, 39, 0.98), rgba(35, 27, 23, 0.98)) !important;
+}
+
+:root[data-theme="dark"] .active-builds-menu-item {
+  background:
+    radial-gradient(circle at 96% 0%, color-mix(in srgb, var(--build-color) 28%, transparent), transparent 10.5rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.11), rgba(255, 246, 236, 0.035)),
+    color-mix(in srgb, var(--build-color) 11%, #2a211c) !important;
+  border-color: color-mix(in srgb, var(--build-color) 42%, rgba(255, 224, 198, 0.14)) !important;
+}
+
+:root[data-theme="dark"] .active-builds-menu-item strong {
+  color: #fff8ef !important;
+}
+
+:root[data-theme="dark"] .active-builds-menu-item small {
+  color: #dec8b7 !important;
+}
+
+:root[data-theme="dark"] .active-builds-menu-item > span,
+:root[data-theme="dark"] .active-builds-card-tags em,
+:root[data-theme="dark"] .active-builds-menu-item.is-clickable::after,
+:root[data-theme="dark"] .active-builds-menu-item.is-coming-soon::after {
+  color: color-mix(in srgb, var(--build-color) 38%, #fff2e8) !important;
+  border-color: color-mix(in srgb, var(--build-color) 38%, rgba(255, 224, 198, 0.14)) !important;
+  background: color-mix(in srgb, var(--build-color) 18%, rgba(255, 246, 236, 0.06)) !important;
+}
+
+@media (max-width: 1080px) {
+  .active-builds-catalog-panel {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .active-builds-catalog-panel .active-builds-menu-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .active-builds-menu-item {
+    min-height: 0 !important;
+  }
+
+  .active-builds-catalog-actions .button {
+    width: 100%;
+  }
+}

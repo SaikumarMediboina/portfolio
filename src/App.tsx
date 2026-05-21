@@ -6130,16 +6130,42 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
     { label: "Scope", value: "Website + Tech" },
     { label: "Output", value: "Answers + Actions" },
   ];
-  const activeBuildMenu = [
+  const activeBuildCards = [
     {
-      description: "Website knowledge base, LLM routing, source chips, and action links.",
-      status: "Active now",
-      title: "Sai's Assistant",
+      description:
+        "Website knowledge base, smart routing, LLM support, source chips, and guided actions.",
+      href: "#sai-assistant-build",
+      status: "Open build",
+      tags: ["Live", "Assistant", "LLM"],
+      title: "Tech behind Sai's Assistant",
+      tone: "is-coral",
     },
     {
-      description: "Future builds will be added here as they move from idea to active work.",
-      status: "Reserved",
-      title: "Next build slot",
+      description:
+        "A Spring Boot platform for background jobs, distributed workers, retries, and AI-assisted failure analysis.",
+      href: undefined,
+      status: "Coming soon",
+      tags: ["Spring Boot", "Queues", "AI Ops"],
+      title: "SpringOps AI: Distributed Job Scheduler",
+      tone: "is-sage",
+    },
+    {
+      description:
+        "A curated content pipeline for official AI updates, source ranking, freshness labels, and saveable reads.",
+      href: undefined,
+      status: "Coming soon",
+      tags: ["Feeds", "Ranking", "Content"],
+      title: "AI Radar Intelligence Pipeline",
+      tone: "is-blue",
+    },
+    {
+      description:
+        "A structured learning space for Spring, distributed systems, and AI backend projects from basics to advanced.",
+      href: undefined,
+      status: "Planned",
+      tags: ["Learning", "Roadmaps", "Projects"],
+      title: "Learn With Me Systems Lab",
+      tone: "is-gold",
     },
   ];
   const architectureFlow = [
@@ -6283,8 +6309,70 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
       </header>
 
       <main className="guide-page active-builds-page shell" id="main-content">
+        <section className="guide-hero active-builds-hero active-builds-catalog-hero" id="active-builds-top">
+          <p className="eyebrow">Active Builds</p>
+          <h1>Build lab for current engineering experiments.</h1>
+          <p>
+            A focused index of systems I am building now and shaping next. Open the live build to
+            see the architecture, code flow, stack, and design decisions.
+          </p>
+
+          <div className="active-builds-catalog-actions">
+            <a className="button button-primary" href="#sai-assistant-build">
+              Open current build
+            </a>
+            <a className="button button-secondary" href="/">
+              Back to home
+            </a>
+          </div>
+        </section>
+
+        <section className="active-builds-menu-panel active-builds-catalog-panel" aria-label="Active builds menu">
+          <div>
+            <p className="eyebrow">Build Menu</p>
+            <h2>Choose a build to explore.</h2>
+            <p>
+              Active items open as detailed case studies. Planned systems stay visible as coming
+              soon cards, so the roadmap is clear without pretending everything is already shipped.
+            </p>
+          </div>
+          <div className="active-builds-menu-list">
+            {activeBuildCards.map((item) => {
+              const cardContent = (
+                <>
+                  <span>{item.status}</span>
+                  <strong>{item.title}</strong>
+                  <small>{item.description}</small>
+                  <div className="active-builds-card-tags" aria-label={`${item.title} tags`}>
+                    {item.tags.map((tag) => (
+                      <em key={tag}>{tag}</em>
+                    ))}
+                  </div>
+                </>
+              );
+
+              return item.href ? (
+                <a
+                  className={`active-builds-menu-item ${item.tone} is-clickable`}
+                  href={item.href}
+                  key={item.title}
+                >
+                  {cardContent}
+                </a>
+              ) : (
+                <article
+                  className={`active-builds-menu-item ${item.tone} is-coming-soon`}
+                  key={item.title}
+                >
+                  {cardContent}
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
         <section className="guide-hero active-builds-hero active-assistant-hero" id="sai-assistant-build">
-          <p className="eyebrow">Active Build</p>
+          <p className="eyebrow">Live Build</p>
           <h1>Sai&apos;s Assistant: website knowledge base plus LLM.</h1>
           <p>
             A hybrid assistant that answers website questions from trusted site data, handles
@@ -6296,27 +6384,6 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
                 <strong>{signal.value}</strong>
                 {signal.label}
               </span>
-            ))}
-          </div>
-        </section>
-
-        <section className="active-builds-menu-panel" aria-label="Active builds menu">
-          <div>
-            <p className="eyebrow">Build Menu</p>
-            <h2>Current active builds.</h2>
-            <p>Sai&apos;s Assistant starts the active-build catalog. More builds can be added here without changing the page structure.</p>
-          </div>
-          <div className="active-builds-menu-list">
-            {activeBuildMenu.map((item, index) => (
-              <a
-                className={`active-builds-menu-item${index === 0 ? " is-active" : " is-muted"}`}
-                href={index === 0 ? "#sai-assistant-build" : "#active-builds-roadmap"}
-                key={item.title}
-              >
-                <span>{item.status}</span>
-                <strong>{item.title}</strong>
-                <small>{item.description}</small>
-              </a>
             ))}
           </div>
         </section>
