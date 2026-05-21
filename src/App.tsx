@@ -917,7 +917,7 @@ const aiRadarSignals: AiRadarSignal[] = [
     category: "Models",
     cadence: "Official release notes",
     href: "https://openai.com/news/",
-    source: "OpenAI News",
+    source: "OpenAI",
     title: "Model and product release signal",
     summary:
       "Official updates on new models, product changes, developer capabilities, and safety notes.",
@@ -928,7 +928,7 @@ const aiRadarSignals: AiRadarSignal[] = [
     category: "Agents",
     cadence: "Research and company updates",
     href: "https://www.anthropic.com/news",
-    source: "Anthropic News",
+    source: "Anthropic",
     title: "Agentic workflows and model behavior",
     summary:
       "A good source for model capability notes, safety framing, and practical AI workflow direction.",
@@ -937,20 +937,20 @@ const aiRadarSignals: AiRadarSignal[] = [
   },
   {
     category: "Research",
-    cadence: "Recent papers",
-    href: "https://arxiv.org/list/cs.AI/recent",
-    source: "arXiv CS.AI",
-    title: "Fresh AI research feed",
+    cadence: "Research and product notes",
+    href: "https://deepmind.google/discover/blog/",
+    source: "Google/DeepMind",
+    title: "Research moving into real products",
     summary:
-      "A free research stream for AI papers, ideas, techniques, and early signals before they become products.",
+      "Signals across Gemini, applied research, safety, agents, and AI product direction.",
     whyItMatters:
-      "Best used as a source of direction. We link to papers instead of republishing paper text.",
+      "Useful for seeing how frontier research turns into products, platforms, and developer capabilities.",
   },
   {
     category: "Open Source",
     cadence: "Community engineering notes",
     href: "https://huggingface.co/blog",
-    source: "Hugging Face Blog",
+    source: "Hugging Face",
     title: "Open-source models and developer tooling",
     summary:
       "Practical posts around models, datasets, evaluation, inference, and the open-source AI ecosystem.",
@@ -958,26 +958,37 @@ const aiRadarSignals: AiRadarSignal[] = [
       "Strong place to watch what builders can actually try, fine-tune, host, and integrate.",
   },
   {
-    category: "Industry",
-    cadence: "AI product and research updates",
-    href: "https://blog.google/technology/ai/",
-    source: "Google AI Blog",
-    title: "AI product and research movement",
-    summary:
-      "Official updates across search, Gemini, research, AI products, responsible AI, and developer tooling.",
-    whyItMatters:
-      "A useful view into how AI capabilities are moving into large-scale consumer and cloud products.",
-  },
-  {
-    category: "Enterprise",
-    cadence: "Cloud and platform updates",
+    category: "Infrastructure",
+    cadence: "AI infrastructure updates",
     href: "https://blogs.nvidia.com/blog/category/artificial-intelligence/",
-    source: "NVIDIA AI Blog",
+    source: "NVIDIA",
     title: "AI infrastructure and enterprise adoption",
     summary:
       "Updates around GPUs, inference, enterprise AI systems, robotics, healthcare, and industrial AI.",
     whyItMatters:
       "Good signal for the infrastructure side of AI, especially when models move from demos to production.",
+  },
+  {
+    category: "Agents",
+    cadence: "Framework updates",
+    href: "https://blog.langchain.com/",
+    source: "LangChain",
+    title: "Agent frameworks and production patterns",
+    summary:
+      "Practical notes on agents, retrieval, observability, orchestration, and LLM application patterns.",
+    whyItMatters:
+      "Strong source for builders turning LLM ideas into maintainable applications and workflows.",
+  },
+  {
+    category: "Cloud AI",
+    cadence: "Cloud engineering updates",
+    href: "https://aws.amazon.com/blogs/machine-learning/",
+    source: "AWS ML",
+    title: "Cloud ML architecture and deployment",
+    summary:
+      "Cloud-native machine learning updates across model hosting, generative AI apps, MLOps, and data platforms.",
+    whyItMatters:
+      "Helpful for connecting AI ideas with real deployment, scaling, security, and operations choices.",
   },
 ];
 
@@ -5142,7 +5153,7 @@ function HomePage({
   onToggleSavedPost,
 }: HomePageProps) {
   const [homeRadarSignals, setHomeRadarSignals] = useState<AiRadarSignal[]>(
-    aiRadarSignals.slice(0, 4),
+    aiRadarSignals.slice(0, 5),
   );
   const [homeRadarStatus, setHomeRadarStatus] = useState<"loading" | "live" | "fallback">(
     "loading",
@@ -5190,8 +5201,10 @@ function HomePage({
     .filter((post): post is BlogPost => Boolean(post))
     .slice(0, 3);
   const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
-  const leadRadarSignal = homeRadarSignals[0] ?? aiRadarSignals[0];
-  const secondaryRadarSignals = homeRadarSignals.slice(1, 3);
+  const homeRadarPreviewSignals = (homeRadarSignals.length ? homeRadarSignals : aiRadarSignals).slice(
+    0,
+    5,
+  );
 
   useEffect(() => {
     let isCurrent = true;
@@ -5200,7 +5213,7 @@ function HomePage({
       setHomeRadarStatus("loading");
 
       try {
-        const response = await fetch("/api/ai-radar?limit=4&surface=home", {
+        const response = await fetch("/api/ai-radar?limit=7&surface=home", {
           cache: "no-store",
         });
 
@@ -5218,7 +5231,7 @@ function HomePage({
           setHomeRadarSignals(nextSignals);
           setHomeRadarStatus("live");
         } else {
-          setHomeRadarSignals(aiRadarSignals.slice(0, 4));
+          setHomeRadarSignals(aiRadarSignals.slice(0, 5));
           setHomeRadarStatus("fallback");
         }
       } catch {
@@ -5226,7 +5239,7 @@ function HomePage({
           return;
         }
 
-        setHomeRadarSignals(aiRadarSignals.slice(0, 4));
+        setHomeRadarSignals(aiRadarSignals.slice(0, 5));
         setHomeRadarStatus("fallback");
       }
     };
@@ -5273,80 +5286,49 @@ function HomePage({
             <div>
               <span className="home-radar-live-pill">
                 <span aria-hidden="true" />
-                {homeRadarStatus === "live" ? "Live AI Radar" : "Curated AI Radar"}
+                {homeRadarStatus === "live" ? "Live Radar" : "Curated Radar"}
               </span>
-              <h2>Fresh AI signals for builders.</h2>
+              <h2>AI stories worth scanning now.</h2>
             </div>
             <a href="/ai-radar">Open radar</a>
           </div>
 
-          <article className="home-radar-lead-card">
-            <div className="home-radar-lead-art" style={getAiRadarVisualStyle(leadRadarSignal)}>
-              {leadRadarSignal.imageUrl ? (
-                <img src={leadRadarSignal.imageUrl} alt="" loading="lazy" />
-              ) : (
-                <AiRadarSourceMark className="is-large" source={leadRadarSignal.source} />
-              )}
-            </div>
-            <div className="home-radar-lead-copy">
-              <div className="home-radar-meta-line">
-                <span>{leadRadarSignal.category}</span>
-                <AiRadarFreshness publishedAt={leadRadarSignal.publishedAt} />
-              </div>
-              <h3>{leadRadarSignal.title}</h3>
-              <p>{leadRadarSignal.summary}</p>
+          <div className="home-radar-feed" aria-label="Latest AI Radar stories">
+            {homeRadarPreviewSignals.map((signal, index) => (
               <a
-                href={leadRadarSignal.href}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() =>
-                  trackAnalyticsEvent("ai_radar_open", {
-                    category: leadRadarSignal.category,
-                    source: "home_hero",
-                    title: leadRadarSignal.title,
-                  })
-                }
-              >
-                Read original signal
-              </a>
-            </div>
-          </article>
-
-          <div className="home-radar-stack" aria-label="More AI Radar stories">
-            {secondaryRadarSignals.map((signal) => (
-              <a
-                className="home-radar-mini-card"
+                className="home-radar-feed-card"
                 href={signal.href}
                 key={signal.href}
+                style={getAiRadarVisualStyle(signal)}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() =>
                   trackAnalyticsEvent("ai_radar_open", {
                     category: signal.category,
-                    source: "home_stack",
+                    source: "home_feed",
                     title: signal.title,
                   })
                 }
               >
-                <span
-                  className="home-radar-mini-art"
-                  style={getAiRadarVisualStyle(signal)}
-                  aria-hidden="true"
-                >
+                <span className="home-radar-feed-index">{String(index + 1).padStart(2, "0")}</span>
+                <span className="home-radar-feed-art" aria-hidden="true">
                   {signal.imageUrl ? (
-                    <img src={signal.imageUrl} alt="" loading="lazy" />
+                    <img src={signal.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />
                   ) : (
                     <AiRadarSourceMark source={signal.source} />
                   )}
                 </span>
-                <div>
-                  <AiRadarSourceBadge compact source={signal.source} />
+                <span className="home-radar-feed-copy">
+                  <span className="home-radar-feed-meta">
+                    <AiRadarSourceBadge source={signal.source} />
+                    <span>{signal.category}</span>
+                  </span>
                   <strong>{signal.title}</strong>
                   <AiRadarFreshness
-                    className="home-radar-mini-freshness"
+                    className="home-radar-feed-freshness"
                     publishedAt={signal.publishedAt}
                   />
-                </div>
+                </span>
               </a>
             ))}
           </div>
@@ -5434,51 +5416,67 @@ function HomePage({
         <div className="home-section-heading">
           <p className="eyebrow">Latest Notes</p>
           <h2>Short reads. Real systems.</h2>
-          <p>
-            Practical notes from backend performance, search, caching, async processing, and AI
-            system experiments.
-          </p>
+          <p>Backend notes with diagrams, metrics, and practical takeaways.</p>
         </div>
 
-        <div className="home-writing-grid">
-          {homeWritingPreview.map((post) => {
-            const isLocked = !canReadBlogPost(post, subscriberUser);
+        <div className="home-writing-carousel-card">
+          <div className="home-writing-carousel-top">
+            <div>
+              <span>Engineering blog</span>
+              <strong>{blogPosts.length} practical notes</strong>
+            </div>
+            <a href="/blogs">View all</a>
+          </div>
 
-            return (
-              <article className={`home-writing-card${isLocked ? " is-locked" : ""}`} key={post.slug}>
-                <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
-                <h3>{post.title}</h3>
-                <p>{getBlogCardSummary(post)}</p>
-                <BlogTagList limit={2} post={post} />
-                {isLocked ? <BlogLockNote /> : null}
-                <div className="home-writing-actions">
-                  {isLocked ? (
-                    <a href={getSignInHref(post.slug)} target="_blank" rel="opener">
-                      Unlock article
-                    </a>
-                  ) : (
-                    <>
-                      <a
-                        href={getBlogArticleHref(post.slug)}
-                        target="_blank"
-                        rel="opener"
-                        onClick={() => onTrackBlogOpen(post, "home_preview")}
-                      >
-                        Read full post
-                      </a>
-                      <SavePostButton
-                        isBusy={savedPostsBusySlug === post.slug}
-                        isSaved={isPostSaved(post.slug)}
-                        post={post}
-                        subscriberUser={subscriberUser}
-                        onToggle={onToggleSavedPost}
-                      />
-                    </>
-                  )}
-                </div>
-              </article>
-            );
-          })}
+          <div className="home-writing-carousel-window" aria-label="Latest blog previews">
+            <div
+              className={`home-writing-carousel-track${
+                homeWritingPreview.length > 2 ? " is-animated" : ""
+              }`}
+            >
+              {homeWritingPreview.map((post) => {
+                const isLocked = !canReadBlogPost(post, subscriberUser);
+
+                return (
+                  <article
+                    className={`home-writing-row${isLocked ? " is-locked" : ""}`}
+                    key={post.slug}
+                  >
+                    <div className="home-writing-row-copy">
+                      <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
+                      <h3>{post.title}</h3>
+                      <p>{getBlogCardSummary(post)}</p>
+                    </div>
+                    <div className="home-writing-row-actions">
+                      {isLocked ? (
+                        <a href={getSignInHref(post.slug)} target="_blank" rel="opener">
+                          Unlock
+                        </a>
+                      ) : (
+                        <>
+                          <a
+                            href={getBlogArticleHref(post.slug)}
+                            target="_blank"
+                            rel="opener"
+                            onClick={() => onTrackBlogOpen(post, "home_preview")}
+                          >
+                            Read
+                          </a>
+                          <SavePostButton
+                            isBusy={savedPostsBusySlug === post.slug}
+                            isSaved={isPostSaved(post.slug)}
+                            post={post}
+                            subscriberUser={subscriberUser}
+                            onToggle={onToggleSavedPost}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="home-writing-footer">
@@ -6279,12 +6277,19 @@ type AiRadarPageProps = {
 
 function getAiRadarSourceTone(source: string) {
   const sourceTones: Record<string, { primary: string; secondary: string }> = {
-    "Anthropic News": { primary: "#b85b3c", secondary: "#f2c3a4" },
-    "arXiv CS.AI": { primary: "#8c1d40", secondary: "#f4c7d6" },
-    "Google AI Blog": { primary: "#1a73e8", secondary: "#cfe1ff" },
-    "Hugging Face Blog": { primary: "#f4a51c", secondary: "#ffdf8f" },
+    Anthropic: { primary: "#b86b4b", secondary: "#f1c7aa" },
+    "Anthropic News": { primary: "#b86b4b", secondary: "#f1c7aa" },
+    "AWS ML": { primary: "#ff9900", secondary: "#ffd58f" },
+    "Google/DeepMind": { primary: "#4285f4", secondary: "#b9dcff" },
+    "Google DeepMind": { primary: "#4285f4", secondary: "#b9dcff" },
+    "Google AI Blog": { primary: "#4285f4", secondary: "#b9dcff" },
+    "Hugging Face": { primary: "#f0a120", secondary: "#ffe19b" },
+    "Hugging Face Blog": { primary: "#f0a120", secondary: "#ffe19b" },
+    LangChain: { primary: "#19a974", secondary: "#b7f0d8" },
+    NVIDIA: { primary: "#76b900", secondary: "#d9f99d" },
     "NVIDIA AI Blog": { primary: "#76b900", secondary: "#d9f99d" },
-    "OpenAI News": { primary: "#111c2b", secondary: "#c9d6e4" },
+    OpenAI: { primary: "#314158", secondary: "#cbd7e6" },
+    "OpenAI News": { primary: "#314158", secondary: "#cbd7e6" },
   };
 
   return sourceTones[source] ?? { primary: "#f0643b", secondary: "#ffe3da" };
@@ -6301,11 +6306,18 @@ function getAiRadarSourceStyle(source: string) {
 
 function getAiRadarSourceBrand(source: string) {
   const sourceBrands: Record<string, { label: string; mark: string }> = {
+    Anthropic: { label: "Anthropic", mark: "A" },
     "Anthropic News": { label: "Anthropic", mark: "A" },
-    "arXiv CS.AI": { label: "arXiv", mark: "arXiv" },
-    "Google AI Blog": { label: "Google AI", mark: "G" },
+    "AWS ML": { label: "AWS ML", mark: "AWS" },
+    "Google/DeepMind": { label: "Google/DeepMind", mark: "G" },
+    "Google DeepMind": { label: "Google/DeepMind", mark: "G" },
+    "Google AI Blog": { label: "Google/DeepMind", mark: "G" },
+    "Hugging Face": { label: "Hugging Face", mark: "HF" },
     "Hugging Face Blog": { label: "Hugging Face", mark: "HF" },
+    LangChain: { label: "LangChain", mark: "LC" },
+    NVIDIA: { label: "NVIDIA", mark: "NV" },
     "NVIDIA AI Blog": { label: "NVIDIA", mark: "NV" },
+    OpenAI: { label: "OpenAI", mark: "OA" },
     "OpenAI News": { label: "OpenAI", mark: "OA" },
   };
 
@@ -6314,7 +6326,7 @@ function getAiRadarSourceBrand(source: string) {
 
 function getAiRadarSourceInitials(source: string) {
   return source
-    .replace(/\b(blog|news|cs\.ai)\b/gi, "")
+    .replace(/\b(blog|news|cs\.ai|machine learning)\b/gi, "")
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
