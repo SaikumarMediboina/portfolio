@@ -6303,76 +6303,80 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
           </div>
 
           <div className="assistant-flowchart" aria-label="Sai's Assistant end-to-end flowchart">
-            <svg className="assistant-flowchart-lines" viewBox="0 0 1000 900" aria-hidden="true">
+            <svg className="assistant-flowchart-svg" viewBox="0 0 932 663" role="img">
+              <title>Sai&apos;s Assistant architecture flowchart</title>
               <defs>
                 <marker
-                  id="assistant-flow-arrow"
-                  markerHeight="8"
-                  markerWidth="8"
+                  id="assistant-screen-arrow"
+                  markerHeight="7"
+                  markerWidth="7"
                   orient="auto"
-                  refX="7"
-                  refY="4"
+                  refX="6"
+                  refY="3.5"
                 >
-                  <path d="M0,0 L8,4 L0,8 Z" />
+                  <path className="assistant-flow-arrow-head" d="M0,0 L7,3.5 L0,7 Z" />
                 </marker>
               </defs>
-              <path d="M500 74 V116" />
-              <path d="M500 176 C475 210 420 232 360 252" />
-              <path d="M360 300 C310 332 248 348 210 374" />
-              <path d="M360 300 C485 326 640 344 720 374" />
-              <path d="M210 424 V500" />
-              <path d="M210 424 C120 498 110 620 110 722" />
-              <path d="M210 424 C300 462 405 480 470 500" />
-              <path d="M470 558 C425 590 382 610 360 632" />
-              <path d="M470 558 C560 590 650 610 700 632" />
-              <path d="M700 690 V736" />
-              <path d="M360 690 C310 735 220 744 130 758" />
-              <path d="M110 792 C178 850 340 852 500 830" />
-              <path d="M700 792 C654 840 578 850 500 830" />
-              <path d="M500 824 C820 780 904 608 850 370 C824 250 650 176 535 152" />
+
+              <path className="assistant-flow-edge" d="M455 56 V94" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M410 134 C383 145 365 153 363 174" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M363 214 C321 229 269 230 266 252" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M441 201 C510 214 606 222 608 252" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M266 292 V350" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M341 292 C385 304 445 314 446 350" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M191 292 C136 318 111 340 111 420 V529" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M445 391 C408 414 375 423 373 450" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M505 390 C558 407 598 421 598 450" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M598 490 V529" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M373 490 C372 514 286 536 212 548" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M177 569 C178 590 259 607 317 616" markerEnd="url(#assistant-screen-arrow)" />
+              <path className="assistant-flow-edge" d="M504 628 C722 594 718 558 718 455 V179 C718 140 575 128 499 116" markerEnd="url(#assistant-screen-arrow)" />
+
+              <rect className="assistant-flow-node-rect" x="390" y="16" width="130" height="40" />
+              <text className="assistant-flow-node-text" x="455" y="40">Website Visitor</text>
+
+              <rect className="assistant-flow-node-rect" x="410" y="95" width="89" height="40" />
+              <text className="assistant-flow-node-text" x="454.5" y="119">Chat UI</text>
+
+              <rect className="assistant-flow-node-rect" x="286" y="174" width="155" height="40" />
+              <text className="assistant-flow-node-text" x="363.5" y="198">Vercel Assistant API</text>
+
+              <rect className="assistant-flow-node-rect" x="191" y="252" width="150" height="40" />
+              <text className="assistant-flow-node-text" x="266" y="276">Question Classifier</text>
+
+              <rect className="assistant-flow-node-rect" x="526" y="252" width="164" height="40" />
+              <text className="assistant-flow-node-text" x="608" y="276">Analytics + Feedback</text>
+
+              <rect className="assistant-flow-label-bg" x="227" y="314" width="78" height="20" />
+              <text className="assistant-flow-label-text" x="266" y="328">Unsupported</text>
+
+              <rect className="assistant-flow-node-rect" x="204" y="351" width="124" height="40" />
+              <text className="assistant-flow-node-text" x="266" y="375">Polite fallback</text>
+
+              <rect className="assistant-flow-label-bg" x="396" y="314" width="99" height="20" />
+              <text className="assistant-flow-label-text" x="445.5" y="328">Website question</text>
+
+              <rect className="assistant-flow-node-rect" x="366" y="351" width="159" height="40" />
+              <text className="assistant-flow-node-text" x="445.5" y="375">Knowledge Retrieval</text>
+
+              <rect className="assistant-flow-label-bg" x="114" y="410" width="123" height="20" />
+              <text className="assistant-flow-label-text" x="175.5" y="424">Generic tech question</text>
+
+              <rect className="assistant-flow-node-rect" x="278" y="450" width="189" height="40" />
+              <text className="assistant-flow-node-text" x="372.5" y="474">Grounded Prompt Builder</text>
+
+              <rect className="assistant-flow-node-rect" x="505" y="450" width="186" height="40" />
+              <text className="assistant-flow-node-text" x="598" y="474">Website Knowledge Base</text>
+
+              <rect className="assistant-flow-node-rect" x="529" y="529" width="138" height="40" />
+              <text className="assistant-flow-node-text" x="598" y="553">Vector Database</text>
+
+              <rect className="assistant-flow-node-rect" x="142" y="529" width="70" height="40" />
+              <text className="assistant-flow-node-text" x="177" y="553">LLM</text>
+
+              <rect className="assistant-flow-node-rect" x="317" y="608" width="187" height="40" />
+              <text className="assistant-flow-node-text" x="410.5" y="632">Answer with links/actions</text>
             </svg>
-
-            <span className="assistant-flow-label is-unsupported">Unsupported</span>
-            <span className="assistant-flow-label is-website">Website question</span>
-            <span className="assistant-flow-label is-generic">Generic tech question</span>
-
-            <article className="assistant-flow-node is-user">
-              <strong>Website Visitor</strong>
-            </article>
-            <article className="assistant-flow-node is-chat">
-              <strong>Chat UI</strong>
-            </article>
-            <article className="assistant-flow-node is-api">
-              <strong>Vercel Assistant API</strong>
-            </article>
-            <article className="assistant-flow-node is-classifier">
-              <strong>Question Classifier</strong>
-            </article>
-            <article className="assistant-flow-node is-analytics">
-              <strong>Analytics + Feedback</strong>
-            </article>
-            <article className="assistant-flow-node is-fallback">
-              <strong>Polite fallback</strong>
-            </article>
-            <article className="assistant-flow-node is-retrieval">
-              <strong>Knowledge Retrieval</strong>
-            </article>
-            <article className="assistant-flow-node is-prompt">
-              <strong>Grounded Prompt Builder</strong>
-            </article>
-            <article className="assistant-flow-node is-kb">
-              <strong>Website Knowledge Base</strong>
-            </article>
-            <article className="assistant-flow-node is-vector">
-              <strong>Vector Database</strong>
-              <span>Next</span>
-            </article>
-            <article className="assistant-flow-node is-llm">
-              <strong>LLM</strong>
-            </article>
-            <article className="assistant-flow-node is-answer">
-              <strong>Answer with links/actions</strong>
-            </article>
           </div>
 
           <div className="assistant-blueprint" aria-label="Sai's Assistant architecture diagram">

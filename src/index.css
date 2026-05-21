@@ -18893,3 +18893,136 @@ body {
     transform: none !important;
   }
 }
+
+/* Exact screenshot-style flowchart: dark canvas, grey nodes, thin arrows. */
+.assistant-flowchart {
+  display: block !important;
+  width: 100%;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 18px !important;
+  background: #181818 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 24px 64px rgba(20, 13, 9, 0.18) !important;
+}
+
+.assistant-flowchart-svg {
+  display: block;
+  width: 100%;
+  min-width: 760px;
+  height: auto;
+  aspect-ratio: 932 / 663;
+  background: #181818;
+}
+
+.assistant-flow-edge {
+  fill: none;
+  stroke: #969696;
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.assistant-flow-arrow-head {
+  fill: #d7d7d7;
+}
+
+.assistant-flow-node-rect {
+  fill: #333;
+  stroke: #3d3d3d;
+  stroke-width: 1;
+}
+
+.assistant-flow-node-text,
+.assistant-flow-label-text {
+  fill: #f4f4f4;
+  font-family: "Outfit", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  dominant-baseline: middle;
+  text-anchor: middle;
+}
+
+.assistant-flow-label-bg {
+  fill: #1b1b1b;
+  opacity: 0.96;
+}
+
+.assistant-flow-label-text {
+  font-size: 12px;
+  font-weight: 850;
+}
+
+:root[data-theme="dark"] .assistant-flowchart,
+:root[data-theme="dark"] .assistant-flowchart-svg {
+  background: #181818 !important;
+}
+
+:root[data-theme="dark"] .assistant-flow-edge {
+  stroke: #969696 !important;
+}
+
+:root[data-theme="dark"] .assistant-flow-node-rect {
+  fill: #333 !important;
+  stroke: #3d3d3d !important;
+}
+
+/* Stronger desktop nav fit: prevent Start Here / More from escaping the glass shell. */
+@media (min-width: 1081px) {
+  .header-shell {
+    display: grid !important;
+    grid-template-columns: minmax(13.25rem, 0.72fr) minmax(0, 1.7fr) auto !important;
+    column-gap: clamp(0.45rem, 0.8vw, 0.8rem) !important;
+  }
+
+  .brand-cluster,
+  .header-actions,
+  .site-nav {
+    min-width: 0 !important;
+  }
+
+  .site-nav {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: space-between !important;
+    overflow: hidden !important;
+  }
+
+  .site-nav a,
+  .site-nav-more-button {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    min-height: 2.38rem !important;
+    padding: 0.42rem clamp(0.38rem, 0.54vw, 0.68rem) !important;
+    font-size: clamp(0.72rem, 0.76vw, 0.86rem) !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .site-nav-more {
+    min-width: 0 !important;
+  }
+}
+
+@media (min-width: 1081px) and (max-width: 1280px) {
+  .header-shell {
+    grid-template-columns: minmax(12rem, 0.58fr) minmax(0, 1.9fr) auto !important;
+  }
+
+  .brand-copy strong {
+    font-size: clamp(0.88rem, 0.86vw, 1rem) !important;
+  }
+
+  .brand-copy span {
+    font-size: clamp(0.72rem, 0.78vw, 0.84rem) !important;
+  }
+
+  .site-nav a,
+  .site-nav-more-button {
+    padding-inline: clamp(0.28rem, 0.44vw, 0.52rem) !important;
+    font-size: clamp(0.68rem, 0.7vw, 0.8rem) !important;
+  }
+}
