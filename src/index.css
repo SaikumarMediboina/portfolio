@@ -10734,7 +10734,7 @@ body::before {
   box-shadow: none;
 }
 
-:root[data-theme="dark"] .site-nav {
+  :root[data-theme="dark"] .site-nav {
   background: rgba(255, 248, 239, 0.055);
 }
 
@@ -17966,5 +17966,232 @@ body {
 
   .active-assistant-summary-card {
     min-height: auto;
+  }
+}
+
+/* Premium navigation polish: safer sticky spacing and a richer Redwood-style menu. */
+.site-header {
+  top: max(0.7rem, env(safe-area-inset-top, 0px)) !important;
+  padding-top: clamp(0.35rem, 0.8vw, 0.7rem) !important;
+  padding-bottom: 0.25rem;
+}
+
+.site-header.is-docked .header-shell {
+  transform: translateY(0) !important;
+  border-radius: 28px !important;
+}
+
+.header-shell {
+  position: relative;
+  min-height: 4.85rem;
+  padding: clamp(0.68rem, 1vw, 0.88rem) clamp(0.78rem, 1.2vw, 1.05rem) !important;
+  border-radius: 30px !important;
+  background:
+    radial-gradient(circle at 5% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 18rem),
+    radial-gradient(circle at 92% 16%, color-mix(in srgb, var(--redwood-ochre, #d8a45b) 14%, transparent), transparent 20rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel-strong) 88%, #fff8ee), color-mix(in srgb, var(--panel-soft) 76%, #efe1d2)) !important;
+  border-color: color-mix(in srgb, var(--accent) 18%, var(--panel-border)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.52),
+    0 18px 48px rgba(72, 42, 26, 0.14) !important;
+}
+
+.header-shell::before {
+  opacity: 0.72 !important;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 42%) !important;
+}
+
+.brand-cluster {
+  gap: clamp(0.58rem, 0.9vw, 0.8rem) !important;
+}
+
+.brand-mark {
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.22), transparent 34%),
+    linear-gradient(135deg, #8d5945, #653a2d 56%, #3d2922) !important;
+  color: #fff8ef !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 12px 28px rgba(88, 47, 34, 0.22) !important;
+}
+
+.site-nav {
+  gap: clamp(0.28rem, 0.58vw, 0.58rem) !important;
+  padding: 0.42rem !important;
+  border-radius: 22px !important;
+  border-color: color-mix(in srgb, var(--accent) 16%, var(--chip-border)) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.1)),
+    color-mix(in srgb, var(--panel-soft) 78%, var(--redwood-sand, #f3e3d3)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.44),
+    inset 0 -1px 0 rgba(96, 58, 38, 0.06),
+    0 12px 30px rgba(70, 43, 29, 0.1) !important;
+}
+
+.site-nav a,
+.site-nav-more-button {
+  min-height: 2.8rem;
+  padding: 0.58rem clamp(0.72rem, 0.95vw, 1rem) !important;
+  border-radius: 16px !important;
+  color: color-mix(in srgb, var(--ink-strong) 72%, var(--ink-soft)) !important;
+  font-size: clamp(0.9rem, 0.92vw, 0.98rem) !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.012em;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease !important;
+}
+
+.site-nav a:hover,
+.site-nav-more-button:hover,
+.site-nav-more.is-open .site-nav-more-button {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.4), color-mix(in srgb, var(--accent-soft) 62%, transparent)) !important;
+  color: var(--ink-strong) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 10px 24px rgba(133, 72, 46, 0.12) !important;
+  transform: translateY(-1px);
+}
+
+.site-nav a.is-active,
+.site-nav-more.has-active > .site-nav-more-button {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, #fff8ee), color-mix(in srgb, var(--redwood-ochre, #d8a45b) 16%, #fff4e6)) !important;
+  color: color-mix(in srgb, var(--accent) 72%, var(--ink-strong)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 12px 28px color-mix(in srgb, var(--accent) 15%, transparent) !important;
+}
+
+.site-nav a::after,
+.site-nav-more-button::after {
+  bottom: 0.26rem !important;
+  left: 0.86rem !important;
+  right: 0.86rem !important;
+  height: 0.14rem !important;
+  background: linear-gradient(90deg, var(--accent), var(--redwood-ochre, #d8a45b), var(--redwood-sage, #7e9771)) !important;
+}
+
+.site-nav-more-panel {
+  top: calc(100% + 0.62rem) !important;
+  right: 0 !important;
+  padding: 0.58rem !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 12rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-strong) 96%, #fff8ee), color-mix(in srgb, var(--panel-soft) 92%, #efe1d2)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 22px 54px rgba(56, 33, 22, 0.18) !important;
+}
+
+.site-nav-more-panel a {
+  min-height: 2.7rem;
+  padding: 0.68rem 0.82rem !important;
+}
+
+:root[data-theme="dark"] .header-shell {
+  background:
+    radial-gradient(circle at 6% 0%, rgba(255, 157, 124, 0.2), transparent 18rem),
+    radial-gradient(circle at 92% 18%, rgba(244, 196, 111, 0.12), transparent 19rem),
+    linear-gradient(135deg, rgba(83, 62, 51, 0.98), rgba(50, 39, 32, 0.98) 58%, rgba(38, 31, 27, 0.98)) !important;
+  border-color: rgba(255, 232, 211, 0.2) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.12),
+    0 24px 58px rgba(12, 8, 6, 0.42) !important;
+}
+
+:root[data-theme="dark"] .site-nav {
+  background:
+    linear-gradient(180deg, rgba(255, 246, 236, 0.11), rgba(255, 246, 236, 0.035)),
+    rgba(58, 45, 38, 0.94) !important;
+  border-color: rgba(255, 232, 211, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    0 14px 34px rgba(9, 6, 4, 0.28) !important;
+}
+
+:root[data-theme="dark"] .site-nav a,
+:root[data-theme="dark"] .site-nav-more-button {
+  color: rgba(255, 241, 228, 0.84) !important;
+}
+
+:root[data-theme="dark"] .site-nav a:hover,
+:root[data-theme="dark"] .site-nav-more-button:hover,
+:root[data-theme="dark"] .site-nav-more.is-open .site-nav-more-button {
+  background:
+    linear-gradient(135deg, rgba(255, 246, 236, 0.13), rgba(255, 157, 124, 0.12)) !important;
+  color: #fff8ef !important;
+}
+
+:root[data-theme="dark"] .site-nav a.is-active,
+:root[data-theme="dark"] .site-nav-more.has-active > .site-nav-more-button {
+  background:
+    linear-gradient(135deg, rgba(255, 157, 124, 0.24), rgba(244, 196, 111, 0.14)) !important;
+  color: #ffd1bf !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.13),
+    0 12px 30px rgba(255, 157, 124, 0.14) !important;
+}
+
+:root[data-theme="dark"] .site-nav-more-panel {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 157, 124, 0.15), transparent 12rem),
+    linear-gradient(180deg, rgba(65, 49, 40, 0.99), rgba(42, 32, 27, 0.99)) !important;
+  border-color: rgba(255, 232, 211, 0.18) !important;
+}
+
+@media (max-width: 1080px) {
+  .site-header {
+    top: max(0.55rem, env(safe-area-inset-top, 0px)) !important;
+    padding-top: 0.45rem !important;
+  }
+
+  .site-header.is-docked .header-shell {
+    border-radius: 24px !important;
+  }
+
+  .site-nav {
+    top: max(1.15rem, env(safe-area-inset-top, 0px)) !important;
+    right: 0.85rem !important;
+    bottom: 0.85rem !important;
+    left: auto !important;
+    width: min(22rem, calc(100vw - 1.7rem)) !important;
+    min-height: auto !important;
+    max-height: calc(100dvh - 2rem - env(safe-area-inset-top, 0px)) !important;
+    padding: 1rem !important;
+    border-radius: 26px !important;
+  }
+
+  .site-nav a,
+  .site-nav-more-button {
+    min-height: 3.05rem !important;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .header-shell {
+    min-height: 4.15rem;
+    padding: 0.58rem !important;
+    border-radius: 22px !important;
+  }
+
+  .site-header.is-docked .header-shell {
+    border-radius: 22px !important;
+  }
+
+  .site-nav {
+    top: max(1rem, env(safe-area-inset-top, 0px)) !important;
+    right: 0.7rem !important;
+    bottom: 0.7rem !important;
+    width: min(21rem, calc(100vw - 1.4rem)) !important;
+    max-height: calc(100dvh - 1.7rem - env(safe-area-inset-top, 0px)) !important;
   }
 }
