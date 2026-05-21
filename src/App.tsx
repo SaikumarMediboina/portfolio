@@ -6302,6 +6302,79 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
             </p>
           </div>
 
+          <div className="assistant-flowchart" aria-label="Sai's Assistant end-to-end flowchart">
+            <svg className="assistant-flowchart-lines" viewBox="0 0 1000 900" aria-hidden="true">
+              <defs>
+                <marker
+                  id="assistant-flow-arrow"
+                  markerHeight="8"
+                  markerWidth="8"
+                  orient="auto"
+                  refX="7"
+                  refY="4"
+                >
+                  <path d="M0,0 L8,4 L0,8 Z" />
+                </marker>
+              </defs>
+              <path d="M500 74 V116" />
+              <path d="M500 176 C475 210 420 232 360 252" />
+              <path d="M360 300 C310 332 248 348 210 374" />
+              <path d="M360 300 C485 326 640 344 720 374" />
+              <path d="M210 424 V500" />
+              <path d="M210 424 C120 498 110 620 110 722" />
+              <path d="M210 424 C300 462 405 480 470 500" />
+              <path d="M470 558 C425 590 382 610 360 632" />
+              <path d="M470 558 C560 590 650 610 700 632" />
+              <path d="M700 690 V736" />
+              <path d="M360 690 C310 735 220 744 130 758" />
+              <path d="M110 792 C178 850 340 852 500 830" />
+              <path d="M700 792 C654 840 578 850 500 830" />
+              <path d="M500 824 C820 780 904 608 850 370 C824 250 650 176 535 152" />
+            </svg>
+
+            <span className="assistant-flow-label is-unsupported">Unsupported</span>
+            <span className="assistant-flow-label is-website">Website question</span>
+            <span className="assistant-flow-label is-generic">Generic tech question</span>
+
+            <article className="assistant-flow-node is-user">
+              <strong>Website Visitor</strong>
+            </article>
+            <article className="assistant-flow-node is-chat">
+              <strong>Chat UI</strong>
+            </article>
+            <article className="assistant-flow-node is-api">
+              <strong>Vercel Assistant API</strong>
+            </article>
+            <article className="assistant-flow-node is-classifier">
+              <strong>Question Classifier</strong>
+            </article>
+            <article className="assistant-flow-node is-analytics">
+              <strong>Analytics + Feedback</strong>
+            </article>
+            <article className="assistant-flow-node is-fallback">
+              <strong>Polite fallback</strong>
+            </article>
+            <article className="assistant-flow-node is-retrieval">
+              <strong>Knowledge Retrieval</strong>
+            </article>
+            <article className="assistant-flow-node is-prompt">
+              <strong>Grounded Prompt Builder</strong>
+            </article>
+            <article className="assistant-flow-node is-kb">
+              <strong>Website Knowledge Base</strong>
+            </article>
+            <article className="assistant-flow-node is-vector">
+              <strong>Vector Database</strong>
+              <span>Next</span>
+            </article>
+            <article className="assistant-flow-node is-llm">
+              <strong>LLM</strong>
+            </article>
+            <article className="assistant-flow-node is-answer">
+              <strong>Answer with links/actions</strong>
+            </article>
+          </div>
+
           <div className="assistant-blueprint" aria-label="Sai's Assistant architecture diagram">
             <div className="assistant-blueprint-main">
               {blueprintNodes.map((node, index) => (

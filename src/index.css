@@ -18568,3 +18568,328 @@ body {
     min-height: auto;
   }
 }
+
+/* Flowchart upgrade: make Sai's Assistant architecture instantly readable. */
+.assistant-flowchart {
+  position: relative;
+  min-height: clamp(38rem, 70vw, 50rem);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--panel-border));
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 18rem),
+    radial-gradient(circle at 88% 100%, color-mix(in srgb, var(--redwood-sage, #7e9771) 14%, transparent), transparent 20rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel-soft) 80%, #fff8ef), color-mix(in srgb, var(--panel-strong) 88%, #efe0d2));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 24px 70px rgba(73, 44, 28, 0.12);
+}
+
+.assistant-flowchart-lines {
+  position: absolute;
+  inset: clamp(0.75rem, 2vw, 1.25rem);
+  width: calc(100% - clamp(1.5rem, 4vw, 2.5rem));
+  height: calc(100% - clamp(1.5rem, 4vw, 2.5rem));
+  pointer-events: none;
+}
+
+.assistant-flowchart-lines path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ink-soft) 54%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  marker-end: url("#assistant-flow-arrow");
+}
+
+.assistant-flowchart-lines marker path {
+  fill: color-mix(in srgb, var(--accent) 72%, var(--ink-soft));
+}
+
+.assistant-flow-node {
+  --flow-color: var(--accent);
+  --flow-soft: color-mix(in srgb, var(--flow-color) 15%, transparent);
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  gap: 0.24rem;
+  width: clamp(7.4rem, 13vw, 11.6rem);
+  min-height: clamp(3rem, 5.5vw, 4.25rem);
+  padding: 0.7rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--flow-color) 34%, var(--panel-border));
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 16% 0%, color-mix(in srgb, var(--flow-color) 18%, transparent), transparent 8rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.12)),
+    var(--panel-strong);
+  color: var(--ink-strong);
+  text-align: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.48),
+    0 18px 38px color-mix(in srgb, var(--flow-color) 13%, transparent);
+}
+
+.assistant-flow-node strong {
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(0.78rem, 1vw, 0.96rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.assistant-flow-node span {
+  width: fit-content;
+  padding: 0.18rem 0.42rem;
+  border-radius: 999px;
+  background: var(--flow-soft);
+  color: color-mix(in srgb, var(--flow-color) 76%, var(--ink-strong));
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.assistant-flow-node.is-user {
+  --flow-color: #bf5a42;
+  left: 50%;
+  top: 2.2%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-chat {
+  --flow-color: #7a8fa0;
+  left: 50%;
+  top: 14.2%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-api {
+  --flow-color: #d48945;
+  left: 35.8%;
+  top: 25.6%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-classifier {
+  --flow-color: #8a6fb0;
+  left: 21%;
+  top: 39.6%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-analytics {
+  --flow-color: #7e9771;
+  left: 72%;
+  top: 39.6%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-fallback {
+  --flow-color: #a06c58;
+  left: 21%;
+  top: 53.6%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-retrieval {
+  --flow-color: #bf5a42;
+  left: 47%;
+  top: 53.6%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-prompt {
+  --flow-color: #d48945;
+  left: 35.8%;
+  top: 70.2%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-kb {
+  --flow-color: #6e8f74;
+  left: 70%;
+  top: 70.2%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-vector {
+  --flow-color: #6b9bb0;
+  left: 70%;
+  top: 83.4%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-llm {
+  --flow-color: #9a6cb0;
+  left: 10.5%;
+  top: 83.4%;
+  transform: translateX(-50%);
+}
+
+.assistant-flow-node.is-answer {
+  --flow-color: #bf5a42;
+  left: 50%;
+  bottom: 2.2%;
+  transform: translateX(-50%);
+  width: clamp(10rem, 18vw, 16rem);
+}
+
+.assistant-flow-label {
+  position: absolute;
+  z-index: 3;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel-strong) 86%, transparent);
+  color: var(--ink-strong);
+  font-size: clamp(0.62rem, 0.85vw, 0.78rem);
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(69, 42, 28, 0.1);
+}
+
+.assistant-flow-label.is-unsupported {
+  left: 17.5%;
+  top: 49.2%;
+}
+
+.assistant-flow-label.is-website {
+  left: 38.5%;
+  top: 49.2%;
+}
+
+.assistant-flow-label.is-generic {
+  left: 5.8%;
+  top: 62.8%;
+}
+
+:root[data-theme="dark"] .assistant-flowchart {
+  border-color: rgba(255, 232, 211, 0.18);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255, 157, 124, 0.18), transparent 18rem),
+    radial-gradient(circle at 88% 100%, rgba(169, 200, 143, 0.14), transparent 20rem),
+    linear-gradient(135deg, #3a2b24, #241c18 64%, #182320) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.12),
+    0 28px 74px rgba(8, 5, 3, 0.42);
+}
+
+:root[data-theme="dark"] .assistant-flowchart-lines path {
+  stroke: rgba(255, 232, 211, 0.46);
+}
+
+:root[data-theme="dark"] .assistant-flowchart-lines marker path {
+  fill: #ffd3c2;
+}
+
+:root[data-theme="dark"] .assistant-flow-node {
+  background:
+    radial-gradient(circle at 14% 0%, color-mix(in srgb, var(--flow-color) 38%, transparent), transparent 8rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.13), rgba(255, 246, 236, 0.04)),
+    color-mix(in srgb, var(--flow-color) 18%, #2b211c) !important;
+  border-color: color-mix(in srgb, var(--flow-color) 46%, rgba(255, 232, 211, 0.16)) !important;
+  color: #fff8ef;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.12),
+    0 18px 42px rgba(8, 5, 3, 0.28);
+}
+
+:root[data-theme="dark"] .assistant-flow-node span,
+:root[data-theme="dark"] .assistant-flow-label {
+  background: rgba(255, 246, 236, 0.11);
+  color: #ffe4d7;
+}
+
+:root[data-theme="dark"] .assistant-route-card.is-site,
+:root[data-theme="dark"] .active-assistant-stack-card:nth-child(1),
+:root[data-theme="dark"] .active-assistant-principles article:nth-child(1),
+:root[data-theme="dark"] .active-assistant-roadmap-grid span:nth-child(1) {
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255, 157, 124, 0.22), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.1), rgba(255, 246, 236, 0.035)),
+    #422b24 !important;
+}
+
+:root[data-theme="dark"] .assistant-route-card.is-llm,
+:root[data-theme="dark"] .active-assistant-stack-card:nth-child(2),
+:root[data-theme="dark"] .active-assistant-principles article:nth-child(2),
+:root[data-theme="dark"] .active-assistant-roadmap-grid span:nth-child(2) {
+  background:
+    radial-gradient(circle at 92% 0%, rgba(169, 200, 143, 0.2), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.1), rgba(255, 246, 236, 0.035)),
+    #303829 !important;
+}
+
+:root[data-theme="dark"] .assistant-route-card.is-fallback,
+:root[data-theme="dark"] .active-assistant-stack-card:nth-child(3),
+:root[data-theme="dark"] .active-assistant-principles article:nth-child(3),
+:root[data-theme="dark"] .active-assistant-roadmap-grid span:nth-child(3) {
+  background:
+    radial-gradient(circle at 92% 0%, rgba(143, 201, 222, 0.18), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.1), rgba(255, 246, 236, 0.035)),
+    #26373a !important;
+}
+
+:root[data-theme="dark"] .active-assistant-stack-card:nth-child(4),
+:root[data-theme="dark"] .active-assistant-principles article:nth-child(4),
+:root[data-theme="dark"] .active-assistant-roadmap-grid span:nth-child(4) {
+  background:
+    radial-gradient(circle at 92% 0%, rgba(210, 159, 94, 0.2), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.1), rgba(255, 246, 236, 0.035)),
+    #3b3324 !important;
+}
+
+/* Keep the desktop main nav inside the glass panel. */
+@media (min-width: 1081px) {
+  .header-shell {
+    gap: clamp(0.45rem, 0.8vw, 0.85rem) !important;
+  }
+
+  .brand-cluster {
+    flex: 0 1 clamp(15rem, 22vw, 21rem) !important;
+  }
+
+  .site-nav {
+    flex: 1 1 auto !important;
+    max-width: min(54rem, 100%) !important;
+    min-width: 0 !important;
+    gap: clamp(0.12rem, 0.34vw, 0.34rem) !important;
+    padding: 0.32rem !important;
+  }
+
+  .site-nav a,
+  .site-nav-more-button {
+    min-height: 2.52rem !important;
+    padding: 0.48rem clamp(0.5rem, 0.66vw, 0.78rem) !important;
+    font-size: clamp(0.78rem, 0.78vw, 0.9rem) !important;
+  }
+
+  .site-nav-more-button {
+    padding-right: clamp(0.62rem, 0.78vw, 0.9rem) !important;
+  }
+
+  .header-actions {
+    flex: 0 0 auto !important;
+    gap: 0.5rem !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  .assistant-flowchart {
+    display: grid;
+    gap: 0.72rem;
+    min-height: auto;
+    padding: 1rem;
+  }
+
+  .assistant-flowchart-lines,
+  .assistant-flow-label {
+    display: none;
+  }
+
+  .assistant-flow-node {
+    position: static;
+    width: 100%;
+    min-height: auto;
+    transform: none !important;
+  }
+}
