@@ -19670,3 +19670,365 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Final mobile menu lock: keep the main drawer as solid and readable as the reader menu. */
+@media (max-width: 1080px) {
+  .site-nav-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 230 !important;
+    display: block !important;
+    border: 0 !important;
+    background: rgba(16, 11, 8, 0.48) !important;
+    backdrop-filter: blur(8px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    transition:
+      opacity 0.18s ease,
+      visibility 0.18s ease !important;
+  }
+
+  .site-nav-backdrop.is-open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+
+  .site-nav {
+    position: fixed !important;
+    inset: max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.75rem)) 0.75rem 0.75rem auto !important;
+    z-index: 240 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0.34rem !important;
+    width: min(20.5rem, calc(100vw - 1.5rem)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 1.5rem - env(safe-area-inset-top, 0px)) !important;
+    min-height: 0 !important;
+    padding: 0.95rem !important;
+    border: 1px solid var(--panel-border) !important;
+    border-radius: 24px !important;
+    background:
+      radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 13rem),
+      radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--redwood-sage, #6f8067) 12%, transparent), transparent 14rem),
+      var(--menu-bg) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.34),
+      0 30px 80px rgba(50, 30, 18, 0.22) !important;
+    opacity: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    pointer-events: none !important;
+    touch-action: pan-y !important;
+    transform: translateX(calc(100% + 1rem)) scale(0.985) !important;
+    transform-origin: top right !important;
+    visibility: hidden !important;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease,
+      transform 0.2s ease !important;
+  }
+
+  .site-nav.is-open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateX(0) scale(1) !important;
+    visibility: visible !important;
+  }
+
+  .site-nav-drawer-heading {
+    position: sticky !important;
+    top: -0.2rem !important;
+    z-index: 1 !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 0.75rem !important;
+    padding: 0.82rem !important;
+    margin: -0.25rem 0 0.4rem !important;
+    border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--panel-border)) !important;
+    border-radius: 18px !important;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--panel-strong) 92%, transparent), color-mix(in srgb, var(--panel-soft) 88%, transparent)) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+  }
+
+  .site-nav-drawer-heading h2 {
+    color: var(--ink-strong) !important;
+    font-size: clamp(1.18rem, 5.2vw, 1.48rem) !important;
+    letter-spacing: -0.035em !important;
+  }
+
+  .site-nav > a,
+  .site-nav-more-button {
+    width: 100% !important;
+    min-height: 2.74rem !important;
+    height: auto !important;
+    justify-content: flex-start !important;
+    padding: 0.62rem 0.72rem !important;
+    border-radius: 15px !important;
+    background: transparent !important;
+    color: var(--ink-soft) !important;
+    font-size: 0.96rem !important;
+    letter-spacing: -0.012em !important;
+  }
+
+  .site-nav > a:hover,
+  .site-nav > a.is-active,
+  .site-nav-more-button:hover,
+  .site-nav-more.has-active .site-nav-more-button {
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--accent) 13%, transparent), color-mix(in srgb, var(--redwood-ochre, #d8a45b) 10%, transparent)) !important;
+    color: var(--ink-strong) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+    transform: none !important;
+  }
+
+  .mobile-account-panel {
+    display: grid !important;
+    margin-top: 0.45rem !important;
+    flex: 0 0 auto !important;
+  }
+
+  .site-nav-more {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-nav {
+    inset: max(0.64rem, calc(env(safe-area-inset-top, 0px) + 0.64rem)) 0.64rem 0.64rem auto !important;
+    width: min(20rem, calc(100vw - 1.28rem)) !important;
+    max-height: calc(100dvh - 1.28rem - env(safe-area-inset-top, 0px)) !important;
+    padding: 0.82rem !important;
+    border-radius: 22px !important;
+  }
+}
+
+/* Dark mode should keep the warm Redwood feel instead of falling into flat black. */
+:root[data-theme="dark"] {
+  --bg: #17110e;
+  --bg-elevated: #251b16;
+  --panel: rgba(43, 32, 26, 0.88);
+  --panel-strong: rgba(55, 41, 33, 0.97);
+  --panel-soft: rgba(255, 238, 220, 0.08);
+  --panel-border: rgba(255, 224, 198, 0.15);
+  --chip-border: rgba(255, 224, 198, 0.14);
+  --ink: #f8ede3;
+  --ink-strong: #fff8ef;
+  --ink-soft: #d8c1b0;
+  --line: rgba(255, 224, 198, 0.13);
+  --accent: #ff865f;
+  --accent-soft: rgba(255, 134, 95, 0.18);
+  --menu-bg: rgba(45, 34, 28, 0.99);
+  --page-background:
+    radial-gradient(circle at 8% -5%, rgba(255, 134, 95, 0.22), transparent 25%),
+    radial-gradient(circle at 88% 8%, rgba(217, 166, 88, 0.16), transparent 24%),
+    radial-gradient(circle at 48% 108%, rgba(114, 148, 132, 0.17), transparent 32%),
+    linear-gradient(180deg, #140f0d 0%, #1b130f 46%, #2b1f18 100%);
+  --grid-line: rgba(255, 232, 211, 0.035);
+  --header-bg: rgba(48, 36, 30, 0.9);
+  --header-border: rgba(255, 224, 198, 0.16);
+  --shadow-soft: 0 20px 54px rgba(0, 0, 0, 0.32);
+  --shadow-card: 0 32px 86px rgba(0, 0, 0, 0.43);
+}
+
+:root[data-theme="dark"] body::before {
+  opacity: 0.6;
+}
+
+:root[data-theme="dark"] .site-nav {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 134, 95, 0.18), transparent 13rem),
+    radial-gradient(circle at 0% 100%, rgba(126, 157, 124, 0.14), transparent 15rem),
+    rgba(45, 34, 28, 0.99) !important;
+  border-color: rgba(255, 224, 198, 0.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.12),
+    0 30px 84px rgba(8, 5, 3, 0.48) !important;
+}
+
+:root[data-theme="dark"] .site-nav-drawer-heading {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 134, 95, 0.15), transparent 10rem),
+    linear-gradient(135deg, rgba(71, 52, 42, 0.96), rgba(43, 33, 28, 0.96)) !important;
+  border-color: rgba(255, 224, 198, 0.16) !important;
+}
+
+:root[data-theme="dark"] .site-nav > a,
+:root[data-theme="dark"] .site-nav-more-button {
+  color: rgba(255, 239, 226, 0.84) !important;
+}
+
+:root[data-theme="dark"] .site-nav > a:hover,
+:root[data-theme="dark"] .site-nav > a.is-active,
+:root[data-theme="dark"] .site-nav-more-button:hover,
+:root[data-theme="dark"] .site-nav-more.has-active .site-nav-more-button {
+  background:
+    linear-gradient(135deg, rgba(255, 134, 95, 0.22), rgba(217, 166, 88, 0.12)) !important;
+  color: #fff8ef !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-hero,
+  .hero,
+  .guide-hero,
+  .learn-hero,
+  .active-builds-hero,
+  .signin-hero,
+  .saved-posts-hero,
+  .shelf-hero,
+  .standalone-blog,
+  .ai-radar-hero,
+  .dashboard-shell,
+  .collaboration-hero
+) {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 134, 95, 0.17), transparent 18rem),
+    radial-gradient(circle at 94% 16%, rgba(217, 166, 88, 0.12), transparent 18rem),
+    radial-gradient(circle at 52% 112%, rgba(114, 148, 132, 0.11), transparent 20rem),
+    linear-gradient(135deg, rgba(65, 48, 39, 0.98), rgba(35, 27, 23, 0.98)) !important;
+  border-color: rgba(255, 224, 198, 0.17) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.1),
+    0 28px 76px rgba(8, 5, 3, 0.42) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-list-item,
+  .blog-featured,
+  .guide-card,
+  .learn-track-card,
+  .active-build-card,
+  .active-builds-menu-item,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .saved-posts-item,
+  .shelf-panel,
+  .shelf-coming-soon,
+  .collaboration-card,
+  .assistant-stage-card,
+  .active-assistant-stack-card,
+  .active-assistant-principles article
+) {
+  --dark-card-accent: #ff865f;
+  background:
+    radial-gradient(circle at 94% 0%, color-mix(in srgb, var(--dark-card-accent) 24%, transparent), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.105), rgba(255, 246, 236, 0.035)),
+    color-mix(in srgb, var(--dark-card-accent) 10%, #2a211c) !important;
+  border-color: color-mix(in srgb, var(--dark-card-accent) 32%, rgba(255, 224, 198, 0.13)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 236, 0.1),
+    0 18px 48px rgba(8, 5, 3, 0.26) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-list-item,
+  .guide-card,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .saved-posts-item,
+  .collaboration-card
+):nth-child(4n + 2) {
+  --dark-card-accent: #d9a658;
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-list-item,
+  .guide-card,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .saved-posts-item,
+  .collaboration-card
+):nth-child(4n + 3) {
+  --dark-card-accent: #7ea78e;
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-list-item,
+  .guide-card,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .saved-posts-item,
+  .collaboration-card
+):nth-child(4n + 4) {
+  --dark-card-accent: #7fa6c2;
+}
+
+:root[data-theme="dark"] .dashboard-signal-card.is-rust {
+  --dark-card-accent: #ff865f;
+}
+
+:root[data-theme="dark"] .dashboard-signal-card.is-blue {
+  --dark-card-accent: #7fa6c2;
+}
+
+:root[data-theme="dark"] .dashboard-signal-card.is-gold {
+  --dark-card-accent: #d9a658;
+}
+
+:root[data-theme="dark"] .dashboard-signal-card.is-green {
+  --dark-card-accent: #7ea78e;
+}
+
+:root[data-theme="dark"] .dashboard-signal-card.is-violet {
+  --dark-card-accent: #b79be4;
+}
+
+:root[data-theme="dark"] .dashboard-signal-card.is-slate {
+  --dark-card-accent: #9fb0ba;
+}
+
+:root[data-theme="dark"] :is(
+  .dashboard-signal-total,
+  .dashboard-note,
+  .dashboard-email-callout,
+  .mobile-account-panel,
+  .profile-menu-panel,
+  .reader-menu-panel
+) {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 134, 95, 0.14), transparent 12rem),
+    rgba(50, 38, 31, 0.96) !important;
+  border-color: rgba(255, 224, 198, 0.16) !important;
+  color: var(--ink) !important;
+}
+
+:root[data-theme="dark"] :is(
+  .dashboard-signal-total strong,
+  .dashboard-signal-card strong,
+  .dashboard-stat-card strong,
+  .dashboard-card-heading h2,
+  .blog-list-item h2,
+  .blog-featured h2,
+  .home-lane-card h2,
+  .home-writing-card h3,
+  .guide-card h3,
+  .active-build-card h3,
+  .collaboration-card h3
+) {
+  color: #fff8ef !important;
+}

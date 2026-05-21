@@ -8038,6 +8038,18 @@ function formatAnalyticsSignalTime(value?: string) {
   }).format(date);
 }
 
+function formatCompactNumber(value: number) {
+  if (value < 1000) {
+    return `${value}`;
+  }
+
+  return new Intl.NumberFormat("en-US", {
+    compactDisplay: "short",
+    maximumFractionDigits: value < 10000 ? 1 : 0,
+    notation: "compact",
+  }).format(value);
+}
+
 function getAnalyticsEventTitle(event: AnalyticsDashboardEvent) {
   return event.title || event.path || ANALYTICS_EVENT_LABELS[event.type];
 }
@@ -8186,7 +8198,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
               </div>
               <div className="dashboard-signal-total">
                 <span>Tracked signals</span>
-                <strong>{totalTrackedSignals}</strong>
+                <strong>{formatCompactNumber(totalTrackedSignals)}</strong>
                 <small>{analyticsLoading ? "Refreshing..." : analyticsSourceText}</small>
               </div>
             </div>
@@ -8195,7 +8207,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
               {dashboardSignalMetrics.map((metric) => (
                 <article className={`dashboard-signal-card ${metric.tone}`} key={metric.type}>
                   <span>{ANALYTICS_EVENT_LABELS[metric.type]}</span>
-                  <strong>{analyticsSnapshot.counters[metric.type]}</strong>
+                  <strong>{formatCompactNumber(analyticsSnapshot.counters[metric.type])}</strong>
                   <small>{metric.detail}</small>
                 </article>
               ))}
