@@ -16468,9 +16468,17 @@ textarea:focus-visible {
 }
 
 .assistant-panel {
+  position: fixed !important;
+  right: clamp(0.9rem, 2vw, 1.4rem) !important;
+  bottom: calc(5.1rem + env(safe-area-inset-bottom, 0px)) !important;
+  left: auto !important;
+  top: auto !important;
   z-index: 181 !important;
+  width: min(25.5rem, calc(100vw - 1.8rem));
+  height: min(30rem, calc(100dvh - 6.8rem));
   max-width: calc(100vw - 1.5rem);
   max-height: calc(100dvh - 6.5rem);
+  transform-origin: bottom right !important;
 }
 
 .site-nav .site-nav-icon,
@@ -16488,14 +16496,14 @@ textarea:focus-visible {
   }
 
   .site-assistant.is-open .assistant-panel {
-    position: fixed;
-    left: 0.75rem;
-    right: 0.75rem;
-    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
-    width: auto;
-    height: min(32rem, calc(100dvh - 6.25rem));
-    max-height: calc(100dvh - 6.25rem);
-    transform-origin: bottom right;
+    position: fixed !important;
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    height: min(32rem, calc(100dvh - 6.25rem)) !important;
+    max-height: calc(100dvh - 6.25rem) !important;
+    transform-origin: bottom right !important;
   }
 
   .assistant-header {
