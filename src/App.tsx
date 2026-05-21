@@ -5603,122 +5603,158 @@ type StartHerePageProps = {
 };
 
 function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
-  const guideStats = [
-    { label: "Project lanes", value: String(projects.length) },
+  const siteSnapshot = [
+    { label: "Career proof", value: "Portfolio" },
     { label: "Engineering notes", value: String(blogPosts.length) },
-    { label: "Site signals", value: "Live" },
+    { label: "Live build", value: "AI Bot" },
+    { label: "Reader tools", value: "Saved + Updates" },
   ];
-  const featureGroups: Array<{
-    cta: string;
+  const primaryDestinations: Array<{
     detail: string;
-    eyebrow: string;
-    features: string[];
     href: string;
     icon: ReaderMenuGlyphType;
-    title: string;
+    label: string;
   }> = [
     {
-      cta: "Explore portfolio",
-      detail:
-        "The main professional profile: selected backend work, measurable outcomes, role progression, skills, recognition, and credentials.",
-      eyebrow: "Portfolio",
-      features: ["About and focus areas", "Experience timeline", "Projects, skills, and credentials"],
-      href: "/portfolio#work",
+      detail: "Experience, projects, skills, credentials.",
+      href: "/portfolio",
       icon: "briefcase",
-      title: "Portfolio and career story",
+      label: "Portfolio",
     },
     {
-      cta: "Read blogs",
-      detail:
-        "A growing library of practical write-ups on backend performance, search architecture, AI relevance, and production problem-solving.",
-      eyebrow: "Writing",
-      features: ["Public and member articles", "Read time and progress", "Tags and related posts"],
+      detail: "Technical notes with diagrams.",
       href: "/blogs",
       icon: "pen",
-      title: "Blogs and engineering notes",
+      label: "Blogs",
     },
     {
-      cta: "Open AI Radar",
-      detail:
-        "A curated AI news board that pulls from free public sources, summarizes why items matter, and links back to original articles.",
-      eyebrow: "AI Radar",
-      features: ["Fresh AI source feed", "Original short context", "Save useful stories"],
       href: "/ai-radar",
       icon: "radar",
-      title: "AI Radar and latest stories",
+      detail: "Fresh AI updates from trusted sources.",
+      label: "AI Radar",
     },
     {
-      cta: "View dashboard",
-      detail:
-        "A premium overview of site activity, content depth, topic distribution, publishing rhythm, and reader engagement signals.",
-      eyebrow: "Dashboard",
-      features: ["Analytics overview", "Content distribution", "Top article depth"],
+      detail: "Current systems being built.",
+      href: "/active-builds",
+      icon: "spark",
+      label: "Active Builds",
+    },
+    {
+      detail: "Site activity and content signals.",
       href: "/dashboard",
-      icon: "news",
-      title: "Dashboard and content signals",
+      icon: "dashboard",
+      label: "Dashboard",
     },
     {
-      cta: "Work with me",
-      detail:
-        "A focused collaboration page for backend performance, search systems, cloud-native engineering, and practical AI workflows.",
-      eyebrow: "Connect",
-      features: ["Email and LinkedIn", "Collaboration areas", "Outcome-focused process"],
+      detail: "Collaboration, email, LinkedIn.",
       href: "/work-with-me",
       icon: "mail",
-      title: "Work With Me",
-    },
-    {
-      cta: "Open shelf",
-      detail:
-        "A future resource shelf for useful CS fundamentals, backend references, AI notes, and practical learning material.",
-      eyebrow: "Resources",
-      features: ["Sai's Shelf", "What's New", "Useful content hub"],
-      href: "/shelf",
-      icon: "shelf",
-      title: "Learning shelf and updates",
+      label: "Work With Me",
     },
   ];
-  const readerTools: Array<{
-    detail: string;
-    href?: string;
+  const featureSections: Array<{
+    accent: string;
+    href: string;
     icon: ReaderMenuGlyphType;
+    items: Array<{ detail: string; href?: string; name: string }>;
+    label: string;
     title: string;
   }> = [
     {
-      detail: "Use the menu beside the SK mark to jump between pages, saved posts, AI Radar, blogs, dashboard, and contact.",
-      icon: "menu",
-      title: "Reader menu",
+      accent: "is-coral",
+      href: "/portfolio",
+      icon: "briefcase",
+      label: "Professional Profile",
+      title: "Proof of work and career story",
+      items: [
+        { detail: "Short intro and engineering focus.", href: "/", name: "Home overview" },
+        { detail: "Role, company, and professional summary.", href: "/portfolio#about", name: "About" },
+        { detail: "Current and past role context.", href: "/portfolio#experience", name: "Experience" },
+        { detail: "Backend, search, AI, and performance work.", href: "/portfolio#work", name: "Projects" },
+        { detail: "Java, Spring, Oracle, cloud, search, AI.", href: "/portfolio#skills", name: "Tech stack" },
+        { detail: "Awards and professional recognition.", href: "/portfolio#recognition", name: "Recognition" },
+        { detail: "Education, CGPA, certifications.", href: "/portfolio#credentials", name: "Credentials" },
+      ],
     },
     {
-      detail: "Sign in to unlock member articles and keep saved blogs or AI Radar stories synced across the site.",
+      accent: "is-blue",
+      href: "/blogs",
+      icon: "pen",
+      label: "Writing",
+      title: "Engineering notes and reading flow",
+      items: [
+        { detail: "All articles in one clean index.", href: "/blogs", name: "Blog library" },
+        { detail: "Only the selected article opens.", href: "/blogs", name: "Dedicated article pages" },
+        { detail: "One public article, deeper reads for members.", href: "/blogs", name: "Locked and unlocked reads" },
+        { detail: "Progress bar and time remaining while reading.", href: "/blogs", name: "Reading progress" },
+        { detail: "Architecture visuals inside blogs.", href: "/blogs", name: "Quality diagrams" },
+        { detail: "Categories, related posts, and save actions.", href: "/blogs", name: "Tags and saved posts" },
+      ],
+    },
+    {
+      accent: "is-sage",
+      href: "/ai-radar",
+      icon: "radar",
+      label: "AI + Builds",
+      title: "AI radar, assistant, and active systems",
+      items: [
+        { detail: "Curated AI stories from official sources.", href: "/ai-radar", name: "AI Radar" },
+        { detail: "Published date and freshness signals.", href: "/ai-radar", name: "Freshness labels" },
+        { detail: "Save AI stories into your reading shelf.", href: "/ai-radar", name: "Save AI Radar posts" },
+        { detail: "Current systems with dedicated subpages.", href: "/active-builds", name: "Active Builds" },
+        { detail: "Architecture behind the site assistant.", href: "/active-builds/sai-assistant", name: "Sai's Assistant build" },
+        { detail: "Password-protected learning lab.", href: "/learn-with-me", name: "Learn With Me" },
+        { detail: "Useful resources planned for future use.", href: "/shelf", name: "Sai's Shelf" },
+      ],
+    },
+    {
+      accent: "is-gold",
       href: "/signin",
       icon: "bookmark",
-      title: "Sign in and saved posts",
+      label: "Reader System",
+      title: "Personalized reading and updates",
+      items: [
+        { detail: "Sign in without creating a password here.", href: "/signin", name: "Google sign-in" },
+        { detail: "Save blogs and AI Radar stories.", href: "/saved-posts", name: "Saved Posts" },
+        { detail: "Tag filters for saved content.", href: "/saved-posts", name: "Saved-post tags" },
+        { detail: "Selected updates sent by email.", href: "#newsletter", name: "Newsletter" },
+        { detail: "Clean subscribe and unsubscribe states.", href: "/signin", name: "Subscriber controls" },
+        { detail: "Recent site changes in one place.", href: "/whats-new", name: "What's New" },
+      ],
     },
     {
-      detail: "Subscribe from the footer to receive selected engineering notes and portfolio updates. You can unsubscribe anytime.",
-      href: "#newsletter",
-      icon: "mail",
-      title: "Newsletter updates",
-    },
-    {
-      detail: "Open Sai's Bot from the bottom-right corner for quick answers about projects, blogs, AI Radar, tech stack, and the site.",
-      icon: "spark",
-      title: "Sai's Bot",
+      accent: "is-plum",
+      href: "/dashboard",
+      icon: "dashboard",
+      label: "Utilities",
+      title: "Navigation, metrics, and support features",
+      items: [
+        { detail: "Left-side reader menu for fast movement.", href: "/", name: "Reader menu" },
+        { detail: "Compact header with More menu.", href: "/", name: "Main navigation" },
+        { detail: "Light and dark Redwood-inspired themes.", href: "/", name: "Theme toggle" },
+        { detail: "Content, analytics, and site signals.", href: "/dashboard", name: "Dashboard" },
+        { detail: "Ask about the site or tech concepts.", href: "/", name: "Sai's Bot" },
+        { detail: "Every subpage keeps Home and Back.", href: "/", name: "Home and Back flow" },
+        { detail: "Designed for desktop and mobile browsing.", href: "/", name: "Responsive layout" },
+        { detail: "Email and LinkedIn collaboration path.", href: "/work-with-me", name: "Work With Me" },
+      ],
     },
   ];
-  const suggestedPath = [
+  const suggestedPath: Array<{ href: string; label: string; text: string }> = [
     {
+      href: "/portfolio",
       label: "First 2 minutes",
-      text: "Read the overview here, then open the Portfolio to understand the professional story.",
+      text: "Open Portfolio for the professional story.",
     },
     {
+      href: "/blogs",
       label: "Next 5 minutes",
-      text: "Open Blogs for technical depth, then save anything useful if you are signed in.",
+      text: "Read one engineering note with diagrams.",
     },
     {
+      href: "/active-builds",
       label: "After that",
-      text: "Check AI Radar, What's New, and the Dashboard to see current content and site activity.",
+      text: "Explore Active Builds and AI Radar.",
     },
   ];
   const recentUpdates = getRecentSiteUpdates(siteUpdates).slice(0, 3);
@@ -5760,16 +5796,27 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
         </div>
       </header>
 
-      <main className="guide-page shell" id="main-content">
-        <section className="guide-hero">
-          <p className="eyebrow">Start Here</p>
-          <h1>Your quick map to everything on this site.</h1>
-          <p>
-            Use this page as the front desk: what to read, where to explore projects, how to follow
-            updates, and which features are useful once you start browsing.
-          </p>
-          <div className="guide-hero-stats" aria-label="Site overview">
-            {guideStats.map((stat) => (
+      <main className="guide-page start-page shell" id="main-content">
+        <section className="start-hero">
+          <div>
+            <p className="eyebrow">Start Here</p>
+            <h1>What this website offers, at a glance.</h1>
+            <p>
+              A guided map for portfolio proof, engineering notes, AI updates, active builds,
+              reader tools, and ways to connect.
+            </p>
+            <div className="start-hero-actions">
+              <a className="button button-primary" href="/portfolio">
+                View portfolio
+              </a>
+              <a className="button button-secondary" href="/blogs">
+                Read blogs
+              </a>
+            </div>
+          </div>
+
+          <div className="start-snapshot" aria-label="Website snapshot">
+            {siteSnapshot.map((stat) => (
               <span key={stat.label}>
                 <strong>{stat.value}</strong>
                 {stat.label}
@@ -5778,90 +5825,70 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
           </div>
         </section>
 
-        <section className="guide-feature-panel" aria-labelledby="site-feature-map">
-          <div className="guide-section-heading">
-            <p className="eyebrow">Feature Map</p>
-            <h2 id="site-feature-map">Everything useful, organized by intent.</h2>
-            <p>
-              Pick the lane that matches what you came for: proof of work, technical writing, AI
-              updates, saved reading, or collaboration.
-            </p>
-          </div>
-
-          <div className="guide-feature-grid">
-            {featureGroups.map((feature) => (
-              <article className="guide-feature-card" key={feature.title}>
-                <div className="guide-feature-icon">
-                  <ReaderMenuGlyph type={feature.icon} />
-                </div>
-                <span>{feature.eyebrow}</span>
-                <h3>{feature.title}</h3>
-                <p>{feature.detail}</p>
-                <ul>
-                  {feature.features.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-                <a href={feature.href}>{feature.cta}</a>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="guide-tool-panel" aria-labelledby="reader-tools">
-          <div className="guide-section-heading">
-            <p className="eyebrow">Reader Tools</p>
-            <h2 id="reader-tools">Small features that make the site easier to use.</h2>
-          </div>
-
-          <div className="guide-tool-strip">
-            {readerTools.map((tool) => (
-              <article className="guide-tool-card" key={tool.title}>
-                <ReaderMenuGlyph type={tool.icon} />
-                <h3>{tool.title}</h3>
-                <p>{tool.detail}</p>
-                {tool.href ? <a href={tool.href}>Open</a> : null}
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="guide-path-panel">
-          <div>
-            <p className="eyebrow">Suggested Path</p>
-            <h2>Not sure where to begin? Follow this route.</h2>
-          </div>
-          <div className="guide-path-list">
-            {suggestedPath.map((step, index) => (
-              <article key={step.label}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <h3>{step.label}</h3>
-                  <p>{step.text}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="guide-grid" aria-label="Fast links">
-          {[
-            { href: "/portfolio#about", label: "About Sai", icon: "about" as const },
-            { href: "/portfolio#experience", label: "Experience", icon: "briefcase" as const },
-            { href: "/portfolio#skills", label: "Tech Stack", icon: "spark" as const },
-            { href: "/saved-posts", label: "Saved Posts", icon: "bookmark" as const },
-            { href: "/whats-new", label: "What's New", icon: "news" as const },
-            { href: "/blogs", label: "Blogs", icon: "pen" as const },
-          ].map((link) => (
-            <article className="guide-card guide-link-card" key={link.label}>
-              <ReaderMenuGlyph type={link.icon} />
-              <h2>{link.label}</h2>
-              <a href={link.href}>Go there</a>
-            </article>
+        <section className="start-destination-strip" aria-label="Primary destinations">
+          {primaryDestinations.map((destination) => (
+            <a href={destination.href} key={destination.label}>
+              <ReaderMenuGlyph type={destination.icon} />
+              <span>
+                <strong>{destination.label}</strong>
+                <small>{destination.detail}</small>
+              </span>
+            </a>
           ))}
         </section>
 
-        <section className="mini-updates-panel">
+        <section className="start-feature-directory" aria-labelledby="site-feature-directory">
+          <div className="start-section-heading">
+            <p className="eyebrow">Website Directory</p>
+            <h2 id="site-feature-directory">Every feature, grouped by what visitors need.</h2>
+            <p>Scan the list, open what matters, and come back anytime from the header.</p>
+          </div>
+
+          <div className="start-feature-sections">
+            {featureSections.map((section) => (
+              <section className={`start-feature-section ${section.accent}`} key={section.title}>
+                <div className="start-feature-section-head">
+                  <span>
+                    <ReaderMenuGlyph type={section.icon} />
+                  </span>
+                  <div>
+                    <p>{section.label}</p>
+                    <h3>{section.title}</h3>
+                  </div>
+                  <a href={section.href}>Open</a>
+                </div>
+
+                <div className="start-feature-list">
+                  {section.items.map((item) => (
+                    <a href={item.href ?? section.href} key={item.name}>
+                      <strong>{item.name}</strong>
+                      <span>{item.detail}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </section>
+
+        <section className="start-path-panel">
+          <div>
+            <p className="eyebrow">Suggested Path</p>
+            <h2>If you are new here, use this route.</h2>
+          </div>
+
+          <div className="start-path-list">
+            {suggestedPath.map((step, index) => (
+              <a href={step.href} key={step.label}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step.label}</strong>
+                <small>{step.text}</small>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section className="mini-updates-panel start-updates-panel">
           <div>
             <p className="eyebrow">What's new</p>
             <h2>Recent headlines from the last 30 days.</h2>
