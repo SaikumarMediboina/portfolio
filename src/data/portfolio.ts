@@ -69,27 +69,27 @@ export type FocusArea = {
 export const currentFocus: FocusArea[] = [
   {
     title: "Hybrid matching engine",
-    caption: "Search plus deterministic scoring",
+    caption: "Search + scoring",
     detail:
-      "Combining deterministic matching rules with AI-assisted similarity signals to improve precision on noisy global watchlists.",
+      "Combines rules, fuzzy scoring, and AI similarity to improve noisy watchlist matching.",
   },
   {
     title: "Semantic search and AI relevance",
-    caption: "Intelligence on top of search systems",
+    caption: "Smarter retrieval",
     detail:
-      "Using semantic retrieval patterns and configurable scoring to make screening results stronger without losing explainability.",
+      "Adds semantic retrieval and configurable scoring without losing explainable results.",
   },
   {
     title: "LLM-enabled workflows",
-    caption: "Practical AI inside enterprise operations",
+    caption: "Controlled AI workflows",
     detail:
-      "Exploring prompt-driven workflows and LLM-assisted automation where human review, correctness, and controlled behavior still matter.",
+      "Uses LLM assistance where review, correctness, and predictable behavior still matter.",
   },
   {
     title: "Batch reliability at scale",
-    caption: "Millions of records, zero-error runs",
+    caption: "Reliable batch scale",
     detail:
-      "Designing ingestion, cleansing, and indexing flows that stay dependable while transaction volume and watchlist size grow.",
+      "Designs ingestion, cleansing, and indexing paths that stay stable as volume grows.",
   },
 ];
 

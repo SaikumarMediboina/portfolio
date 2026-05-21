@@ -9856,11 +9856,11 @@ function App() {
           </section>
         ) : null}
 
-        <section className="section shell" id="about">
+        <section className="section shell portfolio-about-section" id="about">
           <SectionHeading
             eyebrow="About"
-            title="I like systems work where throughput, trust, search quality, and explainability all need to hold together."
-            description="Backend, search, AI relevance, and performance work."
+            title="Backend systems where speed, search quality, and explainable AI meet."
+            description="I focus on reliable services, practical ranking logic, and AI workflows that stay clear enough to operate."
           />
 
           <div className="focus-grid">
