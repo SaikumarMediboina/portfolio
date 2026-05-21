@@ -14903,3 +14903,184 @@ textarea:focus-visible {
   border-color: rgba(255, 231, 209, 0.18) !important;
   color: #e4d2c2 !important;
 }
+
+/* Redwood Night Spectrum: stronger visual energy without losing professional restraint. */
+:root[data-theme="dark"] {
+  --rw-canvas: #2d211b;
+  --rw-canvas-soft: #38291f;
+  --rw-region: #49362b;
+  --rw-region-muted: #574236;
+  --rw-region-raised: #654b3d;
+  --rw-region-sunken: #211712;
+  --rw-text: #fff1e4;
+  --rw-text-strong: #fffaf4;
+  --rw-text-muted: #e1cbb9;
+  --rw-accent: #ff9d7c;
+  --rw-accent-hover: #ffd0bd;
+  --rw-spectrum-sage: #9fbd8e;
+  --rw-spectrum-amber: #f0bd68;
+  --rw-spectrum-slate: #86b4c7;
+  --rw-spectrum-rose: #ff8f89;
+  --rw-spectrum-border: linear-gradient(135deg, rgba(255, 208, 189, 0.48), rgba(255, 157, 124, 0.22) 34%, rgba(159, 189, 142, 0.2) 68%, rgba(240, 189, 104, 0.16));
+  --page-background:
+    radial-gradient(circle at 5% -2%, rgba(255, 157, 124, 0.26), transparent 25rem),
+    radial-gradient(circle at 94% 4%, rgba(240, 189, 104, 0.16), transparent 27rem),
+    radial-gradient(circle at 88% 45%, rgba(134, 180, 199, 0.11), transparent 24rem),
+    radial-gradient(circle at 18% 104%, rgba(159, 189, 142, 0.15), transparent 31rem),
+    linear-gradient(180deg, #38291f 0%, #2d211b 46%, #201611 100%);
+}
+
+:root[data-theme="dark"] body {
+  background: var(--page-background) !important;
+}
+
+:root[data-theme="dark"] body::before {
+  opacity: 0.72;
+  background-image:
+    linear-gradient(rgba(255, 232, 211, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 232, 211, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at 1px 1px, rgba(255, 208, 168, 0.065) 1px, transparent 0);
+  background-size: 70px 70px, 70px 70px, 18px 18px;
+}
+
+:root[data-theme="dark"] body::after {
+  background:
+    linear-gradient(118deg, transparent 0 54%, rgba(255, 157, 124, 0.12) 54% 63%, transparent 63%),
+    linear-gradient(74deg, transparent 0 12%, rgba(255, 232, 211, 0.055) 12% 15%, transparent 15%),
+    radial-gradient(ellipse at 15% 0%, rgba(255, 239, 221, 0.1), transparent 38rem),
+    radial-gradient(ellipse at 94% 18%, rgba(240, 189, 104, 0.09), transparent 32rem),
+    radial-gradient(ellipse at 100% 70%, rgba(134, 180, 199, 0.08), transparent 31rem);
+}
+
+:root[data-theme="dark"] :is(.home-hero, .hero, .guide-hero, .learn-hero, .active-builds-hero, .signin-hero, .saved-posts-hero, .shelf-hero, .standalone-blog, .ai-radar-hero, .dashboard-shell, .collaboration-hero) {
+  background:
+    radial-gradient(circle at 86% 8%, rgba(255, 157, 124, 0.26), transparent 22rem) padding-box,
+    radial-gradient(circle at 8% 94%, rgba(159, 189, 142, 0.17), transparent 25rem) padding-box,
+    linear-gradient(135deg, rgba(103, 74, 57, 0.98), rgba(63, 45, 36, 0.99) 48%, rgba(42, 52, 44, 0.98)) padding-box,
+    var(--rw-spectrum-border) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.13),
+    inset 0 0 0 999px rgba(255, 244, 232, 0.01),
+    0 34px 96px rgba(18, 9, 5, 0.46) !important;
+}
+
+:root[data-theme="dark"] .home-command-card {
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 157, 124, 0.22), transparent 16rem),
+    radial-gradient(circle at 80% 82%, rgba(159, 189, 142, 0.18), transparent 18rem),
+    linear-gradient(135deg, #624432, #35251e 68%, #233129) !important;
+  border-color: rgba(255, 208, 189, 0.24) !important;
+  box-shadow: 0 34px 92px rgba(18, 9, 5, 0.48) !important;
+}
+
+:root[data-theme="dark"] .home-radar-board {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(134, 180, 199, 0.2), transparent 17rem),
+    radial-gradient(circle at 84% 74%, rgba(159, 189, 142, 0.16), transparent 18rem),
+    linear-gradient(135deg, #253b3d, #2c2720 62%, #1d231f) !important;
+  border: 1px solid rgba(169, 218, 220, 0.18) !important;
+  border-radius: var(--rw-radius-lg);
+  box-shadow: 0 30px 84px rgba(5, 15, 14, 0.42) !important;
+}
+
+:root[data-theme="dark"] :is(.ai-radar-hero, .ai-radar-story-card, .ai-radar-hero-panel, .ai-radar-story-controls, .ai-radar-lens, .ai-radar-item) {
+  background:
+    radial-gradient(circle at 15% 0%, rgba(134, 180, 199, 0.18), transparent 17rem) padding-box,
+    linear-gradient(135deg, #2f4647, #302d25 66%, #232a25) padding-box,
+    linear-gradient(135deg, rgba(134, 180, 199, 0.32), rgba(255, 157, 124, 0.14), rgba(159, 189, 142, 0.18)) border-box !important;
+  border-color: transparent !important;
+}
+
+:root[data-theme="dark"] :is(.dashboard-shell, .dashboard-card, .dashboard-stat-card, .dashboard-signal-card, .dashboard-topic-breakdown section) {
+  background:
+    radial-gradient(circle at 86% 0%, rgba(240, 189, 104, 0.16), transparent 16rem) padding-box,
+    linear-gradient(135deg, #4d392a, #332a24 68%, #293027) padding-box,
+    linear-gradient(135deg, rgba(240, 189, 104, 0.28), rgba(255, 157, 124, 0.12), rgba(159, 189, 142, 0.14)) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card, .home-writing-card, .blog-featured, .blog-list-item, .related-post-card, .guide-card, .guide-feature-card, .guide-tool-card, .learn-track-card, .active-build-card, .saved-posts-item, .shelf-plan-card, .contact-panel, .collaboration-cta, .newsletter-callout, .site-newsletter-footer, .assistant-panel) {
+  background:
+    linear-gradient(180deg, rgba(255, 246, 236, 0.14), rgba(255, 246, 236, 0.04) 45%, rgba(0, 0, 0, 0.04)) padding-box,
+    radial-gradient(circle at 90% 0%, rgba(255, 157, 124, 0.13), transparent 15rem) padding-box,
+    #45342a padding-box,
+    var(--rw-spectrum-border) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    inset 0 3px 0 rgba(255, 157, 124, 0.16),
+    0 24px 62px rgba(18, 9, 5, 0.38) !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+2), .home-writing-card:nth-child(4n+2), .blog-list-item:nth-child(4n+2), .guide-card:nth-child(4n+2), .active-build-card:nth-child(4n+2)) {
+  background:
+    linear-gradient(180deg, rgba(255, 246, 236, 0.13), rgba(255, 246, 236, 0.038)) padding-box,
+    radial-gradient(circle at 90% 0%, rgba(159, 189, 142, 0.16), transparent 15rem) padding-box,
+    #3e3a2d padding-box,
+    linear-gradient(135deg, rgba(159, 189, 142, 0.3), rgba(255, 232, 211, 0.12), rgba(255, 157, 124, 0.12)) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    inset 0 3px 0 rgba(159, 189, 142, 0.2),
+    0 24px 62px rgba(18, 9, 5, 0.36) !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+3), .home-writing-card:nth-child(4n+3), .blog-list-item:nth-child(4n+3), .guide-card:nth-child(4n+3), .active-build-card:nth-child(4n+3)) {
+  background:
+    linear-gradient(180deg, rgba(255, 246, 236, 0.13), rgba(255, 246, 236, 0.038)) padding-box,
+    radial-gradient(circle at 90% 0%, rgba(240, 189, 104, 0.16), transparent 15rem) padding-box,
+    #463829 padding-box,
+    linear-gradient(135deg, rgba(240, 189, 104, 0.3), rgba(255, 232, 211, 0.12), rgba(255, 157, 124, 0.12)) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    inset 0 3px 0 rgba(240, 189, 104, 0.2),
+    0 24px 62px rgba(18, 9, 5, 0.36) !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+4), .home-writing-card:nth-child(4n+4), .blog-list-item:nth-child(4n+4), .guide-card:nth-child(4n+4), .active-build-card:nth-child(4n+4)) {
+  background:
+    linear-gradient(180deg, rgba(255, 246, 236, 0.13), rgba(255, 246, 236, 0.038)) padding-box,
+    radial-gradient(circle at 90% 0%, rgba(134, 180, 199, 0.15), transparent 15rem) padding-box,
+    #34403c padding-box,
+    linear-gradient(135deg, rgba(134, 180, 199, 0.28), rgba(255, 232, 211, 0.1), rgba(255, 157, 124, 0.12)) border-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.1),
+    inset 0 3px 0 rgba(134, 180, 199, 0.19),
+    0 24px 62px rgba(18, 9, 5, 0.36) !important;
+}
+
+:root[data-theme="dark"] :is(.metric-card, .focus-card, .project-tab, .project-spotlight, .timeline-card, .skill-card, .credential-panel, .recognition-card, .updates-panel, .updates-card, .home-proof-card, .blog-stat, .blog-empty, .saved-posts-empty, .shelf-coming-soon, .dashboard-note, .dashboard-email-callout, .blog-diagram-node) {
+  background:
+    linear-gradient(180deg, rgba(255, 246, 236, 0.105), rgba(255, 246, 236, 0.026)) padding-box,
+    #3a2c24 padding-box,
+    linear-gradient(135deg, rgba(255, 232, 211, 0.22), rgba(255, 157, 124, 0.1), rgba(255, 255, 255, 0.05)) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.home-work-card, .home-update-card, .home-final-cta, .ai-radar-story-body) {
+  background:
+    radial-gradient(circle at 84% 10%, rgba(255, 157, 124, 0.3), transparent 20rem) padding-box,
+    radial-gradient(circle at 12% 88%, rgba(240, 189, 104, 0.13), transparent 21rem) padding-box,
+    linear-gradient(135deg, #6a4a36, #443024 60%, #2e211b) padding-box,
+    linear-gradient(135deg, rgba(255, 208, 189, 0.5), rgba(255, 157, 124, 0.24), rgba(159, 189, 142, 0.16)) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.home-hero-copy h1, .hero h1, .guide-hero h1, .learn-hero h1, .active-builds-hero h1, .standalone-blog-hero h1, .dashboard-hero h1, .saved-posts-hero h1, .shelf-hero h1, .collaboration-hero h1, .signin-copy h1, .blog-diagram-heading h2, .section-heading h2, .guide-section-heading h2, .dashboard-card-heading h2, .collaboration-section-heading h2) {
+  color: #fff6ef !important;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.24),
+    0 0 34px rgba(255, 157, 124, 0.14);
+}
+
+:root[data-theme="dark"] :is(.eyebrow, .focus-caption, .impact-label, .blog-meta span:first-child, .recognition-highlight, .collaboration-eyebrow, .collaboration-card-kicker, .home-radar-mini-freshness) {
+  color: #ffc0a8 !important;
+}
+
+:root[data-theme="dark"] :is(.blog-featured-link, .blog-list-link, .home-lane-card a, .home-writing-actions > a, .ai-radar-item-action a, .dashboard-table a) {
+  color: #ffd0bd !important;
+}
+
+:root[data-theme="dark"] :is(.button-primary, .home-hero .button-primary, .assistant-launcher, .assistant-form button) {
+  background:
+    linear-gradient(135deg, #ffd2bf, #ff9d7c 50%, #ed765d) !important;
+  color: #2d1710 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 16px 42px rgba(255, 157, 124, 0.32) !important;
+}
