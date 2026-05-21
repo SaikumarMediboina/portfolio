@@ -17423,3 +17423,29 @@ body {
   background: #4a352c !important;
   color: #fff7ef !important;
 }
+
+/* Home AI Radar wrapper should not add corner accents behind the actual card. */
+.home-radar-board,
+:root[data-theme="dark"] .home-radar-board {
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.home-radar-board::before,
+.home-radar-board::after,
+:root[data-theme="dark"] .home-radar-board::before,
+:root[data-theme="dark"] .home-radar-board::after {
+  display: none !important;
+  content: none !important;
+}
+
+:root[data-theme="dark"] .home-radar-briefing-card {
+  outline: 0 !important;
+  background-clip: padding-box !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.12),
+    0 28px 74px rgba(10, 7, 5, 0.36) !important;
+}
