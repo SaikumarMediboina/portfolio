@@ -15084,3 +15084,198 @@ textarea:focus-visible {
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 16px 42px rgba(255, 157, 124, 0.32) !important;
 }
+
+/* Dark color accents: make dark mode visibly colorful, not just warm charcoal. */
+:root[data-theme="dark"] {
+  --night-coral: #ff9d7c;
+  --night-sage: #a9c88f;
+  --night-gold: #f4c46f;
+  --night-sky: #8fc9de;
+  --night-rose: #ff9c9b;
+  --night-violet: #c7a7ff;
+  --night-ink: #241712;
+  --page-background:
+    radial-gradient(circle at 7% 2%, rgba(255, 157, 124, 0.3), transparent 24rem),
+    radial-gradient(circle at 94% 3%, rgba(244, 196, 111, 0.2), transparent 27rem),
+    radial-gradient(circle at 84% 42%, rgba(143, 201, 222, 0.15), transparent 26rem),
+    radial-gradient(circle at 16% 102%, rgba(169, 200, 143, 0.2), transparent 32rem),
+    linear-gradient(180deg, #3b2a21 0%, #2b1f19 45%, #1f1510 100%);
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-featured,
+  .blog-list-item,
+  .related-post-card,
+  .guide-card,
+  .guide-feature-card,
+  .guide-tool-card,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .saved-posts-item,
+  .shelf-plan-card,
+  .contact-panel,
+  .collaboration-cta,
+  .newsletter-callout,
+  .site-newsletter-footer,
+  .assistant-panel
+) {
+  position: relative;
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] :is(
+  .home-lane-card,
+  .home-writing-card,
+  .blog-featured,
+  .blog-list-item,
+  .related-post-card,
+  .guide-card,
+  .guide-feature-card,
+  .guide-tool-card,
+  .learn-track-card,
+  .active-build-card,
+  .dashboard-card,
+  .dashboard-stat-card,
+  .dashboard-signal-card,
+  .saved-posts-item,
+  .shelf-plan-card,
+  .contact-panel,
+  .collaboration-cta,
+  .newsletter-callout,
+  .site-newsletter-footer,
+  .assistant-panel
+)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--night-coral), transparent 28%) top left / 100% 3px no-repeat,
+    radial-gradient(circle at 92% 0%, rgba(255, 157, 124, 0.18), transparent 10rem);
+  opacity: 0.9;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+2), .home-writing-card:nth-child(4n+2), .blog-list-item:nth-child(4n+2), .guide-card:nth-child(4n+2), .active-build-card:nth-child(4n+2), .dashboard-card:nth-child(4n+2), .saved-posts-item:nth-child(4n+2))::after {
+  background:
+    linear-gradient(90deg, var(--night-sage), transparent 28%) top left / 100% 3px no-repeat,
+    radial-gradient(circle at 92% 0%, rgba(169, 200, 143, 0.2), transparent 10rem);
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+3), .home-writing-card:nth-child(4n+3), .blog-list-item:nth-child(4n+3), .guide-card:nth-child(4n+3), .active-build-card:nth-child(4n+3), .dashboard-card:nth-child(4n+3), .saved-posts-item:nth-child(4n+3))::after {
+  background:
+    linear-gradient(90deg, var(--night-gold), transparent 28%) top left / 100% 3px no-repeat,
+    radial-gradient(circle at 92% 0%, rgba(244, 196, 111, 0.2), transparent 10rem);
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+4), .home-writing-card:nth-child(4n+4), .blog-list-item:nth-child(4n+4), .guide-card:nth-child(4n+4), .active-build-card:nth-child(4n+4), .dashboard-card:nth-child(4n+4), .saved-posts-item:nth-child(4n+4))::after {
+  background:
+    linear-gradient(90deg, var(--night-sky), transparent 28%) top left / 100% 3px no-repeat,
+    radial-gradient(circle at 92% 0%, rgba(143, 201, 222, 0.2), transparent 10rem);
+}
+
+:root[data-theme="dark"] :is(.home-hero, .hero, .guide-hero, .learn-hero, .active-builds-hero, .signin-hero, .saved-posts-hero, .shelf-hero, .standalone-blog, .collaboration-hero) {
+  background:
+    radial-gradient(circle at 82% 8%, rgba(255, 157, 124, 0.34), transparent 20rem) padding-box,
+    radial-gradient(circle at 12% 86%, rgba(169, 200, 143, 0.22), transparent 23rem) padding-box,
+    radial-gradient(circle at 96% 78%, rgba(244, 196, 111, 0.14), transparent 18rem) padding-box,
+    linear-gradient(135deg, #674737, #3f2d24 48%, #26352c) padding-box,
+    var(--rw-spectrum-border) border-box !important;
+}
+
+:root[data-theme="dark"] .home-command-card {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 157, 124, 0.34), transparent 16rem),
+    radial-gradient(circle at 82% 24%, rgba(244, 196, 111, 0.18), transparent 16rem),
+    radial-gradient(circle at 78% 82%, rgba(169, 200, 143, 0.24), transparent 17rem),
+    linear-gradient(135deg, #6d4935, #3d2a20 62%, #23352d) !important;
+}
+
+:root[data-theme="dark"] :is(.home-work-card, .home-update-card, .home-final-cta) {
+  background:
+    radial-gradient(circle at 86% 10%, rgba(255, 157, 124, 0.36), transparent 18rem) padding-box,
+    radial-gradient(circle at 16% 88%, rgba(244, 196, 111, 0.2), transparent 18rem) padding-box,
+    linear-gradient(135deg, #754b36, #493125 58%, #2b211b) padding-box,
+    linear-gradient(135deg, rgba(255, 208, 189, 0.56), rgba(255, 157, 124, 0.26), rgba(244, 196, 111, 0.18)) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.ai-radar-hero, .home-radar-board, .ai-radar-story-card, .ai-radar-hero-panel, .ai-radar-story-controls, .ai-radar-lens, .ai-radar-item, .ai-radar-story-body) {
+  background:
+    radial-gradient(circle at 14% 10%, rgba(143, 201, 222, 0.28), transparent 17rem) padding-box,
+    radial-gradient(circle at 86% 84%, rgba(169, 200, 143, 0.2), transparent 18rem) padding-box,
+    linear-gradient(135deg, #28484b, #322c23 58%, #1f3128) padding-box,
+    linear-gradient(135deg, rgba(143, 201, 222, 0.42), rgba(169, 200, 143, 0.2), rgba(255, 157, 124, 0.14)) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.dashboard-shell, .dashboard-card, .dashboard-stat-card, .dashboard-signal-card, .dashboard-topic-breakdown section) {
+  background:
+    radial-gradient(circle at 82% 0%, rgba(244, 196, 111, 0.26), transparent 15rem) padding-box,
+    radial-gradient(circle at 12% 95%, rgba(255, 157, 124, 0.16), transparent 16rem) padding-box,
+    linear-gradient(135deg, #5d4029, #382d24 62%, #26342a) padding-box,
+    linear-gradient(135deg, rgba(244, 196, 111, 0.42), rgba(255, 157, 124, 0.16), rgba(169, 200, 143, 0.18)) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.blog-architecture-diagram, .blog-diagram-canvas) {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 157, 124, 0.22), transparent 16rem) padding-box,
+    radial-gradient(circle at 88% 8%, rgba(143, 201, 222, 0.16), transparent 17rem) padding-box,
+    radial-gradient(circle at 54% 100%, rgba(169, 200, 143, 0.15), transparent 16rem) padding-box,
+    linear-gradient(135deg, #50392d, #2f241f) padding-box,
+    linear-gradient(135deg, rgba(255, 157, 124, 0.36), rgba(143, 201, 222, 0.18), rgba(169, 200, 143, 0.18)) border-box !important;
+}
+
+:root[data-theme="dark"] .blog-diagram-node.is-cache {
+  background:
+    linear-gradient(180deg, rgba(244, 196, 111, 0.14), rgba(255, 246, 236, 0.026)) padding-box,
+    #44331f padding-box,
+    linear-gradient(135deg, rgba(244, 196, 111, 0.4), rgba(255, 232, 211, 0.1)) border-box !important;
+}
+
+:root[data-theme="dark"] .blog-diagram-node.is-database {
+  background:
+    linear-gradient(180deg, rgba(143, 201, 222, 0.14), rgba(255, 246, 236, 0.026)) padding-box,
+    #28383a padding-box,
+    linear-gradient(135deg, rgba(143, 201, 222, 0.4), rgba(255, 232, 211, 0.1)) border-box !important;
+}
+
+:root[data-theme="dark"] .blog-diagram-node.is-async {
+  background:
+    linear-gradient(180deg, rgba(169, 200, 143, 0.14), rgba(255, 246, 236, 0.026)) padding-box,
+    #303a28 padding-box,
+    linear-gradient(135deg, rgba(169, 200, 143, 0.4), rgba(255, 232, 211, 0.1)) border-box !important;
+}
+
+:root[data-theme="dark"] .blog-diagram-node.is-outcome {
+  background:
+    linear-gradient(180deg, rgba(255, 156, 155, 0.14), rgba(255, 246, 236, 0.026)) padding-box,
+    #442b2a padding-box,
+    linear-gradient(135deg, rgba(255, 156, 155, 0.4), rgba(255, 232, 211, 0.1)) border-box !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-icon, .newsletter-icon, .site-nav-icon, .dashboard-stat-card .reader-menu-icon, .blog-lock-icon, .guide-feature-icon, .guide-tool-card > .reader-menu-icon, .collaboration-card-icon) {
+  background:
+    linear-gradient(135deg, rgba(255, 157, 124, 0.34), rgba(244, 196, 111, 0.16)) !important;
+  color: #ffd9cc !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+2), .guide-card:nth-child(4n+2), .active-build-card:nth-child(4n+2)) .home-lane-icon,
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+2), .guide-card:nth-child(4n+2), .active-build-card:nth-child(4n+2)) .reader-menu-icon {
+  background: linear-gradient(135deg, rgba(169, 200, 143, 0.34), rgba(255, 232, 211, 0.1)) !important;
+  color: #d8f3c8 !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+3), .guide-card:nth-child(4n+3), .active-build-card:nth-child(4n+3)) .home-lane-icon,
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+3), .guide-card:nth-child(4n+3), .active-build-card:nth-child(4n+3)) .reader-menu-icon {
+  background: linear-gradient(135deg, rgba(244, 196, 111, 0.36), rgba(255, 232, 211, 0.1)) !important;
+  color: #ffe2a1 !important;
+}
+
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+4), .guide-card:nth-child(4n+4), .active-build-card:nth-child(4n+4)) .home-lane-icon,
+:root[data-theme="dark"] :is(.home-lane-card:nth-child(4n+4), .guide-card:nth-child(4n+4), .active-build-card:nth-child(4n+4)) .reader-menu-icon {
+  background: linear-gradient(135deg, rgba(143, 201, 222, 0.34), rgba(255, 232, 211, 0.1)) !important;
+  color: #c8f0ff !important;
+}
