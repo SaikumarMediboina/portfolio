@@ -9647,11 +9647,6 @@ function App() {
                     closeMenu();
                   }}
                 >
-                  {"icon" in link ? (
-                    <span className="site-nav-icon">
-                      <ReaderMenuGlyph type={link.icon} />
-                    </span>
-                  ) : null}
                   {link.label}
                 </a>
               );
@@ -9667,9 +9662,6 @@ function App() {
                       closeMenu();
                     }}
                   >
-                    <span className="site-nav-icon">
-                      <ReaderMenuGlyph type={link.icon} />
-                    </span>
                     {link.label}
                   </a>
                 ))
@@ -9692,9 +9684,6 @@ function App() {
                   aria-expanded={moreMenuOpen}
                 >
                   <span className="site-nav-more-label">
-                    <span className="site-nav-icon">
-                      <ReaderMenuGlyph type="menu" />
-                    </span>
                     <span>More</span>
                   </span>
                   <span className="site-nav-more-caret" aria-hidden="true" />
@@ -9711,9 +9700,6 @@ function App() {
                         closeMenu();
                       }}
                     >
-                      <span className="site-nav-icon">
-                        <ReaderMenuGlyph type={link.icon} />
-                      </span>
                       {link.label}
                     </a>
                   ))}
