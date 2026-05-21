@@ -6126,113 +6126,115 @@ type ActiveBuildsPageProps = {
 
 function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
   const assistantSignals = [
-    { label: "Build status", value: "Active" },
-    { label: "Core pattern", value: "RAG + LLM" },
-    { label: "Primary goal", value: "Website-aware answers" },
+    { label: "Mode", value: "Hybrid AI" },
+    { label: "Scope", value: "Website + Tech" },
+    { label: "Output", value: "Answers + Actions" },
   ];
-  const architectureNodes = [
+  const blueprintNodes = [
     {
-      detail: "Visitor asks about Sai, blogs, projects, or a general backend concept.",
+      detail: "Asks about Sai, blogs, projects, or backend topics.",
+      label: "Website visitor",
+      meta: "Input",
+    },
+    {
+      detail: "Captures the message and keeps the chat experience simple.",
       label: "Chat UI",
+      meta: "Frontend",
     },
     {
-      detail: "The client prepares local context, fallback answer, recent chat history, and action links.",
-      label: "React Assistant",
+      detail: "Sanitizes the request and prepares the response path.",
+      label: "Vercel Assistant API",
+      meta: "Backend",
     },
     {
-      detail: "A Vercel serverless route sanitizes the request and builds a grounded prompt.",
-      label: "Assistant API",
+      detail: "Chooses site retrieval, model reasoning, or safe fallback.",
+      label: "Question router",
+      meta: "Decision",
+    },
+  ];
+  const routeCards = [
+    {
+      detail: "Retrieves trusted facts from portfolio, blogs, AI Radar, updates, and reader features.",
+      label: "Website question",
+      result: "Knowledge retrieval",
+      tone: "site",
     },
     {
-      detail: "Curated entries from portfolio data, blogs, updates, AI Radar, and reader features are ranked.",
-      label: "Knowledge Base",
+      detail: "Routes Spring, backend, cloud, AI, and CS questions directly to the model.",
+      label: "Generic tech question",
+      result: "LLM reasoning",
+      tone: "llm",
     },
     {
-      detail: "Gemini enhances the response when configured, while local fallback keeps answers stable.",
-      label: "LLM Layer",
-    },
-    {
-      detail: "The UI returns answer text, sources, and useful next actions.",
-      label: "Answer + Actions",
+      detail: "Returns a clean message instead of guessing when the request is outside scope.",
+      label: "Unsupported question",
+      result: "Polite fallback",
+      tone: "fallback",
     },
   ];
   const codeFlow = [
     {
-      detail:
-        "The visitor sends a question from the floating assistant. Quick prompts help users discover what the bot can answer.",
-      title: "Capture the intent",
+      detail: "Detect site, tech, or unsupported intent before calling the model.",
+      title: "Classify",
     },
     {
-      detail:
-        "The frontend classifies the question as site-specific or general technical learning. It also prepares a safe fallback answer.",
-      title: "Route the question",
+      detail: "Rank the best website entries when the question is about Sai or the site.",
+      title: "Retrieve",
     },
     {
-      detail:
-        "Relevant knowledge entries are ranked using tokens, synonyms, priorities, page metadata, blog sections, and project details.",
-      title: "Retrieve context",
+      detail: "Build a compact prompt with context, rules, and fallback guidance.",
+      title: "Ground",
     },
     {
-      detail:
-        "The API route builds a compact prompt with website sources, recent conversation, fallback guidance, and output rules.",
-      title: "Build the prompt",
+      detail: "Use the LLM where it adds useful language and reasoning.",
+      title: "Generate",
     },
     {
-      detail:
-        "The LLM generates a concise answer. If it is unavailable, the assistant still returns the local knowledge response.",
-      title: "Answer safely",
-    },
-    {
-      detail:
-        "The UI shows source chips and action chips so visitors can continue into the right page or article.",
-      title: "Guide the next step",
+      detail: "Return answer text with source chips and useful next actions.",
+      title: "Guide",
     },
   ];
   const stackGroups = [
     {
-      items: ["React 19", "TypeScript", "CSS theme system", "Floating chat widget"],
-      title: "Frontend",
+      items: ["React 19", "TypeScript", "Floating chat UI", "Theme-aware CSS"],
+      title: "Client layer",
     },
     {
-      items: ["Vercel API route", "Gemini API", "Request sanitization", "Prompt construction"],
-      title: "Assistant API",
+      items: ["Vercel serverless API", "Request sanitization", "Prompt builder", "Fallback response"],
+      title: "API layer",
     },
     {
-      items: ["Portfolio data", "Blog sections", "Site updates", "AI Radar signals"],
-      title: "Knowledge Base",
+      items: ["Portfolio facts", "Blog summaries", "AI Radar links", "Site updates"],
+      title: "Knowledge layer",
     },
     {
-      items: ["Question routing", "Keyword ranking", "Synonym expansion", "Source/action chips"],
-      title: "Retrieval Logic",
+      items: ["Gemini LLM", "Intent routing", "Source chips", "Action links"],
+      title: "AI layer",
     },
   ];
-  const designPrinciples = [
+  const howItWorks = [
     {
-      detail:
-        "Sai-specific answers must come from the website knowledge base instead of model guesses.",
-      title: "Grounded by default",
+      detail: "Sai-specific facts come from the website knowledge base first.",
+      title: "Grounded answers",
     },
     {
-      detail:
-        "The assistant should still work when the LLM is unavailable by returning curated local answers.",
-      title: "Graceful fallback",
+      detail: "General technical questions can use the LLM for deeper explanations.",
+      title: "Model where useful",
     },
     {
-      detail:
-        "Every answer should help the visitor move forward with source chips and clear action links.",
-      title: "Answer plus direction",
+      detail: "If confidence is low, it responds politely instead of inventing.",
+      title: "Safe fallback",
     },
     {
-      detail:
-        "Short answers first, deeper answers only when the visitor asks for more detail.",
-      title: "Useful, not noisy",
+      detail: "Every useful answer should point visitors to a page or article.",
+      title: "Clear next step",
     },
   ];
   const nextUpgrades = [
-    "Move from curated JSON-style knowledge to a vector search layer.",
-    "Add an admin refresh flow when new blogs, projects, or AI Radar sources are published.",
-    "Capture helpful/not helpful feedback to improve ranking and fallback quality.",
-    "Add richer citations inside answers for long technical explanations.",
+    "Vector database for semantic search.",
+    "Feedback buttons to improve answers.",
+    "Admin refresh flow for new content.",
+    "Better citations for long answers.",
   ];
 
   return (
@@ -6275,11 +6277,10 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
       <main className="guide-page active-builds-page shell" id="main-content">
         <section className="guide-hero active-builds-hero active-assistant-hero">
           <p className="eyebrow">Active Build</p>
-          <h1>Sai&apos;s Assistant: a website-aware AI guide.</h1>
+          <h1>Sai&apos;s Assistant: website knowledge base plus LLM.</h1>
           <p>
-            This is the current product build behind the website assistant. The goal is to make the
-            bot answer questions about Sai&apos;s site from a trusted knowledge base, while also using
-            an LLM for general backend, cloud, CS, and AI questions.
+            A hybrid assistant that answers website questions from trusted site data, handles
+            general tech questions with an LLM, and guides visitors to the right page.
           </p>
           <div className="active-assistant-signal-row" aria-label="Assistant build status">
             {assistantSignals.map((signal) => (
@@ -6291,54 +6292,54 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
           </div>
         </section>
 
-        <section className="active-assistant-summary-grid" aria-label="Assistant build summary">
-          <article className="active-assistant-summary-card is-primary">
-            <p className="eyebrow">Purpose</p>
-            <h2>Turn the website into an interactive knowledge product.</h2>
-            <p>
-              Past notable work stays in the Portfolio section. Active Builds now focuses on what
-              is being built right now: a smarter assistant that understands the website, guides
-              readers to the right pages, and explains technical topics without losing context.
-            </p>
-          </article>
-          <article className="active-assistant-summary-card">
-            <p className="eyebrow">Current capability</p>
-            <h2>Website knowledge plus LLM reasoning.</h2>
-            <p>
-              The assistant can answer from portfolio data, blog content, AI Radar, updates,
-              dashboard notes, saved-post behavior, newsletter flows, and Work With Me details.
-            </p>
-          </article>
-        </section>
-
-        <section className="active-assistant-section">
+        <section className="active-assistant-section active-assistant-architecture-board">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">Architecture</p>
-            <h2>Hybrid assistant architecture.</h2>
+            <h2>One clean request path with smart routing.</h2>
             <p>
-              The design combines deterministic website retrieval with an LLM layer. Site facts stay
-              grounded; general engineering explanations still get natural language depth.
+              The assistant is not just a chat popup. It is a small RAG-style system with routing,
+              retrieval, prompt grounding, model response, and safe fallback behavior.
             </p>
           </div>
 
-          <div className="active-assistant-architecture" aria-label="Assistant architecture flow">
-            {architectureNodes.map((node, index) => (
-              <article className="active-assistant-arch-node" key={node.label}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <h3>{node.label}</h3>
-                <p>{node.detail}</p>
-              </article>
-            ))}
+          <div className="assistant-blueprint" aria-label="Sai's Assistant architecture diagram">
+            <div className="assistant-blueprint-main">
+              {blueprintNodes.map((node, index) => (
+                <article className="assistant-blueprint-node" key={node.label}>
+                  <span>{node.meta}</span>
+                  <h3>{node.label}</h3>
+                  <p>{node.detail}</p>
+                  {index < blueprintNodes.length - 1 ? <i aria-hidden="true" /> : null}
+                </article>
+              ))}
+            </div>
+
+            <div className="assistant-route-grid" aria-label="Question routing branches">
+              {routeCards.map((route) => (
+                <article className={`assistant-route-card is-${route.tone}`} key={route.label}>
+                  <span>{route.label}</span>
+                  <h3>{route.result}</h3>
+                  <p>{route.detail}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className="assistant-output-line" aria-label="Final response flow">
+              <span>Knowledge Base</span>
+              <span>Vector DB ready</span>
+              <span>Grounded Prompt</span>
+              <span>LLM</span>
+              <strong>Answer + links/actions</strong>
+            </div>
           </div>
         </section>
 
         <section className="active-assistant-section">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">Code Flow</p>
-            <h2>How a question moves through the system.</h2>
+            <h2>How the code handles every question.</h2>
             <p>
-              The assistant is designed as a controlled pipeline rather than a simple chat wrapper.
-              Each stage has a clear responsibility.
+              Each stage has one job, so the bot stays predictable, debuggable, and easy to improve.
             </p>
           </div>
 
@@ -6358,10 +6359,10 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
         <section className="active-assistant-section">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">Tech Stack</p>
-            <h2>What powers the build.</h2>
+            <h2>Tech behind the assistant.</h2>
             <p>
-              The stack is intentionally lightweight for the current website, but structured so it
-              can grow into vector search, feedback loops, and richer admin-driven knowledge sync.
+              Lightweight today, but shaped like a real assistant platform that can grow into
+              vector search, analytics, and admin-managed knowledge updates.
             </p>
           </div>
 
@@ -6379,39 +6380,15 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
           </div>
         </section>
 
-        <section className="active-assistant-section active-assistant-system-map">
-          <div>
-            <p className="eyebrow">System Map</p>
-            <h2>Knowledge-first, model-assisted.</h2>
-            <p>
-              The assistant does not ask the model to invent Sai-specific facts. It retrieves site
-              context first, then uses the LLM to shape a clear response.
-            </p>
-          </div>
-
-          <div className="active-assistant-map" aria-label="Assistant system map">
-            <span>Website visitor</span>
-            <span>React chat UI</span>
-            <span>Question router</span>
-            <span>Knowledge retrieval</span>
-            <span>Vercel API</span>
-            <span>Gemini LLM</span>
-            <span>Sources + actions</span>
-          </div>
-        </section>
-
-        <section className="active-assistant-section">
+        <section className="active-assistant-section active-assistant-how">
           <div className="active-assistant-section-heading">
-            <p className="eyebrow">Design Principles</p>
-            <h2>Principles behind the assistant.</h2>
-            <p>
-              The assistant should feel smart, but also trustworthy. The design keeps the experience
-              useful, grounded, and easy to follow.
-            </p>
+            <p className="eyebrow">How It Works</p>
+            <h2>Simple rules that make it reliable.</h2>
+            <p>Fast answers, grounded facts, clean fallback, and useful actions.</p>
           </div>
 
           <div className="active-assistant-principles">
-            {designPrinciples.map((principle) => (
+            {howItWorks.map((principle) => (
               <article key={principle.title}>
                 <h3>{principle.title}</h3>
                 <p>{principle.detail}</p>
@@ -6420,18 +6397,19 @@ function ActiveBuildsPage({ theme, onThemeToggle }: ActiveBuildsPageProps) {
           </div>
         </section>
 
-        <section className="build-principles-panel active-assistant-roadmap">
-          <div>
-            <p className="eyebrow">Next Iterations</p>
-            <h2>Where this build goes next.</h2>
-            <p>
-              The current version is already useful. The next step is making the assistant more
-              searchable, measurable, and easier to update as the website grows.
-            </p>
+        <section className="active-assistant-section active-assistant-roadmap-section">
+          <div className="active-assistant-section-heading">
+            <p className="eyebrow">Next Build</p>
+            <h2>Where this assistant goes next.</h2>
+            <p>These upgrades move it closer to a proper website AI layer.</p>
           </div>
-          <div>
-            {nextUpgrades.map((upgrade) => (
-              <span key={upgrade}>{upgrade}</span>
+
+          <div className="active-assistant-roadmap-grid">
+            {nextUpgrades.map((upgrade, index) => (
+              <span key={upgrade}>
+                <strong>{String(index + 1).padStart(2, "0")}</strong>
+                {upgrade}
+              </span>
             ))}
           </div>
         </section>
