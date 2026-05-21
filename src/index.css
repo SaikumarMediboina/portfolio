@@ -16205,6 +16205,11 @@ textarea:focus-visible {
 }
 
 /* Final main menu reset: match the cleaner portfolio-style navigation. */
+.site-nav > a .site-nav-icon,
+.site-nav-more-button .site-nav-icon {
+  display: none !important;
+}
+
 .site-nav a,
 .site-nav-more-button {
   border: 0 !important;

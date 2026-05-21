@@ -63,11 +63,19 @@ const MARKETING_HEAVY_KEYWORDS = [
   "event",
   "summit",
 ];
+const PRIORITY_SOURCES = ["OpenAI", "Anthropic", "Google/DeepMind"];
 
 const FEEDS = [
   {
     category: "Models",
     feedUrl: "https://openai.com/news/rss.xml",
+    fallbackItems: [
+      {
+        title: "OpenAI model and developer platform updates",
+        summary:
+          "Official OpenAI news covering models, developer tools, safety notes, product releases, and AI platform changes.",
+      },
+    ],
     homepage: "https://openai.com/news/",
     source: "OpenAI",
     weight: 22,
@@ -75,6 +83,13 @@ const FEEDS = [
   {
     category: "Agents",
     feedUrl: "https://www.anthropic.com/news/rss.xml",
+    fallbackItems: [
+      {
+        title: "Anthropic Claude and agent workflow updates",
+        summary:
+          "Official Anthropic updates on Claude, model behavior, safety, agents, tool use, and enterprise AI workflows.",
+      },
+    ],
     homepage: "https://www.anthropic.com/news",
     source: "Anthropic",
     weight: 21,
@@ -82,20 +97,41 @@ const FEEDS = [
   {
     category: "Open Source",
     feedUrl: "https://huggingface.co/blog/feed.xml",
+    fallbackItems: [
+      {
+        title: "Hugging Face open-source AI builder notes",
+        summary:
+          "Practical updates on models, datasets, inference, evaluation, and open-source AI tooling.",
+      },
+    ],
     homepage: "https://huggingface.co/blog",
     source: "Hugging Face",
     weight: 16,
   },
   {
     category: "Research",
-    feedUrl: "https://deepmind.google/discover/blog/rss.xml",
-    homepage: "https://deepmind.google/discover/blog/",
+    feedUrl: "https://deepmind.google/blog/rss.xml",
+    fallbackItems: [
+      {
+        title: "Google/DeepMind research and Gemini updates",
+        summary:
+          "Official Google DeepMind notes on frontier research, Gemini, agents, multimodal AI, safety, and product-facing AI systems.",
+      },
+    ],
+    homepage: "https://deepmind.google/blog",
     source: "Google/DeepMind",
     weight: 20,
   },
   {
     category: "Infrastructure",
     feedUrl: "https://blogs.nvidia.com/blog/category/artificial-intelligence/feed/",
+    fallbackItems: [
+      {
+        title: "NVIDIA AI infrastructure and inference updates",
+        summary:
+          "Infrastructure signals across GPUs, inference, accelerated computing, enterprise AI, robotics, and production workloads.",
+      },
+    ],
     homepage: "https://blogs.nvidia.com/blog/category/artificial-intelligence/",
     source: "NVIDIA",
     weight: 15,
@@ -103,6 +139,13 @@ const FEEDS = [
   {
     category: "Agents",
     feedUrl: "https://blog.langchain.com/rss/",
+    fallbackItems: [
+      {
+        title: "LangChain agent and LLM application patterns",
+        summary:
+          "Framework updates for agents, retrieval, observability, orchestration, and production LLM applications.",
+      },
+    ],
     homepage: "https://blog.langchain.com/",
     source: "LangChain",
     weight: 14,
@@ -110,6 +153,13 @@ const FEEDS = [
   {
     category: "Cloud AI",
     feedUrl: "https://aws.amazon.com/blogs/machine-learning/feed/",
+    fallbackItems: [
+      {
+        title: "AWS ML cloud AI architecture updates",
+        summary:
+          "Cloud AI updates covering model hosting, generative AI apps, MLOps, data platforms, and deployment patterns.",
+      },
+    ],
     homepage: "https://aws.amazon.com/blogs/machine-learning/",
     source: "AWS ML",
     weight: 12,
@@ -274,6 +324,46 @@ function scoreItem(item) {
   );
 }
 
+function ensurePrioritySourceCoverage(selectedItems, rankedItems, limit) {
+  if (limit < 5) {
+    return selectedItems;
+  }
+
+  const selectedSources = new Set(selectedItems.slice(0, 5).map((item) => item.source));
+  const nextItems = [...selectedItems];
+
+  PRIORITY_SOURCES.forEach((source) => {
+    if (selectedSources.has(source)) {
+      return;
+    }
+
+    const priorityCandidate = rankedItems.find(
+      (item) =>
+        item.source === source &&
+        !nextItems.some((selectedItem) => selectedItem.href === item.href),
+    );
+
+    if (!priorityCandidate) {
+      return;
+    }
+
+    const replacementIndex = nextItems
+      .slice(0, 5)
+      .map((item, index) => ({ index, item }))
+      .reverse()
+      .find(({ item }) => !PRIORITY_SOURCES.includes(item.source))?.index;
+
+    if (replacementIndex === undefined) {
+      return;
+    }
+
+    nextItems.splice(replacementIndex, 1, priorityCandidate);
+    selectedSources.add(source);
+  });
+
+  return nextItems.slice(0, limit);
+}
+
 function applySourceDiversity(items, limit) {
   const selected = [];
   const remaining = [...items];
@@ -293,7 +383,7 @@ function applySourceDiversity(items, limit) {
     sourceCounts.set(nextItem.source, (sourceCounts.get(nextItem.source) || 0) + 1);
   }
 
-  return selected;
+  return ensurePrioritySourceCoverage(selected, items, limit);
 }
 
 async function fetchFeed(feed) {
@@ -355,6 +445,23 @@ async function fetchFeed(feed) {
   }
 }
 
+function getFallbackItems(feed) {
+  return (feed.fallbackItems || []).map((item) => ({
+    category: feed.category,
+    cadence: "Official source watch",
+    href: feed.homepage,
+    imageUrl: "",
+    isLive: false,
+    source: feed.source,
+    sourceWeight: feed.weight - 3,
+    summary: item.summary,
+    title: item.title,
+    whyItMatters:
+      item.summary ||
+      "Official source is being monitored. Open the original page for the latest context.",
+  }));
+}
+
 function dedupeItems(items) {
   const seen = new Set();
 
@@ -383,8 +490,15 @@ export default async function handler(request, response) {
 
   try {
     const results = await Promise.allSettled(FEEDS.map(fetchFeed));
+    const feedItems = results.flatMap((result, index) => {
+      if (result.status === "fulfilled" && result.value.length) {
+        return result.value;
+      }
+
+      return getFallbackItems(FEEDS[index]);
+    });
     const rankedItems = dedupeItems(
-      results.flatMap((result) => (result.status === "fulfilled" ? result.value : [])),
+      feedItems,
     )
       .map((item) => ({
         ...item,
