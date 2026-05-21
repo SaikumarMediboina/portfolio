@@ -772,9 +772,12 @@ type AssistantLink = {
   href: string;
   label: string;
   external?: boolean;
+  kind?: "action" | "source";
 };
 
 type AssistantMessage = {
+  actions?: AssistantLink[];
+  citations?: AssistantLink[];
   id: number;
   links?: AssistantLink[];
   role: "assistant" | "visitor";
@@ -786,10 +789,10 @@ function getInitialAssistantMessages(): AssistantMessage[] {
     {
       id: 1,
       role: "assistant",
-      text: "Hey, I am Sai's website assistant. I can explain his portfolio and blogs, or answer general CS, backend, cloud, and AI questions in a simple way.",
+      text: "Hey, I am Sai's website assistant. I use Sai's site knowledge base for portfolio questions and an LLM brain for CS, backend, cloud, and AI questions.",
       links: [
-        { href: "/blogs", label: "Blogs" },
-        { href: "/ai-radar", label: "AI Radar" },
+        { href: "/blogs", kind: "action", label: "Blogs" },
+        { href: "/ai-radar", kind: "action", label: "AI Radar" },
       ],
     },
   ];
@@ -2325,7 +2328,7 @@ type AssistantKnowledgeEntry = {
 
 type AssistantPromptEntry = Pick<
   AssistantKnowledgeEntry,
-  "category" | "details" | "summary" | "title"
+  "category" | "details" | "links" | "summary" | "title"
 >;
 
 type GenericAssistantResponse = {
@@ -2335,7 +2338,7 @@ type GenericAssistantResponse = {
 
 type AssistantAnswerMode = "generic" | "site";
 
-type AssistantResponseDraft = Pick<AssistantMessage, "links" | "text"> & {
+type AssistantResponseDraft = Pick<AssistantMessage, "actions" | "citations" | "links" | "text"> & {
   mode: AssistantAnswerMode;
   shouldUseLlm: boolean;
 };
@@ -2708,6 +2711,7 @@ function getGenericAssistantResponse(
     .sort((left, right) => right.score - left.score)[0];
 
   return {
+    actions: [{ href: "/learn-with-me", kind: "action", label: "Learn With Me" }],
     text:
       rankedResponse?.score > 0
         ? rankedResponse.response.text
@@ -2757,6 +2761,32 @@ function getUniqueAssistantLinks(links: AssistantLink[]) {
   });
 }
 
+function getAssistantActionLinks(links: AssistantLink[] | undefined) {
+  return getUniqueAssistantLinks(
+    (links ?? []).map((link): AssistantLink => ({ ...link, kind: "action" })),
+  ).slice(0, 3);
+}
+
+function getAssistantSourceLinks(entries: AssistantKnowledgeEntry[]) {
+  const links: AssistantLink[] = [];
+
+  entries.forEach((entry) => {
+    const primaryLink = entry.links?.[0];
+
+    if (!primaryLink) {
+      return;
+    }
+
+    links.push({
+      ...primaryLink,
+      kind: "source",
+      label: entry.title,
+    });
+  });
+
+  return getUniqueAssistantLinks(links).slice(0, 3);
+}
+
 function rankAssistantEntries(
   input: string,
   isReaderSignedIn: boolean,
@@ -2790,7 +2820,8 @@ function getAssistantPromptContext(
 
   return selectedEntries.map((entry) => ({
     category: entry.category,
-    details: entry.details?.slice(0, 6),
+    details: entry.details?.slice(0, 8),
+    links: entry.links?.slice(0, 3),
     summary: entry.summary,
     title: entry.title,
   }));
@@ -3047,6 +3078,33 @@ function getCuratedAssistantQaEntries({
       priority: 12,
     }),
   ];
+}
+
+function getAssistantBlogDetails(post: BlogPost, canReadPost: boolean) {
+  if (!canReadPost) {
+    return [
+      `Category: ${post.category}. ${getEstimatedReadTimeLabel(post)}. Sign in required for the full read.`,
+      `Preview takeaways: ${post.takeaways.slice(0, 2).join(" ")}`,
+    ];
+  }
+
+  const sectionDetails = post.sections.slice(0, 5).map((section) => {
+    const paragraphText = section.paragraphs.slice(0, 2).join(" ");
+    const bulletText = section.bullets?.length ? ` Key points: ${section.bullets.join(" ")}` : "";
+
+    return `${section.heading}: ${paragraphText}${bulletText}`;
+  });
+  const diagramDetail = post.diagram
+    ? `Diagram: ${post.diagram.title}. ${post.diagram.subtitle} ${post.diagram.caption}`
+    : "";
+
+  return [
+    `Category: ${post.category}. ${getEstimatedReadTimeLabel(post)}. Published ${post.publishedAt}.`,
+    `Stats: ${post.stats.map((stat) => `${stat.label} ${stat.value}`).join(", ")}`,
+    `Takeaways: ${post.takeaways.join(" ")}`,
+    diagramDetail,
+    ...sectionDetails,
+  ].filter(Boolean);
 }
 
 function getAssistantKnowledgeEntries(
@@ -3310,6 +3368,54 @@ function getAssistantKnowledgeEntries(
       priority: 4,
     }),
     createAssistantEntry({
+      category: "page",
+      title: "Learn With Me",
+      summary:
+        "Learn With Me is a protected learning room for simple, practical explanations of CS fundamentals, backend systems, search architecture, and AI workflows. It is designed to move from concept, to real scenario, to system-design connection, to a small build.",
+      details: [
+        "Tracks: Back to Basics, Backend Performance, Search Systems, and Practical AI.",
+        "The page is password protected because it can contain early drafts, selected learning notes, and experiments.",
+      ],
+      keywords: [
+        "learn",
+        "learning",
+        "cs",
+        "fundamentals",
+        "backend",
+        "performance",
+        "search",
+        "practical",
+        "ai",
+        "password",
+      ],
+      links: [{ href: "/learn-with-me", label: "Open Learn With Me" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
+      category: "page",
+      title: "Active Builds",
+      summary:
+        "Active Builds shows current experiments and portfolio-side projects: Back to Basics, Portfolio Intelligence Layer, and Engineering Notes Pipeline. It separates polished work from things that are actively evolving.",
+      details: [
+        "Back to Basics focuses on CS fundamentals, story-first scripts, diagrams, and AI-assisted video experiments.",
+        "Portfolio Intelligence Layer is the smarter site assistant and reader experience powered by curated website knowledge, saved posts, and cleaner navigation.",
+        "Engineering Notes Pipeline covers practical notes and diagrams around search quality, matching, ranking, backend performance, and controlled AI workflows.",
+      ],
+      keywords: [
+        "active",
+        "builds",
+        "current",
+        "experiments",
+        "portfolio",
+        "intelligence",
+        "assistant",
+        "knowledge",
+        "pipeline",
+      ],
+      links: [{ href: "/active-builds", label: "Open Active Builds" }],
+      priority: 4,
+    }),
+    createAssistantEntry({
       category: "dashboard",
       title: "Creator dashboard",
       summary:
@@ -3439,15 +3545,7 @@ function getAssistantKnowledgeEntries(
         summary: canReadPost
           ? `${post.title}: ${post.summary}`
           : `${post.title} is in the members-only lab. Sign in to unlock the full article; preview: ${post.summary}`,
-        details: canReadPost
-          ? [
-              `Category: ${post.category}. ${getEstimatedReadTimeLabel(post)}. Published ${post.publishedAt}.`,
-              `Stats: ${post.stats.map((stat) => `${stat.label} ${stat.value}`).join(", ")}`,
-              ...post.takeaways.slice(0, 2),
-            ]
-          : [
-              `Category: ${post.category}. ${getEstimatedReadTimeLabel(post)}. Sign in required for the full read.`,
-            ],
+        details: getAssistantBlogDetails(post, canReadPost),
         keywords: [
           "blog",
           "article",
@@ -3542,14 +3640,14 @@ function getAssistantUnknownResponse(): AssistantResponseDraft {
       { href: "/portfolio#work", label: "Projects" },
     ],
     mode: "site",
-    shouldUseLlm: false,
+    shouldUseLlm: true,
   };
 }
 
 function getAssistantGreetingResponse(): AssistantResponseDraft {
   return {
     text:
-      "Hey, I am Sai's site assistant. Ask me about his projects, blogs, tech stack, AI Radar, or general CS and backend concepts.",
+      "Hey, I am Sai's site assistant. Ask me about his projects, blogs, tech stack, AI Radar, or general CS and backend concepts. If it is on the site, I will ground the answer in Sai's knowledge base.",
     links: [
       { href: "/portfolio#work", label: "Projects" },
       { href: "/blogs", label: "Blogs" },
@@ -3587,12 +3685,16 @@ function formatAssistantEntryResponse(
       ? []
       : relatedEntries.flatMap((relatedEntry) => relatedEntry.links ?? [])),
   ]).slice(0, 2);
+  const sourceEntries = [entry, ...relatedEntries].slice(0, 3);
+  const actionLinks = getAssistantActionLinks(links);
 
   return {
+    actions: actionLinks.length ? actionLinks : undefined,
+    citations: getAssistantSourceLinks(sourceEntries),
     text: `${entry.summary}${detailText ? ` ${detailText}` : ""}${relatedText}`,
-    links: links.length ? links : undefined,
+    links: actionLinks.length ? actionLinks : undefined,
     mode: "site",
-    shouldUseLlm: !shouldAnswerDirectly,
+    shouldUseLlm: true,
   };
 }
 
@@ -3676,17 +3778,6 @@ function getExperienceDurationResponse(): AssistantResponseDraft {
     links: [{ href: "/portfolio#experience", label: "View experience" }],
     mode: "site",
     shouldUseLlm: false,
-  };
-}
-
-function getAssistantUnavailableResponse(): Pick<AssistantMessage, "links" | "text"> {
-  return {
-    text:
-      "I could not get a clean answer from the assistant brain this time. Please use the links below, or ask me something directly related to Sai's website, projects, blogs, experience, or tech stack.",
-    links: [
-      { href: "/start", label: "Start Here" },
-      { href: "/portfolio#work", label: "Projects" },
-    ],
   };
 }
 
@@ -3787,9 +3878,9 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
   const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const quickPrompts = [
-    "Show Sai's projects",
-    "What is Sai's tech stack?",
-    "What is AI Radar?",
+    "What can you answer about this site?",
+    "Summarize Sai's strongest projects",
+    "Explain Kafka retries simply",
   ];
 
   useEffect(() => {
@@ -3809,6 +3900,9 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
     question: string,
     fallbackResponse: AssistantResponseDraft,
   ) => {
+    const fallbackActions = getAssistantActionLinks(
+      fallbackResponse.actions ?? fallbackResponse.links,
+    );
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
@@ -3817,6 +3911,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       body: JSON.stringify({
         question,
         fallbackText: fallbackResponse.text,
+        fallbackLinks: fallbackActions,
         mode: fallbackResponse.mode,
         context:
           fallbackResponse.mode === "generic"
@@ -3835,7 +3930,11 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
 
     const data = await response.json();
     if (data?.configured === false) {
-      throw new Error("Assistant API is not configured.");
+      return {
+        actions: fallbackActions.length ? fallbackActions : undefined,
+        citations: fallbackResponse.citations,
+        text: fallbackResponse.text,
+      };
     }
 
     const text = typeof data?.text === "string" ? data.text.trim() : "";
@@ -3844,12 +3943,26 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       throw new Error("Assistant API returned an empty response.");
     }
 
-    if (text === fallbackResponse.text) {
-      throw new Error("Assistant API returned the fallback response.");
-    }
+    const citations = Array.isArray(data?.citations)
+      ? getUniqueAssistantLinks(
+          data.citations
+            .map((link: AssistantLink) => ({ ...link, kind: "source" as const }))
+            .filter((link: AssistantLink) => Boolean(link.href && link.label)),
+        ).slice(0, 3)
+      : fallbackResponse.citations;
+    const actions = getUniqueAssistantLinks([
+      ...(Array.isArray(data?.actions)
+        ? data.actions
+            .map((link: AssistantLink) => ({ ...link, kind: "action" as const }))
+            .filter((link: AssistantLink) => Boolean(link.href && link.label))
+        : []),
+      ...fallbackActions,
+    ]).slice(0, 3);
 
     return {
-      links: fallbackResponse.links?.slice(0, 2),
+      actions: actions.length ? actions : undefined,
+      citations,
+      links: actions.length ? actions : fallbackResponse.links?.slice(0, 2),
       text,
     };
   };
@@ -3871,8 +3984,8 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
     const assistantMessageId = visitorMessageId + 1;
     const loadingText =
       response.mode === "generic"
-        ? "Thinking through the concept..."
-        : "Checking Sai's website notes...";
+        ? "Thinking through the concept with the LLM brain..."
+        : "Checking Sai's knowledge base and matching the best sources...";
 
     setMessages((current) => [
       ...current,
@@ -3885,6 +3998,8 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         id: assistantMessageId,
         role: "assistant",
         text: response.shouldUseLlm ? loadingText : response.text,
+        actions: response.shouldUseLlm ? undefined : response.actions,
+        citations: response.shouldUseLlm ? undefined : response.citations,
         links: response.shouldUseLlm ? undefined : response.links?.slice(0, 2),
       },
     ]);
@@ -3901,6 +4016,8 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
             message.id === assistantMessageId
               ? {
                   ...message,
+                  actions: llmResponse.actions,
+                  citations: llmResponse.citations,
                   links: llmResponse.links,
                   text: llmResponse.text,
                 }
@@ -3909,14 +4026,15 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         );
       })
       .catch(() => {
-        const unavailableResponse = getAssistantUnavailableResponse();
         setMessages((current) =>
           current.map((message) =>
             message.id === assistantMessageId
               ? {
                   ...message,
-                  links: unavailableResponse.links,
-                  text: unavailableResponse.text,
+                  actions: response.actions,
+                  citations: response.citations,
+                  links: response.links,
+                  text: response.text,
                 }
               : message,
           ),
@@ -3993,23 +4111,48 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
               <article className={`assistant-message is-${message.role}`} key={message.id}>
                 <div className="assistant-message-bubble">
                   <p>{renderAssistantText(message.text)}</p>
-                  {message.links?.length ? (
-                    <div className="assistant-links">
-                      {message.links.map((link) => (
-                        <a
-                          href={link.href}
-                          key={`${message.id}-${link.label}`}
-                          target={link.external ? "_blank" : undefined}
-                          rel={link.external ? "noreferrer" : undefined}
-                          onClick={() => {
-                            if (!link.external) {
-                              setIsOpen(false);
-                            }
-                          }}
-                        >
-                          {link.label}
-                        </a>
-                      ))}
+                  {message.citations?.length ? (
+                    <div className="assistant-link-group">
+                      <span>Sources</span>
+                      <div className="assistant-links">
+                        {message.citations.map((link) => (
+                          <a
+                            href={link.href}
+                            key={`${message.id}-source-${link.label}`}
+                            target={link.external ? "_blank" : undefined}
+                            rel={link.external ? "noreferrer" : undefined}
+                            onClick={() => {
+                              if (!link.external) {
+                                setIsOpen(false);
+                              }
+                            }}
+                          >
+                            {link.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {(message.actions ?? message.links)?.length ? (
+                    <div className="assistant-link-group">
+                      <span>Actions</span>
+                      <div className="assistant-links">
+                        {(message.actions ?? message.links)?.map((link) => (
+                          <a
+                            href={link.href}
+                            key={`${message.id}-action-${link.label}`}
+                            target={link.external ? "_blank" : undefined}
+                            rel={link.external ? "noreferrer" : undefined}
+                            onClick={() => {
+                              if (!link.external) {
+                                setIsOpen(false);
+                              }
+                            }}
+                          >
+                            {link.label}
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   ) : null}
                 </div>

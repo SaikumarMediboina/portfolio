@@ -7506,6 +7506,20 @@ dt {
   gap: 0.5rem;
 }
 
+.assistant-link-group {
+  display: grid;
+  gap: 0.42rem;
+  margin-top: 0.72rem;
+}
+
+.assistant-link-group > span {
+  color: color-mix(in srgb, currentColor 64%, transparent);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .assistant-links a,
 .assistant-prompts button {
   border: 1px solid rgba(255, 116, 79, 0.18);
