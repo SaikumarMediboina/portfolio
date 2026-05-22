@@ -7313,25 +7313,12 @@ type AboutPageProps = {
 };
 
 function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
-  const quickFacts = [
-    { label: "Role", value: profile.currentTitle },
-    { label: "Company", value: profile.currentCompany },
-    { label: "Location", value: "India" },
-    { label: "Focus", value: "Backend, search, AI workflows" },
-  ];
-  const workingPrinciples = [
-    {
-      title: "Reliability before sparkle",
-      detail: "Build the path that stays understandable after it reaches production.",
-    },
-    {
-      title: "Performance with evidence",
-      detail: "Measure the bottleneck, improve the hot path, and keep the result visible.",
-    },
-    {
-      title: "AI with control",
-      detail: "Use LLMs and semantic search where they help, without hiding the logic.",
-    },
+  const aboutLinks = [
+    { href: "/portfolio", label: "Portfolio", note: "Experience and selected work" },
+    { href: "/blogs", label: "Blogs", note: "Engineering notes" },
+    { href: "/active-builds", label: "Active Builds", note: "Systems being built now" },
+    { href: "/ai-radar", label: "AI Radar", note: "Curated AI updates" },
+    { href: "/work-with-me", label: "Work With Me", note: "Collaboration and contact" },
   ];
 
   return (
@@ -7370,87 +7357,30 @@ function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
 
       <main className="about-page shell" id="main-content">
         <section className="about-hero" aria-labelledby="about-page-title">
-          <div className="about-portrait-card">
-            <img src="/about-sai.jpg" alt="Sai Kumar Mediboina smiling at a workspace" />
-            <div className="about-portrait-caption">
-              <span>Backend engineer</span>
-              <strong>{profile.currentTitle}</strong>
-            </div>
-          </div>
-
           <div className="about-hero-copy">
             <p className="eyebrow">About Me</p>
-            <h1 id="about-page-title">
-              I build backend systems where scale, search, and practical AI meet.
-            </h1>
-            <p className="about-lead">
-              I am Sai Kumar Mediboina, a {profile.currentTitle} at {profile.company}. My work
-              focuses on high-throughput screening platforms, search and matching engines,
-              performance optimization, and AI-assisted backend workflows.
-            </p>
-            <p>
-              I like engineering that is measurable: faster query paths, safer ingestion pipelines,
-              clearer scoring logic, and systems that remain easy to operate after they go live.
-            </p>
-
-            <div className="about-action-row">
-              <a className="button button-primary" href="/portfolio#work">
-                View selected work
-              </a>
-              <a className="button button-secondary" href="/work-with-me">
-                Work with me
-              </a>
+            <h1 id="about-page-title">Sai Kumar Mediboina</h1>
+            <div className="about-intro-lines">
+              <p>I am a {profile.currentTitle} at {profile.company}.</p>
+              <p>I work on backend systems where scale, search quality, and reliability matter.</p>
+              <p>My recent focus includes high-throughput screening, matching engines, and AI-assisted workflows.</p>
+              <p>I use this site to share my work, engineering notes, active builds, and useful AI updates.</p>
             </div>
           </div>
+
+          <div className="about-portrait-card">
+            <img src="/about-sai.jpg" alt="Sai Kumar Mediboina smiling at a workspace" />
+          </div>
         </section>
 
-        <section className="about-fact-grid" aria-label="Quick profile facts">
-          {quickFacts.map((fact) => (
-            <article key={fact.label}>
-              <span>{fact.label}</span>
-              <strong>{fact.value}</strong>
-            </article>
+        <nav className="about-link-grid" aria-label="Explore key portfolio pages">
+          {aboutLinks.map((link) => (
+            <a href={link.href} key={link.label}>
+              <strong>{link.label}</strong>
+              <span>{link.note}</span>
+            </a>
           ))}
-        </section>
-
-        <section className="about-section about-split-section">
-          <div>
-            <p className="eyebrow">How I Work</p>
-            <h2>Clear systems, practical tradeoffs, measurable outcomes.</h2>
-          </div>
-          <div className="about-principles">
-            {workingPrinciples.map((principle) => (
-              <article key={principle.title}>
-                <h3>{principle.title}</h3>
-                <p>{principle.detail}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="about-section">
-          <div className="about-section-head">
-            <p className="eyebrow">Current Focus</p>
-            <h2>What I am building toward now.</h2>
-          </div>
-          <div className="about-focus-strip">
-            {currentFocus.map((focus) => (
-              <a href="/portfolio#work" key={focus.title}>
-                <span>{focus.caption}</span>
-                <strong>{focus.title}</strong>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        <section className="about-section about-proof-band" aria-label="Selected impact metrics">
-          {metrics.slice(0, 3).map((metric) => (
-            <article key={metric.label}>
-              <strong>{metric.value}</strong>
-              <span>{metric.label}</span>
-            </article>
-          ))}
-        </section>
+        </nav>
       </main>
     </>
   );
