@@ -169,6 +169,10 @@ public class AssistantProperties {
         private String provider = "local";
         private String openaiApiKey = "";
         private String geminiApiKey = "";
+        private String geminiModel = "gemini-2.5-flash";
+        private String groqApiKey = "";
+        private String groqModel = "llama-3.1-8b-instant";
+        private String groqBaseUrl = "https://api.groq.com/openai/v1";
 
         public String getProvider() {
             return provider;
@@ -193,11 +197,44 @@ public class AssistantProperties {
         public void setGeminiApiKey(String geminiApiKey) {
             this.geminiApiKey = geminiApiKey;
         }
+
+        public String getGeminiModel() {
+            return geminiModel;
+        }
+
+        public void setGeminiModel(String geminiModel) {
+            this.geminiModel = geminiModel;
+        }
+
+        public String getGroqApiKey() {
+            return groqApiKey;
+        }
+
+        public void setGroqApiKey(String groqApiKey) {
+            this.groqApiKey = groqApiKey;
+        }
+
+        public String getGroqModel() {
+            return groqModel;
+        }
+
+        public void setGroqModel(String groqModel) {
+            this.groqModel = groqModel;
+        }
+
+        public String getGroqBaseUrl() {
+            return groqBaseUrl;
+        }
+
+        public void setGroqBaseUrl(String groqBaseUrl) {
+            this.groqBaseUrl = groqBaseUrl;
+        }
     }
 
     public static class Embeddings {
         private String provider = "local";
         private int dimension = 64;
+        private String geminiModel = "gemini-embedding-001";
 
         public String getProvider() {
             return provider;
@@ -213,6 +250,14 @@ public class AssistantProperties {
 
         public void setDimension(int dimension) {
             this.dimension = dimension;
+        }
+
+        public String getGeminiModel() {
+            return geminiModel;
+        }
+
+        public void setGeminiModel(String geminiModel) {
+            this.geminiModel = geminiModel;
         }
     }
 }

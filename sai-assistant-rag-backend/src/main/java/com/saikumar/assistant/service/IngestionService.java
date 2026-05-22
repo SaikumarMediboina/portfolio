@@ -44,15 +44,16 @@ public class IngestionService {
             ? request.urls()
             : properties.getSeedUrls();
 
-        List<SourceDocument> documents = new ArrayList<>();
+        List<SourceDocument> documents = new ArrayList<>(sourceDocumentLoader.structuredSiteDocuments());
 
-        if (urls == null || urls.isEmpty()) {
-            documents.addAll(sourceDocumentLoader.fallbackSeedDocuments());
-        } else {
-            urls.forEach(url -> documents.add(sourceDocumentLoader.load(url)));
+        if (urls != null && !urls.isEmpty()) {
+            urls.stream()
+                .map(sourceDocumentLoader::load)
+                .filter(document -> !"fallback".equals(document.metadata().get("loader")))
+                .forEach(documents::add);
         }
 
-        if (documents.stream().allMatch(document -> "fallback".equals(document.metadata().get("loader")))) {
+        if (documents.isEmpty() || documents.stream().allMatch(document -> "fallback".equals(document.metadata().get("loader")))) {
             documents.addAll(sourceDocumentLoader.fallbackSeedDocuments());
         }
 
@@ -61,12 +62,19 @@ public class IngestionService {
             List<String> chunkTexts = documentChunker.split(document.text());
             for (int index = 0; index < chunkTexts.size(); index++) {
                 String chunkText = chunkTexts.get(index);
+                String embeddingText = String.join(
+                    " ",
+                    document.title(),
+                    document.sourceUrl(),
+                    document.metadata().getOrDefault("category", ""),
+                    chunkText
+                );
                 chunks.add(new KnowledgeChunk(
                     stableId(document.sourceUrl(), index, chunkText),
                     document.sourceUrl(),
                     document.title(),
                     chunkText,
-                    embeddingService.embed(chunkText),
+                    embeddingService.embedDocument(embeddingText),
                     Map.of(
                         "chunkIndex", String.valueOf(index),
                         "loader", document.metadata().getOrDefault("loader", "unknown")

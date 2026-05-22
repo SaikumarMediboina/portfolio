@@ -28,7 +28,17 @@ ORACLE_PASSWORD=
 
 OPENAI_API_KEY=
 GEMINI_API_KEY=
+LLM_PROVIDER=local
+GEMINI_MODEL=gemini-2.5-flash
+GROQ_API_KEY=
+GROQ_MODEL=llama-3.1-8b-instant
+GROQ_BASE_URL=https://api.groq.com/openai/v1
+EMBEDDING_PROVIDER=local
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+EMBEDDING_DIMENSION=1536
 ```
+
+Use `LLM_PROVIDER=gemini` with `GEMINI_API_KEY` or `LLM_PROVIDER=groq` with `GROQ_API_KEY` for real grounded answer generation. Keep `EMBEDDING_PROVIDER=local` while you are validating deployment, then switch to `EMBEDDING_PROVIDER=gemini` and re-run ingestion when you want Gemini-generated vectors in Oracle.
 
 ## Local API flow
 

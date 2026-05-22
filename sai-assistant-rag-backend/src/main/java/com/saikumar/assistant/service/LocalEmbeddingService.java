@@ -4,9 +4,11 @@ import com.saikumar.assistant.config.AssistantProperties;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
+@ConditionalOnProperty(prefix = "assistant.embeddings", name = "provider", havingValue = "local", matchIfMissing = true)
 public class LocalEmbeddingService implements EmbeddingService {
 
     private final AssistantProperties properties;
@@ -39,7 +41,12 @@ public class LocalEmbeddingService implements EmbeddingService {
         boost(text, vector, "backend", "spring", "java", "api", "microservice");
         boost(text, vector, "assistant", "rag", "llm", "chat", "knowledge");
         boost(text, vector, "oracle", "database", "vector", "sql", "search");
-        boost(text, vector, "blog", "article", "writing", "post", "read");
+        boost(text, vector, "blog", "blogs", "article", "articles", "writing", "post", "posts", "published");
+        boost(text, vector, "contact", "email", "mail", "linkedin", "phone", "connect", "hire");
+        boost(text, vector, "skill", "skills", "stack", "technology", "tools", "certification", "credential");
+        boost(text, vector, "education", "degree", "college", "cgpa", "mtech", "btech");
+        boost(text, vector, "award", "recognition", "achievement", "pace", "hackathon");
+        boost(text, vector, "radar", "news", "updates", "latest", "saved", "newsletter", "subscribe");
     }
 
     private void boost(String text, float[] vector, String... relatedTerms) {
