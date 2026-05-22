@@ -70,7 +70,7 @@ const mainMoreNavLinks = [
   { href: "/whats-new", icon: "news" as const, label: "What's New" },
   { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
   { href: "/work-with-me", icon: "mail" as const, label: "Work With Me" },
-  { href: "/#about", icon: "about" as const, id: "about", label: "About" },
+  { href: "/about", icon: "about" as const, label: "About" },
 ] as const;
 
 const emptyNavLinks = [] as const;
@@ -212,6 +212,10 @@ function getAbsoluteSiteUrl(path = "/") {
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
 
   return `${SITE_URL}${cleanPath === "/" ? "/" : cleanPath}`;
+}
+
+function getOpenGraphImageType(imagePath: string) {
+  return /\.(jpe?g)$/i.test(imagePath) ? "image/jpeg" : "image/svg+xml";
 }
 
 function getSeoTitle(title: string) {
@@ -467,6 +471,7 @@ function getBlogArticleStructuredData(post: BlogPost) {
 
 function getSeoMetadata({
   activeBuildSlug,
+  isAboutPage,
   isAdminUpdatePage,
   isAiRadarPage,
   isBlogsPage,
@@ -483,6 +488,7 @@ function getSeoMetadata({
   standaloneBlog,
 }: {
   activeBuildSlug?: string;
+  isAboutPage: boolean;
   isAdminUpdatePage: boolean;
   isAiRadarPage: boolean;
   isBlogsPage: boolean;
@@ -539,6 +545,18 @@ function getSeoMetadata({
         title: getSeoTitle("Start Here"),
         type: "website" as const,
       }
+    : isAboutPage
+      ? {
+          ...pageDefaults,
+          analyticsTitle: "About",
+          canonicalPath: "/about",
+          description:
+            "About Sai Kumar Mediboina, a Software Application Engineer focused on backend systems, search architecture, performance optimization, and practical AI workflows.",
+          imageAlt: "Sai Kumar Mediboina about page portrait",
+          imagePath: "/about-sai.jpg",
+          title: getSeoTitle("About Sai Kumar"),
+          type: "profile" as const,
+        }
     : isPortfolioPage
       ? {
           ...pageDefaults,
@@ -752,7 +770,7 @@ function applySeoMetadata(metadata: SeoMetadata) {
   setMetaTag("property", "og:type", metadata.type);
   setMetaTag("property", "og:url", canonicalUrl);
   setMetaTag("property", "og:image", imageUrl);
-  setMetaTag("property", "og:image:type", "image/svg+xml");
+  setMetaTag("property", "og:image:type", getOpenGraphImageType(metadata.imagePath));
   setMetaTag("property", "og:image:width", "1200");
   setMetaTag("property", "og:image:height", "630");
   setMetaTag("property", "og:image:alt", metadata.imageAlt);
@@ -1382,6 +1400,14 @@ function isContactPathname() {
   }
 
   return ["/contact", "/work-with-me"].includes(window.location.pathname.replace(/\/$/, ""));
+}
+
+function isAboutPathname() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.pathname.replace(/\/$/, "") === "/about";
 }
 
 function isPortfolioPathname() {
@@ -3193,7 +3219,7 @@ function getAssistantKnowledgeEntries(
         profile.currentTitle,
         profile.currentCompany,
       ],
-      links: [{ href: "/portfolio#about", label: "About Sai" }],
+      links: [{ href: "/about", label: "About Sai" }],
       priority: 4,
     }),
     createAssistantEntry({
@@ -3485,7 +3511,7 @@ function getAssistantKnowledgeEntries(
         title: metric.label,
         summary: `${metric.value}: ${metric.detail}`,
         keywords: ["metric", "impact", "result", "number", metric.value, metric.label],
-        links: [{ href: "/portfolio#about", label: "View highlights" }],
+        links: [{ href: "/about", label: "View highlights" }],
         priority: 3,
       }),
     );
@@ -3498,7 +3524,7 @@ function getAssistantKnowledgeEntries(
         title: focus.title,
         summary: `${focus.title}: ${focus.caption}. ${focus.detail}`,
         keywords: ["focus", "currently", "working", focus.title, focus.caption],
-        links: [{ href: "/portfolio#about", label: "View focus areas" }],
+        links: [{ href: "/about", label: "View focus areas" }],
         priority: 3,
       }),
     );
@@ -4364,7 +4390,7 @@ function ReaderMenu({
     { href: "/whats-new", icon: "news" as const, label: "What's New" },
     { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
     { href: "/work-with-me", icon: "mail" as const, label: "Work With Me" },
-    { href: "/#about", icon: "about" as const, label: "About" },
+    { href: "/about", icon: "about" as const, label: "About" },
   ];
 
   return (
@@ -5668,7 +5694,7 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
       title: "Proof of work and career story",
       items: [
         { detail: "Short intro and engineering focus.", href: "/", name: "Home overview" },
-        { detail: "Role, company, and professional summary.", href: "/portfolio#about", name: "About" },
+        { detail: "Role, company, and professional summary.", href: "/about", name: "About" },
         { detail: "Current and past role context.", href: "/portfolio#experience", name: "Experience" },
         { detail: "Backend, search, AI, and performance work.", href: "/portfolio#work", name: "Projects" },
         { detail: "Java, Spring, Oracle, cloud, search, AI.", href: "/portfolio#skills", name: "Tech stack" },
@@ -7280,6 +7306,155 @@ type ContactPageProps = {
   theme: Theme;
   onThemeToggle: () => void;
 };
+
+type AboutPageProps = {
+  theme: Theme;
+  onThemeToggle: () => void;
+};
+
+function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
+  const quickFacts = [
+    { label: "Role", value: profile.currentTitle },
+    { label: "Company", value: profile.currentCompany },
+    { label: "Location", value: "India" },
+    { label: "Focus", value: "Backend, search, AI workflows" },
+  ];
+  const workingPrinciples = [
+    {
+      title: "Reliability before sparkle",
+      detail: "Build the path that stays understandable after it reaches production.",
+    },
+    {
+      title: "Performance with evidence",
+      detail: "Measure the bottleneck, improve the hot path, and keep the result visible.",
+    },
+    {
+      title: "AI with control",
+      detail: "Use LLMs and semantic search where they help, without hiding the logic.",
+    },
+  ];
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to About page
+      </a>
+
+      <header className="article-site-header about-header">
+        <div className="shell article-header-shell">
+          <a className="brand" href="/">
+            <span className="brand-mark">SK</span>
+            <span className="brand-copy">
+              <strong>{profile.name}</strong>
+              <span>About</span>
+            </span>
+          </a>
+
+          <div className="article-header-actions">
+            <a className="button button-secondary" href="/">
+              Home
+            </a>
+            <PageBackButton fallbackHref="/" label="Back" />
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+              aria-pressed={theme === "dark"}
+              onClick={onThemeToggle}
+            >
+              <ThemeToggleIcon theme={theme} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="about-page shell" id="main-content">
+        <section className="about-hero" aria-labelledby="about-page-title">
+          <div className="about-portrait-card">
+            <img src="/about-sai.jpg" alt="Sai Kumar Mediboina smiling at a workspace" />
+            <div className="about-portrait-caption">
+              <span>Backend engineer</span>
+              <strong>{profile.currentTitle}</strong>
+            </div>
+          </div>
+
+          <div className="about-hero-copy">
+            <p className="eyebrow">About Me</p>
+            <h1 id="about-page-title">
+              I build backend systems where scale, search, and practical AI meet.
+            </h1>
+            <p className="about-lead">
+              I am Sai Kumar Mediboina, a {profile.currentTitle} at {profile.company}. My work
+              focuses on high-throughput screening platforms, search and matching engines,
+              performance optimization, and AI-assisted backend workflows.
+            </p>
+            <p>
+              I like engineering that is measurable: faster query paths, safer ingestion pipelines,
+              clearer scoring logic, and systems that remain easy to operate after they go live.
+            </p>
+
+            <div className="about-action-row">
+              <a className="button button-primary" href="/portfolio#work">
+                View selected work
+              </a>
+              <a className="button button-secondary" href="/work-with-me">
+                Work with me
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="about-fact-grid" aria-label="Quick profile facts">
+          {quickFacts.map((fact) => (
+            <article key={fact.label}>
+              <span>{fact.label}</span>
+              <strong>{fact.value}</strong>
+            </article>
+          ))}
+        </section>
+
+        <section className="about-section about-split-section">
+          <div>
+            <p className="eyebrow">How I Work</p>
+            <h2>Clear systems, practical tradeoffs, measurable outcomes.</h2>
+          </div>
+          <div className="about-principles">
+            {workingPrinciples.map((principle) => (
+              <article key={principle.title}>
+                <h3>{principle.title}</h3>
+                <p>{principle.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="about-section">
+          <div className="about-section-head">
+            <p className="eyebrow">Current Focus</p>
+            <h2>What I am building toward now.</h2>
+          </div>
+          <div className="about-focus-strip">
+            {currentFocus.map((focus) => (
+              <a href="/portfolio#work" key={focus.title}>
+                <span>{focus.caption}</span>
+                <strong>{focus.title}</strong>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section className="about-section about-proof-band" aria-label="Selected impact metrics">
+          {metrics.slice(0, 3).map((metric) => (
+            <article key={metric.label}>
+              <strong>{metric.value}</strong>
+              <span>{metric.label}</span>
+            </article>
+          ))}
+        </section>
+      </main>
+    </>
+  );
+}
 
 function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
   const collaborationAreas = [
@@ -8980,11 +9155,13 @@ function App() {
   const isActiveBuildsPage = isActiveBuildsPathname();
   const activeBuildSlug = getActiveBuildSlugFromPathname();
   const isBlogsPage = isBlogsPathname();
+  const isAboutPage = isAboutPathname();
   const isContactPage = isContactPathname();
   const isPortfolioPage = isPortfolioPathname();
   const isAdminUpdatePage = isAdminUpdatePathname();
   const seoMetadata = getSeoMetadata({
     activeBuildSlug,
+    isAboutPage,
     isAdminUpdatePage,
     isAiRadarPage,
     isBlogsPage,
@@ -9968,6 +10145,15 @@ function App() {
   if (isContactPage) {
     return renderWithAssistant(
       <ContactPage
+        theme={theme}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />,
+    );
+  }
+
+  if (isAboutPage) {
+    return renderWithAssistant(
+      <AboutPage
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,

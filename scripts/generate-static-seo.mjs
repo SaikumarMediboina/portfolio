@@ -53,6 +53,10 @@ function getAbsoluteSiteUrl(routePath = "/") {
   return `${SITE_URL}${cleanPath === "/" ? "/" : cleanPath}`;
 }
 
+function getOpenGraphImageType(imagePath) {
+  return /\.(jpe?g)$/i.test(imagePath) ? "image/jpeg" : "image/svg+xml";
+}
+
 function getSeoTitle(title) {
   return `${title} | ${SITE_NAME}`;
 }
@@ -272,6 +276,17 @@ const staticRoutes = [
   }),
   withStructuredData({
     ...baseMetadata,
+    canonicalPath: "/about",
+    description:
+      "About Sai Kumar Mediboina, a Software Application Engineer focused on backend systems, search architecture, performance optimization, and practical AI workflows.",
+    imageAlt: "Sai Kumar Mediboina about page portrait",
+    imagePath: "/about-sai.jpg",
+    priority: "0.9",
+    title: getSeoTitle("About Sai Kumar"),
+    type: "profile",
+  }),
+  withStructuredData({
+    ...baseMetadata,
     canonicalPath: "/active-builds",
     description:
       "See Sai Kumar Mediboina's current build ideas, active portfolio experiments, learning projects, and upcoming engineering content.",
@@ -452,7 +467,7 @@ function renderSeoBlock(metadata) {
     <meta property="og:type" content="${escapeHtml(metadata.type)}" />
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
     <meta property="og:image" content="${escapeHtml(imageUrl)}" />
-    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:type" content="${escapeHtml(getOpenGraphImageType(metadata.imagePath))}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="${escapeHtml(metadata.imageAlt)}" />${articleMeta}
