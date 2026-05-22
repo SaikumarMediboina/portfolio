@@ -6420,15 +6420,15 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "When VITE_ASSISTANT_API_BASE_URL is present, the UI calls https://portfolio-e4bg.onrender.com/api/chat. Without it, it falls back to the Vercel route.",
+        "The frontend resolves its assistant endpoint from the deployment environment, so production traffic is routed to the managed Spring service while preview and local builds can use their configured fallback path.",
       label: "Deployment switch",
-      title: "Backend URL selection",
+      title: "Environment-based routing",
     },
     {
       detail:
-        "CORS allows saikumarmediboina.com to call the Render Spring service. Admin ingest stays protected by X-Admin-Secret.",
+        "The public chat endpoint is available only to approved portfolio origins, while ingestion and indexing operations remain behind a separate administrative authentication boundary.",
       label: "Boundary",
-      title: "Public chat, guarded ingest",
+      title: "Public chat, protected operations",
     },
     {
       detail:
