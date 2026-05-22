@@ -21288,8 +21288,11 @@ body {
 }
 
 .assistant-panel {
-  right: 0 !important;
-  bottom: calc(100% + 0.95rem) !important;
+  position: fixed !important;
+  right: clamp(1rem, 2.4vw, 1.75rem) !important;
+  bottom: calc(5.15rem + env(safe-area-inset-bottom, 0px)) !important;
+  left: auto !important;
+  top: auto !important;
   grid-template-rows: auto minmax(0, 1fr) auto !important;
   width: min(45rem, calc(100vw - 2rem)) !important;
   height: min(43rem, calc(100vh - 7rem)) !important;
@@ -21300,6 +21303,13 @@ body {
   box-shadow:
     0 28px 80px rgba(20, 28, 40, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+}
+
+.site-assistant.is-open .assistant-panel {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateY(0) scale(1) !important;
+  visibility: visible !important;
 }
 
 .assistant-panel::before,
@@ -21640,8 +21650,12 @@ body {
 
 @media (max-width: 720px) {
   .assistant-panel {
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    bottom: calc(5.15rem + env(safe-area-inset-bottom, 0px)) !important;
     width: min(100vw - 1rem, 30rem) !important;
     height: min(40rem, calc(100vh - 6.5rem)) !important;
+    margin-inline: auto !important;
   }
 
   .assistant-header {
