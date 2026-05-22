@@ -21734,3 +21734,167 @@ body {
     border-radius: 16px !important;
   }
 }
+
+/* Assistant overlap guard: keep the compact widget readable across old overrides. */
+.assistant-panel {
+  display: grid !important;
+  overflow: hidden !important;
+}
+
+.assistant-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 0.72rem !important;
+}
+
+.assistant-title,
+.assistant-title h2,
+.assistant-header p {
+  min-width: 0 !important;
+}
+
+.assistant-title h2 {
+  flex-wrap: wrap !important;
+  row-gap: 0.28rem !important;
+}
+
+.assistant-header-actions {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+}
+
+.assistant-body {
+  display: grid !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.assistant-messages {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+
+.assistant-form {
+  position: relative !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  min-height: 4.05rem !important;
+  overflow: hidden !important;
+}
+
+.assistant-form input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-shadow: none !important;
+}
+
+.assistant-form button {
+  position: relative !important;
+  inset: auto !important;
+  display: grid !important;
+  flex: 0 0 3.05rem !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.assistant-form button svg {
+  display: block !important;
+}
+
+:root[data-theme="dark"] .assistant-panel {
+  background:
+    radial-gradient(circle at 14% 0%, rgba(255, 135, 72, 0.16), transparent 32%),
+    #211914 !important;
+}
+
+:root[data-theme="dark"] .assistant-form {
+  border-color: rgba(255, 218, 190, 0.18) !important;
+  background: rgba(65, 43, 32, 0.96) !important;
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 238, 220, 0.1) !important;
+}
+
+:root[data-theme="dark"] .assistant-form button {
+  background: linear-gradient(135deg, #ff8a45, #f05a22) !important;
+  box-shadow: 0 12px 22px rgba(240, 90, 34, 0.22) !important;
+}
+
+@media (max-width: 720px) {
+  .assistant-panel {
+    bottom: calc(4.85rem + env(safe-area-inset-bottom, 0px)) !important;
+    height: min(32.5rem, calc(100dvh - 6rem)) !important;
+    max-height: calc(100dvh - 6rem) !important;
+    border-radius: 22px !important;
+  }
+
+  .assistant-header {
+    min-height: auto !important;
+    padding: 0.72rem 0.82rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .assistant-drag-region {
+    min-height: 2.9rem !important;
+    min-width: 0 !important;
+    gap: 0.58rem !important;
+  }
+
+  .assistant-avatar {
+    width: 2.85rem !important;
+    height: 2.85rem !important;
+    border-width: 2px !important;
+  }
+
+  .assistant-title h2,
+  .assistant-header h2 {
+    font-size: 1.06rem !important;
+    letter-spacing: -0.035em !important;
+  }
+
+  .assistant-beta-badge {
+    min-height: 1.28rem !important;
+    padding: 0.18rem 0.36rem !important;
+    font-size: 0.62rem !important;
+  }
+
+  .assistant-header p {
+    display: none !important;
+  }
+
+  .assistant-header-actions {
+    gap: 0.16rem !important;
+  }
+
+  .assistant-clear,
+  .assistant-close {
+    width: 2.05rem !important;
+    height: 2.05rem !important;
+    min-height: 2.05rem !important;
+  }
+
+  .assistant-form {
+    min-height: 3.62rem !important;
+    margin: 0 0.75rem 0.75rem !important;
+    padding: 0.36rem 0.38rem 0.36rem 0.82rem !important;
+    border-radius: 18px !important;
+  }
+
+  .assistant-form input {
+    min-height: 2.65rem !important;
+    font-size: 0.92rem !important;
+  }
+
+  .assistant-form button {
+    flex-basis: 2.8rem !important;
+    width: 2.8rem !important;
+    height: 2.8rem !important;
+    border-radius: 14px !important;
+  }
+}
