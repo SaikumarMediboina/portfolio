@@ -3490,7 +3490,7 @@ function getAssistantKnowledgeEntries(
         "Active Builds now documents Sai's Assistant as the current product build: a website-aware AI guide powered by curated site knowledge, LLM routing, source/action chips, and safe fallback behavior.",
       details: [
         "The page explains the assistant purpose, architecture, request flow, tech stack, design principles, and future roadmap.",
-        "Architecture: Vercel React chat UI, VITE_ASSISTANT_API_BASE_URL bridge, Render Spring Boot backend, Oracle 23ai vector retrieval, Groq or Gemini LLM layer, and cited response rendering.",
+        "Architecture: deployed React chat UI, managed Spring Boot backend, Oracle 23ai vector retrieval, Groq or Gemini LLM layer, and cited response rendering.",
         "Design principles: grounded by default, third-person identity boundary, visible citations, guarded admin ingest, graceful fallback, and useful direction.",
       ],
       keywords: [
@@ -6307,21 +6307,21 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     {
       detail:
         "The floating React panel captures the visitor message, session id, and recent chat history, then calls the configured Spring backend.",
-      endpoint: "VITE_ASSISTANT_API_BASE_URL",
+      endpoint: "Browser request",
       title: "Chat UI bridge",
       tone: "is-blue",
     },
     {
       detail:
         "Admin refresh loads structured portfolio knowledge, chunks it with metadata, embeds records, and writes them to Oracle 23ai.",
-      endpoint: "POST /api/admin/ingest",
+      endpoint: "Protected refresh",
       title: "Offline ingestion",
       tone: "is-coral",
     },
     {
       detail:
         "Visitor questions are embedded, retrieved from Oracle vector search, reranked by intent, grounded in context, and answered with citations.",
-      endpoint: "POST /api/chat",
+      endpoint: "Grounded response",
       title: "Online chat",
       tone: "is-sage",
     },
@@ -6372,10 +6372,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Capture intent",
     },
     {
-      after: "Spring Backend URL",
+      after: "Managed Spring API",
       before: "Chat UI",
       detail:
-        "The frontend uses VITE_ASSISTANT_API_BASE_URL to call the public Render Spring service instead of the older local route.",
+        "The frontend resolves the assistant endpoint from its deployment environment and sends the request to the managed Spring service.",
       title: "Route to backend",
     },
     {
@@ -6471,20 +6471,28 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
   ];
   const stackGroups = [
     {
-      items: ["React 19", "TypeScript", "Floating chat panel", "VITE_ASSISTANT_API_BASE_URL"],
-      title: "Vercel frontend",
+      detail: "A static portfolio surface that keeps the chat experience lightweight and routes requests from deployment config.",
+      eyebrow: "Portfolio surface",
+      items: ["React + TypeScript", "Floating chat launcher", "Session state", "Citation rendering"],
+      title: "Frontend",
     },
     {
-      items: ["Spring Boot 3", "WebFlux", "CORS", "Rate limiting", "Admin ingest endpoint"],
-      title: "Render backend",
+      detail: "A managed API layer for chat, retrieval orchestration, model calls, rate controls, and protected knowledge refresh.",
+      eyebrow: "Service layer",
+      items: ["Spring Boot 3", "WebFlux endpoints", "Approved origins", "Rate limiting", "Admin refresh"],
+      title: "Backend API",
     },
     {
-      items: ["Oracle Autonomous DB", "23ai Vector Search", "Structured source docs", "Chunk metadata"],
-      title: "Knowledge store",
+      detail: "A curated portfolio corpus stored as searchable chunks with source metadata for grounded answers.",
+      eyebrow: "Retrieval layer",
+      items: ["Autonomous Database", "23ai vector search", "Structured source docs", "Chunk metadata"],
+      title: "Knowledge Store",
     },
     {
+      detail: "A prompt and model boundary that answers as Sai's assistant, not as Sai, and cites the retrieved evidence.",
+      eyebrow: "Generation layer",
       items: ["Groq Llama", "Gemini-ready client", "Grounded prompt", "Identity guardrails"],
-      title: "AI layer",
+      title: "Model Layer",
     },
   ];
   const howItWorks = [
@@ -6807,18 +6815,27 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
         <section className="active-assistant-section">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">Tech Stack</p>
-            <h2>Tech behind the assistant.</h2>
+            <h2>Production path for the assistant.</h2>
             <p>
-              Lightweight today, but shaped like a real assistant platform that can grow into
-              vector search, analytics, and admin-managed knowledge updates.
+              A deployed frontend, managed Spring service, Oracle-backed retrieval layer, and
+              model boundary work together without exposing internal endpoints in the UI.
             </p>
           </div>
 
-          <div className="active-assistant-stack-grid">
+          <div className="assistant-stack-matrix" role="table" aria-label="Assistant production stack">
+            <div className="assistant-stack-matrix-head" role="row">
+              <span>Layer</span>
+              <span>Responsibility</span>
+              <span>Core components</span>
+            </div>
             {stackGroups.map((group) => (
-              <article className="active-assistant-stack-card" key={group.title}>
-                <h3>{group.title}</h3>
-                <ul>
+              <article className="assistant-stack-row" key={group.title} role="row">
+                <div className="assistant-stack-layer" role="cell">
+                  <span>{group.eyebrow}</span>
+                  <h3>{group.title}</h3>
+                </div>
+                <p role="cell">{group.detail}</p>
+                <ul role="cell">
                   {group.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
