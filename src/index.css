@@ -21269,7 +21269,7 @@ body {
   }
 }
 
-/* Sai AI beta assistant: clean chat layout inspired by modern course assistants. */
+/* Sai's Assistant beta: clean chat layout inspired by modern course assistants. */
 .site-assistant {
   right: clamp(1rem, 2.4vw, 1.75rem) !important;
   bottom: clamp(1rem, 2.4vw, 1.75rem) !important;
@@ -21377,10 +21377,10 @@ body {
 .assistant-header h2 {
   display: flex !important;
   align-items: center !important;
-  gap: 0.65rem !important;
+  gap: 0.45rem !important;
   color: #171f2d !important;
   font-family: "Outfit", sans-serif !important;
-  font-size: clamp(1.18rem, 1.65vw, 1.46rem) !important;
+  font-size: clamp(1.08rem, 1.35vw, 1.32rem) !important;
   font-weight: 850 !important;
   letter-spacing: -0.04em !important;
   line-height: 1 !important;
@@ -21389,13 +21389,13 @@ body {
 .assistant-beta-badge {
   display: inline-flex;
   align-items: center;
-  min-height: 1.62rem;
-  padding: 0.22rem 0.5rem;
+  min-height: 1.5rem;
+  padding: 0.2rem 0.44rem;
   border: 1px solid #ffc487;
   border-radius: 7px;
   background: #fff0df;
   color: #f04f19;
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.02em;
 }

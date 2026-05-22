@@ -4174,7 +4174,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
             </span>
             <div className="assistant-title">
               <h2>
-                Sai AI <span className="assistant-beta-badge">BETA</span>
+                Sai&apos;s Assistant <span className="assistant-beta-badge">BETA</span>
               </h2>
               <p>Always here to help</p>
             </div>
