@@ -21287,6 +21287,13 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
+.site-assistant.is-open .assistant-launcher {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(0.35rem) scale(0.9) !important;
+  visibility: hidden !important;
+}
+
 .assistant-panel {
   position: fixed !important;
   right: clamp(1rem, 2.4vw, 1.75rem) !important;
