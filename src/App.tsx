@@ -9291,8 +9291,12 @@ function App() {
   useEffect(() => {
     const sectionIds = [
       "top",
-      ...currentNavLinks.flatMap((link) => ("id" in link ? [link.id] : [])),
-      ...currentMoreNavLinks.flatMap((link) => ("id" in link ? [link.id] : [])),
+      ...currentNavLinks.flatMap((link) =>
+        "id" in link && typeof link.id === "string" ? [link.id] : [],
+      ),
+      ...currentMoreNavLinks.flatMap((link) =>
+        "id" in link && typeof link.id === "string" ? [link.id] : [],
+      ),
     ];
     let frameId = 0;
 
