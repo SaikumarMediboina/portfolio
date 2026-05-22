@@ -1994,6 +1994,35 @@ function AssistantSendIcon() {
   );
 }
 
+function AssistantRefreshIcon() {
+  return (
+    <svg className="assistant-refresh-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M18.7 9.2a7 7 0 1 0 1.1 4.2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M18.7 4.8v4.4h-4.4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function AssistantCloseIcon() {
+  return (
+    <svg className="assistant-close-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6.5 6.5 17.5 17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M17.5 6.5 6.5 17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function AccountCircleIcon() {
   return (
     <svg className="nav-account-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -3934,9 +3963,10 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
   const messagesRef = useRef<HTMLDivElement | null>(null);
 
   const quickPrompts = [
-    "What can you answer about this site?",
-    "Summarize Sai's strongest projects",
-    "Explain Kafka retries simply",
+    { label: "All", prompt: "What can you answer about this site?" },
+    { label: "Portfolio", prompt: "Summarize Sai's strongest projects" },
+    { label: "Blogs", prompt: "What does Sai write about?" },
+    { label: "AI Radar", prompt: "What is new in AI Radar?" },
   ];
 
   useEffect(() => {
@@ -4139,16 +4169,24 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
             aria-label="Assistant title"
           >
             <span className="assistant-avatar" aria-hidden="true">
-              SK
+              <img src="/profile-avatar.png" alt="" />
+              <span className="assistant-online-dot" />
             </span>
             <div className="assistant-title">
-              <h2>Sai&apos;s Bot</h2>
-              <p>Portfolio guide</p>
+              <h2>
+                Sai AI <span className="assistant-beta-badge">BETA</span>
+              </h2>
+              <p>Always here to help</p>
             </div>
           </div>
           <div className="assistant-header-actions">
-            <button className="assistant-clear" type="button" onClick={clearAssistantChat}>
-              Clear
+            <button
+              className="assistant-clear"
+              type="button"
+              aria-label="Restart assistant chat"
+              onClick={clearAssistantChat}
+            >
+              <AssistantRefreshIcon />
             </button>
             <button
               className="assistant-close"
@@ -4156,7 +4194,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
               aria-label="Close assistant"
               onClick={() => setIsOpen(false)}
             >
-              x
+              <AssistantCloseIcon />
             </button>
           </div>
         </div>
@@ -4165,6 +4203,11 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
           <div className="assistant-messages" ref={messagesRef} aria-live="polite">
             {messages.map((message) => (
               <article className={`assistant-message is-${message.role}`} key={message.id}>
+                {message.role === "assistant" ? (
+                  <span className="assistant-message-avatar" aria-hidden="true">
+                    <img src="/profile-avatar.png" alt="" />
+                  </span>
+                ) : null}
                 <div className="assistant-message-bubble">
                   <p>{renderAssistantText(message.text)}</p>
                   {message.citations?.length ? (
@@ -4218,9 +4261,14 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
 
           {shouldShowQuickPrompts ? (
             <div className="assistant-prompts" aria-label="Suggested assistant prompts">
-              {quickPrompts.map((prompt) => (
-                <button type="button" key={prompt} onClick={() => sendAssistantMessage(prompt)}>
-                  {prompt}
+              {quickPrompts.map((prompt, index) => (
+                <button
+                  className={index === 0 ? "is-active" : undefined}
+                  type="button"
+                  key={prompt.label}
+                  onClick={() => sendAssistantMessage(prompt.prompt)}
+                >
+                  {prompt.label}
                 </button>
               ))}
             </div>
@@ -4231,7 +4279,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
           <input
             type="text"
             value={input}
-            placeholder="Search posts or ask a question..."
+            placeholder="Ask about Sai, projects, blogs, or AI..."
             aria-label="Ask the portfolio assistant"
             onChange={(event) => setInput(event.target.value)}
           />
