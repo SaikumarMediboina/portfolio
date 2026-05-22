@@ -2425,6 +2425,16 @@ type AssistantResponseDraft = Pick<AssistantMessage, "actions" | "citations" | "
   shouldUseLlm: boolean;
 };
 
+type AssistantApiLink = {
+  external?: boolean;
+  href?: string;
+  label?: string;
+  title?: string;
+  url?: string;
+};
+
+const assistantApiBaseUrl = (import.meta.env.VITE_ASSISTANT_API_BASE_URL ?? "").replace(/\/+$/, "");
+
 const assistantStopWords = new Set([
   "a",
   "about",
@@ -3992,27 +4002,42 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
     const fallbackActions = getAssistantActionLinks(
       fallbackResponse.actions ?? fallbackResponse.links,
     );
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const shouldUseSpringAssistant = Boolean(assistantApiBaseUrl);
+    const response = await fetch(
+      shouldUseSpringAssistant ? `${assistantApiBaseUrl}/api/chat` : "/api/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(
+          shouldUseSpringAssistant
+            ? {
+                history: messages.slice(-6).map((message) => ({
+                  role: message.role,
+                  text: message.text,
+                })),
+                message: question,
+                sessionId: sessionIdRef.current,
+              }
+            : {
+                question,
+                fallbackText: fallbackResponse.text,
+                fallbackLinks: fallbackActions,
+                sessionId: sessionIdRef.current,
+                mode: fallbackResponse.mode,
+                context:
+                  fallbackResponse.mode === "generic"
+                    ? []
+                    : getAssistantPromptContext(question, Boolean(subscriberUser), isSubscribed),
+                history: messages.slice(-6).map((message) => ({
+                  role: message.role,
+                  text: message.text,
+                })),
+              },
+        ),
       },
-      body: JSON.stringify({
-        question,
-        fallbackText: fallbackResponse.text,
-        fallbackLinks: fallbackActions,
-        sessionId: sessionIdRef.current,
-        mode: fallbackResponse.mode,
-        context:
-          fallbackResponse.mode === "generic"
-            ? []
-            : getAssistantPromptContext(question, Boolean(subscriberUser), isSubscribed),
-        history: messages.slice(-6).map((message) => ({
-          role: message.role,
-          text: message.text,
-        })),
-      }),
-    });
+    );
 
     if (!response.ok) {
       throw new Error("Assistant API request failed.");
@@ -4027,7 +4052,12 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       };
     }
 
-    const text = typeof data?.text === "string" ? data.text.trim() : "";
+    const text =
+      typeof data?.answer === "string"
+        ? data.answer.trim()
+        : typeof data?.text === "string"
+          ? data.text.trim()
+          : "";
 
     if (!text) {
       throw new Error("Assistant API returned an empty response.");
@@ -4036,7 +4066,16 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
     const citations = Array.isArray(data?.citations)
       ? getUniqueAssistantLinks(
           data.citations
-            .map((link: AssistantLink) => ({ ...link, kind: "source" as const }))
+            .map((link: AssistantApiLink): AssistantLink => {
+              const href = link.href ?? link.url ?? "";
+
+              return {
+                external: link.external ?? /^https?:\/\//.test(href),
+                href,
+                kind: "source" as const,
+                label: link.label ?? link.title ?? "Source",
+              };
+            })
             .filter((link: AssistantLink) => Boolean(link.href && link.label)),
         ).slice(0, 3)
       : fallbackResponse.citations;
