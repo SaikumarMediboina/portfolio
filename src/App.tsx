@@ -3490,8 +3490,8 @@ function getAssistantKnowledgeEntries(
         "Active Builds now documents Sai's Assistant as the current product build: a website-aware AI guide powered by curated site knowledge, LLM routing, source/action chips, and safe fallback behavior.",
       details: [
         "The page explains the assistant purpose, architecture, request flow, tech stack, design principles, and future roadmap.",
-        "Architecture: React chat UI, local question routing, curated knowledge retrieval, Vercel API route, Gemini LLM layer, and source/action rendering.",
-        "Design principles: grounded by default, graceful fallback, answer plus direction, and useful before noisy.",
+        "Architecture: Vercel React chat UI, VITE_ASSISTANT_API_BASE_URL bridge, Render Spring Boot backend, Oracle 23ai vector retrieval, Groq or Gemini LLM layer, and cited response rendering.",
+        "Design principles: grounded by default, third-person identity boundary, visible citations, guarded admin ingest, graceful fallback, and useful direction.",
       ],
       keywords: [
         "active",
@@ -6299,30 +6299,30 @@ type ActiveBuildsPageProps = {
 function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: ActiveBuildsPageProps) {
   const isSaiAssistantBuildPage = activeBuildSlug === "sai-assistant";
   const assistantSignals = [
-    { label: "Mode", value: "RAG-ready" },
-    { label: "Flow", value: "Offline + Online" },
-    { label: "Output", value: "Cited Actions" },
+    { label: "Frontend", value: "Vercel UI" },
+    { label: "Backend", value: "Spring RAG" },
+    { label: "Store", value: "Oracle 23ai" },
   ];
   const ragPipelineCards = [
     {
       detail:
-        "Admin refresh reads site knowledge, chunks it with metadata, and prepares vector-ready records.",
+        "The floating React panel captures the visitor message, session id, and recent chat history, then calls the configured Spring backend.",
+      endpoint: "VITE_ASSISTANT_API_BASE_URL",
+      title: "Chat UI bridge",
+      tone: "is-blue",
+    },
+    {
+      detail:
+        "Admin refresh loads structured portfolio knowledge, chunks it with metadata, embeds records, and writes them to Oracle 23ai.",
       endpoint: "POST /api/admin/ingest",
       title: "Offline ingestion",
       tone: "is-coral",
     },
     {
       detail:
-        "Visitor questions retrieve trusted chunks, build a grounded prompt, and return answer links.",
+        "Visitor questions are embedded, retrieved from Oracle vector search, reranked by intent, grounded in context, and answered with citations.",
       endpoint: "POST /api/chat",
       title: "Online chat",
-      tone: "is-blue",
-    },
-    {
-      detail:
-        "Hybrid retrieval, versioned cache keys, guarded admin endpoints, and polite fallback behavior.",
-      endpoint: "Production guardrails",
-      title: "Reliability layer",
       tone: "is-sage",
     },
   ];
@@ -6368,107 +6368,148 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     {
       after: "Chat UI",
       before: "Website Visitor",
-      detail: "The user asks about Sai, blogs, projects, Spring, backend, cloud, CS, or AI.",
+      detail: "The visitor opens the floating assistant and asks about Sai, projects, blogs, contact, skills, or backend topics.",
       title: "Capture intent",
     },
     {
-      after: "Vercel Assistant API",
+      after: "Spring Backend URL",
       before: "Chat UI",
-      detail: "The frontend sends the message, recent context, session signal, and safe UI actions to the API.",
-      title: "Send request",
+      detail:
+        "The frontend uses VITE_ASSISTANT_API_BASE_URL to call the public Render Spring service instead of the older local route.",
+      title: "Route to backend",
     },
     {
-      after: "Question Classifier",
-      before: "Vercel Assistant API",
-      detail: "The API sanitizes input, keeps the request controlled, and prepares routing.",
-      title: "Prepare safely",
+      after: "Embedding + Retrieval",
+      before: "Spring API",
+      detail: "Spring sanitizes the request, creates a query embedding, and asks Oracle 23ai for nearest knowledge chunks.",
+      title: "Retrieve context",
     },
     {
-      after: "Website path / LLM path / Fallback",
-      before: "Question Classifier",
-      detail: "The classifier decides whether the answer should come from site knowledge, the LLM, or a polite fallback.",
-      title: "Choose route",
+      after: "Intent Reranker",
+      before: "Oracle 23ai",
+      detail:
+        "The backend reranks chunks by exact intent so project, contact, blog, skill, and experience questions land on the right evidence.",
+      title: "Rerank evidence",
     },
     {
-      after: "Grounded Prompt Builder",
-      before: "Website question",
-      detail: "Website questions retrieve trusted context from portfolio, blogs, AI Radar, updates, and reader features.",
-      title: "Retrieve knowledge",
+      after: "Groq / Gemini LLM",
+      before: "Grounded Prompt",
+      detail:
+        "The prompt carries strict identity rules, retrieved context, citations, and instructions to avoid invented portfolio facts.",
+      title: "Generate safely",
     },
     {
-      after: "Answer with links/actions",
-      before: "Grounded Prompt / LLM",
-      detail: "The assistant returns a concise answer and points the visitor to the next useful page or article.",
-      title: "Respond with direction",
+      after: "Answer + Citations",
+      before: "LLM Response",
+      detail: "The UI renders the answer, source chips, and links while keeping the chat session responsive.",
+      title: "Render result",
+    },
+  ];
+  const chatUiArchitecture = [
+    {
+      detail:
+        "A fixed assistant launcher opens a compact panel with message history, suggested prompts, restart control, close control, and source chips.",
+      label: "React component",
+      title: "Floating chat surface",
+    },
+    {
+      detail:
+        "The browser stores only UI state and session identity. Questions are sent as JSON with sessionId, message, and optional recent history.",
+      label: "Client state",
+      title: "Session-aware request",
+    },
+    {
+      detail:
+        "When VITE_ASSISTANT_API_BASE_URL is present, the UI calls https://portfolio-e4bg.onrender.com/api/chat. Without it, it falls back to the Vercel route.",
+      label: "Deployment switch",
+      title: "Backend URL selection",
+    },
+    {
+      detail:
+        "CORS allows saikumarmediboina.com to call the Render Spring service. Admin ingest stays protected by X-Admin-Secret.",
+      label: "Boundary",
+      title: "Public chat, guarded ingest",
+    },
+    {
+      detail:
+        "Spring returns answer text, citations, and retrieved chunk count. The UI converts citations into readable source links under the assistant message.",
+      label: "Response contract",
+      title: "Cited response model",
+    },
+    {
+      detail:
+        "If the backend or model is unavailable, the assistant keeps the user oriented with a safe fallback instead of pretending.",
+      label: "Failure mode",
+      title: "Graceful fallback",
     },
   ];
   const codeFlow = [
     {
-      detail: "Detect site, tech, or unsupported intent before calling the model.",
-      title: "Classify",
+      detail: "Normalize the visitor message, cap question length, and preserve a stable session id.",
+      title: "Sanitize",
     },
     {
-      detail: "Rank the best website entries when the question is about Sai or the site.",
+      detail: "Embed the question using the configured embedding provider.",
+      title: "Embed",
+    },
+    {
+      detail: "Fetch nearest chunks from Oracle 23ai vector search.",
       title: "Retrieve",
     },
     {
-      detail: "Merge browser context with server-side RAG chunks so answers stay grounded.",
-      title: "Enrich",
+      detail: "Boost exact user intent so contact, projects, blogs, skills, and experience retrieve correctly.",
+      title: "Rerank",
     },
     {
-      detail: "Build a compact prompt with context, rules, and fallback guidance.",
-      title: "Ground",
+      detail: "Build a grounded prompt with system-role rules and retrieved evidence.",
+      title: "Prompt",
     },
     {
-      detail: "Use the LLM where it adds useful language and reasoning.",
+      detail: "Call Groq or Gemini and return answer text with citations to the UI.",
       title: "Generate",
-    },
-    {
-      detail: "Return answer text with source chips and useful next actions.",
-      title: "Guide",
     },
   ];
   const stackGroups = [
     {
-      items: ["React 19", "TypeScript", "Floating chat UI", "Theme-aware CSS"],
-      title: "Client layer",
+      items: ["React 19", "TypeScript", "Floating chat panel", "VITE_ASSISTANT_API_BASE_URL"],
+      title: "Vercel frontend",
     },
     {
-      items: ["Vercel serverless API", "Admin ingest/webhook", "Prompt builder", "Fallback response"],
-      title: "API layer",
+      items: ["Spring Boot 3", "WebFlux", "CORS", "Rate limiting", "Admin ingest endpoint"],
+      title: "Render backend",
     },
     {
-      items: ["Metadata chunks", "Hybrid retrieval", "Versioned cache", "Vector-ready records"],
-      title: "Knowledge layer",
+      items: ["Oracle Autonomous DB", "23ai Vector Search", "Structured source docs", "Chunk metadata"],
+      title: "Knowledge store",
     },
     {
-      items: ["Gemini LLM", "Intent routing", "Source chips", "Action links"],
+      items: ["Groq Llama", "Gemini-ready client", "Grounded prompt", "Identity guardrails"],
       title: "AI layer",
     },
   ];
   const howItWorks = [
     {
-      detail: "Sai-specific facts come from the website knowledge base first.",
+      detail: "Sai-specific answers are built from retrieved portfolio, project, blog, contact, and credential chunks.",
       title: "Grounded answers",
     },
     {
-      detail: "General technical questions can use the LLM for deeper explanations.",
-      title: "Model where useful",
+      detail: "The assistant never speaks as Sai and maps user phrases like 'you' or 'u' back to Sai in third person.",
+      title: "Identity boundary",
     },
     {
-      detail: "If confidence is low, it responds politely instead of inventing.",
-      title: "Safe fallback",
+      detail: "The chat UI surfaces citations so visitors can open the source page behind each answer.",
+      title: "Visible sources",
     },
     {
-      detail: "Every useful answer should point visitors to a page or article.",
-      title: "Clear next step",
+      detail: "If retrieval or the LLM fails, the service returns a controlled fallback rather than an invented answer.",
+      title: "Controlled failure",
     },
   ];
   const nextUpgrades = [
-    "Persist embeddings in pgvector or Oracle 23ai Vector Search.",
+    "Switch production embeddings from local vectors to Gemini embeddings.",
     "Stream answers with Server-Sent Events.",
-    "Add feedback buttons to improve routing quality.",
-    "Add reranking for longer technical questions.",
+    "Add feedback buttons for answer quality and bad citation reports.",
+    "Schedule ingestion after portfolio content updates.",
   ];
 
   return (
@@ -6597,10 +6638,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
         <section className="active-assistant-section active-assistant-pipeline-section">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">RAG Blueprint</p>
-            <h2>Two pipelines, one assistant.</h2>
+            <h2>Three layers, one assistant.</h2>
             <p>
-              Content refresh stays separate from live chat, so answers stay fast and the system
-              remains easier to debug.
+              The browser owns the chat experience, Spring owns retrieval and model calls, and
+              Oracle owns the indexed portfolio knowledge.
             </p>
           </div>
 
@@ -6615,13 +6656,34 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
           </div>
         </section>
 
+        <section className="active-assistant-section active-assistant-ui-section">
+          <div className="active-assistant-section-heading">
+            <p className="eyebrow">Chat UI Architecture</p>
+            <h2>How the website chat connects to the RAG backend.</h2>
+            <p>
+              The UI is a small product surface: it manages conversation state, sends a clean
+              request to Spring, and renders answers with citations instead of hiding the system.
+            </p>
+          </div>
+
+          <div className="assistant-ui-architecture-grid">
+            {chatUiArchitecture.map((item) => (
+              <article className="assistant-ui-architecture-card" key={item.title}>
+                <span>{item.label}</span>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="active-assistant-section active-assistant-architecture-board">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">Architecture</p>
-            <h2>One clean request path with smart routing.</h2>
+            <h2>One clean request path from UI to Oracle.</h2>
             <p>
-              The assistant is not just a chat popup. It is a small RAG-style system with routing,
-              retrieval, prompt grounding, model response, and safe fallback behavior.
+              The assistant is not only a chat popup. It is a deployed RAG path across Vercel,
+              Render, Oracle 23ai, and the configured LLM provider.
             </p>
           </div>
 
@@ -6662,13 +6724,13 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
               <text className="assistant-flow-node-text" x="454.5" y="119">Chat UI</text>
 
               <rect className="assistant-flow-node-rect" x="286" y="174" width="155" height="40" />
-              <text className="assistant-flow-node-text" x="363.5" y="198">Vercel Assistant API</text>
+              <text className="assistant-flow-node-text" x="363.5" y="198">Render Spring API</text>
 
               <rect className="assistant-flow-node-rect" x="191" y="252" width="150" height="40" />
-              <text className="assistant-flow-node-text" x="266" y="276">Question Classifier</text>
+              <text className="assistant-flow-node-text" x="266" y="276">Intent Reranker</text>
 
               <rect className="assistant-flow-node-rect" x="526" y="252" width="164" height="40" />
-              <text className="assistant-flow-node-text" x="608" y="276">Analytics + Feedback</text>
+              <text className="assistant-flow-node-text" x="608" y="276">CORS + Guardrails</text>
 
               <rect className="assistant-flow-label-bg" x="227" y="314" width="78" height="20" />
               <text className="assistant-flow-label-text" x="266" y="328">Unsupported</text>
@@ -6677,10 +6739,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
               <text className="assistant-flow-node-text" x="266" y="375">Polite fallback</text>
 
               <rect className="assistant-flow-label-bg" x="396" y="314" width="99" height="20" />
-              <text className="assistant-flow-label-text" x="445.5" y="328">Website question</text>
+              <text className="assistant-flow-label-text" x="445.5" y="328">Portfolio question</text>
 
               <rect className="assistant-flow-node-rect" x="366" y="351" width="159" height="40" />
-              <text className="assistant-flow-node-text" x="445.5" y="375">Knowledge Retrieval</text>
+              <text className="assistant-flow-node-text" x="445.5" y="375">Oracle Retrieval</text>
 
               <rect className="assistant-flow-label-bg" x="114" y="410" width="123" height="20" />
               <text className="assistant-flow-label-text" x="175.5" y="424">Generic tech question</text>
@@ -6689,13 +6751,13 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
               <text className="assistant-flow-node-text" x="372.5" y="474">Grounded Prompt Builder</text>
 
               <rect className="assistant-flow-node-rect" x="505" y="450" width="186" height="40" />
-              <text className="assistant-flow-node-text" x="598" y="474">Website Knowledge Base</text>
+              <text className="assistant-flow-node-text" x="598" y="474">Structured Site Catalog</text>
 
               <rect className="assistant-flow-node-rect" x="529" y="529" width="138" height="40" />
-              <text className="assistant-flow-node-text" x="598" y="553">Vector Database</text>
+              <text className="assistant-flow-node-text" x="598" y="553">Oracle 23ai Vector DB</text>
 
               <rect className="assistant-flow-node-rect" x="142" y="529" width="70" height="40" />
-              <text className="assistant-flow-node-text" x="177" y="553">LLM</text>
+              <text className="assistant-flow-node-text" x="177" y="553">Groq LLM</text>
 
               <rect className="assistant-flow-node-rect" x="317" y="608" width="187" height="40" />
               <text className="assistant-flow-node-text" x="410.5" y="632">Answer with links/actions</text>

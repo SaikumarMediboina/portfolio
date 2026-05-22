@@ -213,13 +213,13 @@ const SITE_KNOWLEDGE = [
     contentType: "page",
     title: "Sai's Assistant architecture",
     summary:
-      "Sai's Assistant is a hybrid website assistant: website knowledge base plus LLM, smart routing, source chips, action links, and safe fallback behavior.",
+      "Sai's Assistant is a deployed website assistant: Vercel React chat UI, Render Spring Boot RAG backend, Oracle 23ai vector retrieval, Groq or Gemini LLM, source chips, action links, and safe fallback behavior.",
     details: [
-      "The production direction separates offline ingestion from online chat.",
-      "Offline pipeline: read site/source content, chunk it, embed it, and store vectors plus metadata.",
-      "Online pipeline: classify the question, retrieve relevant chunks, build a grounded prompt, call the LLM, and return citations/actions.",
+      "Chat UI: the browser uses VITE_ASSISTANT_API_BASE_URL to send sessionId, message, and optional recent history to the Spring /api/chat endpoint.",
+      "Offline pipeline: POST /api/admin/ingest loads structured site knowledge, chunks it with metadata, embeds records, and stores vectors in Oracle 23ai.",
+      "Online pipeline: Spring sanitizes the question, embeds it, retrieves nearest Oracle chunks, reranks by intent, builds a grounded prompt, calls Groq or Gemini, and returns answer text with citations.",
     ],
-    tags: ["RAG", "Assistant", "LLM", "Architecture", "Vercel API"],
+    tags: ["RAG", "Assistant", "LLM", "Architecture", "Spring Boot", "Oracle 23ai", "Render"],
     url: "/active-builds/sai-assistant",
     priority: 12,
     updatedAt: "2026-05-22",

@@ -331,9 +331,10 @@ public class SourceDocumentLoader {
             """
             Active build: Sai's Assistant. Sai's Assistant is a hybrid website assistant: curated website knowledge base plus LLM, smart routing, source chips, action links, and safe fallback behavior.
             Scope: The assistant answers from portfolio sections, selected projects, blogs, AI Radar, latest updates, dashboard notes, credentials, sign-in access, saved posts, and work-with-me links. If a question is outside that scope, it should say so instead of guessing.
-            Production direction: Offline ingestion reads site and source content, normalizes and chunks it, attaches metadata, creates embeddings, and stores vectors. Online chat classifies the question, retrieves relevant chunks, builds a grounded prompt, calls the LLM, and returns citations and useful actions.
-            Architecture pieces include React chat UI, local question routing, curated knowledge retrieval, Vercel API route, Gemini or compatible LLM layer, source/action rendering, and future vector-backed Spring ingestion.
-            Design principles: grounded by default, graceful fallback, answer plus direction, and useful before noisy.
+            Production architecture: Vercel hosts the React portfolio and floating chat UI. The browser reads VITE_ASSISTANT_API_BASE_URL and sends chat requests to the public Render Spring Boot backend at /api/chat. Spring sanitizes the request, embeds the question, retrieves nearest chunks from Oracle 23ai Vector Search, reranks evidence by intent, builds a grounded prompt, calls Groq or Gemini, and returns answer text with citations.
+            Offline ingestion: POST /api/admin/ingest loads structured portfolio knowledge, chunks it with metadata, embeds each chunk, and stores vectors in Oracle Autonomous Database.
+            Chat UI contract: the frontend sends sessionId, message, and optional recent history. The backend returns sessionId, answer, citations, and retrieved chunk count. The UI renders the answer plus source chips.
+            Design principles: grounded by default, third-person identity boundary, visible citations, guarded admin ingest, graceful fallback, and useful direction.
             """,
             "active-build"
         ));
