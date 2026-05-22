@@ -19053,6 +19053,66 @@ body {
   color: var(--ink-strong) !important;
 }
 
+.active-assistant-pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.9rem, 2vw, 1.2rem);
+}
+
+.active-assistant-pipeline-card {
+  --pipeline-color: #c75d46;
+  --pipeline-soft: rgba(199, 93, 70, 0.12);
+  display: grid;
+  align-content: start;
+  gap: 0.72rem;
+  min-height: 12rem;
+  padding: clamp(1rem, 2vw, 1.25rem);
+  border: 1px solid color-mix(in srgb, var(--pipeline-color) 26%, var(--panel-border));
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 88% 0%, var(--pipeline-soft), transparent 10rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.16)),
+    color-mix(in srgb, var(--pipeline-color) 6%, var(--panel-strong));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.48),
+    0 18px 42px color-mix(in srgb, var(--pipeline-color) 10%, transparent);
+}
+
+.active-assistant-pipeline-card.is-blue {
+  --pipeline-color: #567f92;
+  --pipeline-soft: rgba(86, 127, 146, 0.14);
+}
+
+.active-assistant-pipeline-card.is-sage {
+  --pipeline-color: #697f58;
+  --pipeline-soft: rgba(105, 127, 88, 0.14);
+}
+
+.active-assistant-pipeline-card span {
+  width: fit-content;
+  padding: 0.3rem 0.62rem;
+  border: 1px solid color-mix(in srgb, var(--pipeline-color) 28%, var(--chip-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pipeline-soft) 70%, var(--panel-soft));
+  color: color-mix(in srgb, var(--pipeline-color) 78%, var(--ink-strong));
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 950;
+}
+
+.active-assistant-pipeline-card h3 {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.25rem, 1.8vw, 1.65rem);
+  line-height: 1.08;
+}
+
+.active-assistant-pipeline-card p {
+  max-width: 30rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
 .assistant-blueprint {
   gap: 1rem !important;
   background:
@@ -19180,6 +19240,31 @@ body {
   color: #fff8ef !important;
 }
 
+:root[data-theme="dark"] .active-assistant-pipeline-card {
+  background:
+    radial-gradient(circle at 88% 0%, color-mix(in srgb, var(--pipeline-color) 34%, transparent), transparent 10rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.12), rgba(255, 246, 236, 0.035)),
+    color-mix(in srgb, var(--pipeline-color) 16%, #281f1a) !important;
+  border-color: color-mix(in srgb, var(--pipeline-color) 42%, rgba(255, 232, 211, 0.16)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 239, 0.11),
+    0 20px 48px rgba(8, 5, 3, 0.24);
+}
+
+:root[data-theme="dark"] .active-assistant-pipeline-card span {
+  border-color: color-mix(in srgb, var(--pipeline-color) 36%, rgba(255, 232, 211, 0.14));
+  background: color-mix(in srgb, var(--pipeline-color) 24%, rgba(255, 246, 236, 0.08));
+  color: #ffe2d4;
+}
+
+:root[data-theme="dark"] .active-assistant-pipeline-card h3 {
+  color: #fff8ef;
+}
+
+:root[data-theme="dark"] .active-assistant-pipeline-card p {
+  color: #dcc6b6;
+}
+
 :root[data-theme="dark"] .assistant-blueprint {
   background:
     radial-gradient(circle at 8% 0%, rgba(255, 157, 124, 0.13), transparent 17rem),
@@ -19218,6 +19303,10 @@ body {
 }
 
 @media (max-width: 1080px) {
+  .active-assistant-pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+
   .assistant-stage-flow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

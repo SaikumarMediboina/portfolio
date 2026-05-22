@@ -1,9 +1,17 @@
+import {
+  createSemanticCacheKey,
+  getKnowledgeIndexVersion,
+  mergeContextItems,
+  retrieveSiteContext,
+} from "./lib/rag-knowledge.js";
+
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 const DEFAULT_MODEL = "gemini-2.5-flash";
 const MAX_QUESTION_LENGTH = 600;
 const MAX_CONTEXT_ITEMS = 12;
 const MAX_CONTEXT_TEXT_LENGTH = 11000;
 const MAX_OUTPUT_TOKENS = 1400;
+const CACHE_LIMIT = 50;
 const INCOMPLETE_ENDING_WORDS = new Set([
   "a",
   "about",
@@ -37,6 +45,9 @@ const INCOMPLETE_ENDING_WORDS = new Set([
   "while",
   "with",
 ]);
+
+const assistantSemanticCache = globalThis.__assistantSemanticCache || new Map();
+globalThis.__assistantSemanticCache = assistantSemanticCache;
 
 function jsonResponse(response, status, payload) {
   response.status(status).json(payload);
@@ -84,19 +95,40 @@ function uniqueLinks(links) {
 }
 
 function sanitizeContextItem(item) {
+  const url = truncateText(item?.url || item?.links?.[0]?.href, 240);
+  const tags = Array.isArray(item?.tags)
+    ? item.tags.slice(0, 6).map((tag) => truncateText(tag, 42)).filter(Boolean)
+    : [];
+  const links = Array.isArray(item?.links)
+    ? item.links
+        .slice(0, 3)
+        .map((link) => sanitizeLink(link))
+        .filter(Boolean)
+    : [];
+
+  if (!links.length && url) {
+    links.push(
+      sanitizeLink({
+        href: url,
+        label: item?.title || "Open source",
+      }),
+    );
+  }
+
   return {
     category: truncateText(item?.category, 40),
+    contentType: truncateText(item?.contentType, 40),
     title: truncateText(item?.title, 120),
     summary: truncateText(item?.summary, 700),
     details: Array.isArray(item?.details)
       ? item.details.slice(0, 8).map((detail) => truncateText(detail, 560))
       : [],
-    links: Array.isArray(item?.links)
-      ? item.links
-          .slice(0, 3)
-          .map((link) => sanitizeLink(link))
-          .filter(Boolean)
-      : [],
+    id: truncateText(item?.id, 90),
+    links,
+    score: Number.isFinite(item?.score) ? item.score : undefined,
+    tags,
+    updatedAt: truncateText(item?.updatedAt, 40),
+    url,
   };
 }
 
@@ -104,11 +136,14 @@ function buildContextText(contextItems) {
   return contextItems
     .map((item, index) => {
       const details = item.details?.length ? `\nDetails: ${item.details.join(" ")}` : "";
+      const tags = item.tags?.length ? `\nTags: ${item.tags.join(", ")}` : "";
+      const source = item.url ? `\nSource URL: ${item.url}` : "";
+      const updatedAt = item.updatedAt ? `\nUpdated: ${item.updatedAt}` : "";
       const links = item.links?.length
         ? `\nLinks: ${item.links.map((link) => `${link.label} (${link.href})`).join("; ")}`
         : "";
 
-      return `${index + 1}. [${item.category}] ${item.title}\nSummary: ${item.summary}${details}${links}`;
+      return `${index + 1}. [${item.category}] ${item.title}\nSummary: ${item.summary}${tags}${updatedAt}${details}${source}${links}`;
     })
     .join("\n\n");
 }
@@ -173,6 +208,36 @@ function isLikelyIncompleteText(text) {
   );
 }
 
+function readSemanticCache(cacheKey) {
+  const cached = assistantSemanticCache.get(cacheKey);
+
+  if (!cached || cached.indexVersion !== getKnowledgeIndexVersion()) {
+    return null;
+  }
+
+  return {
+    ...cached.payload,
+    cache: "semantic",
+  };
+}
+
+function writeSemanticCache(cacheKey, payload) {
+  if (!cacheKey || !payload?.text) {
+    return;
+  }
+
+  assistantSemanticCache.set(cacheKey, {
+    indexVersion: getKnowledgeIndexVersion(),
+    payload,
+    storedAt: Date.now(),
+  });
+
+  if (assistantSemanticCache.size > CACHE_LIMIT) {
+    const oldestKey = assistantSemanticCache.keys().next().value;
+    assistantSemanticCache.delete(oldestKey);
+  }
+}
+
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -187,6 +252,7 @@ export default async function handler(request, response) {
     const fallbackActions = Array.isArray(body.fallbackLinks)
       ? body.fallbackLinks.map((link) => sanitizeLink(link, "action")).filter(Boolean)
       : [];
+    const sessionId = truncateText(body.sessionId, 120);
     const mode = body.mode === "generic" ? "generic" : "site";
     const history = Array.isArray(body.history)
       ? body.history
@@ -197,15 +263,30 @@ export default async function handler(request, response) {
           }))
           .filter((message) => message.text)
       : [];
-    const contextItems = Array.isArray(body.context)
-      ? body.context.slice(0, MAX_CONTEXT_ITEMS).map(sanitizeContextItem)
-      : [];
+    const clientContext = Array.isArray(body.context) ? body.context.slice(0, MAX_CONTEXT_ITEMS) : [];
+    const serverContext = mode === "site" ? retrieveSiteContext(question, { limit: 8 }) : [];
+    const contextItems = mergeContextItems(clientContext, serverContext)
+      .slice(0, MAX_CONTEXT_ITEMS)
+      .map(sanitizeContextItem);
     const contextText = truncateText(buildContextText(contextItems), MAX_CONTEXT_TEXT_LENGTH);
     const citations = mode === "site" ? buildCitations(contextItems) : [];
     const actions = buildActions(contextItems, fallbackActions);
+    const cacheKey =
+      mode === "site" && history.length <= 1
+        ? createSemanticCacheKey(question, mode, contextItems)
+        : "";
 
     if (!question) {
       return jsonResponse(response, 400, { error: "Question is required." });
+    }
+
+    const cachedPayload = readSemanticCache(cacheKey);
+
+    if (cachedPayload) {
+      return jsonResponse(response, 200, {
+        ...cachedPayload,
+        sessionId,
+      });
     }
 
     if (!process.env.GEMINI_API_KEY) {
@@ -213,7 +294,9 @@ export default async function handler(request, response) {
         actions,
         citations,
         configured: false,
+        indexVersion: getKnowledgeIndexVersion(),
         route: mode,
+        sessionId,
         text: fallbackText,
       });
     }
@@ -223,7 +306,9 @@ export default async function handler(request, response) {
         actions,
         citations,
         configured: true,
+        indexVersion: getKnowledgeIndexVersion(),
         route: mode,
+        sessionId,
         text: fallbackText,
       });
     }
@@ -317,13 +402,23 @@ export default async function handler(request, response) {
           ? fallbackText
           : text;
 
-    return jsonResponse(response, 200, {
+    const payload = {
       actions,
       citations,
       configured: true,
+      indexVersion: getKnowledgeIndexVersion(),
+      retrieval: {
+        contextCount: contextItems.length,
+        source: serverContext.length ? "client-context-plus-server-retrieval" : "client-context",
+      },
       route: mode,
+      sessionId,
       text: safeText || fallbackText,
-    });
+    };
+
+    writeSemanticCache(cacheKey, payload);
+
+    return jsonResponse(response, 200, payload);
   } catch (error) {
     return jsonResponse(response, 500, {
       error: error instanceof Error ? error.message : "Unable to answer right now.",

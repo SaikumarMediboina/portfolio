@@ -3961,6 +3961,9 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<AssistantMessage[]>(getInitialAssistantMessages);
   const messagesRef = useRef<HTMLDivElement | null>(null);
+  const sessionIdRef = useRef(
+    `sai-assistant-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+  );
 
   const quickPrompts = [
     { label: "All", prompt: "What can you answer about this site?" },
@@ -3998,6 +4001,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         question,
         fallbackText: fallbackResponse.text,
         fallbackLinks: fallbackActions,
+        sessionId: sessionIdRef.current,
         mode: fallbackResponse.mode,
         context:
           fallbackResponse.mode === "generic"
@@ -6256,9 +6260,32 @@ type ActiveBuildsPageProps = {
 function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: ActiveBuildsPageProps) {
   const isSaiAssistantBuildPage = activeBuildSlug === "sai-assistant";
   const assistantSignals = [
-    { label: "Mode", value: "Hybrid AI" },
-    { label: "Scope", value: "Website + Tech" },
-    { label: "Output", value: "Answers + Actions" },
+    { label: "Mode", value: "RAG-ready" },
+    { label: "Flow", value: "Offline + Online" },
+    { label: "Output", value: "Cited Actions" },
+  ];
+  const ragPipelineCards = [
+    {
+      detail:
+        "Admin refresh reads site knowledge, chunks it with metadata, and prepares vector-ready records.",
+      endpoint: "POST /api/admin/ingest",
+      title: "Offline ingestion",
+      tone: "is-coral",
+    },
+    {
+      detail:
+        "Visitor questions retrieve trusted chunks, build a grounded prompt, and return answer links.",
+      endpoint: "POST /api/chat",
+      title: "Online chat",
+      tone: "is-blue",
+    },
+    {
+      detail:
+        "Hybrid retrieval, versioned cache keys, guarded admin endpoints, and polite fallback behavior.",
+      endpoint: "Production guardrails",
+      title: "Reliability layer",
+      tone: "is-sage",
+    },
   ];
   const activeBuildCards = [
     {
@@ -6308,7 +6335,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     {
       after: "Vercel Assistant API",
       before: "Chat UI",
-      detail: "The frontend sends the message, recent context, and safe UI actions to the API.",
+      detail: "The frontend sends the message, recent context, session signal, and safe UI actions to the API.",
       title: "Send request",
     },
     {
@@ -6346,6 +6373,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Retrieve",
     },
     {
+      detail: "Merge browser context with server-side RAG chunks so answers stay grounded.",
+      title: "Enrich",
+    },
+    {
       detail: "Build a compact prompt with context, rules, and fallback guidance.",
       title: "Ground",
     },
@@ -6364,11 +6395,11 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Client layer",
     },
     {
-      items: ["Vercel serverless API", "Request sanitization", "Prompt builder", "Fallback response"],
+      items: ["Vercel serverless API", "Admin ingest/webhook", "Prompt builder", "Fallback response"],
       title: "API layer",
     },
     {
-      items: ["Portfolio facts", "Blog summaries", "AI Radar links", "Site updates"],
+      items: ["Metadata chunks", "Hybrid retrieval", "Versioned cache", "Vector-ready records"],
       title: "Knowledge layer",
     },
     {
@@ -6395,10 +6426,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
   ];
   const nextUpgrades = [
-    "Vector database for semantic search.",
-    "Feedback buttons to improve answers.",
-    "Admin refresh flow for new content.",
-    "Better citations for long answers.",
+    "Persist embeddings in pgvector or Oracle 23ai Vector Search.",
+    "Stream answers with Server-Sent Events.",
+    "Add feedback buttons to improve routing quality.",
+    "Add reranking for longer technical questions.",
   ];
 
   return (
@@ -6520,6 +6551,27 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
                 <strong>{signal.value}</strong>
                 {signal.label}
               </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="active-assistant-section active-assistant-pipeline-section">
+          <div className="active-assistant-section-heading">
+            <p className="eyebrow">RAG Blueprint</p>
+            <h2>Two pipelines, one assistant.</h2>
+            <p>
+              Content refresh stays separate from live chat, so answers stay fast and the system
+              remains easier to debug.
+            </p>
+          </div>
+
+          <div className="active-assistant-pipeline-grid">
+            {ragPipelineCards.map((pipeline) => (
+              <article className={`active-assistant-pipeline-card ${pipeline.tone}`} key={pipeline.title}>
+                <span>{pipeline.endpoint}</span>
+                <h3>{pipeline.title}</h3>
+                <p>{pipeline.detail}</p>
+              </article>
             ))}
           </div>
         </section>
