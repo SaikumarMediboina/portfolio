@@ -36,20 +36,34 @@ public class AdminIngestionController {
         this.repository = repository;
     }
 
+    @GetMapping("/ingest")
+    public ResponseEntity<Map<String, Object>> ingestHelp() {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(Map.of(
+            "error", "Use POST to trigger ingestion.",
+            "why", "Browsers open this URL as GET, but ingestion is an admin action and must be protected.",
+            "endpoint", "POST /api/admin/ingest",
+            "requiredHeader", "X-Admin-Secret: local-dev-secret",
+            "powershellExample", "Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/admin/ingest -Headers @{ 'X-Admin-Secret' = 'local-dev-secret' } -ContentType 'application/json' -Body '{\"reset\":true}'"
+        ));
+    }
+
     @PostMapping("/ingest")
-    public Mono<ResponseEntity<IngestResponse>> ingest(
+    public Mono<ResponseEntity<?>> ingest(
         @RequestBody(required = false) IngestRequest request,
         @RequestHeader(value = "X-Admin-Secret", required = false) String adminSecret,
         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization
     ) {
         if (!isAuthorized(adminSecret, authorization)) {
-            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "error", "Unauthorized admin request.",
+                "hint", "Pass X-Admin-Secret or Authorization: Bearer with the configured admin secret."
+            )));
         }
 
         IngestRequest safeRequest = request == null ? new IngestRequest(null, true) : request;
         return Mono.fromCallable(() -> ingestionService.ingest(safeRequest))
             .subscribeOn(Schedulers.boundedElastic())
-            .map(ResponseEntity::ok);
+            .map(response -> ResponseEntity.ok().body(response));
     }
 
     @GetMapping("/index")
@@ -58,7 +72,10 @@ public class AdminIngestionController {
         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization
     ) {
         if (!isAuthorized(adminSecret, authorization)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "error", "Unauthorized admin request.",
+                "hint", "Pass X-Admin-Secret or Authorization: Bearer with the configured admin secret."
+            ));
         }
 
         return ResponseEntity.ok(Map.of(
