@@ -21145,10 +21145,10 @@ body {
 
 .about-portrait-card {
   min-height: unset;
-  aspect-ratio: 1.12 / 1;
+  aspect-ratio: 1.08 / 1;
   align-self: center;
   justify-self: end;
-  width: min(100%, 34rem);
+  width: min(100%, 30rem);
   border-radius: clamp(22px, 3vw, 32px);
 }
 
@@ -21159,9 +21159,9 @@ body {
 }
 
 .about-portrait-card img {
-  object-position: 92% 45%;
-  transform: scale(1.07);
-  transform-origin: 82% 34%;
+  object-position: 55% 44%;
+  transform: scale(1.02);
+  transform-origin: center;
 }
 
 .about-link-grid {
@@ -21228,7 +21228,7 @@ body {
   .about-portrait-card {
     order: -1;
     justify-self: center;
-    width: min(100%, 35rem);
+    width: min(100%, 30rem);
   }
 
   .about-link-grid {
@@ -21251,13 +21251,13 @@ body {
   }
 
   .about-portrait-card {
-    aspect-ratio: 1.14 / 1;
+    aspect-ratio: 1.08 / 1;
     min-height: unset;
   }
 
   .about-portrait-card img {
-    object-position: 93% 45%;
-    transform: scale(1.08);
+    object-position: 55% 44%;
+    transform: scale(1.02);
   }
 
   .about-link-grid {
