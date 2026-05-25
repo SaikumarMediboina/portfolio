@@ -21698,6 +21698,48 @@ body {
   letter-spacing: 0.02em;
 }
 
+.assistant-loading-progress {
+  display: grid;
+  gap: 0.42rem;
+  margin-top: 0.72rem;
+}
+
+.assistant-loading-progress div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: #7c8797;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.assistant-loading-progress strong {
+  color: #e95317;
+  font-size: 0.72rem;
+}
+
+.assistant-loading-track {
+  display: block;
+  overflow: hidden;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: #e8edf3;
+}
+
+.assistant-loading-progress i {
+  display: block;
+  height: 0.38rem;
+  max-width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffb28a, #ff6f4f);
+  box-shadow: 0 6px 16px rgba(240, 79, 25, 0.18);
+  transition: width 420ms ease;
+}
+
 .assistant-link-group > span {
   color: #8993a2 !important;
 }
@@ -21858,6 +21900,18 @@ body {
 
 :root[data-theme="dark"] .assistant-response-time {
   color: #bda89a;
+}
+
+:root[data-theme="dark"] .assistant-loading-progress div {
+  color: #bda89a;
+}
+
+:root[data-theme="dark"] .assistant-loading-progress strong {
+  color: #ffd7c6;
+}
+
+:root[data-theme="dark"] .assistant-loading-track {
+  background: rgba(255, 246, 236, 0.12);
 }
 
 :root[data-theme="dark"] .assistant-followups > span {

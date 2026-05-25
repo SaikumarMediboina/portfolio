@@ -810,7 +810,10 @@ type AssistantMessage = {
   citations?: AssistantLink[];
   followUps?: string[];
   id: number;
+  isLoading?: boolean;
   links?: AssistantLink[];
+  loadingLabel?: string;
+  loadingProgress?: number;
   role: "assistant" | "visitor";
   responseTimeMs?: number;
   text: string;
@@ -2452,6 +2455,34 @@ function formatAssistantResponseTime(milliseconds: number) {
   }
 
   return `${(milliseconds / 1000).toFixed(milliseconds < 10000 ? 1 : 0)}s`;
+}
+
+function getAssistantLoadingProgress(startTime: number) {
+  const elapsedMs = Math.max(0, performance.now() - startTime);
+  return Math.min(94, Math.round(8 + (1 - Math.exp(-elapsedMs / 4500)) * 86));
+}
+
+function getAssistantLoadingLabel(progress: number, mode: AssistantAnswerMode) {
+  if (mode === "generic") {
+    if (progress < 36) {
+      return "Understanding concept";
+    }
+    if (progress < 72) {
+      return "Building explanation";
+    }
+    return "Finalizing answer";
+  }
+
+  if (progress < 34) {
+    return "Reading question";
+  }
+  if (progress < 64) {
+    return "Matching sources";
+  }
+  if (progress < 84) {
+    return "Grounding answer";
+  }
+  return "Finalizing citations";
 }
 
 async function fetchAssistantApi(input: RequestInfo | URL, init: RequestInit = {}) {
@@ -4134,6 +4165,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<AssistantMessage[]>(getInitialAssistantMessages);
+  const loadingIntervalsRef = useRef<number[]>([]);
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const sessionIdRef = useRef(
     `sai-assistant-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -4158,6 +4190,13 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       });
     }
   }, [isOpen, messages]);
+
+  useEffect(() => {
+    return () => {
+      loadingIntervalsRef.current.forEach((intervalId) => window.clearInterval(intervalId));
+      loadingIntervalsRef.current = [];
+    };
+  }, []);
 
   const getLlmAssistantResponse = async (
     question: string,
@@ -4292,6 +4331,9 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       },
       {
         id: assistantMessageId,
+        isLoading: response.shouldUseLlm,
+        loadingLabel: response.shouldUseLlm ? getAssistantLoadingLabel(12, response.mode) : undefined,
+        loadingProgress: response.shouldUseLlm ? 12 : undefined,
         role: "assistant",
         text: response.shouldUseLlm ? loadingText : response.text,
         actions: response.shouldUseLlm ? undefined : response.actions,
@@ -4307,8 +4349,26 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       return;
     }
 
+    const loadingIntervalId = window.setInterval(() => {
+      const progress = getAssistantLoadingProgress(responseStartTime);
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === assistantMessageId && message.isLoading
+            ? {
+                ...message,
+                loadingLabel: getAssistantLoadingLabel(progress, response.mode),
+                loadingProgress: progress,
+              }
+            : message,
+        ),
+      );
+    }, 450);
+    loadingIntervalsRef.current.push(loadingIntervalId);
+
     getLlmAssistantResponse(trimmedValue, response)
       .then((llmResponse) => {
+        window.clearInterval(loadingIntervalId);
+        loadingIntervalsRef.current = loadingIntervalsRef.current.filter((id) => id !== loadingIntervalId);
         setMessages((current) =>
           current.map((message) =>
             message.id === assistantMessageId
@@ -4317,7 +4377,10 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                   actions: llmResponse.actions,
                   citations: llmResponse.citations,
                   followUps: llmResponse.followUps,
+                  isLoading: false,
                   links: llmResponse.links,
+                  loadingLabel: undefined,
+                  loadingProgress: undefined,
                   responseTimeMs: getAssistantElapsedMs(responseStartTime),
                   text: llmResponse.text,
                 }
@@ -4326,6 +4389,8 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         );
       })
       .catch(() => {
+        window.clearInterval(loadingIntervalId);
+        loadingIntervalsRef.current = loadingIntervalsRef.current.filter((id) => id !== loadingIntervalId);
         setMessages((current) =>
           current.map((message) =>
             message.id === assistantMessageId
@@ -4334,7 +4399,10 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                   actions: response.actions,
                   citations: response.citations,
                   followUps: response.followUps,
+                  isLoading: false,
                   links: response.links,
+                  loadingLabel: undefined,
+                  loadingProgress: undefined,
                   responseTimeMs: getAssistantElapsedMs(responseStartTime),
                   text: response.text,
                 }
@@ -4426,6 +4494,17 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                 ) : null}
                 <div className="assistant-message-bubble">
                   <p>{renderAssistantText(message.text)}</p>
+                  {message.isLoading && typeof message.loadingProgress === "number" ? (
+                    <div className="assistant-loading-progress" aria-label="Assistant response progress">
+                      <div>
+                        <span>{message.loadingLabel ?? "Working"}</span>
+                        <strong>{message.loadingProgress}%</strong>
+                      </div>
+                      <span className="assistant-loading-track">
+                        <i style={{ width: `${message.loadingProgress}%` }} />
+                      </span>
+                    </div>
+                  ) : null}
                   {message.role === "assistant" && typeof message.responseTimeMs === "number" ? (
                     <small className="assistant-response-time">
                       Time taken: {formatAssistantResponseTime(message.responseTimeMs)}
