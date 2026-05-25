@@ -45,8 +45,8 @@ public class GroqLlmClient implements LlmClient {
                 ),
                 Map.of("role", "user", "content", prompt)
             ),
-            "temperature", 0.3,
-            "top_p", 0.9,
+            "temperature", 0.1,
+            "top_p", 0.8,
             "max_tokens", 700
         );
 
@@ -64,7 +64,7 @@ public class GroqLlmClient implements LlmClient {
             .map(this::extractText)
             .map(String::trim)
             .filter(answer -> !answer.isBlank())
-            .switchIfEmpty(Mono.just("I could not generate a grounded answer from the retrieved context."))
+            .switchIfEmpty(Mono.just("I do not have enough information."))
             .onErrorResume(error -> {
                 LOGGER.warn("Groq answer request failed.", error);
                 return Mono.just(fallbackAnswer(chunks));

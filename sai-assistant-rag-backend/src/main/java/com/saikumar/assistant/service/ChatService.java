@@ -643,7 +643,7 @@ public class ChatService {
     private ChatResponse noContextResponse(String sessionId) {
         return new ChatResponse(
             sessionId,
-            "I do not have enough matching portfolio context for that yet. Try asking about Sai's projects, Oracle experience, backend stack, blogs, or contact details.",
+            "I do not have enough information.",
             List.of(),
             0
         );

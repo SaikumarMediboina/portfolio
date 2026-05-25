@@ -53,8 +53,8 @@ public class GeminiLlmClient implements LlmClient {
                 "parts", List.of(Map.of("text", groundedPrompt))
             )),
             "generationConfig", Map.of(
-                "temperature", 0.35,
-                "topP", 0.9,
+                "temperature", 0.1,
+                "topP", 0.8,
                 "maxOutputTokens", 700
             )
         );
@@ -69,7 +69,7 @@ public class GeminiLlmClient implements LlmClient {
             .map(this::extractText)
             .map(String::trim)
             .filter(answer -> !answer.isBlank())
-            .switchIfEmpty(Mono.just("I could not generate a grounded answer from the retrieved context."))
+            .switchIfEmpty(Mono.just("I do not have enough information."))
             .onErrorResume(error -> {
                 LOGGER.warn("Gemini answer request failed.", error);
                 return Mono.just(fallbackAnswer(chunks));

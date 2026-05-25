@@ -16,7 +16,7 @@ public class LocalGroundedLlmClient implements LlmClient {
     public Mono<String> answer(ChatRequest request, List<KnowledgeChunk> chunks) {
         if (chunks.isEmpty()) {
             return Mono.just(
-                "I do not have enough indexed website context for that yet. Trigger ingestion first, then I can answer with sources."
+                "I do not have enough information."
             );
         }
 
