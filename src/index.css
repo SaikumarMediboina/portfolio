@@ -19113,6 +19113,166 @@ body {
   line-height: 1.55;
 }
 
+.active-assistant-rag-deep-dive {
+  background:
+    radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 18rem),
+    radial-gradient(circle at 92% 100%, color-mix(in srgb, var(--redwood-sage, #7e9771) 11%, transparent), transparent 20rem),
+    var(--panel-strong) !important;
+}
+
+.assistant-rag-lanes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.25rem);
+}
+
+.assistant-rag-lane {
+  --rag-color: #c75d46;
+  --rag-soft: rgba(199, 93, 70, 0.12);
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.25rem);
+  border: 1px solid color-mix(in srgb, var(--rag-color) 26%, var(--panel-border));
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 92% 0%, var(--rag-soft), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.14)),
+    color-mix(in srgb, var(--rag-color) 5%, var(--panel-soft));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.46),
+    0 20px 48px color-mix(in srgb, var(--rag-color) 9%, transparent);
+}
+
+.assistant-rag-lane.is-online {
+  --rag-color: #567f92;
+  --rag-soft: rgba(86, 127, 146, 0.14);
+}
+
+.assistant-rag-lane-heading {
+  display: grid;
+  gap: 0.52rem;
+  max-width: 38rem;
+}
+
+.assistant-rag-lane-heading > span,
+.assistant-vector-detail-grid span,
+.assistant-rag-lane li span {
+  width: fit-content;
+  padding: 0.28rem 0.58rem;
+  border: 1px solid color-mix(in srgb, var(--rag-color, var(--accent)) 28%, var(--chip-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--rag-soft, var(--accent-soft)) 78%, var(--panel-soft));
+  color: color-mix(in srgb, var(--rag-color, var(--accent)) 78%, var(--ink-strong));
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.assistant-rag-lane-heading h3 {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  line-height: 1.05;
+}
+
+.assistant-rag-lane-heading p {
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.assistant-rag-lane ol {
+  display: grid;
+  gap: 0.72rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assistant-rag-lane li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.76rem;
+  padding: 0.82rem;
+  border: 1px solid color-mix(in srgb, var(--rag-color) 18%, var(--panel-border));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--panel-strong) 72%, transparent);
+}
+
+.assistant-rag-lane li > strong {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--rag-color) 14%, var(--panel-soft));
+  color: color-mix(in srgb, var(--rag-color) 78%, var(--ink-strong));
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--text-micro);
+  font-weight: 950;
+}
+
+.assistant-rag-lane li div {
+  display: grid;
+  gap: 0.34rem;
+  min-width: 0;
+}
+
+.assistant-rag-lane li h4 {
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1rem, 1.2vw, 1.14rem);
+  line-height: 1.12;
+}
+
+.assistant-rag-lane li p {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.assistant-vector-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1rem);
+}
+
+.assistant-vector-detail-grid article {
+  --rag-color: #697f58;
+  --rag-soft: rgba(105, 127, 88, 0.13);
+  display: grid;
+  align-content: start;
+  gap: 0.58rem;
+  min-height: 9.6rem;
+  padding: 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--rag-color) 24%, var(--panel-border));
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 92% 0%, var(--rag-soft), transparent 9rem),
+    color-mix(in srgb, var(--panel-soft) 78%, transparent);
+}
+
+.assistant-vector-detail-grid article:nth-child(2) {
+  --rag-color: #d08a46;
+  --rag-soft: rgba(208, 138, 70, 0.13);
+}
+
+.assistant-vector-detail-grid article:nth-child(3) {
+  --rag-color: #8a6aa7;
+  --rag-soft: rgba(138, 106, 167, 0.13);
+}
+
+.assistant-vector-detail-grid article:nth-child(4) {
+  --rag-color: #567f92;
+  --rag-soft: rgba(86, 127, 146, 0.14);
+}
+
+.assistant-vector-detail-grid p {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
 .assistant-ui-architecture-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -19327,6 +19487,37 @@ body {
   color: #dcc6b6;
 }
 
+:root[data-theme="dark"] .active-assistant-rag-deep-dive,
+:root[data-theme="dark"] .assistant-rag-lane,
+:root[data-theme="dark"] .assistant-rag-lane li,
+:root[data-theme="dark"] .assistant-vector-detail-grid article {
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--rag-color, #df7156) 32%, transparent), transparent 12rem),
+    linear-gradient(180deg, rgba(255, 246, 236, 0.11), rgba(255, 246, 236, 0.035)),
+    color-mix(in srgb, var(--rag-color, #df7156) 14%, #281f1a) !important;
+  border-color: color-mix(in srgb, var(--rag-color, #df7156) 40%, rgba(255, 232, 211, 0.16)) !important;
+}
+
+:root[data-theme="dark"] .assistant-rag-lane-heading > span,
+:root[data-theme="dark"] .assistant-vector-detail-grid span,
+:root[data-theme="dark"] .assistant-rag-lane li span,
+:root[data-theme="dark"] .assistant-rag-lane li > strong {
+  border-color: color-mix(in srgb, var(--rag-color, #df7156) 36%, rgba(255, 232, 211, 0.14));
+  background: color-mix(in srgb, var(--rag-color, #df7156) 22%, rgba(255, 246, 236, 0.08));
+  color: #ffe2d4;
+}
+
+:root[data-theme="dark"] .assistant-rag-lane-heading h3,
+:root[data-theme="dark"] .assistant-rag-lane li h4 {
+  color: #fff8ef;
+}
+
+:root[data-theme="dark"] .assistant-rag-lane-heading p,
+:root[data-theme="dark"] .assistant-rag-lane li p,
+:root[data-theme="dark"] .assistant-vector-detail-grid p {
+  color: #dcc6b6;
+}
+
 :root[data-theme="dark"] .assistant-ui-architecture-card {
   background:
     radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--ui-card-color) 34%, transparent), transparent 10rem),
@@ -19387,6 +19578,11 @@ body {
 }
 
 @media (max-width: 1080px) {
+  .assistant-rag-lanes,
+  .assistant-vector-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
   .active-assistant-pipeline-grid,
   .assistant-ui-architecture-grid {
     grid-template-columns: 1fr;

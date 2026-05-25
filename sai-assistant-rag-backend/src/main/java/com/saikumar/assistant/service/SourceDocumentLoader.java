@@ -331,10 +331,12 @@ public class SourceDocumentLoader {
             """
             Active build: Sai's Assistant. Sai's Assistant is a hybrid website assistant: curated website knowledge base plus LLM, smart routing, source chips, action links, and safe fallback behavior.
             Scope: The assistant answers from portfolio sections, selected projects, blogs, AI Radar, latest updates, dashboard notes, credentials, sign-in access, saved posts, and work-with-me links. If a question is outside that scope, it should say so instead of guessing.
-            Production architecture: Vercel hosts the React portfolio and floating chat UI. The browser reads VITE_ASSISTANT_API_BASE_URL and sends chat requests to the public Render Spring Boot backend at /api/chat. Spring sanitizes the request, embeds the question, retrieves nearest chunks from Oracle 23ai Vector Search, reranks evidence by intent, builds a grounded prompt, calls Groq or Gemini, and returns answer text with citations.
-            Offline ingestion: POST /api/admin/ingest loads structured portfolio knowledge, chunks it with metadata, embeds each chunk, and stores vectors in Oracle Autonomous Database.
-            Chat UI contract: the frontend sends sessionId, message, and optional recent history. The backend returns sessionId, answer, citations, and retrieved chunk count. The UI renders the answer plus source chips.
-            Design principles: grounded by default, third-person identity boundary, visible citations, guarded admin ingest, graceful fallback, and useful direction.
+            Production architecture: the React portfolio hosts the floating chat UI. Deployment configuration routes chat requests to the managed Spring Boot RAG backend. Spring sanitizes the request, checks fast paths and cache, embeds the question, retrieves nearest chunks from Oracle 23ai Vector Search, reranks evidence by intent, builds a grounded prompt, calls Groq or Gemini, and returns answer text with citations.
+            Offline ingestion: the protected admin refresh loads structured portfolio knowledge and configured site pages, normalizes the text, splits it into roughly 2.2K-character chunks with overlap, and builds embedding text from title, source URL, category, and chunk text.
+            Embeddings: the local provider creates deterministic vectors from normalized tokens and semantic boosts for portfolio concepts. Gemini embedding mode can create stronger retrieval vectors using document embeddings for ingestion and query embeddings for visitor questions.
+            Vector store: Oracle 23ai stores chunk text, source metadata, and vector embeddings in a native VECTOR column. Search orders candidates with cosine VECTOR_DISTANCE and returns nearest evidence before Spring applies hybrid reranking.
+            Chat UI contract: the frontend sends sessionId, message, and optional recent history. The backend returns sessionId, answer, citations, and retrieved chunk count. The UI renders the answer plus source chips, response timing, stage progress, and follow-up prompts.
+            Design principles: grounded by default, third-person identity boundary, visible citations, guarded admin ingest, graceful fallback, streaming progress, and useful direction.
             """,
             "active-build"
         ));

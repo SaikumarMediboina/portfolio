@@ -3897,9 +3897,10 @@ function getAssistantKnowledgeEntries(
       summary:
         "Active Builds now documents Sai's Assistant as the current product build: a website-aware AI guide powered by curated site knowledge, LLM routing, source/action chips, and safe fallback behavior.",
       details: [
-        "The page explains the assistant purpose, architecture, request flow, tech stack, design principles, and future roadmap.",
-        "Architecture: deployed React chat UI, managed Spring Boot backend, Oracle 23ai vector retrieval, Groq or Gemini LLM layer, and cited response rendering.",
-        "Design principles: grounded by default, third-person identity boundary, visible citations, guarded admin ingest, graceful fallback, and useful direction.",
+        "The page explains the assistant purpose, chat UI architecture, offline ingestion path, online vector-search path, code flow, tech stack, design principles, and future roadmap.",
+        "Ingestion: a protected refresh loads structured portfolio knowledge and configured site pages, chunks text with overlap, builds embedding text from title/source/category/body, and stores vectors in Oracle 23ai.",
+        "Search: Spring embeds the visitor question, retrieves nearest Oracle VECTOR chunks with cosine distance, reranks by intent, builds a grounded prompt, calls Groq or Gemini, and renders cited answers.",
+        "Design principles: grounded by default, third-person identity boundary, visible citations, guarded admin ingest, streaming progress, graceful fallback, and useful direction.",
       ],
       keywords: [
         "active",
@@ -7036,18 +7037,104 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Graceful fallback",
     },
   ];
+  const ingestionSteps = [
+    {
+      detail:
+        "The admin refresh reads curated portfolio facts first, then fetches configured public site pages and extracts readable body text.",
+      meta: "Structured docs + site pages",
+      title: "Load sources",
+    },
+    {
+      detail:
+        "Each source is normalized, split into roughly 2.2K-character chunks, and given overlap so sentence context is not lost at chunk edges.",
+      meta: "Chunk size 2200, overlap 220",
+      title: "Chunk content",
+    },
+    {
+      detail:
+        "The embedding input combines title, source URL, category, and chunk text, so the vector carries both semantic meaning and page context.",
+      meta: "Title + URL + category + text",
+      title: "Build embedding text",
+    },
+    {
+      detail:
+        "The configured embedding provider turns each chunk into a numeric vector. Local vectors support development; Gemini embeddings can power stronger semantic retrieval.",
+      meta: "Local or Gemini embeddings",
+      title: "Create vectors",
+    },
+    {
+      detail:
+        "Spring writes the chunk, metadata, source fields, and vector into Oracle 23ai, where the VECTOR column and cosine index make it searchable.",
+      meta: "Oracle VECTOR column",
+      title: "Store index",
+    },
+  ];
+  const retrievalSteps = [
+    {
+      detail:
+        "The chat endpoint sanitizes the message, keeps session context, and skips full retrieval for tiny greetings or cached answers.",
+      meta: "Fast path first",
+      title: "Receive question",
+    },
+    {
+      detail:
+        "The question is embedded with query intent. Gemini uses retrieval-query mode when enabled, while local mode applies the same deterministic vector shape.",
+      meta: "Query embedding",
+      title: "Vectorize question",
+    },
+    {
+      detail:
+        "Oracle compares the query vector with stored chunk vectors using cosine distance and returns the nearest candidates.",
+      meta: "VECTOR_DISTANCE cosine",
+      title: "Search Oracle",
+    },
+    {
+      detail:
+        "Spring reranks candidates with intent rules for projects, contact, blogs, skills, credentials, and experience before choosing the final context.",
+      meta: "Hybrid rerank",
+      title: "Choose evidence",
+    },
+    {
+      detail:
+        "The prompt includes the user question, short history, retrieved context, identity rules, and grounding rules before the LLM writes the answer.",
+      meta: "Grounded prompt",
+      title: "Generate answer",
+    },
+  ];
+  const vectorDetails = [
+    {
+      detail:
+        "Embeddings and generation are separate jobs. Groq writes answers; the embedding provider creates searchable vectors.",
+      label: "Model boundary",
+    },
+    {
+      detail:
+        "The local provider hashes normalized terms into a vector and adds semantic boosts for portfolio concepts like projects, contact, blogs, Oracle, and search.",
+      label: "Local vectors",
+    },
+    {
+      detail:
+        "Gemini embedding mode uses document embeddings during ingestion and query embeddings during chat, with configurable vector dimensionality.",
+      label: "Semantic upgrade",
+    },
+    {
+      detail:
+        "Oracle 23ai stores each vector beside the original chunk text, then orders candidates by cosine distance through the vector index.",
+      label: "Vector search",
+    },
+  ];
   const codeFlow = [
     {
-      detail: "Normalize the visitor message, cap question length, and preserve a stable session id.",
-      title: "Sanitize",
+      detail: "Normalize the visitor message, cap question length, preserve session id, and check instant/cache paths.",
+      title: "Sanitize + cache",
     },
     {
-      detail: "Embed the question using the configured embedding provider.",
-      title: "Embed",
+      detail: "Create a query vector using the configured embedding provider.",
+      title: "Embed query",
     },
     {
-      detail: "Fetch nearest chunks from Oracle 23ai vector search.",
-      title: "Retrieve",
+      detail: "Fetch the nearest candidate chunks from Oracle 23ai with cosine vector distance.",
+      title: "Vector search",
     },
     {
       detail: "Boost exact user intent so contact, projects, blogs, skills, and experience retrieve correctly.",
@@ -7058,7 +7145,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Prompt",
     },
     {
-      detail: "Call Groq or Gemini and return answer text with citations to the UI.",
+      detail: "Call Groq or Gemini, stream the answer, and return citations to the UI.",
       title: "Generate",
     },
   ];
@@ -7107,10 +7194,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
   ];
   const nextUpgrades = [
-    "Switch production embeddings from local vectors to Gemini embeddings.",
-    "Stream answers with Server-Sent Events.",
-    "Add feedback buttons for answer quality and bad citation reports.",
-    "Schedule ingestion after portfolio content updates.",
+    "Switch production retrieval to Gemini embeddings after re-ingestion.",
+    "Add thumbs up/down feedback capture for weak answers.",
+    "Add an admin retrieval audit view for chunks, scores, model, and latency.",
+    "Schedule ingestion after portfolio content updates and new blogs.",
   ];
 
   return (
@@ -7252,6 +7339,75 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
                 <span>{pipeline.endpoint}</span>
                 <h3>{pipeline.title}</h3>
                 <p>{pipeline.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="active-assistant-section active-assistant-rag-deep-dive">
+          <div className="active-assistant-section-heading">
+            <p className="eyebrow">Ingestion + Vector Search</p>
+            <h2>How content becomes searchable knowledge.</h2>
+            <p>
+              The system has two clean paths: an offline indexing path that prepares the knowledge
+              base, and an online retrieval path that answers each visitor question with the best
+              matching evidence.
+            </p>
+          </div>
+
+          <div className="assistant-rag-lanes">
+            <article className="assistant-rag-lane">
+              <div className="assistant-rag-lane-heading">
+                <span>Offline path</span>
+                <h3>Ingestion builds the Oracle vector index.</h3>
+                <p>
+                  Admin refresh converts trusted portfolio and site content into durable chunks,
+                  embeddings, metadata, and source records.
+                </p>
+              </div>
+              <ol>
+                {ingestionSteps.map((step, index) => (
+                  <li key={step.title}>
+                    <strong>{String(index + 1).padStart(2, "0")}</strong>
+                    <div>
+                      <span>{step.meta}</span>
+                      <h4>{step.title}</h4>
+                      <p>{step.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </article>
+
+            <article className="assistant-rag-lane is-online">
+              <div className="assistant-rag-lane-heading">
+                <span>Online path</span>
+                <h3>Search retrieves evidence for every question.</h3>
+                <p>
+                  Chat requests become query vectors, Oracle returns nearest chunks, and Spring
+                  reranks the evidence before the model writes.
+                </p>
+              </div>
+              <ol>
+                {retrievalSteps.map((step, index) => (
+                  <li key={step.title}>
+                    <strong>{String(index + 1).padStart(2, "0")}</strong>
+                    <div>
+                      <span>{step.meta}</span>
+                      <h4>{step.title}</h4>
+                      <p>{step.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          </div>
+
+          <div className="assistant-vector-detail-grid" aria-label="Embedding and vector search details">
+            {vectorDetails.map((item) => (
+              <article key={item.label}>
+                <span>{item.label}</span>
+                <p>{item.detail}</p>
               </article>
             ))}
           </div>
