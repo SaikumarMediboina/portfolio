@@ -203,11 +203,11 @@ public class SourceDocumentLoader {
             "https://saikumarmediboina.com/portfolio#skills",
             "Tech stack and skills",
             """
-            Sai's stack is backend-heavy: Java, Spring Boot, REST APIs, microservices, Oracle 19c, Oracle Text, OpenSearch, OCI, Kubernetes, semantic search, AI similarity, and LLM workflow patterns.
+            Sai's stack is backend-heavy: Java, Spring Boot, REST APIs, microservices, Oracle 19c, Oracle Text, OpenSearch, Oracle 23ai Vector Search, hybrid search, OCI, Kubernetes, semantic search, embeddings, RAG, AI similarity, hybrid retrieval, rule-based reranking, and LLM workflow patterns.
             Languages: Java, SQL, PL/SQL.
             Frameworks and Architecture: Spring, Spring Boot, Hibernate, REST APIs, Microservices, Apache Kafka.
-            Databases and Search: Oracle 19c, Oracle Text, OpenSearch, MySQL.
-            AI, Search, and Intelligence: Semantic Search, AI Similarity, LLM Workflows, Prompt Design, Fuzzy Matching.
+            Databases and Search: Oracle 19c, Oracle Text, OpenSearch, MySQL, Oracle 23ai Vector Search, Hybrid Search.
+            AI, Search, and Intelligence: Semantic Search, AI Similarity, Embeddings, RAG, Hybrid Retrieval, Rule-Based Reranking, LLM Workflows, Prompt Design, Fuzzy Matching.
             Cloud and Tooling: OCI, Kubernetes, Grafana, APM, Git, Maven.
             """,
             "skill"

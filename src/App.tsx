@@ -3831,7 +3831,7 @@ function getAssistantKnowledgeEntries(
       category: "skill",
       title: "Tech stack",
       summary:
-        "Sai's stack is backend-heavy: Java, Spring Boot, REST APIs, microservices, Oracle 19c, Oracle Text, OpenSearch, OCI, Kubernetes, semantic search, AI similarity, and LLM workflow patterns.",
+        "Sai's stack is backend-heavy: Java, Spring Boot, REST APIs, microservices, Oracle 19c, Oracle Text, OpenSearch, Oracle 23ai Vector Search, hybrid search, OCI, Kubernetes, semantic search, embeddings, RAG, AI similarity, hybrid retrieval, rule-based reranking, and LLM workflow patterns.",
       details: skills.map((group) => `${group.title}: ${group.items.join(", ")}`),
       keywords: ["tech", "stack", "skills", "technology", "tools", "java", "spring", "oracle"],
       links: [{ href: "/portfolio#skills", label: "View tech stack" }],

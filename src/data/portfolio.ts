@@ -260,11 +260,21 @@ export const skills: SkillGroup[] = [
   },
   {
     title: "Databases and Search",
-    items: ["Oracle 19c", "Oracle Text", "OpenSearch", "MySQL"],
+    items: ["Oracle 19c", "Oracle Text", "OpenSearch", "MySQL", "Oracle 23ai Vector Search", "Hybrid Search"],
   },
   {
     title: "AI, Search, and Intelligence",
-    items: ["Semantic Search", "AI Similarity", "LLM Workflows", "Prompt Design", "Fuzzy Matching"],
+    items: [
+      "Semantic Search",
+      "AI Similarity",
+      "Embeddings",
+      "RAG",
+      "Hybrid Retrieval",
+      "Rule-Based Reranking",
+      "LLM Workflows",
+      "Prompt Design",
+      "Fuzzy Matching",
+    ],
   },
   {
     title: "Cloud and Tooling",
