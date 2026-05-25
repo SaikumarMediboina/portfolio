@@ -808,6 +808,7 @@ type AssistantLink = {
 type AssistantMessage = {
   actions?: AssistantLink[];
   citations?: AssistantLink[];
+  followUps?: string[];
   id: number;
   links?: AssistantLink[];
   role: "assistant" | "visitor";
@@ -2421,7 +2422,7 @@ type GenericAssistantResponse = {
 
 type AssistantAnswerMode = "generic" | "site";
 
-type AssistantResponseDraft = Pick<AssistantMessage, "actions" | "citations" | "links" | "text"> & {
+type AssistantResponseDraft = Pick<AssistantMessage, "actions" | "citations" | "followUps" | "links" | "text"> & {
   mode: AssistantAnswerMode;
   shouldUseLlm: boolean;
 };
@@ -2836,6 +2837,7 @@ function getGenericAssistantResponse(
 
   return {
     actions: [{ href: "/learn-with-me", kind: "action", label: "Learn With Me" }],
+    followUps: getAssistantFollowUps(input, "generic"),
     text:
       rankedResponse?.score > 0
         ? rankedResponse.response.text
@@ -2843,6 +2845,120 @@ function getGenericAssistantResponse(
     mode: "generic",
     shouldUseLlm: true,
   };
+}
+
+function getAssistantFollowUps(
+  question: string,
+  mode: AssistantAnswerMode,
+  answerText = "",
+) {
+  const normalizedText = normalizeAssistantText(`${question} ${answerText}`);
+  const suggestions: string[] = [];
+  const add = (...items: string[]) => {
+    items.forEach((item) => {
+      if (
+        suggestions.length < 3 &&
+        normalizeAssistantText(item) !== normalizeAssistantText(question) &&
+        !suggestions.some((existing) => normalizeAssistantText(existing) === normalizeAssistantText(item))
+      ) {
+        suggestions.push(item);
+      }
+    });
+  };
+
+  if (mode === "generic") {
+    add(
+      "Can you give a real backend example?",
+      "How does this show up in system design?",
+      "What should I learn next?",
+    );
+    return suggestions;
+  }
+
+  if (/(project|projects|work|built|designed|developed|system|systems)/.test(normalizedText)) {
+    add(
+      "Which project had the biggest impact?",
+      "What tech stack does Sai use most?",
+      "How can I contact Sai about backend work?",
+    );
+  } else if (/(contact|email|linkedin|hire|connect|work with me)/.test(normalizedText)) {
+    add(
+      "What kind of work can Sai help with?",
+      "Show Sai's strongest projects",
+      "What is Sai's tech stack?",
+    );
+  } else if (/(blog|blogs|article|articles|write|published)/.test(normalizedText)) {
+    add(
+      "How many blogs has Sai published?",
+      "Which blog should I read first?",
+      "What backend topics does Sai write about?",
+    );
+  } else if (/(experience|role|career|oracle|job)/.test(normalizedText)) {
+    add(
+      "What projects support this experience?",
+      "What is Sai's current role?",
+      "What backend skills does Sai use most?",
+    );
+  } else if (/(skill|skills|stack|java|spring|oracle|search|cloud|tech)/.test(normalizedText)) {
+    add(
+      "Which projects use these skills?",
+      "What is Sai's backend experience?",
+      "What should I ask about Oracle or search?",
+    );
+  }
+
+  add(
+    "What projects has Sai worked on?",
+    "How can I contact Sai?",
+    "What blogs has Sai published?",
+  );
+  return suggestions;
+}
+
+function getAssistantEntryFollowUps(
+  entry: AssistantKnowledgeEntry,
+  relatedEntries: AssistantKnowledgeEntry[],
+) {
+  const categorySuggestions: Partial<Record<AssistantKnowledgeCategory, string[]>> = {
+    blog: [
+      "How many blogs has Sai published?",
+      "Which blog should I read first?",
+      "What backend topics does Sai write about?",
+    ],
+    contact: [
+      "What kind of work can Sai help with?",
+      "Show Sai's strongest projects",
+      "What is Sai's tech stack?",
+    ],
+    experience: [
+      "What projects support this experience?",
+      "What is Sai's current role?",
+      "What backend skills does Sai use most?",
+    ],
+    project: [
+      "Which project had the biggest impact?",
+      "What stack did Sai use in these projects?",
+      "How can I contact Sai about backend work?",
+    ],
+    skill: [
+      "Which projects use these skills?",
+      "What is Sai's backend experience?",
+      "What should I ask about Oracle or search?",
+    ],
+  };
+
+  const suggestions = [
+    ...(categorySuggestions[entry.category] ?? []),
+    ...relatedEntries.slice(0, 2).map((relatedEntry) => `Tell me about ${relatedEntry.title}`),
+    "What projects has Sai worked on?",
+    "How can I contact Sai?",
+  ];
+
+  return suggestions
+    .filter((suggestion, index, list) =>
+      list.findIndex((item) => normalizeAssistantText(item) === normalizeAssistantText(suggestion)) === index,
+    )
+    .slice(0, 3);
 }
 
 function getAssistantSearchText(entry: AssistantKnowledgeEntry) {
@@ -3762,6 +3878,11 @@ function getAssistantUnknownResponse(): AssistantResponseDraft {
   return {
     text:
       "I do not have enough website context to answer that confidently yet. Try asking about Sai's projects, blogs, tech stack, updates, reader access, or a general CS/backend concept.",
+    followUps: [
+      "What projects has Sai worked on?",
+      "How can I contact Sai?",
+      "What is Sai's tech stack?",
+    ],
     links: [
       { href: "/start", label: "Start Here" },
       { href: "/portfolio#work", label: "Projects" },
@@ -3775,6 +3896,11 @@ function getAssistantGreetingResponse(): AssistantResponseDraft {
   return {
     text:
       "Hey, I am Sai's site assistant. Ask me about his projects, blogs, tech stack, AI Radar, or general CS and backend concepts. If it is on the site, I will ground the answer in Sai's knowledge base.",
+    followUps: [
+      "What projects has Sai worked on?",
+      "How can I contact Sai?",
+      "What blogs has Sai published?",
+    ],
     links: [
       { href: "/portfolio#work", label: "Projects" },
       { href: "/blogs", label: "Blogs" },
@@ -3788,6 +3914,11 @@ function getAssistantSmallTalkResponse(): AssistantResponseDraft {
   return {
     text:
       "Nice. Ask me a Sai-specific question, or throw a CS/backend concept at me and I will keep it simple.",
+    followUps: [
+      "Summarize Sai's strongest projects",
+      "What is Sai's tech stack?",
+      "Explain semantic search simply",
+    ],
     links: undefined,
     mode: "site",
     shouldUseLlm: false,
@@ -3818,6 +3949,7 @@ function formatAssistantEntryResponse(
   return {
     actions: actionLinks.length ? actionLinks : undefined,
     citations: getAssistantSourceLinks(sourceEntries),
+    followUps: getAssistantEntryFollowUps(entry, relatedEntries),
     text: `${entry.summary}${detailText ? ` ${detailText}` : ""}${relatedText}`,
     links: actionLinks.length ? actionLinks : undefined,
     mode: "site",
@@ -4080,6 +4212,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       return {
         actions: fallbackActions.length ? fallbackActions : undefined,
         citations: fallbackResponse.citations,
+        followUps: fallbackResponse.followUps ?? getAssistantFollowUps(question, fallbackResponse.mode, fallbackResponse.text),
         text: fallbackResponse.text,
       };
     }
@@ -4123,6 +4256,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
     return {
       actions: actions.length ? actions : undefined,
       citations,
+      followUps: getAssistantFollowUps(question, fallbackResponse.mode, text),
       links: actions.length ? actions : fallbackResponse.links?.slice(0, 2),
       text,
     };
@@ -4162,6 +4296,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         text: response.shouldUseLlm ? loadingText : response.text,
         actions: response.shouldUseLlm ? undefined : response.actions,
         citations: response.shouldUseLlm ? undefined : response.citations,
+        followUps: response.shouldUseLlm ? undefined : response.followUps,
         links: response.shouldUseLlm ? undefined : response.links?.slice(0, 2),
         responseTimeMs: response.shouldUseLlm ? undefined : getAssistantElapsedMs(responseStartTime),
       },
@@ -4181,6 +4316,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                   ...message,
                   actions: llmResponse.actions,
                   citations: llmResponse.citations,
+                  followUps: llmResponse.followUps,
                   links: llmResponse.links,
                   responseTimeMs: getAssistantElapsedMs(responseStartTime),
                   text: llmResponse.text,
@@ -4197,6 +4333,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                   ...message,
                   actions: response.actions,
                   citations: response.citations,
+                  followUps: response.followUps,
                   links: response.links,
                   responseTimeMs: getAssistantElapsedMs(responseStartTime),
                   text: response.text,
@@ -4334,6 +4471,22 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                           >
                             {link.label}
                           </a>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {message.role === "assistant" && message.followUps?.length ? (
+                    <div className="assistant-followups">
+                      <span>Follow-up</span>
+                      <div>
+                        {message.followUps.map((followUp) => (
+                          <button
+                            type="button"
+                            key={`${message.id}-followup-${followUp}`}
+                            onClick={() => sendAssistantMessage(followUp)}
+                          >
+                            {followUp}
+                          </button>
                         ))}
                       </div>
                     </div>

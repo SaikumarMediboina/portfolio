@@ -21709,6 +21709,48 @@ body {
   color: #e95317 !important;
 }
 
+.assistant-followups {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.assistant-followups > span {
+  color: #8993a2;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.assistant-followups div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.assistant-followups button {
+  max-width: 100%;
+  padding: 0.44rem 0.68rem;
+  border: 1px solid #dfe7f0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #4f5b6b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 850;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.assistant-followups button:hover {
+  border-color: #f4b28f;
+  background: #fff8f3;
+  color: #e95317;
+}
+
 .assistant-prompts {
   display: flex !important;
   gap: 0.75rem !important;
@@ -21816,6 +21858,22 @@ body {
 
 :root[data-theme="dark"] .assistant-response-time {
   color: #bda89a;
+}
+
+:root[data-theme="dark"] .assistant-followups > span {
+  color: #bda89a;
+}
+
+:root[data-theme="dark"] .assistant-followups button {
+  border-color: rgba(255, 232, 211, 0.14);
+  background: rgba(255, 246, 236, 0.06);
+  color: #eadacf;
+}
+
+:root[data-theme="dark"] .assistant-followups button:hover {
+  border-color: rgba(255, 172, 131, 0.42);
+  background: rgba(255, 172, 131, 0.12);
+  color: #ffd7c6;
 }
 
 :root[data-theme="dark"] .assistant-beta-badge {
