@@ -43,6 +43,7 @@ public class PromptBuilder {
             Preserve the user's subject. If the user asks what backend engineers, developers, builders, or architects should consider, answer for that group and avoid phrases like "Sai should watch" unless the user explicitly asks about Sai personally.
             For Sai-specific questions, use only the retrieved context and do not invent facts.
             Never infer total years of experience from project count or project complexity. Use explicit role dates or explicit total-experience text from the context.
+            If the user asks a location-choice question using abbreviations such as BLR, BGLR, Bangalore, Bengaluru, HYD, or Hyderabad, answer the location choice explicitly before adding extra context.
             If the answer is not present in the context, say that briefly and guide the visitor to a relevant site page.
             Do not mention implementation details like "chunks" or "retrieval".
 

@@ -297,6 +297,18 @@ public class ChatService {
             "employment",
             "oracle"
         );
+        boolean hasLocationIntent = hasAny(
+            tokenSet,
+            "bangalore",
+            "bengaluru",
+            "bglr",
+            "blr",
+            "hyd",
+            "hyderabad",
+            "location",
+            "office",
+            "city"
+        );
         boolean hasProjectIntent = hasAny(
             tokenSet,
             "project",
@@ -322,6 +334,20 @@ public class ChatService {
                 || title.contains("experience")
                 || title.contains("current role"))) {
             score += 45;
+        }
+
+        if (hasLocationIntent
+            && (metadata.contains("category experience")
+                || metadata.contains("category\":\"experience")
+                || metadata.contains("category profile")
+                || metadata.contains("category\":\"profile")
+                || source.contains("#experience")
+                || source.contains("/about")
+                || title.contains("experience")
+                || title.contains("current role")
+                || body.contains("bengaluru")
+                || body.contains("bangalore"))) {
+            score += 55;
         }
 
         if (hasExperienceIntent
@@ -441,6 +467,28 @@ public class ChatService {
             tokens.add("career");
             tokens.add("oracle");
         }
+        if (tokens.contains("work") || tokens.contains("working") || tokens.contains("works")) {
+            tokens.add("work");
+            tokens.add("role");
+            tokens.add("current");
+        }
+        if (tokens.contains("bglr") || tokens.contains("blr") || tokens.contains("bangalore") || tokens.contains("bengaluru")) {
+            tokens.add("bengaluru");
+            tokens.add("bangalore");
+            tokens.add("location");
+            tokens.add("office");
+            tokens.add("experience");
+            tokens.add("oracle");
+            tokens.add("role");
+        }
+        if (tokens.contains("hyd") || tokens.contains("hyderabad")) {
+            tokens.add("hyderabad");
+            tokens.add("location");
+            tokens.add("office");
+            tokens.add("experience");
+            tokens.add("oracle");
+            tokens.add("role");
+        }
         if (tokens.contains("blog")) {
             tokens.add("article");
             tokens.add("post");
@@ -534,7 +582,46 @@ public class ChatService {
             );
         }
 
+        if (isCurrentWorkLocationQuestion(message)) {
+            return new ChatResponse(
+                request.sessionId(),
+                "Sai's current Oracle role is associated with Bengaluru (Bangalore), Karnataka, India, and it is listed as remote. It is not Hyderabad in the portfolio context.",
+                List.of(new Citation("Oracle experience and current role", "https://saikumarmediboina.com/portfolio#experience")),
+                0
+            );
+        }
+
         return null;
+    }
+
+    private boolean isCurrentWorkLocationQuestion(String message) {
+        Set<String> tokens = new HashSet<>(Arrays.asList(message.split(" ")));
+        boolean hasLocationToken = hasAny(
+            tokens,
+            "bangalore",
+            "bengaluru",
+            "bglr",
+            "blr",
+            "hyd",
+            "hyderabad",
+            "location",
+            "office",
+            "city"
+        );
+        boolean hasWorkToken = hasAny(
+            tokens,
+            "company",
+            "current",
+            "job",
+            "office",
+            "oracle",
+            "role",
+            "work",
+            "working",
+            "works"
+        );
+
+        return hasLocationToken && hasWorkToken;
     }
 
     private ChatResponse cacheAndReturn(String cacheKey, ChatResponse response) {

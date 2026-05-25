@@ -55,6 +55,7 @@ public class SourceDocumentLoader {
             Profile summary: Backend engineer specializing in distributed systems, search, performance optimization, and AI-driven product workflows. His work combines cloud-native architecture, data-heavy pipelines, semantic search, and emerging LLM-assisted automation across both real-time and batch processing.
             Focus: Sai likes solving problems where latency, scale, and correctness matter at the same time. Recent work blends deterministic rules, semantic search, AI scoring, and practical LLM workflow ideas to improve screening accuracy and delivery speed.
             Location: Rajahmundry, Andhra Pradesh, India. Current company: Oracle, Bangalore.
+            Current work location: Sai's current Oracle role is associated with Bengaluru, Karnataka, India, also commonly called Bangalore or BLR/BGLR. It is listed as remote. The portfolio context does not list Hyderabad or HYD as his current work location.
             """,
             "profile"
         ));
@@ -89,7 +90,7 @@ public class SourceDocumentLoader {
             "https://saikumarmediboina.com/portfolio#experience",
             "Oracle experience and current role",
             """
-            Sai currently works full-time at Oracle in Bengaluru, Karnataka, India. Current role: Software Application Engineer, May 2026 to present. The role focuses on backend platform engineering, search architecture, performance optimization, and AI-enabled workflow design.
+            Sai currently works full-time at Oracle in Bengaluru, Karnataka, India. Bengaluru is also referred to as Bangalore, BLR, or BGLR. Current role: Software Application Engineer, May 2026 to present. The role focuses on backend platform engineering, search architecture, performance optimization, and AI-enabled workflow design. The portfolio context does not list Hyderabad or HYD as his current work location.
             Previous role: Application Developer, August 2023 to May 2026. He built and optimized high-throughput screening, matching, and transaction filtering capabilities across real-time and batch workloads.
             Total professional work experience: about 3 years as of May 2026, based on Oracle experience from August 2023 to the present.
             Experience summary: Architecting a scalable cloud-native compliance platform on OCI and Kubernetes for customer screening and transaction filtering. The platform combines OpenSearch, Oracle Text, AI-assisted search, and hybrid decision logic to support both real-time requests and high-volume nightly workloads.

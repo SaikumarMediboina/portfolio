@@ -2784,8 +2784,12 @@ const assistantSynonyms: Record<string, string[]> = {
   articles: ["blog", "blogs", "posts", "writeups", "writing"],
   async: ["asynchronous", "executor", "parallel", "thread"],
   backend: ["java", "spring", "microservices", "api", "performance"],
+  bangalore: ["bengaluru", "blr", "bglr", "location", "office"],
+  bengaluru: ["bangalore", "blr", "bglr", "location", "office"],
+  bglr: ["bengaluru", "bangalore", "blr", "location", "office"],
   blog: ["article", "post", "writeup", "writing"],
   blogs: ["article", "articles", "posts", "writeups", "writing"],
+  blr: ["bengaluru", "bangalore", "bglr", "location", "office"],
   bot: ["assistant", "chatbot", "website", "guide"],
   cache: ["caching", "coherence"],
   chatbot: ["assistant", "bot", "website", "guide"],
@@ -2798,6 +2802,9 @@ const assistantSynonyms: Record<string, string[]> = {
   email: ["contact", "mail", "connect"],
   experience: ["role", "oracle", "work", "career"],
   exp: ["experience", "role", "oracle", "work", "career"],
+  hyd: ["hyderabad", "location", "office"],
+  hyderabad: ["hyd", "location", "office"],
+  location: ["where", "bengaluru", "bangalore", "office", "remote"],
   llm: ["ai", "semantic", "prompt", "mcp", "model"],
   mail: ["email", "contact"],
   mcp: ["model", "context", "protocol", "anthropic", "certification"],
@@ -2829,6 +2836,7 @@ const siteSpecificQuestionWords = new Set([
   "education",
   "experience",
   "login",
+  "location",
   "newsletter",
   "portfolio",
   "project",
@@ -3376,12 +3384,22 @@ function getCuratedAssistantQaEntries({
         "how many years of experience does sai have",
         "what is sai current role",
         "where does sai work",
+        "is sai working in bangalore or hyderabad",
+        "is he working in bglr or hyd",
         "tell me about sai career",
       ],
       keywords: [
+        "bangalore",
+        "bengaluru",
+        "bglr",
+        "blr",
         "experience",
         "career",
         "current",
+        "hyd",
+        "hyderabad",
+        "location",
+        "office",
         "role",
         "oracle",
         "software",
@@ -4291,6 +4309,28 @@ function isExperienceDurationQuestion(normalizedQuery: string) {
   return hasExperienceWord && hasDurationWord;
 }
 
+function isCurrentWorkLocationQuestion(normalizedQuery: string) {
+  const words = normalizedQuery.split(" ").filter(Boolean);
+  const hasLocationWord = words.some((word) =>
+    ["bangalore", "bengaluru", "bglr", "blr", "hyd", "hyderabad", "location", "office", "city"].includes(word),
+  );
+  const hasWorkContext = words.some((word) =>
+    ["company", "current", "job", "office", "oracle", "role", "work", "working", "works"].includes(word),
+  );
+
+  return hasLocationWord && hasWorkContext;
+}
+
+function getCurrentWorkLocationResponse(): AssistantResponseDraft {
+  return {
+    text:
+      "Sai's current Oracle role is associated with Bengaluru (Bangalore), Karnataka, India, and it is listed as remote. It is not Hyderabad in the portfolio context.",
+    links: [{ href: "/portfolio#experience", label: "View experience" }],
+    mode: "site",
+    shouldUseLlm: false,
+  };
+}
+
 function getExperienceDurationResponse(): AssistantResponseDraft {
   const currentExperience = experience[0];
   const currentRole = currentExperience?.roles[0];
@@ -4356,6 +4396,10 @@ function getAssistantResponse(
 
   if (isSmallTalk) {
     return getAssistantSmallTalkResponse();
+  }
+
+  if (isCurrentWorkLocationQuestion(normalizedQuery)) {
+    return getCurrentWorkLocationResponse();
   }
 
   if (isExperienceDurationQuestion(normalizedQuery)) {
