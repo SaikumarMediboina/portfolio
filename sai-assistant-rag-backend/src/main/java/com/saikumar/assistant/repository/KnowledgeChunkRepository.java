@@ -11,6 +11,8 @@ public interface KnowledgeChunkRepository {
 
     List<KnowledgeChunk> findNearest(float[] queryEmbedding, int limit);
 
+    List<KnowledgeChunk> findExact(List<String> terms, int limit);
+
     int count();
 
     String mode();

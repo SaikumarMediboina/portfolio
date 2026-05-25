@@ -7134,13 +7134,13 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "Oracle compares the query vector with stored chunk vectors using cosine distance and returns nearest candidates plus their distance values.",
-      meta: "VECTOR_DISTANCE cosine",
-      title: "Search Oracle",
+        "Spring runs semantic vector search for meaning and exact lexical search for literal matches across titles, URLs, metadata, and chunk text.",
+      meta: "Exact + semantic",
+      title: "Hybrid search",
     },
     {
       detail:
-        "Spring reranks candidates with vector similarity, source title, category, section, priority, and intent rules for projects, contact, blogs, skills, credentials, and experience.",
+        "Spring merges both candidate sets, removes duplicates, then reranks with vector similarity, source title, category, section, priority, and intent rules.",
       meta: "Vector + metadata rerank",
       title: "Choose evidence",
     },
@@ -7175,8 +7175,8 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "Oracle 23ai stores each vector beside the original chunk text, then returns cosine distance with every retrieved candidate.",
-      label: "Vector search",
+        "Oracle semantic search returns cosine distance, while exact search pulls literal matches that vector search may not surface.",
+      label: "Hybrid retrieval",
     },
     {
       detail:
@@ -7195,11 +7195,11 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       label: "Search metric",
-      value: "Oracle cosine distance",
+      value: "Exact text + cosine distance",
     },
     {
       label: "Final ranking",
-      value: "Vector score + metadata + intent",
+      value: "Exact + vector + metadata + intent",
     },
     {
       label: "Failure mode",
@@ -7216,8 +7216,8 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Embed query",
     },
     {
-      detail: "Fetch nearest chunks from Oracle 23ai and carry cosine distance into the response pipeline.",
-      title: "Vector search",
+      detail: "Fetch semantic vector candidates and exact text candidates, then merge them by chunk id.",
+      title: "Hybrid search",
     },
     {
       detail: "Blend vector similarity with source metadata, category, title, body keywords, and page-aware intent.",

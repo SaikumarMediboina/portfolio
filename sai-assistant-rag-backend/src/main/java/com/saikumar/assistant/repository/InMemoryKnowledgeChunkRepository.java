@@ -1,9 +1,11 @@
 package com.saikumar.assistant.repository;
 
 import com.saikumar.assistant.model.KnowledgeChunk;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -34,13 +36,79 @@ public class InMemoryKnowledgeChunkRepository implements KnowledgeChunkRepositor
     }
 
     @Override
+    public List<KnowledgeChunk> findExact(List<String> terms, int limit) {
+        Set<String> normalizedTerms = normalizeTerms(terms);
+        if (normalizedTerms.isEmpty()) {
+            return List.of();
+        }
+
+        return chunks.stream()
+            .map(chunk -> new ExactScoredChunk(chunk, exactScore(chunk, normalizedTerms)))
+            .filter(scoredChunk -> scoredChunk.score() > 0)
+            .sorted(Comparator.comparingInt(ExactScoredChunk::score).reversed())
+            .limit(limit)
+            .map(ExactScoredChunk::chunk)
+            .toList();
+    }
+
+    @Override
     public int count() {
         return chunks.size();
     }
 
     @Override
     public String mode() {
-        return "in-memory-local";
+        return "in-memory-hybrid-search";
+    }
+
+    private int exactScore(KnowledgeChunk chunk, Set<String> terms) {
+        String title = normalize(chunk.title());
+        String source = normalize(chunk.sourceUrl());
+        String body = normalize(chunk.chunkText());
+        String metadata = normalize(chunk.metadata() == null ? "" : chunk.metadata().toString());
+
+        int score = 0;
+        for (String term : terms) {
+            score += countMatches(title, term) * 12;
+            score += countMatches(source, term) * 5;
+            score += countMatches(metadata, term) * 4;
+            score += countMatches(body, term) * 3;
+        }
+        return score;
+    }
+
+    private int countMatches(String text, String term) {
+        if (text.isBlank() || term.isBlank()) {
+            return 0;
+        }
+
+        int count = 0;
+        int index = text.indexOf(term);
+        while (index >= 0) {
+            count++;
+            index = text.indexOf(term, index + term.length());
+        }
+        return count;
+    }
+
+    private Set<String> normalizeTerms(List<String> terms) {
+        Set<String> normalizedTerms = new HashSet<>();
+        for (String term : terms) {
+            String normalized = normalize(term);
+            if (normalized.length() >= 3) {
+                normalizedTerms.add(normalized);
+            }
+        }
+        return normalizedTerms;
+    }
+
+    private String normalize(String value) {
+        return value == null
+            ? ""
+            : value.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9+#.:/@-]+", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     private double cosineDistance(float[] left, float[] right) {
@@ -77,5 +145,8 @@ public class InMemoryKnowledgeChunkRepository implements KnowledgeChunkRepositor
             chunk.indexedAt(),
             distance
         );
+    }
+
+    private record ExactScoredChunk(KnowledgeChunk chunk, int score) {
     }
 }

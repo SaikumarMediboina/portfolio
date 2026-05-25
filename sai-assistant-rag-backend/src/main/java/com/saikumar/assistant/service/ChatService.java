@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -83,6 +85,54 @@ public class ChatService {
         "with",
         "you",
         "your"
+    );
+
+    private static final Set<String> EXACT_SEARCH_EXCLUDED_TERMS = Set.of(
+        "career",
+        "company",
+        "current",
+        "experience",
+        "kumar",
+        "mediboina",
+        "role",
+        "sai",
+        "work",
+        "worked",
+        "working",
+        "works"
+    );
+
+    private static final Set<String> HIGH_VALUE_EXACT_TERMS = Set.of(
+        "assistant",
+        "bangalore",
+        "bengaluru",
+        "bglr",
+        "blog",
+        "blogs",
+        "blr",
+        "certification",
+        "certifications",
+        "contact",
+        "credential",
+        "credentials",
+        "dashboard",
+        "education",
+        "email",
+        "gemini",
+        "groq",
+        "hyd",
+        "hyderabad",
+        "java",
+        "linkedin",
+        "opensearch",
+        "oracle",
+        "post",
+        "posts",
+        "project",
+        "projects",
+        "rag",
+        "spring",
+        "text"
     );
 
     private final AssistantProperties properties;
@@ -239,16 +289,47 @@ public class ChatService {
 
     private List<KnowledgeChunk> retrieve(String question) {
         int topK = Math.max(1, properties.getTopK());
-        float[] queryEmbedding = embeddingService.embedQuery(question);
-        List<KnowledgeChunk> candidates = repository.findNearest(queryEmbedding, Math.max(topK, 24));
-        List<KnowledgeChunk> ranked = rerank(question, candidates).stream()
+        List<String> tokens = queryTokens(question);
+        List<KnowledgeChunk> semanticCandidates = findSemanticCandidates(question, Math.max(topK, 24));
+        List<KnowledgeChunk> exactCandidates = findExactCandidates(exactSearchTerms(question, tokens), Math.max(topK, 16));
+        List<KnowledgeChunk> candidates = mergeCandidates(semanticCandidates, exactCandidates);
+        List<KnowledgeChunk> ranked = rerank(tokens, candidates).stream()
             .limit(topK)
             .toList();
         return isBelowSimilarityThreshold(ranked) ? List.of() : ranked;
     }
 
-    private List<KnowledgeChunk> rerank(String question, List<KnowledgeChunk> candidates) {
-        List<String> tokens = queryTokens(question);
+    private List<KnowledgeChunk> findSemanticCandidates(String question, int limit) {
+        try {
+            float[] queryEmbedding = embeddingService.embedQuery(question);
+            return repository.findNearest(queryEmbedding, limit);
+        } catch (RuntimeException error) {
+            LOGGER.warn("Semantic vector retrieval failed; continuing with exact search candidates.", error);
+            return List.of();
+        }
+    }
+
+    private List<KnowledgeChunk> findExactCandidates(List<String> terms, int limit) {
+        try {
+            return repository.findExact(terms, limit);
+        } catch (RuntimeException error) {
+            LOGGER.warn("Exact retrieval failed; continuing with semantic vector candidates.", error);
+            return List.of();
+        }
+    }
+
+    private List<KnowledgeChunk> mergeCandidates(List<KnowledgeChunk> semanticCandidates, List<KnowledgeChunk> exactCandidates) {
+        Map<String, KnowledgeChunk> merged = new LinkedHashMap<>();
+        for (KnowledgeChunk chunk : semanticCandidates) {
+            merged.put(chunk.id(), chunk);
+        }
+        for (KnowledgeChunk chunk : exactCandidates) {
+            merged.putIfAbsent(chunk.id(), chunk);
+        }
+        return List.copyOf(merged.values());
+    }
+
+    private List<KnowledgeChunk> rerank(List<String> tokens, List<KnowledgeChunk> candidates) {
         List<ScoredChunk> scoredChunks = new ArrayList<>();
 
         for (int index = 0; index < candidates.size(); index++) {
@@ -437,6 +518,31 @@ public class ChatService {
         }
 
         return (1.0 - chunks.get(0).vectorDistance()) < threshold;
+    }
+
+    private List<String> exactSearchTerms(String question, List<String> expandedTokens) {
+        Set<String> terms = new LinkedHashSet<>();
+        for (String token : normalize(question).split(" ")) {
+            addExactSearchTerm(terms, token);
+            if (token.endsWith("s") && token.length() > 3) {
+                addExactSearchTerm(terms, token.substring(0, token.length() - 1));
+            }
+        }
+
+        for (String token : expandedTokens) {
+            if (HIGH_VALUE_EXACT_TERMS.contains(token)) {
+                addExactSearchTerm(terms, token);
+            }
+        }
+
+        return terms.stream().limit(12).toList();
+    }
+
+    private void addExactSearchTerm(Set<String> terms, String token) {
+        if (token.length() < 3 || STOP_WORDS.contains(token) || EXACT_SEARCH_EXCLUDED_TERMS.contains(token)) {
+            return;
+        }
+        terms.add(token);
     }
 
     private List<String> queryTokens(String question) {

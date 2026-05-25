@@ -1,11 +1,15 @@
 package com.saikumar.assistant.repository;
 
 import com.saikumar.assistant.model.KnowledgeChunk;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -68,6 +72,63 @@ public class OracleKnowledgeChunkRepository implements KnowledgeChunkRepository 
     }
 
     @Override
+    public List<KnowledgeChunk> findExact(List<String> terms, int limit) {
+        List<String> normalizedTerms = normalizeTerms(terms);
+        if (normalizedTerms.isEmpty()) {
+            return List.of();
+        }
+
+        String scoreExpression = String.join(
+            " + ",
+            normalizedTerms.stream()
+                .map(term -> """
+                    CASE WHEN LOWER(title) LIKE ? THEN 12 ELSE 0 END +
+                    CASE WHEN LOWER(source_url) LIKE ? THEN 5 ELSE 0 END +
+                    CASE WHEN LOWER(DBMS_LOB.SUBSTR(metadata_json, 4000, 1)) LIKE ? THEN 4 ELSE 0 END +
+                    CASE WHEN LOWER(DBMS_LOB.SUBSTR(chunk_text, 4000, 1)) LIKE ? THEN 3 ELSE 0 END
+                    """)
+                .toList()
+        );
+
+        String sql = """
+            SELECT
+              id,
+              source_url,
+              title,
+              chunk_text,
+              metadata_json,
+              indexed_at,
+              CAST(NULL AS NUMBER) AS vector_distance
+            FROM (
+              SELECT
+                id,
+                source_url,
+                title,
+                chunk_text,
+                metadata_json,
+                indexed_at,
+                (%s) AS exact_score
+              FROM assistant_knowledge_chunks
+            )
+            WHERE exact_score > 0
+            ORDER BY exact_score DESC, indexed_at DESC
+            FETCH FIRST ? ROWS ONLY
+            """.formatted(scoreExpression);
+
+        List<Object> params = new ArrayList<>();
+        for (String term : normalizedTerms) {
+            String pattern = "%" + term + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+        params.add(limit);
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapChunk(rs), params.toArray());
+    }
+
+    @Override
     public int count() {
         Integer count = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM assistant_knowledge_chunks",
@@ -78,7 +139,7 @@ public class OracleKnowledgeChunkRepository implements KnowledgeChunkRepository 
 
     @Override
     public String mode() {
-        return "oracle-23ai-vector-search";
+        return "oracle-23ai-hybrid-search";
     }
 
     private KnowledgeChunk mapChunk(ResultSet rs) throws SQLException {
@@ -129,5 +190,21 @@ public class OracleKnowledgeChunkRepository implements KnowledgeChunkRepository 
 
     private String escapeJson(String value) {
         return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    private List<String> normalizeTerms(List<String> terms) {
+        Set<String> normalizedTerms = new LinkedHashSet<>();
+        for (String term : terms) {
+            String normalized = term == null
+                ? ""
+                : term.toLowerCase(Locale.ROOT)
+                    .replaceAll("[^a-z0-9+#.:/@-]+", " ")
+                    .replaceAll("\\s+", " ")
+                    .trim();
+            if (normalized.length() >= 3) {
+                normalizedTerms.add(normalized);
+            }
+        }
+        return normalizedTerms.stream().limit(12).toList();
     }
 }
