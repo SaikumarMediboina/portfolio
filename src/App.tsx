@@ -6944,7 +6944,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
   const assistantSignals = [
     { label: "Frontend", value: "Vercel UI" },
     { label: "Backend", value: "Spring RAG" },
-    { label: "Retrieval", value: "Gemini + Oracle" },
+    { label: "Retrieval", value: "Hybrid Search" },
   ];
   const ragPipelineCards = [
     {
@@ -6963,7 +6963,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "Visitor questions become query vectors, Oracle returns nearest chunks with distance, Spring reranks evidence, and the model answers only from grounded context.",
+        "Visitor questions run through semantic vector search and exact text search, then Spring applies rule-based reranking before the model answers from grounded context.",
       endpoint: "Grounded response",
       title: "Online chat",
       tone: "is-sage",
@@ -7022,18 +7022,18 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Route to backend",
     },
     {
-      after: "Embedding + Retrieval",
+      after: "Hybrid Retrieval",
       before: "Spring API",
       detail:
-        "Spring sanitizes the request, creates a retrieval-query embedding, and asks Oracle 23ai for nearest knowledge chunks with cosine distance.",
-      title: "Retrieve context",
+        "Spring sanitizes the request, creates a retrieval-query embedding, then gathers semantic vector matches and exact text matches.",
+      title: "Retrieve candidates",
     },
     {
-      after: "Intent Reranker",
-      before: "Oracle 23ai",
+      after: "Rule Reranker",
+      before: "Hybrid Retrieval",
       detail:
-        "The backend combines vector similarity, metadata, title, category, and keyword signals so project, contact, blog, skill, and experience questions land on the right evidence.",
-      title: "Rerank evidence",
+        "Rule-based ranking blends exact match strength, vector similarity, metadata, title, category, section, and intent signals before choosing evidence.",
+      title: "Rank evidence",
     },
     {
       after: "Groq / Gemini LLM",
@@ -7122,7 +7122,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
   const retrievalSteps = [
     {
       detail:
-        "The chat endpoint sanitizes the message, keeps session context, and skips full retrieval for tiny greetings or cached answers.",
+        "The chat endpoint sanitizes the message, keeps session context, handles greetings and direct facts, and skips full retrieval for cached answers.",
       meta: "Fast path first",
       title: "Receive question",
     },
@@ -7140,9 +7140,9 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "Spring merges both candidate sets, removes duplicates, then reranks with vector similarity, source title, category, section, priority, and intent rules.",
-      meta: "Vector + metadata rerank",
-      title: "Choose evidence",
+        "Spring merges both candidate sets, removes duplicates, then reranks with explicit rules for projects, contact, blogs, skills, credentials, experience, and location.",
+      meta: "Rule-based rerank",
+      title: "Rank evidence",
     },
     {
       detail:
@@ -7180,8 +7180,8 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "Spring uses distance, metadata, and intent boosts together, then applies a no-answer threshold before prompt generation.",
-      label: "Confidence gate",
+        "Spring uses rule-based boosts with distance, metadata, source titles, categories, and page intent, then applies a no-answer threshold.",
+      label: "Rule ranking",
     },
   ];
   const architectureFacts = [
@@ -7199,7 +7199,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       label: "Final ranking",
-      value: "Exact + vector + metadata + intent",
+      value: "Rule-based reranking",
     },
     {
       label: "Failure mode",
@@ -7216,12 +7216,12 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Embed query",
     },
     {
-      detail: "Fetch semantic vector candidates and exact text candidates, then merge them by chunk id.",
+      detail: "Fetch semantic vector candidates and exact text candidates, then merge both lists by chunk id.",
       title: "Hybrid search",
     },
     {
-      detail: "Blend vector similarity with source metadata, category, title, body keywords, and page-aware intent.",
-      title: "Score evidence",
+      detail: "Apply deterministic rules for exact matches, vector similarity, source metadata, category, title, body keywords, and page-aware intent.",
+      title: "Rule rerank",
     },
     {
       detail: "Apply the minimum similarity gate before using retrieved context for generation.",
@@ -7252,7 +7252,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     {
       detail: "A curated portfolio corpus stored as searchable chunks with source metadata for grounded answers.",
       eyebrow: "Retrieval layer",
-      items: ["Autonomous Database", "23ai vector search", "Normalized vectors", "Chunk metadata", "Cosine distance"],
+      items: ["Autonomous Database", "Hybrid search", "Exact text match", "Normalized vectors", "Rule reranking"],
       title: "Knowledge Store",
     },
     {
@@ -7433,12 +7433,12 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
 
         <section className="active-assistant-section active-assistant-rag-deep-dive">
           <div className="active-assistant-section-heading">
-            <p className="eyebrow">Ingestion + Vector Search</p>
+            <p className="eyebrow">Ingestion + Hybrid Search</p>
             <h2>How content becomes searchable knowledge.</h2>
             <p>
               The system has two clean paths: an offline indexing path that prepares the knowledge
-              base, and an online retrieval path that answers each visitor question with the best
-              matching evidence.
+              base, and an online retrieval path that combines exact search, semantic search, and
+              rule-based ranking before answering.
             </p>
           </div>
 
@@ -7478,10 +7478,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
             <article className="assistant-rag-lane is-online">
               <div className="assistant-rag-lane-heading">
                 <span>Online path</span>
-                <h3>Search retrieves evidence for every question.</h3>
+                <h3>Hybrid retrieval ranks evidence for every question.</h3>
                 <p>
-                  Chat requests become query vectors, Oracle returns nearest chunks, and Spring
-                  reranks the evidence before the model writes.
+                  Chat requests become query vectors and exact text searches. Spring merges both
+                  result sets and applies deterministic ranking rules before the model writes.
                 </p>
               </div>
               <ol>
@@ -7533,10 +7533,10 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
         <section className="active-assistant-section active-assistant-architecture-board">
           <div className="active-assistant-section-heading">
             <p className="eyebrow">Architecture</p>
-            <h2>One clean request path from UI to Oracle.</h2>
+            <h2>One clean request path through hybrid retrieval.</h2>
             <p>
               The assistant is not only a chat popup. It is a deployed RAG path across Vercel,
-              Render, Oracle 23ai, and the configured LLM provider.
+              Render, Oracle 23ai, rule-based reranking, and the configured LLM provider.
             </p>
           </div>
 
@@ -7580,40 +7580,40 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
               <text className="assistant-flow-node-text" x="363.5" y="198">Render Spring API</text>
 
               <rect className="assistant-flow-node-rect" x="191" y="252" width="150" height="40" />
-              <text className="assistant-flow-node-text" x="266" y="276">Intent Reranker</text>
+              <text className="assistant-flow-node-text" x="266" y="276">Rule Reranker</text>
 
               <rect className="assistant-flow-node-rect" x="526" y="252" width="164" height="40" />
-              <text className="assistant-flow-node-text" x="608" y="276">CORS + Guardrails</text>
+              <text className="assistant-flow-node-text" x="608" y="276">CORS + Grounding</text>
 
               <rect className="assistant-flow-label-bg" x="227" y="314" width="78" height="20" />
-              <text className="assistant-flow-label-text" x="266" y="328">Unsupported</text>
+              <text className="assistant-flow-label-text" x="266" y="328">No context</text>
 
               <rect className="assistant-flow-node-rect" x="204" y="351" width="124" height="40" />
-              <text className="assistant-flow-node-text" x="266" y="375">Polite fallback</text>
+              <text className="assistant-flow-node-text" x="266" y="375">No-info fallback</text>
 
               <rect className="assistant-flow-label-bg" x="396" y="314" width="99" height="20" />
               <text className="assistant-flow-label-text" x="445.5" y="328">Portfolio question</text>
 
               <rect className="assistant-flow-node-rect" x="366" y="351" width="159" height="40" />
-              <text className="assistant-flow-node-text" x="445.5" y="375">Oracle Retrieval</text>
+              <text className="assistant-flow-node-text" x="445.5" y="375">Hybrid Retrieval</text>
 
               <rect className="assistant-flow-label-bg" x="114" y="410" width="123" height="20" />
               <text className="assistant-flow-label-text" x="175.5" y="424">Generic tech question</text>
 
               <rect className="assistant-flow-node-rect" x="278" y="450" width="189" height="40" />
-              <text className="assistant-flow-node-text" x="372.5" y="474">Grounded Prompt Builder</text>
+              <text className="assistant-flow-node-text" x="372.5" y="474">Grounded Prompt</text>
 
               <rect className="assistant-flow-node-rect" x="505" y="450" width="186" height="40" />
-              <text className="assistant-flow-node-text" x="598" y="474">Structured Site Catalog</text>
+              <text className="assistant-flow-node-text" x="598" y="474">Exact Search + Metadata</text>
 
               <rect className="assistant-flow-node-rect" x="529" y="529" width="138" height="40" />
-              <text className="assistant-flow-node-text" x="598" y="553">Oracle 23ai Vector DB</text>
+              <text className="assistant-flow-node-text" x="598" y="553">Oracle 23ai Store</text>
 
               <rect className="assistant-flow-node-rect" x="142" y="529" width="70" height="40" />
               <text className="assistant-flow-node-text" x="177" y="553">Groq LLM</text>
 
               <rect className="assistant-flow-node-rect" x="317" y="608" width="187" height="40" />
-              <text className="assistant-flow-node-text" x="410.5" y="632">Answer with links/actions</text>
+              <text className="assistant-flow-node-text" x="410.5" y="632">Answer with citations</text>
             </svg>
           </div>
 
