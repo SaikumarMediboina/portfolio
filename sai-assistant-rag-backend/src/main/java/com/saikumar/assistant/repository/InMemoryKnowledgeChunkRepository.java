@@ -27,7 +27,8 @@ public class InMemoryKnowledgeChunkRepository implements KnowledgeChunkRepositor
     @Override
     public List<KnowledgeChunk> findNearest(float[] queryEmbedding, int limit) {
         return chunks.stream()
-            .sorted(Comparator.comparingDouble(chunk -> cosineDistance(queryEmbedding, chunk.embedding())))
+            .map(chunk -> withDistance(chunk, cosineDistance(queryEmbedding, chunk.embedding())))
+            .sorted(Comparator.comparingDouble(KnowledgeChunk::vectorDistance))
             .limit(limit)
             .toList();
     }
@@ -63,5 +64,18 @@ public class InMemoryKnowledgeChunkRepository implements KnowledgeChunkRepositor
         }
 
         return 1.0 - (dot / (Math.sqrt(leftNorm) * Math.sqrt(rightNorm)));
+    }
+
+    private KnowledgeChunk withDistance(KnowledgeChunk chunk, double distance) {
+        return new KnowledgeChunk(
+            chunk.id(),
+            chunk.sourceUrl(),
+            chunk.title(),
+            chunk.chunkText(),
+            chunk.embedding(),
+            chunk.metadata(),
+            chunk.indexedAt(),
+            distance
+        );
     }
 }

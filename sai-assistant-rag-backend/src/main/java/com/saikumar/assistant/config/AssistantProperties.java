@@ -11,6 +11,7 @@ public class AssistantProperties {
     private String allowedOrigins = "http://localhost:5173,https://saikumarmediboina.com";
     private int maxQuestionLength = 700;
     private int topK = 5;
+    private double minVectorSimilarity = 0.05;
     private int chunkSizeChars = 2200;
     private int chunkOverlapChars = 220;
     private List<String> seedUrls = new ArrayList<>();
@@ -56,6 +57,14 @@ public class AssistantProperties {
 
     public void setTopK(int topK) {
         this.topK = topK;
+    }
+
+    public double getMinVectorSimilarity() {
+        return minVectorSimilarity;
+    }
+
+    public void setMinVectorSimilarity(double minVectorSimilarity) {
+        this.minVectorSimilarity = minVectorSimilarity;
     }
 
     public int getChunkSizeChars() {

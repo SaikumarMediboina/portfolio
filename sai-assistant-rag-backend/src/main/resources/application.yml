@@ -25,6 +25,7 @@ assistant:
   allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,https://saikumarmediboina.com}
   max-question-length: 700
   top-k: 5
+  min-vector-similarity: ${MIN_VECTOR_SIMILARITY:0.05}
   chunk-size-chars: 2200
   chunk-overlap-chars: 220
   seed-urls:

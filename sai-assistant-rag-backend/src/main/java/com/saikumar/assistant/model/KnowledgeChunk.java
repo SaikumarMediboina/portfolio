@@ -10,6 +10,7 @@ public record KnowledgeChunk(
     String chunkText,
     float[] embedding,
     Map<String, String> metadata,
-    Instant indexedAt
+    Instant indexedAt,
+    Double vectorDistance
 ) {
 }

@@ -91,6 +91,7 @@ public class GeminiEmbeddingService implements EmbeddingService {
         for (int index = 0; index < values.size(); index++) {
             vector[index] = values.get(index);
         }
+        normalize(vector);
         return vector;
     }
 
@@ -99,5 +100,21 @@ public class GeminiEmbeddingService implements EmbeddingService {
             return "gemini-embedding-001";
         }
         return model.startsWith("models/") ? model.substring("models/".length()) : model;
+    }
+
+    private void normalize(float[] vector) {
+        double norm = 0;
+        for (float value : vector) {
+            norm += value * value;
+        }
+
+        if (norm == 0) {
+            return;
+        }
+
+        double scale = Math.sqrt(norm);
+        for (int index = 0; index < vector.length; index++) {
+            vector[index] = (float) (vector[index] / scale);
+        }
     }
 }

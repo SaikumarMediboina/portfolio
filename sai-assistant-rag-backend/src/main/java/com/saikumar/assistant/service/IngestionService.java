@@ -76,10 +76,15 @@ public class IngestionService {
                     chunkText,
                     embeddingService.embedDocument(embeddingText),
                     Map.of(
+                        "category", document.metadata().getOrDefault("category", "unknown"),
                         "chunkIndex", String.valueOf(index),
-                        "loader", document.metadata().getOrDefault("loader", "unknown")
+                        "loader", document.metadata().getOrDefault("loader", "unknown"),
+                        "priority", "structured-site".equals(document.metadata().get("loader")) ? "high" : "normal",
+                        "section", sourceSection(document.sourceUrl()),
+                        "sourceKind", sourceKind(document)
                     ),
-                    Instant.now()
+                    Instant.now(),
+                    null
                 ));
             }
         }
@@ -107,5 +112,31 @@ public class IngestionService {
         } catch (NoSuchAlgorithmException exception) {
             return Integer.toHexString((sourceUrl + chunkIndex + chunkText).hashCode());
         }
+    }
+
+    private String sourceKind(SourceDocument document) {
+        String loader = document.metadata().getOrDefault("loader", "unknown");
+        if ("structured-site".equals(loader)) {
+            return "curated";
+        }
+        if ("jsoup".equals(loader)) {
+            return "web-page";
+        }
+        return loader;
+    }
+
+    private String sourceSection(String sourceUrl) {
+        if (sourceUrl == null || sourceUrl.isBlank()) {
+            return "root";
+        }
+        int hashIndex = sourceUrl.indexOf('#');
+        if (hashIndex >= 0 && hashIndex + 1 < sourceUrl.length()) {
+            return sourceUrl.substring(hashIndex + 1);
+        }
+        String normalized = sourceUrl.replaceAll("/+$", "");
+        int slashIndex = normalized.lastIndexOf('/');
+        return slashIndex >= 0 && slashIndex + 1 < normalized.length()
+            ? normalized.substring(slashIndex + 1)
+            : "root";
     }
 }

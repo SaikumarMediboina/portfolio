@@ -36,9 +36,12 @@ GROQ_BASE_URL=https://api.groq.com/openai/v1
 EMBEDDING_PROVIDER=local
 GEMINI_EMBEDDING_MODEL=gemini-embedding-001
 EMBEDDING_DIMENSION=1536
+MIN_VECTOR_SIMILARITY=0.05
 ```
 
 Use `LLM_PROVIDER=gemini` with `GEMINI_API_KEY` or `LLM_PROVIDER=groq` with `GROQ_API_KEY` for real grounded answer generation. Keep `EMBEDDING_PROVIDER=local` while you are validating deployment, then switch to `EMBEDDING_PROVIDER=gemini` and re-run ingestion when you want Gemini-generated vectors in Oracle.
+
+Gemini embedding vectors are L2-normalized before storage/search. Oracle retrieval also returns cosine distance so reranking can combine vector similarity with title, category, source, and keyword intent boosts. `MIN_VECTOR_SIMILARITY` controls the no-answer cutoff for weak vector matches; set it to `0` to disable the cutoff while tuning.
 
 ## Local API flow
 
@@ -80,7 +83,7 @@ Run `src/main/resources/schema-oracle.sql` after creating your Oracle 23ai Free 
 ## Production direction
 
 1. `POST /api/admin/ingest` reads source pages and stores chunks.
-2. `POST /api/chat/stream` embeds the question, retrieves top chunks, builds a grounded prompt, and streams the answer.
+2. `POST /api/chat/stream` embeds the question, retrieves nearest Oracle chunks, reranks by vector similarity plus metadata/category intent, builds a grounded prompt, and streams the answer.
 3. CORS allows only the portfolio domains.
 4. Rate limiting protects LLM credits.
 5. Oracle profile stores chunks with `VECTOR` search.

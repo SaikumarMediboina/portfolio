@@ -121,18 +121,24 @@ public class ChatService {
                 return new RetrievalContext(safeRequest, chunks, citations(chunks));
             })
             .subscribeOn(Schedulers.boundedElastic())
-            .flatMap(context -> llmClient.answer(context.request(), context.chunks())
-                .timeout(LLM_TIMEOUT)
-                .onErrorResume(error -> {
-                    LOGGER.warn("Assistant LLM request timed out or failed.", error);
-                    return Mono.just(fallbackAnswer(context.chunks()));
-                })
-                .map(answer -> cacheAndReturn(cacheKey, new ChatResponse(
-                    context.request().sessionId(),
-                    answer,
-                    context.citations(),
-                    context.chunks().size()
-                ))))
+            .flatMap(context -> {
+                if (context.chunks().isEmpty()) {
+                    return Mono.just(cacheAndReturn(cacheKey, noContextResponse(context.request().sessionId())));
+                }
+
+                return llmClient.answer(context.request(), context.chunks())
+                    .timeout(LLM_TIMEOUT)
+                    .onErrorResume(error -> {
+                        LOGGER.warn("Assistant LLM request timed out or failed.", error);
+                        return Mono.just(fallbackAnswer(context.chunks()));
+                    })
+                    .map(answer -> cacheAndReturn(cacheKey, new ChatResponse(
+                        context.request().sessionId(),
+                        answer,
+                        context.citations(),
+                        context.chunks().size()
+                    )));
+            })
             .timeout(CHAT_TIMEOUT)
             .onErrorResume(error -> {
                 LOGGER.warn("Assistant chat request timed out or failed.", error);
@@ -177,26 +183,31 @@ public class ChatService {
                     ChatStreamEvent.stage("Retrieving Oracle context", 46)
                 ),
                 retrieval.flatMapMany(context -> Flux.concat(
-                    Flux.just(
-                        ChatStreamEvent.stage("Reranking evidence", 62),
-                        ChatStreamEvent.stage("Calling LLM", 78)
-                    ),
-                    llmClient.answer(context.request(), context.chunks())
-                        .timeout(LLM_TIMEOUT)
-                        .onErrorResume(error -> {
-                            LOGGER.warn("Assistant LLM stream request timed out or failed.", error);
-                            return Mono.just(fallbackAnswer(context.chunks()));
-                        })
-                        .map(answer -> cacheAndReturn(cacheKey, new ChatResponse(
-                            context.request().sessionId(),
-                            answer,
-                            context.citations(),
-                            context.chunks().size()
-                        )))
-                        .flatMapMany(response -> Flux.concat(
-                            Flux.just(ChatStreamEvent.stage("Streaming answer", 92)),
-                            streamTokens(response)
-                        ))
+                    Flux.just(ChatStreamEvent.stage("Reranking evidence", 62)),
+                    context.chunks().isEmpty()
+                        ? Flux.concat(
+                            Flux.just(ChatStreamEvent.stage("No strong match", 92)),
+                            streamTokens(cacheAndReturn(cacheKey, noContextResponse(context.request().sessionId())))
+                        )
+                        : Flux.concat(
+                            Flux.just(ChatStreamEvent.stage("Calling LLM", 78)),
+                            llmClient.answer(context.request(), context.chunks())
+                                .timeout(LLM_TIMEOUT)
+                                .onErrorResume(error -> {
+                                    LOGGER.warn("Assistant LLM stream request timed out or failed.", error);
+                                    return Mono.just(fallbackAnswer(context.chunks()));
+                                })
+                                .map(answer -> cacheAndReturn(cacheKey, new ChatResponse(
+                                    context.request().sessionId(),
+                                    answer,
+                                    context.citations(),
+                                    context.chunks().size()
+                                )))
+                                .flatMapMany(response -> Flux.concat(
+                                    Flux.just(ChatStreamEvent.stage("Streaming answer", 92)),
+                                    streamTokens(response)
+                                ))
+                        )
                 ))
             )
             .timeout(CHAT_TIMEOUT)
@@ -230,9 +241,10 @@ public class ChatService {
         int topK = Math.max(1, properties.getTopK());
         float[] queryEmbedding = embeddingService.embedQuery(question);
         List<KnowledgeChunk> candidates = repository.findNearest(queryEmbedding, Math.max(topK, 24));
-        return rerank(question, candidates).stream()
+        List<KnowledgeChunk> ranked = rerank(question, candidates).stream()
             .limit(topK)
             .toList();
+        return isBelowSimilarityThreshold(ranked) ? List.of() : ranked;
     }
 
     private List<KnowledgeChunk> rerank(String question, List<KnowledgeChunk> candidates) {
@@ -241,7 +253,7 @@ public class ChatService {
 
         for (int index = 0; index < candidates.size(); index++) {
             KnowledgeChunk chunk = candidates.get(index);
-            scoredChunks.add(new ScoredChunk(chunk, hybridScore(chunk, tokens), index));
+            scoredChunks.add(new ScoredChunk(chunk, hybridScore(chunk, tokens) + vectorScore(chunk, index, candidates.size()), index));
         }
 
         return scoredChunks.stream()
@@ -373,6 +385,32 @@ public class ChatService {
         }
 
         return score;
+    }
+
+    private double vectorScore(KnowledgeChunk chunk, int vectorRank, int candidateCount) {
+        if (chunk.vectorDistance() != null) {
+            double similarity = 1.0 - chunk.vectorDistance();
+            return Math.max(0, similarity) * 40.0;
+        }
+
+        if (candidateCount <= 1) {
+            return 0;
+        }
+
+        return Math.max(0, 1.0 - ((double) vectorRank / (candidateCount - 1))) * 12.0;
+    }
+
+    private boolean isBelowSimilarityThreshold(List<KnowledgeChunk> chunks) {
+        if (chunks.isEmpty()) {
+            return false;
+        }
+
+        double threshold = properties.getMinVectorSimilarity();
+        if (threshold <= 0 || chunks.get(0).vectorDistance() == null) {
+            return false;
+        }
+
+        return (1.0 - chunks.get(0).vectorDistance()) < threshold;
     }
 
     private List<String> queryTokens(String question) {
@@ -513,6 +551,15 @@ public class ChatService {
 
     private String cacheKey(String message) {
         return normalize(message);
+    }
+
+    private ChatResponse noContextResponse(String sessionId) {
+        return new ChatResponse(
+            sessionId,
+            "I do not have enough matching portfolio context for that yet. Try asking about Sai's projects, Oracle experience, backend stack, blogs, or contact details.",
+            List.of(),
+            0
+        );
     }
 
     private String fallbackAnswer(List<KnowledgeChunk> chunks) {

@@ -51,9 +51,16 @@ public class OracleKnowledgeChunkRepository implements KnowledgeChunkRepository 
     @Override
     public List<KnowledgeChunk> findNearest(float[] queryEmbedding, int limit) {
         String sql = """
-            SELECT id, source_url, title, chunk_text, metadata_json, indexed_at
+            SELECT
+              id,
+              source_url,
+              title,
+              chunk_text,
+              metadata_json,
+              indexed_at,
+              VECTOR_DISTANCE(vector_embedding, TO_VECTOR(?), COSINE) AS vector_distance
             FROM assistant_knowledge_chunks
-            ORDER BY VECTOR_DISTANCE(vector_embedding, TO_VECTOR(?), COSINE)
+            ORDER BY vector_distance
             FETCH FIRST ? ROWS ONLY
             """;
 
@@ -82,8 +89,14 @@ public class OracleKnowledgeChunkRepository implements KnowledgeChunkRepository 
             rs.getString("chunk_text"),
             new float[0],
             Map.of("metadataJson", rs.getString("metadata_json")),
-            rs.getTimestamp("indexed_at").toInstant()
+            rs.getTimestamp("indexed_at").toInstant(),
+            nullableDouble(rs, "vector_distance")
         );
+    }
+
+    private Double nullableDouble(ResultSet rs, String column) throws SQLException {
+        double value = rs.getDouble(column);
+        return rs.wasNull() ? null : value;
     }
 
     private String toVectorLiteral(float[] vector) {
