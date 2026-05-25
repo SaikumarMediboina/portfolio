@@ -3,6 +3,7 @@ package com.saikumar.assistant.service;
 import com.saikumar.assistant.config.AssistantProperties;
 import com.saikumar.assistant.model.ChatRequest;
 import com.saikumar.assistant.model.KnowledgeChunk;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -64,6 +65,7 @@ public class GeminiLlmClient implements LlmClient {
             .bodyValue(body)
             .retrieve()
             .bodyToMono(Map.class)
+            .timeout(Duration.ofSeconds(16))
             .map(this::extractText)
             .map(String::trim)
             .filter(answer -> !answer.isBlank())

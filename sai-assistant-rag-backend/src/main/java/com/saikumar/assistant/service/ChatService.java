@@ -15,12 +15,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class ChatService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatService.class);
+    private static final Duration CHAT_TIMEOUT = Duration.ofSeconds(24);
+    private static final Duration LLM_TIMEOUT = Duration.ofSeconds(16);
 
     private static final Set<String> STOP_WORDS = Set.of(
         "a",
@@ -91,17 +98,35 @@ public class ChatService {
     }
 
     public Mono<ChatResponse> answer(ChatRequest request) {
-        ChatRequest safeRequest = sanitize(request);
-        List<KnowledgeChunk> chunks = retrieve(safeRequest.message());
-        List<Citation> citations = citations(chunks);
-
-        return llmClient.answer(safeRequest, chunks)
-            .map(answer -> new ChatResponse(
-                safeRequest.sessionId(),
-                answer,
-                citations,
-                chunks.size()
-            ));
+        return Mono.fromCallable(() -> {
+                ChatRequest safeRequest = sanitize(request);
+                List<KnowledgeChunk> chunks = retrieve(safeRequest.message());
+                return new RetrievalContext(safeRequest, chunks, citations(chunks));
+            })
+            .subscribeOn(Schedulers.boundedElastic())
+            .flatMap(context -> llmClient.answer(context.request(), context.chunks())
+                .timeout(LLM_TIMEOUT)
+                .onErrorResume(error -> {
+                    LOGGER.warn("Assistant LLM request timed out or failed.", error);
+                    return Mono.just(fallbackAnswer(context.chunks()));
+                })
+                .map(answer -> new ChatResponse(
+                    context.request().sessionId(),
+                    answer,
+                    context.citations(),
+                    context.chunks().size()
+                )))
+            .timeout(CHAT_TIMEOUT)
+            .onErrorResume(error -> {
+                LOGGER.warn("Assistant chat request timed out or failed.", error);
+                ChatRequest safeRequest = sanitize(request);
+                return Mono.just(new ChatResponse(
+                    safeRequest.sessionId(),
+                    "Sai's assistant is online, but the knowledge backend is taking too long right now. Please retry in a moment.",
+                    List.of(),
+                    0
+                ));
+            });
     }
 
     public Flux<ChatStreamEvent> stream(ChatRequest request) {
@@ -349,6 +374,10 @@ public class ChatService {
     }
 
     private ChatRequest sanitize(ChatRequest request) {
+        if (request == null) {
+            return new ChatRequest("anonymous", "", List.of());
+        }
+
         String message = request.message() == null ? "" : request.message().trim();
         if (message.length() > properties.getMaxQuestionLength()) {
             message = message.substring(0, properties.getMaxQuestionLength()).trim();
@@ -359,6 +388,33 @@ public class ChatService {
             : request.sessionId().trim();
 
         return new ChatRequest(sessionId, message, request.history());
+    }
+
+    private String fallbackAnswer(List<KnowledgeChunk> chunks) {
+        if (chunks == null || chunks.isEmpty()) {
+            return "Sai's assistant is online, but the AI response service is taking too long right now. Please retry in a moment.";
+        }
+
+        KnowledgeChunk primary = chunks.get(0);
+        return """
+            I found the relevant site context, but the AI response service is taking too long right now.
+
+            %s
+
+            Source: %s
+            """.formatted(toSentence(primary.chunkText()), primary.sourceUrl()).trim();
+    }
+
+    private String toSentence(String text) {
+        String cleaned = text == null ? "" : text.trim();
+        if (cleaned.length() <= 520) {
+            return cleaned;
+        }
+        int boundary = cleaned.lastIndexOf(". ", 520);
+        return cleaned.substring(0, boundary > 160 ? boundary + 1 : 520).trim();
+    }
+
+    private record RetrievalContext(ChatRequest request, List<KnowledgeChunk> chunks, List<Citation> citations) {
     }
 
     private record ScoredChunk(KnowledgeChunk chunk, double score, int vectorRank) {

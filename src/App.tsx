@@ -2434,6 +2434,21 @@ type AssistantApiLink = {
 };
 
 const assistantApiBaseUrl = (import.meta.env.VITE_ASSISTANT_API_BASE_URL ?? "").replace(/\/+$/, "");
+const assistantApiTimeoutMs = 18000;
+
+async function fetchAssistantApi(input: RequestInfo | URL, init: RequestInit = {}) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), assistantApiTimeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
 
 const assistantStopWords = new Set([
   "a",
@@ -4003,7 +4018,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       fallbackResponse.actions ?? fallbackResponse.links,
     );
     const shouldUseSpringAssistant = Boolean(assistantApiBaseUrl);
-    const response = await fetch(
+    const response = await fetchAssistantApi(
       shouldUseSpringAssistant ? `${assistantApiBaseUrl}/api/chat` : "/api/chat",
       {
         method: "POST",
@@ -6822,20 +6837,16 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
             </p>
           </div>
 
-          <div className="assistant-stack-matrix" role="table" aria-label="Assistant production stack">
-            <div className="assistant-stack-matrix-head" role="row">
-              <span>Layer</span>
-              <span>Responsibility</span>
-              <span>Core components</span>
-            </div>
-            {stackGroups.map((group) => (
-              <article className="assistant-stack-row" key={group.title} role="row">
-                <div className="assistant-stack-layer" role="cell">
+          <div className="assistant-stack-flow" aria-label="Assistant production stack">
+            {stackGroups.map((group, index) => (
+              <article className="assistant-stack-flow-node" key={group.title}>
+                <div className="assistant-stack-flow-head">
+                  <strong>{String(index + 1).padStart(2, "0")}</strong>
                   <span>{group.eyebrow}</span>
-                  <h3>{group.title}</h3>
                 </div>
-                <p role="cell">{group.detail}</p>
-                <ul role="cell">
+                <h3>{group.title}</h3>
+                <p>{group.detail}</p>
+                <ul>
                   {group.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
