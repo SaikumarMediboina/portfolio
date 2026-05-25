@@ -8,13 +8,16 @@ import com.saikumar.assistant.model.Citation;
 import com.saikumar.assistant.model.KnowledgeChunk;
 import com.saikumar.assistant.repository.KnowledgeChunkRepository;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,8 @@ public class ChatService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatService.class);
     private static final Duration CHAT_TIMEOUT = Duration.ofSeconds(24);
     private static final Duration LLM_TIMEOUT = Duration.ofSeconds(16);
+    private static final Duration RESPONSE_CACHE_TTL = Duration.ofMinutes(10);
+    private static final int RESPONSE_CACHE_MAX_SIZE = 120;
 
     private static final Set<String> STOP_WORDS = Set.of(
         "a",
@@ -84,6 +89,7 @@ public class ChatService {
     private final EmbeddingService embeddingService;
     private final KnowledgeChunkRepository repository;
     private final LlmClient llmClient;
+    private final Map<String, CachedResponse> responseCache = new ConcurrentHashMap<>();
 
     public ChatService(
         AssistantProperties properties,
@@ -98,8 +104,19 @@ public class ChatService {
     }
 
     public Mono<ChatResponse> answer(ChatRequest request) {
+        ChatRequest safeRequest = sanitize(request);
+        ChatResponse instantResponse = instantResponse(safeRequest);
+        if (instantResponse != null) {
+            return Mono.just(instantResponse);
+        }
+
+        String cacheKey = cacheKey(safeRequest.message());
+        CachedResponse cachedResponse = responseCache.get(cacheKey);
+        if (cachedResponse != null && !cachedResponse.isExpired()) {
+            return Mono.just(cachedResponse.forSession(safeRequest.sessionId()));
+        }
+
         return Mono.fromCallable(() -> {
-                ChatRequest safeRequest = sanitize(request);
                 List<KnowledgeChunk> chunks = retrieve(safeRequest.message());
                 return new RetrievalContext(safeRequest, chunks, citations(chunks));
             })
@@ -110,16 +127,15 @@ public class ChatService {
                     LOGGER.warn("Assistant LLM request timed out or failed.", error);
                     return Mono.just(fallbackAnswer(context.chunks()));
                 })
-                .map(answer -> new ChatResponse(
+                .map(answer -> cacheAndReturn(cacheKey, new ChatResponse(
                     context.request().sessionId(),
                     answer,
                     context.citations(),
                     context.chunks().size()
-                )))
+                ))))
             .timeout(CHAT_TIMEOUT)
             .onErrorResume(error -> {
                 LOGGER.warn("Assistant chat request timed out or failed.", error);
-                ChatRequest safeRequest = sanitize(request);
                 return Mono.just(new ChatResponse(
                     safeRequest.sessionId(),
                     "Sai's assistant is online, but the knowledge backend is taking too long right now. Please retry in a moment.",
@@ -147,7 +163,7 @@ public class ChatService {
     private List<KnowledgeChunk> retrieve(String question) {
         int topK = Math.max(1, properties.getTopK());
         float[] queryEmbedding = embeddingService.embedQuery(question);
-        List<KnowledgeChunk> candidates = repository.findNearest(queryEmbedding, Math.max(topK, 50));
+        List<KnowledgeChunk> candidates = repository.findNearest(queryEmbedding, Math.max(topK, 24));
         return rerank(question, candidates).stream()
             .limit(topK)
             .toList();
@@ -390,6 +406,49 @@ public class ChatService {
         return new ChatRequest(sessionId, message, request.history());
     }
 
+    private ChatResponse instantResponse(ChatRequest request) {
+        String message = normalize(request.message());
+        if (message.isBlank()) {
+            return null;
+        }
+
+        if (message.matches("^(hi|hello|hey|yo|hai|namaste|hlo)$")) {
+            return new ChatResponse(
+                request.sessionId(),
+                "Hey, I am Sai's site assistant. Ask me about his projects, blogs, tech stack, contact details, or backend concepts.",
+                List.of(),
+                0
+            );
+        }
+
+        if (message.matches("^(ok|okay|cool|nice|thanks|thank you|done|yes|no)$")) {
+            return new ChatResponse(
+                request.sessionId(),
+                "Got it. Ask a Sai-specific portfolio question, or ask a backend, cloud, database, or AI concept.",
+                List.of(),
+                0
+            );
+        }
+
+        return null;
+    }
+
+    private ChatResponse cacheAndReturn(String cacheKey, ChatResponse response) {
+        if (responseCache.size() >= RESPONSE_CACHE_MAX_SIZE) {
+            responseCache.entrySet().removeIf(entry -> entry.getValue().isExpired());
+            if (responseCache.size() >= RESPONSE_CACHE_MAX_SIZE) {
+                responseCache.clear();
+            }
+        }
+
+        responseCache.put(cacheKey, CachedResponse.from(response));
+        return response;
+    }
+
+    private String cacheKey(String message) {
+        return normalize(message);
+    }
+
     private String fallbackAnswer(List<KnowledgeChunk> chunks) {
         if (chunks == null || chunks.isEmpty()) {
             return "Sai's assistant is online, but the AI response service is taking too long right now. Please retry in a moment.";
@@ -415,6 +474,25 @@ public class ChatService {
     }
 
     private record RetrievalContext(ChatRequest request, List<KnowledgeChunk> chunks, List<Citation> citations) {
+    }
+
+    private record CachedResponse(String answer, List<Citation> citations, int retrievedChunks, Instant expiresAt) {
+        static CachedResponse from(ChatResponse response) {
+            return new CachedResponse(
+                response.answer(),
+                response.citations(),
+                response.retrievedChunks(),
+                Instant.now().plus(RESPONSE_CACHE_TTL)
+            );
+        }
+
+        boolean isExpired() {
+            return Instant.now().isAfter(expiresAt);
+        }
+
+        ChatResponse forSession(String sessionId) {
+            return new ChatResponse(sessionId, answer, citations, retrievedChunks);
+        }
     }
 
     private record ScoredChunk(KnowledgeChunk chunk, double score, int vectorRank) {

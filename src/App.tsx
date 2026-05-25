@@ -3821,7 +3821,7 @@ function formatAssistantEntryResponse(
     text: `${entry.summary}${detailText ? ` ${detailText}` : ""}${relatedText}`,
     links: actionLinks.length ? actionLinks : undefined,
     mode: "site",
-    shouldUseLlm: true,
+    shouldUseLlm: !shouldAnswerDirectly,
   };
 }
 
