@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -448,11 +449,15 @@ public class ChatService {
     }
 
     private List<Citation> citations(List<KnowledgeChunk> chunks) {
-        return chunks.stream()
-            .map(chunk -> new Citation(chunk.title(), chunk.sourceUrl()))
-            .distinct()
-            .limit(3)
-            .toList();
+        Map<String, Citation> citationsBySource = new LinkedHashMap<>();
+        for (KnowledgeChunk chunk : chunks) {
+            String key = "%s|%s".formatted(chunk.title(), chunk.sourceUrl());
+            citationsBySource.putIfAbsent(key, new Citation(chunk.title(), chunk.sourceUrl(), toSnippet(chunk.chunkText())));
+            if (citationsBySource.size() >= 3) {
+                break;
+            }
+        }
+        return List.copyOf(citationsBySource.values());
     }
 
     private ChatRequest sanitize(ChatRequest request) {
@@ -537,6 +542,16 @@ public class ChatService {
         }
         int boundary = cleaned.lastIndexOf(". ", 520);
         return cleaned.substring(0, boundary > 160 ? boundary + 1 : 520).trim();
+    }
+
+    private String toSnippet(String text) {
+        String cleaned = text == null ? "" : text.trim().replaceAll("\\s+", " ");
+        if (cleaned.length() <= 360) {
+            return cleaned;
+        }
+        int boundary = cleaned.lastIndexOf(". ", 360);
+        String snippet = cleaned.substring(0, boundary > 140 ? boundary + 1 : 360).trim();
+        return snippet.endsWith(".") ? snippet : snippet + "...";
     }
 
     private record RetrievalContext(ChatRequest request, List<KnowledgeChunk> chunks, List<Citation> citations) {
