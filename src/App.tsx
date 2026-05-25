@@ -2438,8 +2438,17 @@ type AssistantApiLink = {
   url?: string;
 };
 
+type AssistantStreamEvent = {
+  citations?: AssistantApiLink[];
+  label?: string;
+  progress?: number;
+  text?: string;
+  type?: "done" | "stage" | "token";
+};
+
 const assistantApiBaseUrl = (import.meta.env.VITE_ASSISTANT_API_BASE_URL ?? "").replace(/\/+$/, "");
 const assistantApiTimeoutMs = 18000;
+const assistantStreamTimeoutMs = 30000;
 
 function getAssistantElapsedMs(startTime: number) {
   return Math.max(0, Math.round(performance.now() - startTime));
@@ -2496,6 +2505,74 @@ async function fetchAssistantApi(input: RequestInfo | URL, init: RequestInit = {
     });
   } finally {
     window.clearTimeout(timeoutId);
+  }
+}
+
+function mapAssistantApiCitations(citations: unknown, fallbackCitations?: AssistantLink[]) {
+  return Array.isArray(citations)
+    ? getUniqueAssistantLinks(
+        citations
+          .map((link: AssistantApiLink): AssistantLink => {
+            const href = link.href ?? link.url ?? "";
+
+            return {
+              external: link.external ?? /^https?:\/\//.test(href),
+              href,
+              kind: "source" as const,
+              label: link.label ?? link.title ?? "Source",
+            };
+          })
+          .filter((link: AssistantLink) => Boolean(link.href && link.label)),
+      ).slice(0, 3)
+    : fallbackCitations;
+}
+
+async function readAssistantEventStream(
+  response: Response,
+  onEvent: (event: AssistantStreamEvent) => void,
+) {
+  if (!response.body) {
+    throw new Error("Assistant stream did not include a response body.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  const flushEvent = (rawEvent: string) => {
+    const data = rawEvent
+      .split(/\r?\n/)
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.slice(5).trimStart())
+      .join("\n")
+      .trim();
+
+    if (!data) {
+      return;
+    }
+
+    onEvent(JSON.parse(data) as AssistantStreamEvent);
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+
+    let boundaryIndex = buffer.search(/\r?\n\r?\n/);
+    while (boundaryIndex >= 0) {
+      const rawEvent = buffer.slice(0, boundaryIndex);
+      buffer = buffer.slice(boundaryIndex + (buffer[boundaryIndex] === "\r" ? 4 : 2));
+      flushEvent(rawEvent);
+      boundaryIndex = buffer.search(/\r?\n\r?\n/);
+    }
+
+    if (done) {
+      break;
+    }
+  }
+
+  if (buffer.trim()) {
+    flushEvent(buffer);
   }
 }
 
@@ -4267,22 +4344,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       throw new Error("Assistant API returned an empty response.");
     }
 
-    const citations = Array.isArray(data?.citations)
-      ? getUniqueAssistantLinks(
-          data.citations
-            .map((link: AssistantApiLink): AssistantLink => {
-              const href = link.href ?? link.url ?? "";
-
-              return {
-                external: link.external ?? /^https?:\/\//.test(href),
-                href,
-                kind: "source" as const,
-                label: link.label ?? link.title ?? "Source",
-              };
-            })
-            .filter((link: AssistantLink) => Boolean(link.href && link.label)),
-        ).slice(0, 3)
-      : fallbackResponse.citations;
+    const citations = mapAssistantApiCitations(data?.citations, fallbackResponse.citations);
     const actions = getUniqueAssistantLinks([
       ...(Array.isArray(data?.actions)
         ? data.actions
@@ -4297,6 +4359,96 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       citations,
       followUps: getAssistantFollowUps(question, fallbackResponse.mode, text),
       links: actions.length ? actions : fallbackResponse.links?.slice(0, 2),
+      text,
+    };
+  };
+
+  const getStreamingLlmAssistantResponse = async (
+    question: string,
+    fallbackResponse: AssistantResponseDraft,
+    assistantMessageId: number,
+  ) => {
+    const fallbackActions = getAssistantActionLinks(
+      fallbackResponse.actions ?? fallbackResponse.links,
+    );
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), assistantStreamTimeoutMs);
+    let streamedText = "";
+    let citations = fallbackResponse.citations;
+
+    try {
+      const response = await fetch(`${assistantApiBaseUrl}/api/chat/stream`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          history: messages.slice(-6).map((message) => ({
+            role: message.role,
+            text: message.text,
+          })),
+          message: question,
+          sessionId: sessionIdRef.current,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error("Assistant stream request failed.");
+      }
+
+      await readAssistantEventStream(response, (event) => {
+        if (event.type === "stage") {
+          const progress =
+            typeof event.progress === "number"
+              ? Math.max(1, Math.min(100, Math.round(event.progress)))
+              : undefined;
+          setMessages((current) =>
+            current.map((message) =>
+              message.id === assistantMessageId
+                ? {
+                    ...message,
+                    loadingLabel: event.label ?? message.loadingLabel,
+                    loadingProgress: progress ?? message.loadingProgress,
+                  }
+                : message,
+            ),
+          );
+          return;
+        }
+
+        if (event.type === "token" && event.text) {
+          streamedText += event.text;
+          setMessages((current) =>
+            current.map((message) =>
+              message.id === assistantMessageId
+                ? {
+                    ...message,
+                    loadingLabel: "Streaming answer",
+                    loadingProgress: Math.max(message.loadingProgress ?? 0, 92),
+                    text: streamedText.trimStart(),
+                  }
+                : message,
+            ),
+          );
+          return;
+        }
+
+        if (event.type === "done") {
+          citations = mapAssistantApiCitations(event.citations, fallbackResponse.citations);
+        }
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+
+    const text = streamedText.trim() || fallbackResponse.text;
+
+    return {
+      actions: fallbackActions.length ? fallbackActions : undefined,
+      citations,
+      followUps: getAssistantFollowUps(question, fallbackResponse.mode, text),
+      links: fallbackActions.length ? fallbackActions : fallbackResponse.links?.slice(0, 2),
       text,
     };
   };
@@ -4349,26 +4501,43 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       return;
     }
 
-    const loadingIntervalId = window.setInterval(() => {
-      const progress = getAssistantLoadingProgress(responseStartTime);
-      setMessages((current) =>
-        current.map((message) =>
-          message.id === assistantMessageId && message.isLoading
-            ? {
-                ...message,
-                loadingLabel: getAssistantLoadingLabel(progress, response.mode),
-                loadingProgress: progress,
-              }
-            : message,
-        ),
-      );
-    }, 450);
-    loadingIntervalsRef.current.push(loadingIntervalId);
+    const shouldUseSpringStream = Boolean(assistantApiBaseUrl);
+    let loadingIntervalId: number | undefined;
 
-    getLlmAssistantResponse(trimmedValue, response)
+    if (!shouldUseSpringStream) {
+      loadingIntervalId = window.setInterval(() => {
+        const progress = getAssistantLoadingProgress(responseStartTime);
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === assistantMessageId && message.isLoading
+              ? {
+                  ...message,
+                  loadingLabel: getAssistantLoadingLabel(progress, response.mode),
+                  loadingProgress: progress,
+                }
+              : message,
+          ),
+        );
+      }, 450);
+      loadingIntervalsRef.current.push(loadingIntervalId);
+    }
+
+    const clearLoadingInterval = () => {
+      if (loadingIntervalId === undefined) {
+        return;
+      }
+
+      window.clearInterval(loadingIntervalId);
+      loadingIntervalsRef.current = loadingIntervalsRef.current.filter((id) => id !== loadingIntervalId);
+    };
+
+    const llmResponsePromise = shouldUseSpringStream
+      ? getStreamingLlmAssistantResponse(trimmedValue, response, assistantMessageId)
+      : getLlmAssistantResponse(trimmedValue, response);
+
+    llmResponsePromise
       .then((llmResponse) => {
-        window.clearInterval(loadingIntervalId);
-        loadingIntervalsRef.current = loadingIntervalsRef.current.filter((id) => id !== loadingIntervalId);
+        clearLoadingInterval();
         setMessages((current) =>
           current.map((message) =>
             message.id === assistantMessageId
@@ -4389,8 +4558,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         );
       })
       .catch(() => {
-        window.clearInterval(loadingIntervalId);
-        loadingIntervalsRef.current = loadingIntervalsRef.current.filter((id) => id !== loadingIntervalId);
+        clearLoadingInterval();
         setMessages((current) =>
           current.map((message) =>
             message.id === assistantMessageId

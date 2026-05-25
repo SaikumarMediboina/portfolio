@@ -146,18 +146,84 @@ public class ChatService {
     }
 
     public Flux<ChatStreamEvent> stream(ChatRequest request) {
-        return answer(request)
-            .flatMapMany(response -> {
-                List<String> tokens = Arrays.stream(response.answer().split("(?<=\\s)"))
-                    .filter(token -> !token.isBlank())
-                    .toList();
+        ChatRequest safeRequest = sanitize(request);
+        ChatResponse instantResponse = instantResponse(safeRequest);
+        if (instantResponse != null) {
+            return Flux.concat(
+                Flux.just(ChatStreamEvent.stage("Answer ready", 92)),
+                streamTokens(instantResponse)
+            );
+        }
 
-                Flux<ChatStreamEvent> tokenStream = Flux.fromIterable(tokens)
-                    .delayElements(Duration.ofMillis(22))
-                    .map(ChatStreamEvent::token);
+        String cacheKey = cacheKey(safeRequest.message());
+        CachedResponse cachedResponse = responseCache.get(cacheKey);
+        if (cachedResponse != null && !cachedResponse.isExpired()) {
+            return Flux.concat(
+                Flux.just(ChatStreamEvent.stage("Using cached answer", 92)),
+                streamTokens(cachedResponse.forSession(safeRequest.sessionId()))
+            );
+        }
 
-                return tokenStream.concatWithValues(ChatStreamEvent.done(response.citations()));
+        Mono<RetrievalContext> retrieval = Mono.fromCallable(() -> {
+                List<KnowledgeChunk> chunks = retrieve(safeRequest.message());
+                return new RetrievalContext(safeRequest, chunks, citations(chunks));
+            })
+            .subscribeOn(Schedulers.boundedElastic());
+
+        return Flux.concat(
+                Flux.just(
+                    ChatStreamEvent.stage("Reading question", 12),
+                    ChatStreamEvent.stage("Embedding query", 28),
+                    ChatStreamEvent.stage("Retrieving Oracle context", 46)
+                ),
+                retrieval.flatMapMany(context -> Flux.concat(
+                    Flux.just(
+                        ChatStreamEvent.stage("Reranking evidence", 62),
+                        ChatStreamEvent.stage("Calling LLM", 78)
+                    ),
+                    llmClient.answer(context.request(), context.chunks())
+                        .timeout(LLM_TIMEOUT)
+                        .onErrorResume(error -> {
+                            LOGGER.warn("Assistant LLM stream request timed out or failed.", error);
+                            return Mono.just(fallbackAnswer(context.chunks()));
+                        })
+                        .map(answer -> cacheAndReturn(cacheKey, new ChatResponse(
+                            context.request().sessionId(),
+                            answer,
+                            context.citations(),
+                            context.chunks().size()
+                        )))
+                        .flatMapMany(response -> Flux.concat(
+                            Flux.just(ChatStreamEvent.stage("Streaming answer", 92)),
+                            streamTokens(response)
+                        ))
+                ))
+            )
+            .timeout(CHAT_TIMEOUT)
+            .onErrorResume(error -> {
+                LOGGER.warn("Assistant chat stream request timed out or failed.", error);
+                ChatResponse fallback = new ChatResponse(
+                    safeRequest.sessionId(),
+                    "Sai's assistant is online, but the knowledge backend is taking too long right now. Please retry in a moment.",
+                    List.of(),
+                    0
+                );
+                return Flux.concat(
+                    Flux.just(ChatStreamEvent.stage("Fallback answer", 92)),
+                    streamTokens(fallback)
+                );
             });
+    }
+
+    private Flux<ChatStreamEvent> streamTokens(ChatResponse response) {
+        List<String> tokens = Arrays.stream(response.answer().split("(?<=\\s)"))
+            .filter(token -> !token.isBlank())
+            .toList();
+
+        return Flux.fromIterable(tokens)
+            .delayElements(Duration.ofMillis(18))
+            .map(ChatStreamEvent::token)
+            .concatWithValues(ChatStreamEvent.done(response.citations()));
     }
 
     private List<KnowledgeChunk> retrieve(String question) {
