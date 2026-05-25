@@ -819,6 +819,11 @@ type AssistantMessage = {
   text: string;
 };
 
+type AssistantQuickPrompt = {
+  label: string;
+  prompt: string;
+};
+
 function getInitialAssistantMessages(): AssistantMessage[] {
   return [
     {
@@ -830,6 +835,153 @@ function getInitialAssistantMessages(): AssistantMessage[] {
         { href: "/ai-radar", kind: "action", label: "AI Radar" },
       ],
     },
+  ];
+}
+
+function getNormalizedAssistantPathname(pathname: string) {
+  const normalizedPathname = pathname.split(/[?#]/)[0]?.replace(/\/$/, "") || "/";
+  return normalizedPathname === "" ? "/" : normalizedPathname;
+}
+
+function getAssistantQuickPrompts(pathname: string): AssistantQuickPrompt[] {
+  const normalizedPathname = getNormalizedAssistantPathname(pathname);
+  const blogSlug = normalizedPathname.match(/^\/blog\/([^/]+)$/)?.[1] ?? "";
+  const blogPost = blogSlug
+    ? blogPosts.find((post) => post.slug === decodeURIComponent(blogSlug))
+    : undefined;
+  const activeBuildSlug = normalizedPathname.match(/^\/active-builds\/([^/]+)$/)?.[1] ?? "";
+
+  if (blogPost) {
+    return [
+      { label: "Summary", prompt: `Summarize Sai's blog: ${blogPost.title}` },
+      { label: "Takeaways", prompt: `What are the key takeaways from ${blogPost.title}?` },
+      { label: "Related", prompt: "What other blogs has Sai published?" },
+      { label: "Projects", prompt: "Which projects connect to this blog topic?" },
+    ];
+  }
+
+  if (normalizedPathname === "/blogs") {
+    return [
+      { label: "Blogs", prompt: "What blogs has Sai published?" },
+      { label: "Count", prompt: "How many blogs has Sai published?" },
+      { label: "Topics", prompt: "What backend topics does Sai write about?" },
+      { label: "Start", prompt: "Which blog should I read first?" },
+    ];
+  }
+
+  if (normalizedPathname === "/portfolio") {
+    return [
+      { label: "Projects", prompt: "Summarize Sai's strongest projects" },
+      { label: "Experience", prompt: "What is Sai's work experience?" },
+      { label: "Stack", prompt: "What tech stack does Sai use most?" },
+      { label: "Impact", prompt: "Which project had the biggest impact?" },
+    ];
+  }
+
+  if (["/contact", "/work-with-me"].includes(normalizedPathname)) {
+    return [
+      { label: "Contact", prompt: "How can I contact Sai?" },
+      { label: "Fit", prompt: "What kind of work can Sai help with?" },
+      { label: "Proof", prompt: "Show Sai's strongest backend projects" },
+      { label: "Stack", prompt: "What is Sai's backend tech stack?" },
+    ];
+  }
+
+  if (normalizedPathname === "/about") {
+    return [
+      { label: "Profile", prompt: "Who is Sai?" },
+      { label: "Role", prompt: "What is Sai's current role?" },
+      { label: "Focus", prompt: "What backend areas does Sai focus on?" },
+      { label: "Contact", prompt: "How can I contact Sai?" },
+    ];
+  }
+
+  if (normalizedPathname === "/ai-radar") {
+    return [
+      { label: "Radar", prompt: "What is new in AI Radar?" },
+      { label: "Trends", prompt: "What AI trends should backend engineers watch?" },
+      { label: "Sources", prompt: "What sources does AI Radar follow?" },
+      { label: "Learn", prompt: "How should I learn from AI Radar updates?" },
+    ];
+  }
+
+  if (normalizedPathname === "/active-builds" || activeBuildSlug) {
+    return [
+      { label: "Builds", prompt: "What active builds is Sai working on?" },
+      { label: "Assistant", prompt: "Explain Sai's Assistant architecture" },
+      { label: "Roadmap", prompt: "What is planned next for Sai's active builds?" },
+      { label: "Stack", prompt: "What stack powers these active builds?" },
+    ];
+  }
+
+  if (normalizedPathname === "/learn-with-me") {
+    return [
+      { label: "Learn", prompt: "What can I learn with Sai?" },
+      { label: "Backend", prompt: "Give me a backend learning path" },
+      { label: "Systems", prompt: "How should I practice system design?" },
+      { label: "AI", prompt: "How should backend engineers learn AI workflows?" },
+    ];
+  }
+
+  if (normalizedPathname === "/whats-new") {
+    return [
+      { label: "Updates", prompt: "What changed recently on Sai's site?" },
+      { label: "Builds", prompt: "What active builds changed recently?" },
+      { label: "Blogs", prompt: "What new blogs should I read?" },
+      { label: "Radar", prompt: "What is new in AI Radar?" },
+    ];
+  }
+
+  if (normalizedPathname === "/saved-posts") {
+    return [
+      { label: "Saved", prompt: "What can I do with saved posts?" },
+      { label: "Blogs", prompt: "What blogs are worth saving?" },
+      { label: "Radar", prompt: "How do AI Radar saves work?" },
+      { label: "Account", prompt: "Why should I sign in?" },
+    ];
+  }
+
+  if (normalizedPathname === "/shelf") {
+    return [
+      { label: "Shelf", prompt: "What is on Sai's shelf?" },
+      { label: "Reading", prompt: "What should a backend engineer read first?" },
+      { label: "Topics", prompt: "What themes show up in Sai's shelf?" },
+      { label: "Blogs", prompt: "Connect Sai's shelf to his blogs" },
+    ];
+  }
+
+  if (normalizedPathname === "/dashboard") {
+    return [
+      { label: "Dashboard", prompt: "What is the creator dashboard?" },
+      { label: "Metrics", prompt: "What does Sai track in the dashboard?" },
+      { label: "Build", prompt: "How is the dashboard designed?" },
+      { label: "Next", prompt: "What could be improved in the dashboard?" },
+    ];
+  }
+
+  if (normalizedPathname === "/start") {
+    return [
+      { label: "Start", prompt: "Where should I start on Sai's site?" },
+      { label: "Projects", prompt: "Show Sai's strongest projects" },
+      { label: "Blogs", prompt: "Which blog should I read first?" },
+      { label: "Contact", prompt: "How can I contact Sai?" },
+    ];
+  }
+
+  if (normalizedPathname === "/signin") {
+    return [
+      { label: "Access", prompt: "Why should I sign in?" },
+      { label: "Saved", prompt: "What does saved posts unlock?" },
+      { label: "Blogs", prompt: "What subscriber blogs are available?" },
+      { label: "Privacy", prompt: "How does sign-in work on this site?" },
+    ];
+  }
+
+  return [
+    { label: "All", prompt: "What can you answer about this site?" },
+    { label: "Portfolio", prompt: "Summarize Sai's strongest projects" },
+    { label: "Blogs", prompt: "What does Sai write about?" },
+    { label: "AI Radar", prompt: "What is new in AI Radar?" },
   ];
 }
 
@@ -4233,12 +4385,18 @@ function getAssistantResponse(
 }
 
 type SiteAssistantProps = {
+  currentPathname: string;
   isSubscribed: boolean;
   isSuppressed?: boolean;
   subscriberUser: User | null;
 };
 
-function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: SiteAssistantProps) {
+function SiteAssistant({
+  currentPathname,
+  isSubscribed,
+  isSuppressed = false,
+  subscriberUser,
+}: SiteAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<AssistantMessage[]>(getInitialAssistantMessages);
@@ -4247,13 +4405,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
   const sessionIdRef = useRef(
     `sai-assistant-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
   );
-
-  const quickPrompts = [
-    { label: "All", prompt: "What can you answer about this site?" },
-    { label: "Portfolio", prompt: "Summarize Sai's strongest projects" },
-    { label: "Blogs", prompt: "What does Sai write about?" },
-    { label: "AI Radar", prompt: "What is new in AI Radar?" },
-  ];
+  const quickPrompts = getAssistantQuickPrompts(currentPathname);
 
   useEffect(() => {
     const messagesContainer = messagesRef.current;
@@ -10602,6 +10754,7 @@ function App() {
       </div>
       <SiteFooter />
       <SiteAssistant
+        currentPathname={currentPathname}
         isSubscribed={isSubscribed}
         isSuppressed={menuOpen || readerMenuOpen || profileMenuOpen}
         subscriberUser={subscriberUser}
