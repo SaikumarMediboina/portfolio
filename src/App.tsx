@@ -811,6 +811,7 @@ type AssistantMessage = {
   id: number;
   links?: AssistantLink[];
   role: "assistant" | "visitor";
+  responseTimeMs?: number;
   text: string;
 };
 
@@ -2435,6 +2436,22 @@ type AssistantApiLink = {
 
 const assistantApiBaseUrl = (import.meta.env.VITE_ASSISTANT_API_BASE_URL ?? "").replace(/\/+$/, "");
 const assistantApiTimeoutMs = 18000;
+
+function getAssistantElapsedMs(startTime: number) {
+  return Math.max(0, Math.round(performance.now() - startTime));
+}
+
+function formatAssistantResponseTime(milliseconds: number) {
+  if (milliseconds < 100) {
+    return "< 0.1s";
+  }
+
+  if (milliseconds < 1000) {
+    return `${milliseconds} ms`;
+  }
+
+  return `${(milliseconds / 1000).toFixed(milliseconds < 10000 ? 1 : 0)}s`;
+}
 
 async function fetchAssistantApi(input: RequestInfo | URL, init: RequestInit = {}) {
   const controller = new AbortController();
@@ -4118,6 +4135,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
       return;
     }
 
+    const responseStartTime = performance.now();
     const response = getAssistantResponse(trimmedValue, Boolean(subscriberUser), isSubscribed);
     trackAnalyticsEvent("assistant_question", {
       question: trimmedValue,
@@ -4145,6 +4163,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
         actions: response.shouldUseLlm ? undefined : response.actions,
         citations: response.shouldUseLlm ? undefined : response.citations,
         links: response.shouldUseLlm ? undefined : response.links?.slice(0, 2),
+        responseTimeMs: response.shouldUseLlm ? undefined : getAssistantElapsedMs(responseStartTime),
       },
     ]);
     setInput("");
@@ -4163,6 +4182,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                   actions: llmResponse.actions,
                   citations: llmResponse.citations,
                   links: llmResponse.links,
+                  responseTimeMs: getAssistantElapsedMs(responseStartTime),
                   text: llmResponse.text,
                 }
               : message,
@@ -4178,6 +4198,7 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                   actions: response.actions,
                   citations: response.citations,
                   links: response.links,
+                  responseTimeMs: getAssistantElapsedMs(responseStartTime),
                   text: response.text,
                 }
               : message,
@@ -4268,6 +4289,11 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                 ) : null}
                 <div className="assistant-message-bubble">
                   <p>{renderAssistantText(message.text)}</p>
+                  {message.role === "assistant" && typeof message.responseTimeMs === "number" ? (
+                    <small className="assistant-response-time">
+                      Time taken: {formatAssistantResponseTime(message.responseTimeMs)}
+                    </small>
+                  ) : null}
                   {message.citations?.length ? (
                     <div className="assistant-link-group">
                       <span>Sources</span>

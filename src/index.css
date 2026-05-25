@@ -21688,6 +21688,16 @@ body {
   font-weight: 750 !important;
 }
 
+.assistant-response-time {
+  display: block;
+  margin-top: 0.48rem;
+  color: #8b95a4;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
 .assistant-link-group > span {
   color: #8993a2 !important;
 }
@@ -21802,6 +21812,10 @@ body {
 :root[data-theme="dark"] .assistant-header p,
 :root[data-theme="dark"] .assistant-form input::placeholder {
   color: #cdbbac !important;
+}
+
+:root[data-theme="dark"] .assistant-response-time {
+  color: #bda89a;
 }
 
 :root[data-theme="dark"] .assistant-beta-badge {
