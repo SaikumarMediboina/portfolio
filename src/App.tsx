@@ -6900,26 +6900,26 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
   const assistantSignals = [
     { label: "Frontend", value: "Vercel UI" },
     { label: "Backend", value: "Spring RAG" },
-    { label: "Store", value: "Oracle 23ai" },
+    { label: "Retrieval", value: "Gemini + Oracle" },
   ];
   const ragPipelineCards = [
     {
       detail:
-        "The floating React panel captures the visitor message, session id, and recent chat history, then calls the configured Spring backend.",
+        "The floating React panel captures the visitor message, session id, and recent chat history, then sends one clean request to the managed assistant service.",
       endpoint: "Browser request",
       title: "Chat UI bridge",
       tone: "is-blue",
     },
     {
       detail:
-        "Admin refresh loads structured portfolio knowledge, chunks it with metadata, embeds records, and writes them to Oracle 23ai.",
+        "Admin refresh loads curated portfolio knowledge, chunks it by section, creates normalized Gemini document vectors, and stores each record with metadata.",
       endpoint: "Protected refresh",
       title: "Offline ingestion",
       tone: "is-coral",
     },
     {
       detail:
-        "Visitor questions are embedded, retrieved from Oracle vector search, reranked by intent, grounded in context, and answered with citations.",
+        "Visitor questions become query vectors, Oracle returns nearest chunks with distance, Spring reranks evidence, and the model answers only from grounded context.",
       endpoint: "Grounded response",
       title: "Online chat",
       tone: "is-sage",
@@ -6980,21 +6980,22 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     {
       after: "Embedding + Retrieval",
       before: "Spring API",
-      detail: "Spring sanitizes the request, creates a query embedding, and asks Oracle 23ai for nearest knowledge chunks.",
+      detail:
+        "Spring sanitizes the request, creates a retrieval-query embedding, and asks Oracle 23ai for nearest knowledge chunks with cosine distance.",
       title: "Retrieve context",
     },
     {
       after: "Intent Reranker",
       before: "Oracle 23ai",
       detail:
-        "The backend reranks chunks by exact intent so project, contact, blog, skill, and experience questions land on the right evidence.",
+        "The backend combines vector similarity, metadata, title, category, and keyword signals so project, contact, blog, skill, and experience questions land on the right evidence.",
       title: "Rerank evidence",
     },
     {
       after: "Groq / Gemini LLM",
       before: "Grounded Prompt",
       detail:
-        "The prompt carries strict identity rules, retrieved context, citations, and instructions to avoid invented portfolio facts.",
+        "The prompt carries strict identity rules, retrieved evidence, citations, and a confidence boundary that avoids invented portfolio facts.",
       title: "Generate safely",
     },
     {
@@ -7031,7 +7032,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "Spring returns answer text, citations, and retrieved chunk count. The UI converts citations into readable source links under the assistant message.",
+        "Spring returns answer text, citations, retrieved chunk count, timing, and follow-up prompts. The UI turns those fields into readable source links and next actions.",
       label: "Response contract",
       title: "Cited response model",
     },
@@ -7051,26 +7052,26 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "Each source is normalized, split into roughly 2.2K-character chunks, and given overlap so sentence context is not lost at chunk edges.",
+        "Each source is normalized, split into roughly 2.2K-character chunks, and given overlap so sentence context survives chunk boundaries.",
       meta: "Chunk size 2200, overlap 220",
       title: "Chunk content",
     },
     {
       detail:
-        "The embedding input combines title, source URL, category, and chunk text, so the vector carries both semantic meaning and page context.",
+        "The embedding input combines title, source URL, category, section, and chunk text, so the vector carries semantic meaning plus page context.",
       meta: "Title + URL + category + text",
       title: "Build embedding text",
     },
     {
       detail:
-        "The configured embedding provider turns each chunk into a numeric vector. Local vectors support development; Gemini embeddings can power stronger semantic retrieval.",
-      meta: "Local or Gemini embeddings",
-      title: "Create vectors",
+        "Gemini creates retrieval-document vectors for chunks. When using a reduced 1536-dimension output, Spring normalizes each vector before storing it.",
+      meta: "Gemini document embeddings",
+      title: "Create normalized vectors",
     },
     {
       detail:
-        "Spring writes the chunk, metadata, source fields, and vector into Oracle 23ai, where the VECTOR column and cosine index make it searchable.",
-      meta: "Oracle VECTOR column",
+        "Spring writes the chunk text, source fields, category, section, priority, loader, source kind, and vector into Oracle 23ai.",
+      meta: "Oracle VECTOR + metadata",
       title: "Store index",
     },
   ];
@@ -7083,21 +7084,27 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     },
     {
       detail:
-        "The question is embedded with query intent. Gemini uses retrieval-query mode when enabled, while local mode applies the same deterministic vector shape.",
-      meta: "Query embedding",
+        "The question is embedded with retrieval-query intent, matching the document vectors created during ingestion.",
+      meta: "Gemini query embedding",
       title: "Vectorize question",
     },
     {
       detail:
-        "Oracle compares the query vector with stored chunk vectors using cosine distance and returns the nearest candidates.",
+        "Oracle compares the query vector with stored chunk vectors using cosine distance and returns nearest candidates plus their distance values.",
       meta: "VECTOR_DISTANCE cosine",
       title: "Search Oracle",
     },
     {
       detail:
-        "Spring reranks candidates with intent rules for projects, contact, blogs, skills, credentials, and experience before choosing the final context.",
-      meta: "Hybrid rerank",
+        "Spring reranks candidates with vector similarity, source title, category, section, priority, and intent rules for projects, contact, blogs, skills, credentials, and experience.",
+      meta: "Vector + metadata rerank",
       title: "Choose evidence",
+    },
+    {
+      detail:
+        "If the strongest match is too weak, the backend returns a controlled no-context answer instead of sending poor evidence to the model.",
+      meta: "Similarity threshold",
+      title: "Guard weak matches",
     },
     {
       detail:
@@ -7109,23 +7116,50 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
   const vectorDetails = [
     {
       detail:
-        "Embeddings and generation are separate jobs. Groq writes answers; the embedding provider creates searchable vectors.",
+        "Embeddings and generation are separate jobs. Gemini creates searchable vectors; Groq or Gemini writes the final answer.",
       label: "Model boundary",
     },
     {
       detail:
-        "The local provider hashes normalized terms into a vector and adds semantic boosts for portfolio concepts like projects, contact, blogs, Oracle, and search.",
-      label: "Local vectors",
+        "Chunk embeddings use retrieval-document mode, while visitor questions use retrieval-query mode. That keeps both sides tuned for search.",
+      label: "Document/query modes",
     },
     {
       detail:
-        "Gemini embedding mode uses document embeddings during ingestion and query embeddings during chat, with configurable vector dimensionality.",
-      label: "Semantic upgrade",
+        "1536-dimension Gemini vectors are L2-normalized before storage so cosine distance behaves consistently.",
+      label: "Normalized vectors",
     },
     {
       detail:
-        "Oracle 23ai stores each vector beside the original chunk text, then orders candidates by cosine distance through the vector index.",
+        "Oracle 23ai stores each vector beside the original chunk text, then returns cosine distance with every retrieved candidate.",
       label: "Vector search",
+    },
+    {
+      detail:
+        "Spring uses distance, metadata, and intent boosts together, then applies a no-answer threshold before prompt generation.",
+      label: "Confidence gate",
+    },
+  ];
+  const architectureFacts = [
+    {
+      label: "Embedding model",
+      value: "Gemini retrieval embeddings",
+    },
+    {
+      label: "Vector shape",
+      value: "1536 dimensions, L2 normalized",
+    },
+    {
+      label: "Search metric",
+      value: "Oracle cosine distance",
+    },
+    {
+      label: "Final ranking",
+      value: "Vector score + metadata + intent",
+    },
+    {
+      label: "Failure mode",
+      value: "No-context fallback for weak matches",
     },
   ];
   const codeFlow = [
@@ -7134,23 +7168,27 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Sanitize + cache",
     },
     {
-      detail: "Create a query vector using the configured embedding provider.",
+      detail: "Create a normalized retrieval-query vector using the configured embedding provider.",
       title: "Embed query",
     },
     {
-      detail: "Fetch the nearest candidate chunks from Oracle 23ai with cosine vector distance.",
+      detail: "Fetch nearest chunks from Oracle 23ai and carry cosine distance into the response pipeline.",
       title: "Vector search",
     },
     {
-      detail: "Boost exact user intent so contact, projects, blogs, skills, and experience retrieve correctly.",
-      title: "Rerank",
+      detail: "Blend vector similarity with source metadata, category, title, body keywords, and page-aware intent.",
+      title: "Score evidence",
     },
     {
-      detail: "Build a grounded prompt with system-role rules and retrieved evidence.",
+      detail: "Apply the minimum similarity gate before using retrieved context for generation.",
+      title: "Confidence gate",
+    },
+    {
+      detail: "Build a grounded prompt with system-role rules, page context, retrieved evidence, and citations.",
       title: "Prompt",
     },
     {
-      detail: "Call Groq or Gemini, stream the answer, and return citations to the UI.",
+      detail: "Call the answer model, return citations, timing, source count, and follow-up questions to the UI.",
       title: "Generate",
     },
   ];
@@ -7170,13 +7208,13 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
     {
       detail: "A curated portfolio corpus stored as searchable chunks with source metadata for grounded answers.",
       eyebrow: "Retrieval layer",
-      items: ["Autonomous Database", "23ai vector search", "Structured source docs", "Chunk metadata"],
+      items: ["Autonomous Database", "23ai vector search", "Normalized vectors", "Chunk metadata", "Cosine distance"],
       title: "Knowledge Store",
     },
     {
-      detail: "A prompt and model boundary that answers as Sai's assistant, not as Sai, and cites the retrieved evidence.",
+      detail: "A prompt and model boundary that separates embeddings from answer generation and cites retrieved evidence.",
       eyebrow: "Generation layer",
-      items: ["Groq Llama", "Gemini-ready client", "Grounded prompt", "Identity guardrails"],
+      items: ["Gemini embeddings", "Groq answer model", "Grounded prompt", "Identity guardrails"],
       title: "Model Layer",
     },
   ];
@@ -7194,15 +7232,15 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       title: "Visible sources",
     },
     {
-      detail: "If retrieval or the LLM fails, the service returns a controlled fallback rather than an invented answer.",
+      detail: "If retrieval is weak or the LLM fails, the service returns a controlled fallback rather than an invented answer.",
       title: "Controlled failure",
     },
   ];
   const nextUpgrades = [
-    "Switch production retrieval to Gemini embeddings after re-ingestion.",
+    "Add retrieval evaluation tests with expected chunks for project, contact, blog, and experience questions.",
     "Add thumbs up/down feedback capture for weak answers.",
     "Add an admin retrieval audit view for chunks, scores, model, and latency.",
-    "Schedule ingestion after portfolio content updates and new blogs.",
+    "Move ingestion to a staged batch flow before activating a refreshed knowledge base.",
   ];
 
   return (
@@ -7358,6 +7396,15 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
               base, and an online retrieval path that answers each visitor question with the best
               matching evidence.
             </p>
+          </div>
+
+          <div className="assistant-rag-fact-strip" aria-label="Assistant retrieval facts">
+            {architectureFacts.map((fact) => (
+              <span key={fact.label}>
+                <strong>{fact.value}</strong>
+                {fact.label}
+              </span>
+            ))}
           </div>
 
           <div className="assistant-rag-lanes">
