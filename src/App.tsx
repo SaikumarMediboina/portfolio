@@ -899,7 +899,7 @@ function getAssistantQuickPrompts(pathname: string): AssistantQuickPrompt[] {
   if (normalizedPathname === "/ai-radar") {
     return [
       { label: "Radar", prompt: "What is new in AI Radar?" },
-      { label: "Trends", prompt: "What AI trends should backend engineers watch?" },
+      { label: "Trends", prompt: "Which AI trends matter for backend builders?" },
       { label: "Sources", prompt: "What sources does AI Radar follow?" },
       { label: "Learn", prompt: "How should I learn from AI Radar updates?" },
     ];
@@ -2912,6 +2912,11 @@ const genericLearningPhrases = [
 ];
 
 const genericAssistantResponses: GenericAssistantResponse[] = [
+  {
+    keywords: ["trend", "trends", "watch", "emerging"],
+    text:
+      "For backend builders and architects, the AI trends that matter most are retrieval-augmented generation, agentic workflow orchestration, semantic search, evaluation and observability for AI outputs, secure model integration, and cost-aware inference. The practical lens is not just watching trends; it is knowing where they fit into APIs, data pipelines, search systems, and human-reviewable product workflows.",
+  },
   {
     keywords: ["cap", "theorem", "consistency", "availability", "partition"],
     text:
