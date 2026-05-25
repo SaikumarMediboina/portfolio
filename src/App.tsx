@@ -803,7 +803,6 @@ type AssistantLink = {
   label: string;
   external?: boolean;
   kind?: "action" | "source";
-  snippet?: string;
 };
 
 type AssistantMessage = {
@@ -2435,7 +2434,6 @@ type AssistantApiLink = {
   external?: boolean;
   href?: string;
   label?: string;
-  snippet?: string;
   title?: string;
   url?: string;
 };
@@ -2516,14 +2514,12 @@ function mapAssistantApiCitations(citations: unknown, fallbackCitations?: Assist
         citations
           .map((link: AssistantApiLink): AssistantLink => {
             const href = link.href ?? link.url ?? "";
-            const snippet = typeof link.snippet === "string" ? link.snippet.trim() : "";
 
             return {
               external: link.external ?? /^https?:\/\//.test(href),
               href,
               kind: "source" as const,
               label: link.label ?? link.title ?? "Source",
-              snippet: snippet || undefined,
             };
           })
           .filter((link: AssistantLink) => Boolean(link.href && link.label)),
@@ -3119,17 +3115,6 @@ function getAssistantActionLinks(links: AssistantLink[] | undefined) {
   ).slice(0, 3);
 }
 
-function getAssistantEntrySnippet(entry: AssistantKnowledgeEntry) {
-  const snippet = [entry.summary, ...(entry.details ?? [])].join(" ").replace(/\s+/g, " ").trim();
-  if (snippet.length <= 360) {
-    return snippet;
-  }
-
-  const boundary = snippet.lastIndexOf(". ", 360);
-  const preview = snippet.slice(0, boundary > 140 ? boundary + 1 : 360).trim();
-  return preview.endsWith(".") ? preview : `${preview}...`;
-}
-
 function getAssistantSourceLinks(entries: AssistantKnowledgeEntry[]) {
   const links: AssistantLink[] = [];
 
@@ -3144,7 +3129,6 @@ function getAssistantSourceLinks(entries: AssistantKnowledgeEntry[]) {
       ...primaryLink,
       kind: "source",
       label: entry.title,
-      snippet: getAssistantEntrySnippet(entry),
     });
   });
 
@@ -4714,18 +4698,6 @@ function SiteAssistant({ isSubscribed, isSuppressed = false, subscriberUser }: S
                           </a>
                         ))}
                       </div>
-                      {message.citations.some((link) => link.snippet) ? (
-                        <div className="assistant-source-snippets">
-                          {message.citations
-                            .filter((link) => link.snippet)
-                            .map((link) => (
-                              <figure className="assistant-source-snippet" key={`${message.id}-snippet-${link.label}`}>
-                                <figcaption>{link.label}</figcaption>
-                                <blockquote>{link.snippet}</blockquote>
-                              </figure>
-                            ))}
-                        </div>
-                      ) : null}
                     </div>
                   ) : null}
                   {(message.actions ?? message.links)?.length ? (
