@@ -3823,6 +3823,8 @@ function getAssistantKnowledgeEntries(
         "certificate",
         "credentials",
         "oracle",
+        "generative",
+        "deeplearning",
         "spring",
         "mcp",
         "anthropic",
@@ -11678,6 +11680,9 @@ function App() {
                       <p className="credential-title">{item.title}</p>
                       <p className="credential-subtitle">{item.issuer}</p>
                       <p className="credential-detail">{item.year}</p>
+                      {item.credentialId ? (
+                        <p className="credential-detail">Credential ID: {item.credentialId}</p>
+                      ) : null}
                     </article>
                   ))}
                 </div>
