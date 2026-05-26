@@ -7,7 +7,7 @@ const distDir = path.join(rootDir, "dist");
 const indexPath = path.join(distDir, "index.html");
 const SITE_URL = "https://saikumarmediboina.com";
 const SITE_NAME = "Sai Kumar Mediboina";
-const DEFAULT_SEO_IMAGE_PATH = "/og-default.svg";
+const DEFAULT_SEO_IMAGE_PATH = "/og-default.png";
 const BLOG_SEO_IMAGE_PATH = "/og-blog.svg";
 const AI_RADAR_SEO_IMAGE_PATH = "/og-ai-radar.svg";
 const DASHBOARD_SEO_IMAGE_PATH = "/og-dashboard.svg";
@@ -54,6 +54,9 @@ function getAbsoluteSiteUrl(routePath = "/") {
 }
 
 function getOpenGraphImageType(imagePath) {
+  if (/\.png$/i.test(imagePath)) {
+    return "image/png";
+  }
   return /\.(jpe?g)$/i.test(imagePath) ? "image/jpeg" : "image/svg+xml";
 }
 
