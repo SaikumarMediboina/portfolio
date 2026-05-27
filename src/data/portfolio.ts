@@ -315,17 +315,17 @@ export const certifications: Certification[] = [
   {
     title: "Introduction to Generative AI for Software Development",
     issuer: "DeepLearning.AI",
-    year: "May 2026",
+    year: "2026",
   },
   {
     title: "Generative AI for Everyone",
     issuer: "DeepLearning.AI",
-    year: "May 2026",
+    year: "2026",
   },
   {
     title: "Generative AI with Large Language Models",
     issuer: "DeepLearning.AI",
-    year: "Apr 2026",
+    year: "2026",
   },
   {
     title: "Oracle Cloud Infrastructure AI Foundations",

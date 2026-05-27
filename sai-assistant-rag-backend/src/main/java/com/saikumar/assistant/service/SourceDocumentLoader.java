@@ -229,9 +229,9 @@ public class SourceDocumentLoader {
             """
             Education: M.Tech from NIT Karnataka, August 2021 to July 2023, CGPA 8.96.
             Education: B.Tech from JNTU Vizianagaram, June 2016 to September 2020, CGPA 8.36.
-            Certification: Introduction to Generative AI for Software Development from DeepLearning.AI, issued May 2026.
-            Certification: Generative AI for Everyone from DeepLearning.AI, issued May 2026.
-            Certification: Generative AI with Large Language Models from DeepLearning.AI, issued April 2026.
+            Certification: Introduction to Generative AI for Software Development from DeepLearning.AI, 2026.
+            Certification: Generative AI for Everyone from DeepLearning.AI, 2026.
+            Certification: Generative AI with Large Language Models from DeepLearning.AI, 2026.
             Certification: Oracle Cloud Infrastructure AI Foundations from Oracle, 2024.
             Certification: Oracle Database 19c: PL/SQL Workshop from Oracle, 2023.
             Certification: Spring 6 with Spring Boot 3 and Java EE: Concurrency from LinkedIn Learning, 2024.
