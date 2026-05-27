@@ -338,6 +338,12 @@ export const certifications: Certification[] = [
     category: "AI & LLMs",
   },
   {
+    title: "AI-Powered Software and System Design",
+    issuer: "DeepLearning.AI",
+    year: "2026",
+    category: "AI & LLMs",
+  },
+  {
     title: "Model Context Protocol: Introduction and Advanced Topics",
     issuer: "Anthropic",
     year: "2026",
