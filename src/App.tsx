@@ -26,6 +26,7 @@ import {
   projects,
   recognitions,
   skills,
+  type CertificationCategory,
 } from "./data/portfolio";
 import { auth, googleProvider, isFirebaseConfigured } from "./lib/firebase";
 import {
@@ -77,7 +78,7 @@ const certificationCategoryOrder = [
   "AI & LLMs",
   "Backend & Architecture",
   "Oracle & Database",
-] as const;
+] as const satisfies readonly CertificationCategory[];
 
 const certificationGroups = certificationCategoryOrder
   .map((category) => ({
@@ -85,6 +86,40 @@ const certificationGroups = certificationCategoryOrder
     items: certifications.filter((item) => item.category === category),
   }))
   .filter((group) => group.items.length > 0);
+
+const certificationCategoryDetails: Record<
+  CertificationCategory,
+  { icon: ReaderMenuGlyphType; summary: string; label: string }
+> = {
+  "AI & LLMs": {
+    icon: "spark",
+    summary: "Generative AI, LLM workflows, MCP, and AI-assisted software design.",
+    label: "AI credentials",
+  },
+  "Backend & Architecture": {
+    icon: "briefcase",
+    summary: "Java, Spring Boot, concurrency, low-level design, and backend architecture.",
+    label: "backend credentials",
+  },
+  "Oracle & Database": {
+    icon: "dashboard",
+    summary: "Oracle Cloud, PL/SQL, database foundations, and enterprise platform context.",
+    label: "Oracle credentials",
+  },
+};
+
+const certificationYearValues = certifications
+  .map((item) => Number.parseInt(item.year, 10))
+  .filter(Number.isFinite);
+
+const latestCertificationYear =
+  certificationYearValues.length > 0 ? Math.max(...certificationYearValues).toString() : "Current";
+
+const credentialOverviewStats = [
+  { label: "certifications", value: certifications.length.toString() },
+  { label: "focus lanes", value: certificationGroups.length.toString() },
+  { label: "latest refresh", value: latestCertificationYear },
+] as const;
 
 const emptyNavLinks = [] as const;
 const LEARN_ACCESS_STORAGE_KEY = "portfolio.learnWithMeAccess.v1";
@@ -11668,58 +11703,110 @@ function App() {
             <section className="section shell" id="credentials">
               <SectionHeading
                 eyebrow="Credentials"
-                title="Education and certifications that support the engineering work."
-                description="Education and professional certifications."
+                title="Credentials mapped to backend, AI, and database engineering."
+                description="A curated view of Sai's academic foundation and professional learning signals."
               />
 
+              <div className="credentials-showcase">
+                <div className="credentials-hero-panel">
+                  <div className="credentials-hero-copy">
+                    <p className="credentials-kicker">Professional learning stack</p>
+                    <h3>Graduate engineering foundation, current AI systems practice.</h3>
+                    <p>
+                      Certifications are organized by the skills they reinforce: AI-enabled software design,
+                      backend architecture, and Oracle database platforms.
+                    </p>
+                  </div>
+
+                  <div className="credentials-stat-strip" aria-label="Credential summary">
+                    {credentialOverviewStats.map((stat) => (
+                      <div className="credentials-stat" key={stat.label}>
+                        <strong>{stat.value}</strong>
+                        <span>{stat.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div className="credentials-grid">
-                <div className="credential-panel">
-                  <h3>Education</h3>
-                  {education.map((item) => (
-                    <article className="credential-item" key={`${item.school}-${item.degree}`}>
-                      <p className="credential-title">{item.degree}</p>
-                      <p className="credential-subtitle">{item.school}</p>
-                      <p className="credential-detail">
-                        {item.score}
-                      </p>
-                    </article>
-                  ))}
+                <div className="credential-panel education-panel">
+                  <div className="credential-panel-heading">
+                    <div>
+                      <p className="credential-panel-label">Academic base</p>
+                      <h3>Education</h3>
+                    </div>
+                    <span>{education.length} degrees</span>
+                  </div>
+
+                  <div className="education-timeline">
+                    {education.map((item, index) => (
+                      <article className="education-item" key={`${item.school}-${item.degree}`}>
+                        <span className="education-node" aria-hidden="true">
+                          {index + 1}
+                        </span>
+                        <div>
+                          <p className="credential-title">{item.degree}</p>
+                          <p className="credential-subtitle">{item.school}</p>
+                          <p className="credential-detail">{item.score}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="credential-panel certification-panel">
                   <div className="credential-panel-heading">
-                    <h3>Certifications</h3>
+                    <div>
+                      <p className="credential-panel-label">Verified learning</p>
+                      <h3>Certifications</h3>
+                    </div>
                     <span>{certifications.length} credentials</span>
                   </div>
 
                   <div className="certification-groups">
-                    {certificationGroups.map((group) => (
-                      <section
-                        className="certification-group"
-                        key={group.category}
-                        aria-label={`${group.category} certifications`}
-                      >
-                        <div className="certification-group-heading">
-                          <p>{group.category}</p>
-                          <span>{group.items.length}</span>
-                        </div>
+                    {certificationGroups.map((group) => {
+                      const detail = certificationCategoryDetails[group.category];
 
-                        <div className="certification-list">
-                          {group.items.map((item) => (
-                            <article className="credential-item certification-item" key={`${item.title}-${item.year}`}>
-                              <div className="certification-item-main">
-                                <p className="credential-title">{item.title}</p>
+                      return (
+                        <section
+                          className="certification-group"
+                          key={group.category}
+                          aria-label={`${group.category} certifications`}
+                        >
+                          <div className="certification-group-heading">
+                            <span className="certification-group-icon" aria-hidden="true">
+                              <ReaderMenuGlyph type={detail.icon} />
+                            </span>
+                            <div>
+                              <p>{group.category}</p>
+                              <small>{detail.summary}</small>
+                            </div>
+                            <span className="certification-group-count">
+                              {group.items.length} {detail.label}
+                            </span>
+                          </div>
+
+                          <div className="certification-list">
+                            {group.items.map((item, itemIndex) => (
+                              <article className="credential-item certification-item" key={`${item.title}-${item.year}`}>
+                                <span className="certification-number">
+                                  {String(itemIndex + 1).padStart(2, "0")}
+                                </span>
+                                <div className="certification-item-main">
+                                  <p className="credential-title">{item.title}</p>
+                                  <p className="credential-subtitle">{item.issuer}</p>
+                                  {item.credentialId ? (
+                                    <p className="credential-detail">Credential ID: {item.credentialId}</p>
+                                  ) : null}
+                                </div>
                                 <span className="credential-year">{item.year}</span>
-                              </div>
-                              <p className="credential-subtitle">{item.issuer}</p>
-                              {item.credentialId ? (
-                                <p className="credential-detail">Credential ID: {item.credentialId}</p>
-                              ) : null}
-                            </article>
-                          ))}
-                        </div>
-                      </section>
-                    ))}
+                              </article>
+                            ))}
+                          </div>
+                        </section>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

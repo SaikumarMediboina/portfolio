@@ -304,11 +304,13 @@ export const education: EducationEntry[] = [
   },
 ];
 
+export type CertificationCategory = "AI & LLMs" | "Backend & Architecture" | "Oracle & Database";
+
 export type Certification = {
   title: string;
   issuer: string;
   year: string;
-  category: "AI & LLMs" | "Backend & Architecture" | "Oracle & Database";
+  category: CertificationCategory;
   credentialId?: string;
 };
 
