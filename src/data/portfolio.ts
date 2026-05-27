@@ -313,10 +313,14 @@ export type Certification = {
 
 export const certifications: Certification[] = [
   {
+    title: "Introduction to Generative AI for Software Development",
+    issuer: "DeepLearning.AI",
+    year: "May 2026",
+  },
+  {
     title: "Generative AI for Everyone",
     issuer: "DeepLearning.AI",
     year: "May 2026",
-    credentialId: "9S5P8SATPM33",
   },
   {
     title: "Oracle Cloud Infrastructure AI Foundations",
