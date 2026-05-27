@@ -73,6 +73,19 @@ const mainMoreNavLinks = [
   { href: "/about", icon: "about" as const, label: "About" },
 ] as const;
 
+const certificationCategoryOrder = [
+  "AI & LLMs",
+  "Backend & Architecture",
+  "Oracle & Database",
+] as const;
+
+const certificationGroups = certificationCategoryOrder
+  .map((category) => ({
+    category,
+    items: certifications.filter((item) => item.category === category),
+  }))
+  .filter((group) => group.items.length > 0);
+
 const emptyNavLinks = [] as const;
 const LEARN_ACCESS_STORAGE_KEY = "portfolio.learnWithMeAccess.v1";
 
@@ -11673,18 +11686,41 @@ function App() {
                   ))}
                 </div>
 
-                <div className="credential-panel">
-                  <h3>Certifications</h3>
-                  {certifications.map((item) => (
-                    <article className="credential-item" key={`${item.title}-${item.year}`}>
-                      <p className="credential-title">{item.title}</p>
-                      <p className="credential-subtitle">{item.issuer}</p>
-                      <p className="credential-detail">{item.year}</p>
-                      {item.credentialId ? (
-                        <p className="credential-detail">Credential ID: {item.credentialId}</p>
-                      ) : null}
-                    </article>
-                  ))}
+                <div className="credential-panel certification-panel">
+                  <div className="credential-panel-heading">
+                    <h3>Certifications</h3>
+                    <span>{certifications.length} credentials</span>
+                  </div>
+
+                  <div className="certification-groups">
+                    {certificationGroups.map((group) => (
+                      <section
+                        className="certification-group"
+                        key={group.category}
+                        aria-label={`${group.category} certifications`}
+                      >
+                        <div className="certification-group-heading">
+                          <p>{group.category}</p>
+                          <span>{group.items.length}</span>
+                        </div>
+
+                        <div className="certification-list">
+                          {group.items.map((item) => (
+                            <article className="credential-item certification-item" key={`${item.title}-${item.year}`}>
+                              <div className="certification-item-main">
+                                <p className="credential-title">{item.title}</p>
+                                <span className="credential-year">{item.year}</span>
+                              </div>
+                              <p className="credential-subtitle">{item.issuer}</p>
+                              {item.credentialId ? (
+                                <p className="credential-detail">Credential ID: {item.credentialId}</p>
+                              ) : null}
+                            </article>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>

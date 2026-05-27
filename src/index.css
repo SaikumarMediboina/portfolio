@@ -7161,7 +7161,7 @@ dt {
 
 .credentials-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.22fr);
   gap: 1rem;
   margin-top: 2rem;
 }
@@ -7178,6 +7178,28 @@ dt {
   font-weight: 700;
 }
 
+.credential-panel-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.credential-panel-heading h3 {
+  margin: 0;
+}
+
+.credential-panel-heading span,
+.certification-group-heading span,
+.credential-year {
+  white-space: nowrap;
+  color: var(--ink-muted);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .credential-item {
   padding: 1rem 0;
   border-bottom: 1px solid var(--line);
@@ -7185,6 +7207,92 @@ dt {
 
 .credential-item:last-child {
   border-bottom: 0;
+}
+
+.certification-groups {
+  display: grid;
+  gap: 1.1rem;
+  margin-top: 1.2rem;
+}
+
+.certification-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.certification-group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--portfolio-card-accent) 28%, var(--line));
+}
+
+.certification-group-heading p {
+  margin: 0;
+  color: color-mix(in srgb, var(--portfolio-card-accent) 82%, var(--ink-strong));
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.certification-list {
+  display: grid;
+}
+
+.certification-item {
+  padding: 0.85rem 0;
+}
+
+.certification-item-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.8rem;
+}
+
+.certification-item .credential-title {
+  margin-top: 0;
+  font-size: clamp(1rem, 1.3vw, 1.16rem);
+  line-height: 1.28;
+}
+
+.certification-item .credential-subtitle {
+  margin-top: 0.35rem;
+}
+
+.credential-year {
+  display: inline-grid;
+  min-width: 3.6rem;
+  justify-content: center;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--portfolio-card-accent) 24%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--portfolio-card-accent) 9%, transparent);
+  color: color-mix(in srgb, var(--portfolio-card-accent) 72%, var(--ink-strong));
+}
+
+@media (max-width: 560px) {
+  .credential-panel-heading,
+  .certification-item-main {
+    align-items: start;
+  }
+
+  .credential-panel-heading {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .certification-item-main {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .credential-year {
+    width: max-content;
+  }
 }
 
 .contact-panel {

@@ -237,7 +237,7 @@ public class SourceDocumentLoader {
             Certification: Oracle Database 19c: PL/SQL Workshop from Oracle, 2023.
             Certification: Spring 6 with Spring Boot 3 and Java EE: Concurrency from LinkedIn Learning, 2024.
             Certification: Advanced Core Java and Spring Boot Architecture from Udemy, 2026.
-            Certification: Low-Level Design from takeUforward, March 2026.
+            Certification: Low-Level Design from takeUforward, 2026.
             Certification: Model Context Protocol: Introduction and Advanced Topics from Anthropic, 2026.
             """,
             "credential"

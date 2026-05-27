@@ -308,59 +308,70 @@ export type Certification = {
   title: string;
   issuer: string;
   year: string;
+  category: "AI & LLMs" | "Backend & Architecture" | "Oracle & Database";
   credentialId?: string;
 };
 
 export const certifications: Certification[] = [
   {
+    title: "Generative AI with Large Language Models",
+    issuer: "DeepLearning.AI",
+    year: "2026",
+    category: "AI & LLMs",
+  },
+  {
     title: "Introduction to Generative AI for Software Development",
     issuer: "DeepLearning.AI",
     year: "2026",
+    category: "AI & LLMs",
   },
   {
     title: "Generative AI for Everyone",
     issuer: "DeepLearning.AI",
     year: "2026",
-  },
-  {
-    title: "Generative AI with Large Language Models",
-    issuer: "DeepLearning.AI",
-    year: "2026",
+    category: "AI & LLMs",
   },
   {
     title: "Team Software Engineering with AI",
     issuer: "DeepLearning.AI",
     year: "2026",
-  },
-  {
-    title: "Oracle Cloud Infrastructure AI Foundations",
-    issuer: "Oracle",
-    year: "2024",
-  },
-  {
-    title: "Oracle Database 19c: PL/SQL Workshop",
-    issuer: "Oracle",
-    year: "2023",
-  },
-  {
-    title: "Spring 6 with Spring Boot 3 and Java EE: Concurrency",
-    issuer: "LinkedIn Learning",
-    year: "2024",
-  },
-  {
-    title: "Advanced Core Java and Spring Boot Architecture",
-    issuer: "Udemy",
-    year: "2026",
-  },
-  {
-    title: "Low-Level Design",
-    issuer: "takeUforward",
-    year: "Mar 2026",
+    category: "AI & LLMs",
   },
   {
     title: "Model Context Protocol: Introduction and Advanced Topics",
     issuer: "Anthropic",
     year: "2026",
+    category: "AI & LLMs",
+  },
+  {
+    title: "Advanced Core Java and Spring Boot Architecture",
+    issuer: "Udemy",
+    year: "2026",
+    category: "Backend & Architecture",
+  },
+  {
+    title: "Low-Level Design",
+    issuer: "takeUforward",
+    year: "2026",
+    category: "Backend & Architecture",
+  },
+  {
+    title: "Spring 6 with Spring Boot 3 and Java EE: Concurrency",
+    issuer: "LinkedIn Learning",
+    year: "2024",
+    category: "Backend & Architecture",
+  },
+  {
+    title: "Oracle Cloud Infrastructure AI Foundations",
+    issuer: "Oracle",
+    year: "2024",
+    category: "Oracle & Database",
+  },
+  {
+    title: "Oracle Database 19c: PL/SQL Workshop",
+    issuer: "Oracle",
+    year: "2023",
+    category: "Oracle & Database",
   },
 ];
 
