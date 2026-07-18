@@ -7,6 +7,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { motion, AnimatePresence, useReducedMotion, useInView, useSpring, useTransform, animate } from "framer-motion";
 import type { User } from "firebase/auth";
 import {
   getRedirectResult,
@@ -5040,10 +5041,7 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
     <>
       <div className="blog-stat-grid">
         {post.stats.map((stat) => (
-          <div className="blog-stat" key={`${post.slug}-${stat.label}`}>
-            <span>{stat.label}</span>
-            <strong>{stat.value}</strong>
-          </div>
+          <AnimatedStat key={`${post.slug}-${stat.label}`} value={stat.value} label={stat.label} />
         ))}
       </div>
 
@@ -5677,10 +5675,7 @@ function BlogIndexSection({
               <p className="impact-label">Key metrics</p>
               <div className="blog-stat-grid">
                 {featuredBlog.stats.map((stat) => (
-                  <div className="blog-stat" key={`${featuredBlog.slug}-${stat.label}`}>
-                    <span>{stat.label}</span>
-                    <strong>{stat.value}</strong>
-                  </div>
+                  <AnimatedStat key={`${featuredBlog.slug}-${stat.label}`} value={stat.value} label={stat.label} />
                 ))}
               </div>
             </aside>
@@ -5778,7 +5773,7 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -6581,7 +6576,7 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -6856,7 +6851,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -7349,7 +7344,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -7796,7 +7791,7 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -8189,7 +8184,7 @@ function AiRadarPage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -8439,7 +8434,7 @@ function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
         Skip to About page
       </a>
 
-      <header className="article-site-header about-header">
+      <header className={`article-site-header about-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -8560,7 +8555,7 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
         Skip to Work With Me page
       </a>
 
-      <header className="article-site-header collaboration-header">
+      <header className={`article-site-header collaboration-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -8815,7 +8810,7 @@ function BlogArticlePage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -9040,7 +9035,7 @@ function SavedPostsPage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -9244,7 +9239,7 @@ function ShelfPage({ theme, onThemeToggle }: ShelfPageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -9468,7 +9463,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -9894,7 +9889,7 @@ function SignInPage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -10018,7 +10013,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className="article-site-header">
+      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>
@@ -10135,6 +10130,12 @@ function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [isCompactNav, setIsCompactNav] = useState(() =>
     typeof window === "undefined" ? false : window.matchMedia("(max-width: 1080px)").matches,
   );
@@ -11250,7 +11251,7 @@ function App() {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`site-header${headerDocked ? " is-docked" : ""}`}>
+      <header className={`site-header${headerDocked ? " is-docked" : ""} ${isScrolled ? "nav-scrolled" : ""}`}>
         <div className="shell header-shell">
           <div className="brand-cluster">
             <button
