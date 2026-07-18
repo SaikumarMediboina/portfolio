@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${ORACLE_JDBC_URL}
+    username: ${ORACLE_USERNAME}
+    password: ${ORACLE_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+assistant:
+  embeddings:
+    dimension: ${EMBEDDING_DIMENSION:1536}
