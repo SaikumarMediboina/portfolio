@@ -1,8 +1,0 @@
-target
-.mvn
-*.iml
-.idea
-.env
-.env.*
-Wallet_*
-*.zip

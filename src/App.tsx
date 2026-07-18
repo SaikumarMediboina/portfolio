@@ -1891,7 +1891,7 @@ function getDashboardActivityBars(updates: SiteUpdate[], days = 30) {
   });
 }
 
-const dashboardTopicColors = ["#1D9E75", "#5B8DEF", "#E3B341", "#E8748A", "#9D7BE8"];
+const dashboardTopicColors = ["#e85b3f", "#f28443", "#1fb58f", "#e2b43c", "#7c3fe0", "#5f7ce5"];
 
 function getDashboardTopics(posts: BlogPost[]) {
   const topicMap = new Map<string, { category: string; posts: number; readMinutes: number }>();
@@ -1924,7 +1924,7 @@ function getDashboardDonutGradient(topics: ReturnType<typeof getDashboardTopics>
   let cursor = 0;
 
   if (!totalPosts) {
-    return "conic-gradient(var(--border-subtle) 0deg 360deg)";
+    return "conic-gradient(#2d2a26 0deg 360deg)";
   }
 
   const segments = topics.map((topic) => {
@@ -7881,22 +7881,22 @@ type AiRadarPageProps = {
 
 function getAiRadarSourceTone(source: string) {
   const sourceTones: Record<string, { primary: string; secondary: string }> = {
-  Anthropic: { primary: "#E8748A", secondary: "rgba(232, 116, 138, 0.15)" },
-  "Anthropic News": { primary: "#E8748A", secondary: "rgba(232, 116, 138, 0.15)" },
-  "AWS ML": { primary: "#E3B341", secondary: "rgba(227, 179, 65, 0.15)" },
-  "Google/DeepMind": { primary: "#5B8DEF", secondary: "rgba(91, 141, 239, 0.15)" },
-  "Google DeepMind": { primary: "#5B8DEF", secondary: "rgba(91, 141, 239, 0.15)" },
-  "Google AI Blog": { primary: "#5B8DEF", secondary: "rgba(91, 141, 239, 0.15)" },
-  "Hugging Face": { primary: "#E3B341", secondary: "rgba(227, 179, 65, 0.15)" },
-  "Hugging Face Blog": { primary: "#E3B341", secondary: "rgba(227, 179, 65, 0.15)" },
-  LangChain: { primary: "#1D9E75", secondary: "rgba(29, 158, 117, 0.15)" },
-  NVIDIA: { primary: "#9D7BE8", secondary: "rgba(157, 123, 232, 0.15)" },
-  "NVIDIA AI Blog": { primary: "#9D7BE8", secondary: "rgba(157, 123, 232, 0.15)" },
-  OpenAI: { primary: "#5B8DEF", secondary: "rgba(91, 141, 239, 0.15)" },
-  "OpenAI News": { primary: "#5B8DEF", secondary: "rgba(91, 141, 239, 0.15)" },
-};
+    Anthropic: { primary: "#b86b4b", secondary: "#f1c7aa" },
+    "Anthropic News": { primary: "#b86b4b", secondary: "#f1c7aa" },
+    "AWS ML": { primary: "#ff9900", secondary: "#ffd58f" },
+    "Google/DeepMind": { primary: "#4285f4", secondary: "#b9dcff" },
+    "Google DeepMind": { primary: "#4285f4", secondary: "#b9dcff" },
+    "Google AI Blog": { primary: "#4285f4", secondary: "#b9dcff" },
+    "Hugging Face": { primary: "#f0a120", secondary: "#ffe19b" },
+    "Hugging Face Blog": { primary: "#f0a120", secondary: "#ffe19b" },
+    LangChain: { primary: "#19a974", secondary: "#b7f0d8" },
+    NVIDIA: { primary: "#76b900", secondary: "#d9f99d" },
+    "NVIDIA AI Blog": { primary: "#76b900", secondary: "#d9f99d" },
+    OpenAI: { primary: "#314158", secondary: "#cbd7e6" },
+    "OpenAI News": { primary: "#314158", secondary: "#cbd7e6" },
+  };
 
-  return sourceTones[source] ?? { primary: "#1D9E75", secondary: "rgba(29, 158, 117, 0.15)" };
+  return sourceTones[source] ?? { primary: "#f0643b", secondary: "#ffe3da" };
 }
 
 function getAiRadarSourceStyle(source: string) {
@@ -10518,7 +10518,7 @@ function App() {
 
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      metaTheme.setAttribute("content", "#0D1117");
+      metaTheme.setAttribute("content", theme === "dark" ? "#0f1724" : "#111c2b");
     }
 
     try {
