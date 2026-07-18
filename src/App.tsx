@@ -69,6 +69,14 @@ function useScrolled() {
   return isScrolled;
 }
 
+const sectionAnimationProps = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.15 },
+  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+};
+
+
 function AnimatedStat({ value, label }: { value: string; label: string }) {
   const shouldReduceMotion = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -6173,7 +6181,7 @@ function HomePage({
 
   return (
     <>
-      <section className="home-hero shell" id="top">
+      <motion.section className="home-hero shell" id="top" {...sectionAnimationProps}>
         <div className="home-hero-copy">
           <h1 style={{ marginTop: "0", marginBottom: "0.5rem" }}>Hey, Sai here.</h1>
           <p className="eyebrow" style={{ fontSize: "1.1rem", marginBottom: "1.2rem" }}>Software Application Engineer @ Oracle</p>
@@ -6282,9 +6290,9 @@ function HomePage({
             </div>
           </article>
         </aside>
-      </section>
+      </motion.section>
 
-      <section className="home-section shell home-lanes" id="about">
+      <motion.section className="home-section shell home-lanes" id="about" {...sectionAnimationProps}>
         <div className="home-section-heading">
           <p className="eyebrow">Start Fast</p>
           <h2>Get value in the first five minutes.</h2>
@@ -6307,9 +6315,9 @@ function HomePage({
             </article>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      <section className="home-section shell home-proof">
+      <motion.section className="home-section shell home-proof" {...sectionAnimationProps}>
         <div className="home-proof-copy">
           <p className="eyebrow">Current Signal</p>
           <h2>Backend work with measurable outcomes.</h2>
@@ -6325,9 +6333,9 @@ function HomePage({
             </article>
           ))}
         </div>
-      </section>
+      </motion.section>
 
-      <section className="home-section shell home-work-preview">
+      <motion.section className="home-section shell home-work-preview" {...sectionAnimationProps}>
         <div className="home-work-card">
           <p className="eyebrow">Featured Build</p>
           <h2>{projects[0]?.name}</h2>
@@ -6359,9 +6367,9 @@ function HomePage({
           <p>{latestUpdate?.summary ?? "New engineering notes and site updates will appear here."}</p>
           <a href={latestUpdate?.href ?? "/whats-new"}>Open what's new</a>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="home-section shell home-writing">
+      <motion.section className="home-section shell home-writing" {...sectionAnimationProps}>
         <div className="home-section-heading">
           <p className="eyebrow">Latest Notes</p>
           <h2>Short reads. Real systems.</h2>
@@ -6436,9 +6444,9 @@ function HomePage({
             Get updates
           </a>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="home-section shell home-final-cta">
+      <motion.section className="home-section shell home-final-cta" {...sectionAnimationProps}>
         <p className="eyebrow">Work With Me</p>
         <h2>Have a backend, search, performance, or AI workflow problem worth untangling?</h2>
         <p>
@@ -6453,7 +6461,7 @@ function HomePage({
             LinkedIn
           </a>
         </div>
-      </section>
+      </motion.section>
     </>
   );
 }
@@ -11109,7 +11117,17 @@ function App() {
 
   const renderWithAssistant = (page: ReactNode) => (
     <>
-      {page}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={window.location.pathname}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+        >
+          {page}
+        </motion.div>
+      </AnimatePresence>
       <div className="site-newsletter-footer shell">
         <NewsletterCallout
           isSubscribed={isSubscribed}
@@ -11520,7 +11538,7 @@ function App() {
       <main id="main-content">
         {isPortfolioPage ? (
           <>
-        <section className="hero shell" id="top">
+        <motion.section className="hero shell" id="top" {...sectionAnimationProps}>
           <div className="hero-copy">
             <p className="eyebrow">
               {profile.currentTitle} at {profile.company}
@@ -11574,10 +11592,10 @@ function App() {
               </div>
             </dl>
           </aside>
-        </section>
+        </motion.section>
 
         {isPortfolioPage ? (
-          <section className="shell portfolio-metrics-section" aria-label="Key career metrics" style={{ padding: "4rem 2rem 0" }}>
+          <motion.section className="shell portfolio-metrics-section" aria-label="Key career metrics" style={{ padding: "4rem 2rem 0" }} {...sectionAnimationProps}>
             <div className="section-heading" style={{ marginBottom: "2rem" }}>
               <p className="eyebrow">Impact</p>
               <h2>Measurable Engineering Impact</h2>
@@ -11591,10 +11609,10 @@ function App() {
                 </article>
               ))}
             </div>
-          </section>
+          </motion.section>
         ) : null}
 
-        <section className="section shell portfolio-about-section" id="about">
+        <motion.section className="section shell portfolio-about-section" id="about" {...sectionAnimationProps}>
           <SectionHeading
             eyebrow="About"
             title="Backend systems where speed, search quality, and explainable AI meet."
@@ -11610,11 +11628,11 @@ function App() {
               </article>
             ))}
           </div>
-        </section>
+        </motion.section>
 
         {isPortfolioPage ? (
           <>
-            <section className="section shell" id="experience">
+            <motion.section className="section shell" id="experience" {...sectionAnimationProps}>
               <SectionHeading
                 eyebrow="Experience"
                 title="Most of my recent experience is deep backend work inside high-volume compliance and intelligence systems."
@@ -11654,9 +11672,9 @@ function App() {
                   </article>
                 ))}
               </div>
-            </section>
+            </motion.section>
 
-            <section className="section shell" id="work">
+            <motion.section className="section shell" id="work" {...sectionAnimationProps}>
               <SectionHeading
                 eyebrow="Selected Work"
                 title="A few backend and AI-flavored case studies that represent the kind of problems I enjoy solving."
@@ -11722,9 +11740,9 @@ function App() {
                   </div>
                 </article>
               </div>
-            </section>
+            </motion.section>
 
-            <section className="section shell" id="skills">
+            <motion.section className="section shell" id="skills" {...sectionAnimationProps}>
               <SectionHeading
                 eyebrow="Skills"
                 title="The strongest part of my stack is where backend services meet search, databases, and AI-enabled workflows."
@@ -11743,13 +11761,13 @@ function App() {
                   </article>
                 ))}
               </div>
-            </section>
+            </motion.section>
           </>
         ) : null}
 
         {isPortfolioPage ? (
           <>
-            <section className="section shell" id="recognition">
+            <motion.section className="section shell" id="recognition" {...sectionAnimationProps}>
               <SectionHeading
                 eyebrow="Recognition"
                 title="A couple of external signals that back up the delivery story."
@@ -11766,9 +11784,9 @@ function App() {
                   </article>
                 ))}
               </div>
-            </section>
+            </motion.section>
 
-            <section className="section shell" id="credentials">
+            <motion.section className="section shell" id="credentials" {...sectionAnimationProps}>
               <SectionHeading
                 eyebrow="Credentials"
                 title="Credentials mapped to backend, AI, and database engineering."
@@ -11878,7 +11896,7 @@ function App() {
                   </div>
                 </div>
               </div>
-            </section>
+            </motion.section>
           </>
         ) : null}
 
