@@ -58,6 +58,51 @@ const portfolioNavLinks = [
   { id: "credentials", label: "Credentials" },
 ] as const;
 
+
+function useScrolled() {
+  return isScrolled;
+}
+
+function AnimatedStat({ value, label }: { value: string; label: string }) {
+  const shouldReduceMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const [displayValue, setDisplayValue] = useState(value);
+  
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+    
+    const match = value.match(/^([\d,.]+)(.*)$/);
+    if (!match) return;
+    
+    const numericPart = parseFloat(match[1].replace(/,/g, ''));
+    const suffix = match[2];
+    
+    if (isNaN(numericPart)) return;
+    
+    if (isInView) {
+      const controls = animate(0, numericPart, {
+        duration: 1.2,
+        ease: "easeOut",
+        onUpdate: (latest) => {
+          const hasDecimals = match[1].includes('.');
+          const formatted = hasDecimals ? latest.toFixed(1) : Math.round(latest).toString();
+          setDisplayValue(formatted + suffix);
+        }
+      });
+      return controls.stop;
+    }
+  }, [value, isInView, shouldReduceMotion]);
+
+  return (
+    <div className="blog-stat" ref={ref}>
+      <span>{label}</span>
+      <strong>{shouldReduceMotion ? value : displayValue}</strong>
+    </div>
+  );
+}
+
+
 const mainNavLinks = [
   { href: "/start", icon: "spark" as const, label: "Start Here" },
   { href: "/portfolio", icon: "briefcase" as const, label: "Portfolio" },
@@ -10130,12 +10175,6 @@ function App() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
   const [isCompactNav, setIsCompactNav] = useState(() =>
     typeof window === "undefined" ? false : window.matchMedia("(max-width: 1080px)").matches,
   );
