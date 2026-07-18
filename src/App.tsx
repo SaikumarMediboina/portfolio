@@ -6127,8 +6127,8 @@ function HomePage({
     <>
       <section className="home-hero shell" id="top">
         <div className="home-hero-copy">
-          <p className="eyebrow">Backend Systems / AI Search / Performance</p>
-          <h1>Hey, Sai here.</h1>
+          <h1 style={{ marginTop: "0", marginBottom: "0.5rem" }}>Hey, Sai here.</h1>
+          <p className="eyebrow" style={{ fontSize: "1.1rem", marginBottom: "1.2rem" }}>Software Application Engineer @ Oracle</p>
           <p className="home-hero-lede">
             I build reliable backend systems, search workflows, and practical AI experiments for
             high-volume products.
