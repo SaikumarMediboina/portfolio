@@ -60,6 +60,12 @@ const portfolioNavLinks = [
 
 
 function useScrolled() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   return isScrolled;
 }
 
@@ -84,7 +90,7 @@ function AnimatedStat({ value, label }: { value: string; label: string }) {
       const controls = animate(0, numericPart, {
         duration: 1.2,
         ease: "easeOut",
-        onUpdate: (latest) => {
+        onUpdate: (latest: number) => {
           const hasDecimals = match[1].includes('.');
           const formatted = hasDecimals ? latest.toFixed(1) : Math.round(latest).toString();
           setDisplayValue(formatted + suffix);
@@ -5809,6 +5815,7 @@ type BlogIndexPageProps = BlogIndexSectionProps & {
 };
 
 function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPageProps) {
+  const isScrolled = useScrolled();
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -6044,6 +6051,7 @@ function HomePage({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: HomePageProps) {
+  const isScrolled = useScrolled();
   const [homeRadarSignals, setHomeRadarSignals] = useState<AiRadarSignal[]>(
     aiRadarSignals.slice(0, 5),
   );
@@ -6456,6 +6464,7 @@ type StartHerePageProps = {
 };
 
 function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
+  const isScrolled = useScrolled();
   const siteSnapshot = [
     { label: "Career proof", value: "Portfolio" },
     { label: "Engineering notes", value: String(blogPosts.length) },
@@ -6783,6 +6792,7 @@ function getStoredLearnAccess() {
 }
 
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
+  const isScrolled = useScrolled();
   const [accessGranted, setAccessGranted] = useState(getStoredLearnAccess);
   const [accessBusy, setAccessBusy] = useState(false);
   const [accessError, setAccessError] = useState("");
@@ -7033,6 +7043,7 @@ type ActiveBuildsPageProps = {
 };
 
 function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: ActiveBuildsPageProps) {
+  const isScrolled = useScrolled();
   const isSaiAssistantBuildPage = activeBuildSlug === "sai-assistant";
   const assistantSignals = [
     { label: "Frontend", value: "Vercel UI" },
@@ -7825,6 +7836,7 @@ type WhatsNewPageProps = {
 };
 
 function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
+  const isScrolled = useScrolled();
   const recentUpdates = getRecentSiteUpdates(siteUpdates);
 
   return (
@@ -8119,6 +8131,7 @@ function AiRadarPage({
   onToggleSavedAiRadar,
   onThemeToggle,
 }: AiRadarPageProps) {
+  const isScrolled = useScrolled();
   const [selectedCategory, setSelectedCategory] = useState(ALL_AI_RADAR_CATEGORIES);
   const [liveSignals, setLiveSignals] = useState<AiRadarSignal[]>(aiRadarSignals);
   const [radarStatus, setRadarStatus] = useState<"loading" | "live" | "fallback">("loading");
@@ -8465,6 +8478,7 @@ type AboutPageProps = {
 };
 
 function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
+  const isScrolled = useScrolled();
   const aboutLinks = [
     { href: "/portfolio", label: "Portfolio", note: "Experience and selected work" },
     { href: "/blogs", label: "Blogs", note: "Engineering notes" },
@@ -8539,6 +8553,7 @@ function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
 }
 
 function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
+  const isScrolled = useScrolled();
   const collaborationAreas = [
     {
       icon: "briefcase" as const,
@@ -8786,6 +8801,7 @@ function BlogArticlePage({
   onToggleSavedPost,
   onThemeToggle,
 }: BlogArticlePageProps) {
+  const isScrolled = useScrolled();
   const [readingProgress, setReadingProgress] = useState(0);
   const articleRef = useRef<HTMLElement | null>(null);
   const readingSecondsLeft = post ? getReadingSecondsLeft(post, readingProgress) : 0;
@@ -9049,6 +9065,7 @@ function SavedPostsPage({
   onRemoveSavedItem,
   onThemeToggle,
 }: SavedPostsPageProps) {
+  const isScrolled = useScrolled();
   const [selectedSavedTag, setSelectedSavedTag] = useState(ALL_SAVED_POSTS_TAG);
   const savedPostCount = savedItems.length;
   const savedFilterTags = [
@@ -9260,6 +9277,7 @@ type ShelfPageProps = {
 };
 
 function ShelfPage({ theme, onThemeToggle }: ShelfPageProps) {
+  const isScrolled = useScrolled();
   const shelfPlans = [
     {
       title: "Backend Patterns",
@@ -9443,6 +9461,7 @@ function getAnalyticsEventTitle(event: AnalyticsDashboardEvent) {
 }
 
 function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
+  const isScrolled = useScrolled();
   const topics = getDashboardTopics(blogPosts);
   const [analyticsSnapshot, setAnalyticsSnapshot] = useState(getCachedAnalyticsSnapshot);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
@@ -9876,6 +9895,7 @@ function SignInPage({
   onThemeToggle,
   ...subscriptionProps
 }: SignInPageProps) {
+  const isScrolled = useScrolled();
   const firstName = subscriberName.split(" ")[0] || "there";
   const returnTargetConfig = getReturnTargetConfig(signInReturnTarget ?? "");
   const heroCopy = {
@@ -10006,6 +10026,7 @@ type AdminUpdatePageProps = {
 };
 
 function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
+  const isScrolled = useScrolled();
   const [adminSecret, setAdminSecret] = useState("");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -10172,6 +10193,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 }
 
 function App() {
+  const isScrolled = useScrolled();
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
