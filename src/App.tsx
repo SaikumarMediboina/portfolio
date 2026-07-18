@@ -11516,14 +11516,20 @@ function App() {
         </section>
 
         {isPortfolioPage ? (
-          <section className="shell metric-grid" aria-label="Key career metrics">
-            {metrics.map((metric) => (
-              <article className="metric-card" key={metric.label}>
-                <p className="metric-value">{metric.value}</p>
-                <h2>{metric.label}</h2>
-                <p>{metric.detail}</p>
-              </article>
-            ))}
+          <section className="shell portfolio-metrics-section" aria-label="Key career metrics" style={{ padding: "4rem 2rem 0" }}>
+            <div className="section-heading" style={{ marginBottom: "2rem" }}>
+              <p className="eyebrow">Impact</p>
+              <h2>Measurable Engineering Impact</h2>
+            </div>
+            <div className="metric-grid">
+              {metrics.map((metric) => (
+                <article className="metric-card" key={metric.label}>
+                  <p className="metric-value">{metric.value}</p>
+                  <h2>{metric.label}</h2>
+                  <p>{metric.detail}</p>
+                </article>
+              ))}
+            </div>
           </section>
         ) : null}
 
