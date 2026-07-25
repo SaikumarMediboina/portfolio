@@ -346,12 +346,6 @@ export const certifications: Certification[] = [
     category: "AI & LLMs",
   },
   {
-    title: "Model Context Protocol: Introduction and Advanced Topics",
-    issuer: "Anthropic",
-    year: "2026",
-    category: "AI & LLMs",
-  },
-  {
     title: "Advanced Core Java and Spring Boot Architecture",
     issuer: "Udemy",
     year: "2026",

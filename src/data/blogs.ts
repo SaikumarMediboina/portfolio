@@ -43,6 +43,189 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "what-you-can-build-with-mcp-expense-tracker",
+    title: "What can you build with MCP? Learn through an Expense Tracker",
+    category: "AI and LLM",
+    publishedAt: "July 2026",
+    summary:
+      "A practical introduction to Model Context Protocol: how an AI application uses controlled tools, resources, and prompts to work safely with a real SQLite Expense Tracker.",
+    tags: ["MCP", "Model Context Protocol", "AI Tools", "SQLite", "Python", "LLM Workflows"],
+    stats: [
+      { label: "MCP tools", value: "6" },
+      { label: "Storage", value: "SQLite" },
+      { label: "Money", value: "Integer paise" },
+    ],
+    diagram: {
+      title: "How one expense moves through an MCP application",
+      subtitle:
+        "The AI decides which controlled action is useful; the server validates and performs that action.",
+      caption:
+        "MCP keeps responsibilities clear. The model understands a request, the client sends a structured tool call, the server applies business rules, and SQLite stores only validated data.",
+      highlights: [
+        { label: "Transport", value: "stdio" },
+        { label: "Validation", value: "Server-side" },
+        { label: "Storage", value: "Local SQLite" },
+      ],
+      lanes: [
+        {
+          title: "User and AI application",
+          nodes: [
+            {
+              label: "Natural-language request",
+              detail: "Add ₹350 for lunch under food.",
+              tone: "input",
+            },
+            {
+              label: "AI model selects add_expense",
+              detail: "The model recognizes the user wants to create an expense.",
+              tone: "service",
+            },
+          ],
+        },
+        {
+          title: "MCP communication",
+          nodes: [
+            {
+              label: "MCP client sends tools/call",
+              detail: "A structured request carries typed arguments to the server.",
+              tone: "async",
+            },
+            {
+              label: "MCP server validates input",
+              detail: "Amount, category, date, description, and payment method are checked.",
+              tone: "service",
+            },
+          ],
+        },
+        {
+          title: "Trusted local data layer",
+          nodes: [
+            {
+              label: "Convert ₹350 to 35,000 paise",
+              detail: "Integer paise avoids floating-point money errors.",
+              tone: "database",
+            },
+            {
+              label: "SQLite saves and returns the result",
+              detail: "The server returns a confirmation the AI application can show to the user.",
+              tone: "outcome",
+            },
+          ],
+        },
+      ],
+    },
+    takeaways: [
+      "MCP lets an AI application use real capabilities through a standard, structured protocol instead of unrestricted system access.",
+      "The Expense Tracker server owns validation and SQLite access; the AI model never writes SQL directly.",
+      "The same MCP server works with an AI host or with a terminal client that sends real MCP tool calls over stdio.",
+    ],
+    sections: [
+      {
+        heading: "What can you build with MCP?",
+        paragraphs: [
+          "Before defining MCP, consider what an AI assistant could do when it can safely work with real applications. It could read project files, search a repository, run tests, create tasks, query an approved database, create support tickets, read internal documentation, generate reports, schedule meetings, or track expenses.",
+          "An AI model can understand a request such as ‘Show this month's expenses and tell me where I spent the most.’ Understanding alone is not enough: the application still needs a safe and structured way to communicate with databases, files, GitHub, calendars, and other systems. That is what MCP provides.",
+        ],
+        bullets: [
+          "Read files from a project or search an approved repository.",
+          "Run tests and prepare a pull request through controlled tooling.",
+          "Create tasks, support tickets, reports, calendar events, or personal expenses.",
+        ],
+      },
+      {
+        heading: "What is MCP?",
+        paragraphs: [
+          "MCP stands for Model Context Protocol. It is a standard way for an AI application to connect to external tools, data, and services. It does not make the model smarter; it gives the application a common communication method for accessing useful capabilities safely.",
+          "In this project, the AI understands ‘Add ₹350 for lunch.’ MCP connects the application to add_expense, and the Expense Tracker server validates and saves the expense. MCP turns an AI application from something that only answers questions into something that can work with real tools and data.",
+        ],
+      },
+      {
+        heading: "The Expense Tracker architecture",
+        paragraphs: [
+          "The user interacts with an MCP Host, which contains the AI model and an MCP client. The model understands the goal, while the MCP client sends structured protocol messages to the Expense Tracker MCP server. The server contains trusted application logic and SQLite stores the records.",
+          "The user does not need to know Python, SQL, or MCP message formats. The host can manage the model, MCP connections, approvals, and final response. SQLite is not MCP; it is the external local database used by the MCP server.",
+        ],
+        bullets: [
+          "AI model: understands the request and selects an appropriate capability.",
+          "MCP client: sends structured messages to the MCP server.",
+          "MCP server: validates input and performs trusted application operations.",
+          "SQLite: stores validated expense records locally.",
+        ],
+      },
+      {
+        heading: "Adding an expense end to end",
+        paragraphs: [
+          "Suppose the user says: ‘I spent ₹350 on lunch. Add it under food.’ The model extracts amount_rupees as 350, category as food, description as Lunch, and can use upi as the default payment method. At this point, no database operation has happened.",
+          "The model selects the add_expense Tool. Its MCP client sends a tools/call request with those arguments. The server checks that the amount is positive and has no more than two decimal places, the category and payment method are supported, the description is non-empty, and the date is valid.",
+          "The server converts ₹350.00 to 35,000 integer paise. It then executes a parameterized SQLite INSERT. The model never gets unrestricted SQL access. Finally, the server returns a structured confirmation including the record ID and formatted INR amount.",
+        ],
+      },
+      {
+        heading: "Why money uses integer paise",
+        paragraphs: [
+          "Money must not be stored as a floating-point value because binary floating-point numbers can represent common decimals inaccurately. The project accepts values such as ₹1,200.50, parses them with Decimal, and stores 120050 paise as an integer.",
+          "This makes totals exact. SQLite calculates SUM(amount_paise) and GROUP BY category, while the application formats the final answer in Indian Rupees such as ₹1,550.00.",
+        ],
+      },
+      {
+        heading: "Real terminal demo using the actual MCP tools",
+        paragraphs: [
+          "The project includes a terminal client, terminal_app.py. It starts the local server, opens an MCP stdio session, and sends real MCP tool calls. It does not need an AI model, MCP Inspector, npm, a proxy, or an external service; it simply parses a small command format and uses the same MCP server an AI host would use.",
+          "Start it from the project folder with uv run --no-sync python terminal_app.py. The --no-sync option uses the already-installed environment, avoiding unnecessary package downloads or rebuilds.",
+        ],
+        bullets: [
+          "add 350 Lunch under food",
+          "add ₹1,200 Electricity bill under bills via bank_transfer",
+          "list, total 2026-07, and breakdown 2026-07",
+          "delete 1, followed by delete 1 confirm after explicit confirmation",
+        ],
+      },
+      {
+        heading: "Demo result: adding expenses",
+        paragraphs: [
+          "The command add 350 Lunch under food created expense ID 1 with amount_paise 35000, category food, payment method upi, and formatted amount ₹350.00. The command add ₹1,200 Electricity bill under bills via bank_transfer created expense ID 2 with amount_paise 120000 and formatted amount ₹1,200.00.",
+          "The list command returned both records newest first. Its result contained count 2, total_paise 155000, and total ₹1,550.00. This total is calculated by the database, not guessed by the client or AI model.",
+        ],
+      },
+      {
+        heading: "Demo result: reporting and safe deletion",
+        paragraphs: [
+          "The total 2026-07 command returned two expenses totaling ₹1,550.00. The category breakdown placed bills first at ₹1,200.00 or 77.42 percent, followed by food at ₹350.00 or 22.58 percent. The percentages are calculated from the exact monthly total.",
+          "The delete 1 command was deliberately refused with a clear confirmation message. Only delete 1 confirm removes the record. This is a business rule enforced by the MCP server, not a suggestion that the AI model can ignore.",
+        ],
+      },
+      {
+        heading: "Tools, Resources, and Prompts",
+        paragraphs: [
+          "Tools perform operations. This server exposes add_expense, list_expenses, get_monthly_total, category_breakdown, update_expense, and delete_expense. A Tool can create data, retrieve data, run a calculation, or perform a controlled external action. Tools do something.",
+          "Resources provide contextual information. The read-only expenses://current-month/summary resource returns current-month totals, category data, and the highest expense without modifying the database. Resources provide information.",
+          "Prompts provide reusable workflow instructions. The analyze_monthly_spending prompt guides an AI to call reporting tools, identify large categories or expenses, suggest realistic savings opportunities, and never update or delete data. Prompts guide a workflow.",
+        ],
+      },
+      {
+        heading: "Why not give an AI direct database access?",
+        paragraphs: [
+          "Direct SQLite access would give an AI application far too much power. It could construct an unsafe query, delete the wrong expense, store an invalid amount, access unrelated records, or ignore confirmation rules.",
+          "The MCP server exposes narrow, developer-controlled operations instead: add_expense, get_monthly_total, update_expense, and delete_expense(confirm=true). The developer controls accepted inputs, validation rules, parameterized database queries, and confirmation requirements.",
+        ],
+      },
+      {
+        heading: "What else can you build?",
+        paragraphs: [
+          "The same pattern works far beyond personal expenses. A GitHub assistant can search code, run tests, and prepare pull requests. A customer-support assistant can read approved order data and create tickets. A company-knowledge assistant can search permitted internal documents. A DevOps assistant can inspect logs or restart approved services.",
+          "The external system changes, but the pattern stays the same: a user describes a goal, the model selects a controlled capability, the MCP client sends a structured request, the MCP server performs the operation, and the result returns to the application.",
+        ],
+      },
+      {
+        heading: "Final understanding",
+        paragraphs: [
+          "MCP separates responsibilities cleanly. The user describes a goal. The AI model understands the goal. The host coordinates the workflow. The MCP client sends structured messages. The MCP server validates and performs the operation. SQLite stores the data.",
+          "The key idea is simple: the model decides what action is useful, while the MCP server safely performs the trusted operation.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "batch-screening-latency-97-percent",
     title: "Cutting batch screening latency by 97 percent",
     category: "Performance",

@@ -3,7 +3,7 @@ const DEFAULT_LIMIT = 12;
 const REQUEST_TIMEOUT_MS = 6500;
 const HOT_TOPIC_WEIGHTS = [
   {
-    keywords: ["agent", "agents", "agentic", "tool use", "mcp", "workflow", "workflows"],
+    keywords: ["agent", "agents", "agentic", "tool use", "workflow", "workflows"],
     score: 30,
   },
   {

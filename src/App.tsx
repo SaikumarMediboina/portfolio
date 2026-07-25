@@ -153,7 +153,7 @@ const certificationCategoryDetails: Record<
 > = {
   "AI & LLMs": {
     icon: "spark",
-    summary: "Generative AI, LLM workflows, MCP, and AI-assisted software design.",
+    summary: "Generative AI, LLM workflows, and AI-assisted software design.",
     label: "AI credentials",
   },
   "Backend & Architecture": {
@@ -1233,7 +1233,7 @@ const aiRadarSignals: AiRadarSignal[] = [
     summary:
       "A good source for model capability notes, safety framing, and practical AI workflow direction.",
     whyItMatters:
-      "Helpful when thinking about assistants, tool use, MCP-style integrations, and enterprise adoption.",
+      "Helpful when thinking about assistants, tool use, and enterprise adoption.",
   },
   {
     category: "Research",
@@ -2916,9 +2916,8 @@ const assistantSynonyms: Record<string, string[]> = {
   hyd: ["hyderabad", "location", "office"],
   hyderabad: ["hyd", "location", "office"],
   location: ["where", "bengaluru", "bangalore", "office", "remote"],
-  llm: ["ai", "semantic", "prompt", "mcp", "model"],
+  llm: ["ai", "semantic", "prompt", "model"],
   mail: ["email", "contact"],
-  mcp: ["model", "context", "protocol", "anthropic", "certification"],
   name: ["profile", "sai", "kumar", "mediboina"],
   news: ["latest", "updates", "radar", "ai"],
   performance: ["latency", "throughput", "optimization", "scale", "speed"],
@@ -2999,7 +2998,6 @@ const genericTechWords = new Set([
   "load",
   "microservice",
   "microservices",
-  "mcp",
   "nosql",
   "oop",
   "oracle",
@@ -3125,11 +3123,6 @@ const genericAssistantResponses: GenericAssistantResponse[] = [
     keywords: ["semantic", "search", "embedding", "vector"],
     text:
       "Semantic search looks for meaning, not just exact keywords. It often uses embeddings, which convert text into vectors so similar ideas sit closer together mathematically. This helps when users phrase the same intent in different words.",
-  },
-  {
-    keywords: ["mcp", "model", "context", "protocol"],
-    text:
-      "Model Context Protocol, or MCP, is a standard way for AI assistants to connect with external tools and data sources. Instead of every tool needing a custom integration, MCP gives assistants a cleaner pattern for discovering capabilities and requesting context. Think USB-C, but for AI tool connections.",
   },
 ];
 
@@ -3934,8 +3927,6 @@ function getAssistantKnowledgeEntries(
         "generative",
         "deeplearning",
         "spring",
-        "mcp",
-        "anthropic",
       ],
       links: [{ href: "/portfolio#credentials", label: "View credentials" }],
       priority: 4,
