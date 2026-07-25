@@ -69,6 +69,44 @@ function useScrolled() {
   return isScrolled;
 }
 
+function useScrollHeaderVisibility() {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    let previousScrollY = window.scrollY;
+    let frameId = 0;
+
+    const updateVisibility = () => {
+      const currentScrollY = window.scrollY;
+      const distance = currentScrollY - previousScrollY;
+
+      if (currentScrollY <= 24 || distance < -8) {
+        setIsVisible(true);
+      } else if (distance > 8) {
+        setIsVisible(false);
+      }
+
+      previousScrollY = currentScrollY;
+      frameId = 0;
+    };
+
+    const handleScroll = () => {
+      if (!frameId) {
+        frameId = window.requestAnimationFrame(updateVisibility);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  return isVisible;
+}
+
 const sectionAnimationProps = {
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
@@ -5109,6 +5147,15 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
                 ))}
               </ul>
             ) : null}
+            {section.codeBlocks ? (
+              <div className="blog-code-blocks">
+                {section.codeBlocks.map((codeBlock) => (
+                  <pre key={codeBlock} className="blog-code-block">
+                    <code>{codeBlock}</code>
+                  </pre>
+                ))}
+              </div>
+            ) : null}
           </section>
         ))}
       </div>
@@ -8801,6 +8848,7 @@ function BlogArticlePage({
   onThemeToggle,
 }: BlogArticlePageProps) {
   const isScrolled = useScrolled();
+  const isArticleHeaderVisible = useScrollHeaderVisibility();
   const [readingProgress, setReadingProgress] = useState(0);
   const articleRef = useRef<HTMLElement | null>(null);
   const readingSecondsLeft = post ? getReadingSecondsLeft(post, readingProgress) : 0;
@@ -8870,7 +8918,11 @@ function BlogArticlePage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
+      <header
+        className={`article-site-header ${isScrolled ? "nav-scrolled" : ""} ${
+          isArticleHeaderVisible ? "" : "is-scroll-hidden"
+        }`}
+      >
         <div className="shell article-header-shell">
           <a className="brand" href="/">
             <span className="brand-mark">SK</span>

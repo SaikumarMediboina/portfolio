@@ -7,6 +7,7 @@ export type BlogSection = {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
+  codeBlocks?: string[];
 };
 
 export type BlogDiagramNode = {
@@ -138,6 +139,9 @@ export const blogPosts: BlogPost[] = [
           "MCP stands for Model Context Protocol. It is a standard way for an AI application to connect to external tools, data, and services. It does not make the model smarter; it gives the application a common communication method for accessing useful capabilities safely.",
           "In this project, the AI understands ‘Add ₹350 for lunch.’ MCP connects the application to add_expense, and the Expense Tracker server validates and saves the expense. MCP turns an AI application from something that only answers questions into something that can work with real tools and data.",
         ],
+        codeBlocks: [
+          "AI understands:\n‘Add ₹350 for lunch.’\n\nMCP connects the application to:\nadd_expense(...)\n\nExpense Tracker Server:\nValidates and saves the expense",
+        ],
       },
       {
         heading: "The Expense Tracker architecture",
@@ -151,6 +155,9 @@ export const blogPosts: BlogPost[] = [
           "MCP server: validates input and performs trusted application operations.",
           "SQLite: stores validated expense records locally.",
         ],
+        codeBlocks: [
+          "User\n  ↓\nMCP Host\n  ├── AI Model\n  └── MCP Client\n          ↓\n    MCP messages over stdio\n          ↓\nExpense Tracker MCP Server\n          ↓\nSQLite Database",
+        ],
       },
       {
         heading: "Adding an expense end to end",
@@ -158,6 +165,29 @@ export const blogPosts: BlogPost[] = [
           "Suppose the user says: ‘I spent ₹350 on lunch. Add it under food.’ The model extracts amount_rupees as 350, category as food, description as Lunch, and can use upi as the default payment method. At this point, no database operation has happened.",
           "The model selects the add_expense Tool. Its MCP client sends a tools/call request with those arguments. The server checks that the amount is positive and has no more than two decimal places, the category and payment method are supported, the description is non-empty, and the date is valid.",
           "The server converts ₹350.00 to 35,000 integer paise. It then executes a parameterized SQLite INSERT. The model never gets unrestricted SQL access. Finally, the server returns a structured confirmation including the record ID and formatted INR amount.",
+        ],
+        codeBlocks: [
+          "{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"add_expense\",\n    \"arguments\": {\n      \"amount_rupees\": \"350\",\n      \"category\": \"food\",\n      \"description\": \"Lunch\",\n      \"payment_method\": \"upi\"\n    }\n  }\n}",
+        ],
+      },
+      {
+        heading: "Complete request flow",
+        paragraphs: [
+          "The important point is that the model selects a controlled capability; it does not receive unrestricted access to the database. The server applies the business rules and returns the outcome through the MCP client.",
+        ],
+        codeBlocks: [
+          "User: ‘I spent ₹350 on lunch.’\n        ↓\nAI Model understands the request\n        ↓\nAI selects add_expense\n        ↓\nMCP Client sends tools/call\n        ↓\nExpense Tracker MCP Server validates input\n        ↓\nSQLite stores 35,000 paise\n        ↓\nMCP Server returns the result\n        ↓\nHost shows confirmation to the user",
+        ],
+      },
+      {
+        heading: "What can the Expense Tracker server do?",
+        paragraphs: [
+          "The server exposes six focused tools. This lets a user add an electricity bill, list July expenses, calculate a monthly total, identify high-spending categories, update an incorrect record, or delete an expense after confirmation.",
+        ],
+        bullets: [
+          "add_expense and list_expenses",
+          "get_monthly_total and category_breakdown",
+          "update_expense and delete_expense",
         ],
       },
       {
@@ -179,6 +209,9 @@ export const blogPosts: BlogPost[] = [
           "list, total 2026-07, and breakdown 2026-07",
           "delete 1, followed by delete 1 confirm after explicit confirmation",
         ],
+        codeBlocks: [
+          "PS> uv run --no-sync python terminal_app.py\nExpense Tracker is ready. Type help for examples; type exit to close.\nexpense> add 350 Lunch under food\n{\n  \"message\": \"Expense added successfully.\",\n  \"expense\": {\n    \"id\": 1,\n    \"amount_paise\": 35000,\n    \"category\": \"food\",\n    \"description\": \"Lunch\",\n    \"amount\": \"₹350.00\"\n  }\n}",
+        ],
       },
       {
         heading: "Demo result: adding expenses",
@@ -192,6 +225,9 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           "The total 2026-07 command returned two expenses totaling ₹1,550.00. The category breakdown placed bills first at ₹1,200.00 or 77.42 percent, followed by food at ₹350.00 or 22.58 percent. The percentages are calculated from the exact monthly total.",
           "The delete 1 command was deliberately refused with a clear confirmation message. Only delete 1 confirm removes the record. This is a business rule enforced by the MCP server, not a suggestion that the AI model can ignore.",
+        ],
+        codeBlocks: [
+          "expense> total 2026-07\n{\n  \"month\": \"2026-07\",\n  \"expense_count\": 2,\n  \"total_paise\": 155000,\n  \"total\": \"₹1,550.00\"\n}\n\nexpense> delete 1\nDeletion needs explicit confirmation.\n\nexpense> delete 1 confirm\nExpense deleted successfully.",
         ],
       },
       {
@@ -214,6 +250,13 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           "The same pattern works far beyond personal expenses. A GitHub assistant can search code, run tests, and prepare pull requests. A customer-support assistant can read approved order data and create tickets. A company-knowledge assistant can search permitted internal documents. A DevOps assistant can inspect logs or restart approved services.",
           "The external system changes, but the pattern stays the same: a user describes a goal, the model selects a controlled capability, the MCP client sends a structured request, the MCP server performs the operation, and the result returns to the application.",
+        ],
+      },
+      {
+        heading: "Quick understanding check",
+        paragraphs: [
+          "If a user says ‘Add ₹500 for groceries,’ the AI model understands the sentence, the add_expense Tool creates the record, the Expense Tracker MCP server validates the amount, SQLite stores it, and the MCP client sends the tools/call request.",
+          "If the user asks for the current month summary, a Resource is appropriate because it provides information without changing data. If the user selects monthly analysis, a Prompt can provide reusable workflow instructions for the model.",
         ],
       },
       {
