@@ -5124,7 +5124,195 @@ type BlogArticleBodyProps = {
   post: BlogPost;
 };
 
+const MCP_EXPENSE_TRACKER_SLUG = "what-you-can-build-with-mcp-expense-tracker";
+
+const mcpConversationSteps = [
+  {
+    speaker: "You",
+    role: "Natural-language request",
+    message: "Add ₹350 for lunch under food.",
+    detail: "You speak normally. You do not need to write database queries or API payloads.",
+    tone: "user",
+  },
+  {
+    speaker: "AI assistant",
+    role: "Chooses a safe action",
+    message: "I’ll add a food expense for ₹350 called Lunch.",
+    detail: "The AI understands intent, then selects the add_expense tool exposed by the MCP server.",
+    tone: "assistant",
+  },
+  {
+    speaker: "MCP client",
+    role: "Sends tools/call",
+    message: "Calling add_expense with typed, structured arguments.",
+    detail: "This is the boundary MCP creates: language on one side, a predictable tool call on the other.",
+    tone: "client",
+    code: `{
+  "name": "add_expense",
+  "arguments": {
+    "amount": "350",
+    "category": "food",
+    "description": "Lunch",
+    "payment_method": "upi"
+  }
+}`,
+  },
+  {
+    speaker: "Expense Tracker server",
+    role: "Validates the request",
+    message: "Amount, category, description, date, and payment method are valid.",
+    detail: "The server—not the model—enforces the rules. It converts money into integer paise before saving.",
+    tone: "server",
+    code: `amount_paise = to_paise(amount)  # ₹350 → 35000
+if category not in ALLOWED_CATEGORIES:
+    raise ValueError("Unsupported category")`,
+  },
+  {
+    speaker: "SQLite",
+    role: "Stores the trusted record",
+    message: "Saved expense #1: 35,000 paise in the local database.",
+    detail: "SQLite keeps the project simple and local. Parameterized queries keep the write controlled.",
+    tone: "database",
+  },
+  {
+    speaker: "AI assistant",
+    role: "Returns a human answer",
+    message: "Done — Lunch was added under food for ₹350.00.",
+    detail: "The tool result comes back through MCP, and the app can present it as a useful answer.",
+    tone: "assistant",
+    code: `{
+  "message": "Expense added successfully.",
+  "expense": { "id": 1, "amount": "₹350.00", "category": "food" }
+}`,
+  },
+] as const;
+
+function McpExpenseTrackerExperience() {
+  const [activeStep, setActiveStep] = useState(0);
+  const step = mcpConversationSteps[activeStep];
+  const isFirstStep = activeStep === 0;
+  const isLastStep = activeStep === mcpConversationSteps.length - 1;
+
+  return (
+    <div className="mcp-experience">
+      <section className="mcp-intro-card">
+        <p className="mcp-kicker">Interactive walkthrough</p>
+        <h2>See one expense move through MCP</h2>
+        <p>
+          Click through the conversation. It starts with a plain-English request and ends as a
+          verified record in the Expense Tracker’s local SQLite database.
+        </p>
+        <div className="mcp-project-pills" aria-label="Project technologies">
+          <span>Python</span><span>FastMCP</span><span>SQLite</span><span>stdio</span>
+        </div>
+      </section>
+
+      <section className="mcp-chat-lab" aria-labelledby="mcp-chat-title">
+        <div className="mcp-lab-heading">
+          <div>
+            <p className="mcp-kicker">Live learning mode</p>
+            <h3 id="mcp-chat-title">A chat request becomes a safe tool call</h3>
+          </div>
+          <span className="mcp-step-count">Step {activeStep + 1} / {mcpConversationSteps.length}</span>
+        </div>
+
+        <div className="mcp-stepper" aria-label="Conversation steps">
+          {mcpConversationSteps.map((item, index) => (
+            <button
+              type="button"
+              key={`${item.speaker}-${item.role}`}
+              className={index === activeStep ? "is-active" : index < activeStep ? "is-complete" : ""}
+              aria-current={index === activeStep ? "step" : undefined}
+              onClick={() => setActiveStep(index)}
+            >
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <small>{item.speaker}</small>
+            </button>
+          ))}
+        </div>
+
+        <div className="mcp-chat-stage" aria-live="polite">
+          {mcpConversationSteps.slice(0, activeStep + 1).map((item, index) => (
+            <article className={`mcp-message mcp-message-${item.tone}`} key={`${item.speaker}-${index}`}>
+              <div className="mcp-message-meta"><span>{item.speaker}</span><small>{item.role}</small></div>
+              <p>{item.message}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mcp-inspector" key={`${step.speaker}-${activeStep}`}>
+          <div>
+            <span className={`mcp-status-dot mcp-status-${step.tone}`} />
+            <strong>What is happening now</strong>
+          </div>
+          <p>{step.detail}</p>
+          {"code" in step ? <pre><code>{step.code}</code></pre> : null}
+        </div>
+
+        <div className="mcp-lab-controls">
+          <button type="button" onClick={() => setActiveStep((current) => Math.max(current - 1, 0))} disabled={isFirstStep}>
+            ← Previous
+          </button>
+          <button type="button" className="mcp-next-button" onClick={() => setActiveStep((current) => Math.min(current + 1, mcpConversationSteps.length - 1))} disabled={isLastStep}>
+            {isLastStep ? "Conversation complete" : "Show next message →"}
+          </button>
+        </div>
+      </section>
+
+      <section className="mcp-build-grid">
+        <div className="mcp-build-card">
+          <p className="mcp-kicker">The actual project</p>
+          <h3>Small files, clear responsibilities</h3>
+          <ul>
+            <li><code>server.py</code> exposes MCP tools such as <code>add_expense</code> and <code>list_expenses</code>.</li>
+            <li><code>database.py</code> creates tables and runs controlled SQLite operations.</li>
+            <li><code>money.py</code> converts ₹ values to paise safely—no floating-point money errors.</li>
+            <li><code>terminal_app.py</code> turns friendly terminal text into actual tool calls.</li>
+          </ul>
+        </div>
+        <pre className="mcp-source-card"><code>{`@mcp.tool()
+def add_expense(amount: str, category: str, description: str):
+    """Add one validated expense."""
+    amount_paise = to_paise(amount)
+    expense = db.create_expense(
+        amount_paise=amount_paise,
+        category=category,
+        description=description,
+    )
+    return {"message": "Expense added successfully.", "expense": expense}`}</code></pre>
+      </section>
+
+      <section className="mcp-terminal-card">
+        <div className="mcp-terminal-titlebar"><span /><span /><span /><strong>PowerShell · Expense Tracker</strong></div>
+        <div className="mcp-terminal-body">
+          <p className="mcp-terminal-command">PS ...\expense-tracker-mcp&gt; <b>uv run --no-sync python terminal_app.py</b></p>
+          <p className="mcp-terminal-muted">Expense Tracker is ready. Type help for examples; type exit to close.</p>
+          <p className="mcp-terminal-command">expense&gt; <b>add 350 Lunch under food</b></p>
+          <p className="mcp-terminal-result">✓ Expense added successfully. <span>₹350.00 · food · Lunch</span></p>
+          <p className="mcp-terminal-command">expense&gt; <b>add ₹1,200 Electricity bill under bills via bank_transfer</b></p>
+          <p className="mcp-terminal-result">✓ Expense added successfully. <span>₹1,200.00 · bills · Electricity bill</span></p>
+          <p className="mcp-terminal-command">expense&gt; <b>list</b></p>
+          <p className="mcp-terminal-result">2 expenses · total <span>₹1,550.00</span></p>
+        </div>
+        <div className="mcp-terminal-commands">
+          <span>Try next:</span><code>total 2026-07</code><code>breakdown 2026-07</code><code>delete 1 confirm</code>
+        </div>
+      </section>
+
+      <section className="mcp-takeaway-card">
+        <p className="mcp-kicker">The point of MCP</p>
+        <h3>The AI decides <em>which</em> action is helpful. Your server decides <em>whether</em> it is allowed.</h3>
+        <p>That separation is why the same pattern can safely grow from an expense tracker to internal tools, reports, repositories, or approved enterprise systems.</p>
+      </section>
+    </div>
+  );
+}
+
 function BlogArticleBody({ post }: BlogArticleBodyProps) {
+  if (post.slug === MCP_EXPENSE_TRACKER_SLUG) {
+    return <McpExpenseTrackerExperience />;
+  }
+
   return (
     <>
       <div className="blog-stat-grid">
@@ -9067,7 +9255,7 @@ function BlogArticlePage({
               </div>
             </div>
 
-            <BlogArchitectureDiagram post={post} />
+            {post.slug !== MCP_EXPENSE_TRACKER_SLUG ? <BlogArchitectureDiagram post={post} /> : null}
             <BlogArticleBody post={post} />
             <RelatedPosts
               currentPost={post}

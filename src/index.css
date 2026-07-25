@@ -11331,6 +11331,81 @@ body::before {
   }
 }
 
+/* Interactive MCP expense-tracker article */
+.mcp-experience {
+  --mcp-bg: #f6f8fc;
+  --mcp-panel: #ffffff;
+  --mcp-ink: #162033;
+  --mcp-muted: #61708a;
+  --mcp-line: #dce4f2;
+  --mcp-indigo: #5b5ce2;
+  --mcp-cyan: #0284c7;
+  --mcp-green: #0d8a64;
+  --mcp-amber: #a65c00;
+  display: grid;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+  color: var(--mcp-ink);
+}
+
+.mcp-intro-card, .mcp-chat-lab, .mcp-build-card, .mcp-source-card, .mcp-terminal-card, .mcp-takeaway-card {
+  border: 1px solid var(--mcp-line);
+  border-radius: 20px;
+  background: var(--mcp-panel);
+  box-shadow: 0 14px 36px rgba(32, 47, 80, .08);
+}
+
+.mcp-intro-card { padding: clamp(1.35rem, 3vw, 2.25rem); background: linear-gradient(135deg, #edf1ff, #f8fbff 60%, #effcf9); }
+.mcp-kicker { margin: 0 0 .5rem; color: var(--mcp-indigo); font: 700 .72rem/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .16em; text-transform: uppercase; }
+.mcp-intro-card h2, .mcp-lab-heading h3, .mcp-build-card h3, .mcp-takeaway-card h3 { margin: 0; color: var(--mcp-ink); letter-spacing: -.035em; }
+.mcp-intro-card h2 { font-size: clamp(1.65rem, 4vw, 2.55rem); }
+.mcp-intro-card > p:not(.mcp-kicker), .mcp-takeaway-card > p { max-width: 44rem; margin: .8rem 0 0; color: var(--mcp-muted); line-height: 1.7; }
+.mcp-project-pills { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.15rem; }
+.mcp-project-pills span { padding: .42rem .7rem; border: 1px solid #cfd8ff; border-radius: 999px; background: rgba(255,255,255,.72); color: #3f46ae; font-size: .82rem; font-weight: 700; }
+
+.mcp-chat-lab { padding: clamp(1rem, 2.5vw, 1.75rem); background: linear-gradient(160deg, #f7f9ff, #fff); }
+.mcp-lab-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.mcp-lab-heading h3 { font-size: clamp(1.25rem, 3vw, 1.8rem); }
+.mcp-step-count { flex: 0 0 auto; padding: .42rem .65rem; border-radius: 999px; background: #e9edff; color: #454db5; font: 700 .76rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+.mcp-stepper { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .4rem; margin: 1.25rem 0; }
+.mcp-stepper button { min-width: 0; padding: .65rem .35rem; border: 1px solid var(--mcp-line); border-radius: 12px; background: transparent; color: var(--mcp-muted); cursor: pointer; transition: .18s ease; }
+.mcp-stepper button:hover, .mcp-stepper button.is-active { border-color: var(--mcp-indigo); background: #e9ebff; color: #393eb1; transform: translateY(-1px); }
+.mcp-stepper button.is-complete { border-color: #9adeca; background: #ecfbf5; color: #08795a; }
+.mcp-stepper span { display: block; font: 800 .72rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+.mcp-stepper small { display: block; overflow: hidden; margin-top: .25rem; font-size: .66rem; text-overflow: ellipsis; white-space: nowrap; }
+.mcp-chat-stage { display: grid; gap: .7rem; min-height: 15rem; padding: 1rem; border: 1px solid var(--mcp-line); border-radius: 16px; background: #f8faff; }
+.mcp-message { width: min(87%, 44rem); padding: .8rem .95rem; border: 1px solid; border-radius: 15px; animation: mcp-message-in .24s ease-out both; }
+.mcp-message-user { justify-self: end; border-color: #b8c2ff; background: #e9edff; }
+.mcp-message-assistant { border-color: #b9e0fb; background: #edf8ff; }
+.mcp-message-client { border-color: #cdbfff; background: #f4efff; }
+.mcp-message-server { border-color: #a6e5cf; background: #ecfbf5; }
+.mcp-message-database { border-color: #f2d390; background: #fff8e7; }
+.mcp-message-meta { display: flex; align-items: baseline; gap: .55rem; font-size: .78rem; }
+.mcp-message-meta span { color: var(--mcp-ink); font-weight: 800; }.mcp-message-meta small { color: var(--mcp-muted); }.mcp-message p { margin: .33rem 0 0; color: var(--mcp-ink); line-height: 1.5; }
+.mcp-inspector { margin-top: 1rem; padding: 1rem; border: 1px solid var(--mcp-line); border-radius: 14px; background: var(--mcp-bg); }.mcp-inspector > div { display: flex; align-items: center; gap: .5rem; font-size: .88rem; }.mcp-inspector p { margin: .5rem 0 0; color: var(--mcp-muted); line-height: 1.55; }.mcp-status-dot { width: .58rem; height: .58rem; border-radius: 50%; background: var(--mcp-indigo); }.mcp-status-user { background: #5b5ce2; }.mcp-status-client { background: #8b5cf6; }.mcp-status-server { background: #0d8a64; }.mcp-status-database { background: #c27803; }
+.mcp-inspector pre, .mcp-source-card { overflow-x: auto; margin: .8rem 0 0; padding: 1rem; border-radius: 12px; background: #101827; color: #dcecff; font: .79rem/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre; }.mcp-inspector pre { border: 0; }
+.mcp-lab-controls { display: flex; justify-content: space-between; gap: .7rem; margin-top: 1rem; }.mcp-lab-controls button { padding: .68rem .9rem; border: 1px solid var(--mcp-line); border-radius: 10px; background: #fff; color: var(--mcp-ink); cursor: pointer; font-weight: 750; }.mcp-lab-controls button:disabled { opacity: .45; cursor: not-allowed; }.mcp-lab-controls .mcp-next-button { border-color: var(--mcp-indigo); background: var(--mcp-indigo); color: #fff; }
+
+.mcp-build-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 1.2rem; }.mcp-build-card { padding: clamp(1.1rem, 2.5vw, 1.6rem); }.mcp-build-card ul { display: grid; gap: .72rem; margin: 1rem 0 0; padding-left: 1.15rem; color: var(--mcp-muted); line-height: 1.55; }.mcp-build-card code { color: var(--mcp-indigo); font-weight: 700; }.mcp-source-card { min-height: 17rem; margin: 0; border: 1px solid #233044; white-space: pre-wrap; }
+.mcp-terminal-card { overflow: hidden; background: #0b1220; border-color: #22304a; color: #dcecff; }.mcp-terminal-titlebar { display: flex; align-items: center; gap: .42rem; padding: .75rem 1rem; border-bottom: 1px solid #22304a; background: #121c2e; }.mcp-terminal-titlebar span { width: .62rem; height: .62rem; border-radius: 50%; background: #ef6a62; }.mcp-terminal-titlebar span:nth-child(2) { background: #f5bd4f; }.mcp-terminal-titlebar span:nth-child(3) { background: #60c478; }.mcp-terminal-titlebar strong { margin-left: .45rem; color: #94a9cc; font: .75rem ui-monospace, SFMono-Regular, Consolas, monospace; }.mcp-terminal-body { padding: 1.15rem; font: .84rem/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; }.mcp-terminal-body p { margin: 0 0 .45rem; }.mcp-terminal-command { color: #e7eefc; }.mcp-terminal-command b { color: #77d9ff; }.mcp-terminal-muted { color: #8ca1c5; }.mcp-terminal-result { color: #66d9a6; }.mcp-terminal-result span { color: #c8d6f0; }.mcp-terminal-commands { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .8rem 1.15rem; border-top: 1px solid #22304a; color: #8ca1c5; font-size: .78rem; }.mcp-terminal-commands code { padding: .25rem .45rem; border-radius: 5px; background: #162238; color: #c9dcff; }
+.mcp-takeaway-card { padding: clamp(1.25rem, 3vw, 2rem); border-color: #c9d2ff; background: linear-gradient(135deg, #eef0ff, #f9fbff); }.mcp-takeaway-card h3 { max-width: 50rem; font-size: clamp(1.25rem, 3vw, 1.9rem); line-height: 1.25; }.mcp-takeaway-card em { color: var(--mcp-indigo); font-style: normal; }
+@keyframes mcp-message-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+:root[data-theme="dark"] .mcp-experience { --mcp-bg: #111827; --mcp-panel: #151e2f; --mcp-ink: #f4f7ff; --mcp-muted: #aebbd0; --mcp-line: #2d3a52; --mcp-indigo: #a5b4fc; --mcp-cyan: #67d4ff; --mcp-green: #65dfb3; --mcp-amber: #f7c96d; }
+:root[data-theme="dark"] .mcp-intro-card { background: radial-gradient(circle at top right, #283765, #151e2f 58%, #10211e); }
+:root[data-theme="dark"] .mcp-project-pills span { border-color: #46558a; background: #1d2942; color: #cbd5ff; }
+:root[data-theme="dark"] .mcp-chat-lab { background: linear-gradient(160deg, #151e2f, #111827); }
+:root[data-theme="dark"] .mcp-step-count, :root[data-theme="dark"] .mcp-stepper button.is-active { background: #283765; color: #e0e7ff; }
+:root[data-theme="dark"] .mcp-stepper button { background: #131c2c; }
+:root[data-theme="dark"] .mcp-stepper button.is-complete { background: #12362d; color: #9ff2cf; }
+:root[data-theme="dark"] .mcp-chat-stage, :root[data-theme="dark"] .mcp-inspector { background: #0e1625; }
+:root[data-theme="dark"] .mcp-message-user { background: #263761; border-color: #53699e; }:root[data-theme="dark"] .mcp-message-assistant { background: #12364d; border-color: #2e6787; }:root[data-theme="dark"] .mcp-message-client { background: #302358; border-color: #65529b; }:root[data-theme="dark"] .mcp-message-server { background: #123d34; border-color: #2d7764; }:root[data-theme="dark"] .mcp-message-database { background: #473816; border-color: #8a6d2f; }
+:root[data-theme="dark"] .mcp-lab-controls button { background: #182338; color: var(--mcp-ink); }
+:root[data-theme="dark"] .mcp-lab-controls .mcp-next-button { background: #818cf8; border-color: #818cf8; color: #101528; }
+:root[data-theme="dark"] .mcp-build-card { background: #151e2f; }:root[data-theme="dark"] .mcp-build-card code { color: #bec8ff; }:root[data-theme="dark"] .mcp-takeaway-card { background: linear-gradient(135deg, #202c50, #151e2f); border-color: #46558a; }
+
+@media (max-width: 720px) { .mcp-stepper { grid-template-columns: repeat(3, 1fr); }.mcp-build-grid { grid-template-columns: 1fr; }.mcp-lab-heading { align-items: flex-start; flex-direction: column; }.mcp-chat-stage { min-height: 18rem; }.mcp-message { width: 94%; }.mcp-terminal-body { overflow-x: auto; font-size: .72rem; }.mcp-lab-controls button { font-size: .8rem; } }
+
 /* APEX Redwood Universal Theme layer
    Final site-wide skin inspired by Oracle APEX Redwood variables and region patterns. */
 :root {
