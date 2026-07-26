@@ -11363,6 +11363,39 @@ body::before {
 :root[data-theme="dark"] .mcp-code-block { background: #211914; }:root[data-theme="dark"] .mcp-architecture-map button.is-selected { background: rgba(223,113,86,.15); }
 @media (max-width: 720px) { .mcp-premium-hero ul, .mcp-ideas, .mcp-capability-grid, .mcp-flow-panel ol { grid-template-columns: 1fr; }.mcp-architecture { grid-template-columns: 1fr; }.mcp-architecture-detail { padding: 1rem 0 0; border-top: 2px solid var(--accent); border-left: 0; }.mcp-capability-grid article + article, .mcp-ideas span:nth-child(even) { border-top: 1px solid var(--panel-border); border-left: 0; }.mcp-ideas span:nth-child(odd), .mcp-ideas span:nth-child(even) { padding-left: 0; padding-right: 0; }.mcp-flow-panel li { min-height: auto; }.mcp-code-block pre { font-size: .75rem; } }
 
+/* Keep every MCP interaction usable on phones, without simplifying the lesson. */
+@media (max-width: 720px) {
+  .mcp-fundamentals-page { width: 100%; padding-inline: 0; }
+  .mcp-article-experience { gap: 2.5rem; padding-inline: .15rem; }
+  .mcp-premium-hero, .mcp-section, .mcp-simulator { width: 100%; }
+  .mcp-premium-hero h1 { font-size: clamp(2.15rem, 12vw, 3.05rem); line-height: 1.02; }
+  .mcp-premium-hero > p, .mcp-section > p { font-size: 1rem; line-height: 1.68; }
+  .mcp-premium-hero ul { gap: .7rem; }
+  .mcp-simulator, .mcp-terminal-simulator, .mcp-quick-check { padding: 1rem; border-radius: 10px; }
+  .mcp-scenario-choices button, .mcp-terminal-buttons button, .mcp-quick-check button { width: 100%; min-height: 2.8rem; text-align: left; }
+  .mcp-scenario-result { padding: .85rem; }
+  .mcp-architecture { gap: 1rem; padding: 1rem 0; }
+  .mcp-host-node > div { grid-template-columns: 1fr; }
+  .mcp-architecture-map button, .mcp-host-node { width: 100%; }
+  .mcp-architecture-map > span { max-width: 100%; text-align: center; }
+  .mcp-flow-panel { padding: .8rem 0; }
+  .mcp-flow-panel li { padding: .8rem; opacity: .58; }
+  .mcp-flow-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mcp-flow-controls button { min-height: 2.8rem; padding: .5rem .35rem; font-size: .78rem; }
+  .mcp-capability-explorer [role="tablist"] { gap: .45rem; padding-bottom: .55rem; }
+  .mcp-capability-explorer [role="tab"] { flex: 1 0 auto; min-height: 2.65rem; }
+  .mcp-capability-explorer [role="tabpanel"] { min-height: 0; }
+  .mcp-code-block > div { padding: .65rem .75rem; }
+  .mcp-code-block pre, .mcp-terminal-simulator pre { padding: .85rem; font-size: .72rem; }
+  .mcp-download-link { width: 100%; justify-content: center; min-height: 2.9rem; }
+}
+
+@media (max-width: 390px) {
+  .mcp-flow-controls { grid-template-columns: 1fr; }
+  .mcp-flow-controls button { width: 100%; }
+  .mcp-premium-hero h1 { font-size: 2.05rem; }
+}
+
 /* Interactive MCP expense-tracker article */
 .mcp-experience {
   --mcp-bg: #f6f8fc;
