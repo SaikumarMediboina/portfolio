@@ -2167,6 +2167,19 @@ function returnToPortfolioBlog(slug?: string) {
 }
 
 function getInitialTheme(): Theme {
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  try {
+    const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme === "light" || savedTheme === "dark") {
+      return savedTheme;
+    }
+  } catch {
+    // Fall back to light when browser storage is unavailable.
+  }
+
   return "light";
 }
 
