@@ -661,35 +661,6 @@ dt {
   height: 1.18rem;
 }
 
-.bug-report-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.85rem;
-  height: 2.85rem;
-  min-height: 2.85rem;
-  padding: 0;
-  border: 1px solid var(--chip-border);
-  border-radius: 999px;
-  background: var(--muted-button-bg);
-  color: var(--ink);
-  cursor: pointer;
-  transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
-}
-
-.bug-report-button:hover,
-.bug-report-button:focus-visible {
-  border-color: var(--accent);
-  color: var(--accent);
-  outline: none;
-  transform: translateY(-1px);
-}
-
-.bug-report-icon { width: 1.2rem; height: 1.2rem; }
-.bug-report-overlay { position: fixed; z-index: 300; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgba(24, 18, 14, .46); backdrop-filter: blur(5px); }.bug-report-dialog { width: min(100%, 31rem); padding: clamp(1.1rem, 3vw, 1.5rem); border: 1px solid var(--panel-border); border-radius: 20px; background: var(--panel-strong); color: var(--ink); box-shadow: 0 24px 70px rgba(20, 12, 8, .3); }.bug-report-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }.bug-report-dialog .eyebrow { margin: 0 0 .35rem; }.bug-report-dialog h2 { margin: 0; color: var(--ink-strong); font-size: clamp(1.45rem, 4vw, 1.85rem); }.bug-report-dialog > p { margin: .8rem 0 1.1rem; color: var(--ink-soft); line-height: 1.55; }.bug-report-close { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border: 1px solid var(--chip-border); border-radius: 50%; background: transparent; color: var(--ink-strong); cursor: pointer; font-size: 1.5rem; line-height: 1; }.bug-report-dialog label { display: block; margin-bottom: .45rem; color: var(--ink-strong); font-size: .88rem; font-weight: 800; }.bug-report-dialog textarea { box-sizing: border-box; width: 100%; min-height: 8.5rem; resize: vertical; padding: .8rem .9rem; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--bg-elevated); color: var(--ink); font: inherit; line-height: 1.5; }.bug-report-dialog textarea:focus { border-color: var(--accent); outline: 2px solid color-mix(in srgb, var(--accent) 20%, transparent); outline-offset: 2px; }.bug-report-form-footer { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-top: .85rem; }.bug-report-form-footer > span { color: var(--ink-soft); font-size: .78rem; }.bug-report-form-footer .button { min-height: 2.6rem; }.bug-report-status { margin: .85rem 0 0; font-size: .9rem; line-height: 1.45; }.bug-report-status.is-sent { color: #277c55; }.bug-report-status.is-error { color: #b23d32; }
-
-@media (max-width: 720px) { .bug-report-overlay { align-items: end; padding: .65rem; }.bug-report-dialog { width: 100%; max-height: calc(100dvh - 1.3rem); overflow-y: auto; border-radius: 18px; }.bug-report-close { position: sticky; top: 0; z-index: 1; flex: 0 0 auto; background: var(--panel-strong); box-shadow: 0 4px 12px color-mix(in srgb, var(--ink) 12%, transparent); }.bug-report-form-footer { align-items: flex-end; }.bug-report-form-footer .button { flex: 1 1 auto; } }
-
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -20509,17 +20480,6 @@ body {
 }
 
 @media (max-width: 720px) {
-  .site-header .header-shell { gap: .45rem !important; padding: .62rem .7rem !important; }
-  .site-header .brand-cluster { min-width: 0 !important; gap: .48rem !important; }
-  .site-header .reader-menu-trigger,
-  .site-header .brand-mark { width: 2.45rem !important; height: 2.45rem !important; min-height: 2.45rem !important; border-radius: 13px !important; }
-  .site-header .brand-copy strong,
-  .site-header .brand-copy span { max-width: min(9rem, calc(100vw - 11.5rem)) !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
-  .site-header .header-actions { flex: 0 0 auto !important; gap: .35rem !important; min-width: 0 !important; }
-  .site-header .header-actions > div { display: none !important; }
-  .site-header .header-actions .theme-toggle,
-  .site-header .header-actions .bug-report-button { flex: 0 0 auto; width: 2.35rem !important; height: 2.35rem !important; min-height: 2.35rem !important; }
-
   .header-shell {
     grid-template-columns: 1fr auto !important;
   }
@@ -23511,15 +23471,15 @@ html[data-header-visibility="hidden"] .article-site-header {
   }
 }
 
-/* On phones, subpages use a compact Back control with the bug reporter centred. */
+/* On phones, subpages use only simple left/right navigation instead of a header card. */
 @media (max-width: 720px) {
   .article-site-header {
     position: fixed !important;
     inset: 0 0 auto !important;
     z-index: 120 !important;
     width: 100% !important;
-    height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
-    min-height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
+    height: 0 !important;
+    min-height: 0 !important;
     margin-top: 0 !important;
     overflow: visible !important;
     border: 0 !important;
@@ -23531,8 +23491,8 @@ html[data-header-visibility="hidden"] .article-site-header {
   .article-header-shell {
     display: block !important;
     width: 100% !important;
-    height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
-    min-height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
+    height: 0 !important;
+    min-height: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
     border: 0 !important;
@@ -23555,25 +23515,23 @@ html[data-header-visibility="hidden"] .article-site-header {
   .article-header-actions {
     display: flex !important;
     position: absolute !important;
-    top: calc(.7rem + env(safe-area-inset-top, 0px)) !important;
+    top: max(.55rem, env(safe-area-inset-top, 0px)) !important;
     right: .72rem !important;
     left: .72rem !important;
-    justify-content: flex-start !important;
+    justify-content: space-between !important;
     width: auto !important;
     max-width: none !important;
     min-width: 0 !important;
     overflow: visible !important;
-    z-index: 2;
   }
 
-  .article-header-actions > :not(a.button):not(.page-back-button):not(.article-back-button):not(.bug-report-button):not(.bug-report-overlay) {
+  .article-header-actions > :not(a.button):not(.page-back-button):not(.article-back-button) {
     display: none !important;
   }
 
   .article-header-actions > a.button,
   .article-header-actions .page-back-button,
-  .article-header-actions .article-back-button,
-  .article-header-actions .bug-report-button {
+  .article-header-actions .article-back-button {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
@@ -23584,41 +23542,6 @@ html[data-header-visibility="hidden"] .article-site-header {
     border-radius: 999px !important;
     font-size: 0 !important;
     line-height: 1;
-  }
-
-  /* Home is deliberately omitted on phones: Back is simpler and leaves a clear centre action. */
-  .article-header-actions > a.button {
-    display: none !important;
-  }
-
-  .article-header-actions .page-back-button,
-  .article-header-actions .article-back-button {
-    position: absolute !important;
-    left: 0 !important;
-  }
-
-  .article-header-actions .bug-report-button {
-    position: absolute !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 1;
-    border-color: var(--panel-border) !important;
-    background: var(--panel-strong) !important;
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--ink) 14%, transparent) !important;
-  }
-
-  .article-header-actions .bug-report-icon {
-    display: block;
-    width: 1.3rem;
-    height: 1.3rem;
-  }
-
-  .article-header-actions .page-back-button,
-  .article-header-actions .article-back-button {
-    z-index: 1;
-    border-color: var(--panel-border) !important;
-    background: var(--panel-strong) !important;
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--ink) 14%, transparent) !important;
   }
 
   .article-header-actions > a.button::before {
@@ -23642,18 +23565,8 @@ html[data-header-visibility="hidden"] .article-site-header {
     transform: translateY(-4rem);
   }
 
-  /* Keep the reading timer in the same mobile control row; it never covers the article title. */
-  .article-reading-dock,
-  .article-reading-dock.is-below-header {
-    top: calc(.7rem + env(safe-area-inset-top, 0px)) !important;
-    right: .72rem !important;
-    z-index: 122 !important;
-  }
-
-  /* Fixed controls must never cover the first heading or card on any page. */
-  .site-header + main,
-  .article-site-header ~ main {
-    margin-top: 0 !important;
-    padding-top: calc(4.55rem + env(safe-area-inset-top, 0px)) !important;
+  /* Keep the first card clear of the compact fixed Home / Back controls. */
+  .article-page {
+    padding-top: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
   }
 }
