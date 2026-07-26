@@ -2231,6 +2231,88 @@ function ThemeToggleIcon({ theme }: { theme: Theme }) {
   );
 }
 
+function BugReportIcon() {
+  return <svg className="bug-report-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M9 8.3 7.2 6.5M15 8.3l1.8-1.8M12 7V4.6M7.2 12H4.8M19.2 12h-2.4M8.4 10.1c.9-1.2 2.1-1.8 3.6-1.8s2.7.6 3.6 1.8v4.4c0 2.2-1.6 4-3.6 4s-3.6-1.8-3.6-4v-4.4Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M10 13.1h.01M14 13.1h.01" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" />
+  </svg>;
+}
+
+function BugReportButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && status !== "sending") setIsOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, status]);
+
+  const close = () => {
+    if (status === "sending") return;
+    setIsOpen(false);
+    setStatus("idle");
+    setMessage("");
+  };
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmedDescription = description.trim();
+
+    if (trimmedDescription.length < 10) {
+      setStatus("error");
+      setMessage("Please add a little more detail so the issue can be reproduced.");
+      return;
+    }
+
+    setStatus("sending");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/report-bug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: trimmedDescription, pagePath: window.location.pathname }),
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) throw new Error(result.error || "Unable to save the report.");
+
+      setDescription("");
+      setStatus("sent");
+      setMessage("Thanks — the bug report was saved.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "Unable to save the report.");
+    }
+  };
+
+  return <>
+    <button className="bug-report-button" type="button" aria-label="Report a bug" onClick={() => setIsOpen(true)}>
+      <BugReportIcon />
+    </button>
+    {isOpen ? <div className="bug-report-overlay" role="presentation" onMouseDown={close}>
+      <section className="bug-report-dialog" role="dialog" aria-modal="true" aria-labelledby="bug-report-title" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="bug-report-dialog-heading"><div><p className="eyebrow">Quick feedback</p><h2 id="bug-report-title">Report a bug</h2></div><button type="button" className="bug-report-close" aria-label="Close bug report" onClick={close}>×</button></div>
+        <p>Describe what happened. We do not ask for your name, email, or any personal details.</p>
+        <form onSubmit={submit}>
+          <label htmlFor="bug-report-description">Bug details</label>
+          <textarea id="bug-report-description" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="For example: The Save button did not respond after I opened a blog post." minLength={10} maxLength={3000} required autoFocus />
+          <div className="bug-report-form-footer"><span>{description.trim().length}/3000</span><button className="button button-primary" type="submit" disabled={status === "sending"}>{status === "sending" ? "Saving..." : "Send report"}</button></div>
+          {message ? <p className={`bug-report-status is-${status}`} role="status">{message}</p> : null}
+        </form>
+      </section>
+    </div> : null}
+  </>;
+}
+
 type PageBackButtonProps = {
   fallbackHref: string;
   label?: string;
@@ -6346,6 +6428,7 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -7175,6 +7258,7 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -7460,6 +7544,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
                 Logout
               </button>
             ) : null}
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -7945,6 +8030,7 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
               Home
             </a>
             <PageBackButton fallbackHref={isSaiAssistantBuildPage ? "/active-builds" : "/"} label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -8393,6 +8479,7 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -8787,6 +8874,7 @@ function AiRadarPage({
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -9038,6 +9126,7 @@ function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -9160,6 +9249,7 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -9436,6 +9526,7 @@ function BlogArticlePage({
             >
               Back to blogs
             </button>
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -9647,6 +9738,7 @@ function SavedPostsPage({
               Home
             </a>
             <PageBackButton fallbackHref="/blogs" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -9852,6 +9944,7 @@ function ShelfPage({ theme, onThemeToggle }: ShelfPageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -10077,6 +10170,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/portfolio#top" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -10519,6 +10613,7 @@ function SignInPage({
             ) : (
               <PageBackButton fallbackHref="/portfolio#top" label="Back" />
             )}
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -10629,6 +10724,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
               Home
             </a>
             <PageBackButton fallbackHref="/portfolio#top" label="Back" />
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
@@ -12002,6 +12098,7 @@ function App() {
           </nav>
 
           <div className="header-actions">
+            <BugReportButton />
             <button
               className="theme-toggle"
               type="button"
