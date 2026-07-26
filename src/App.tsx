@@ -426,6 +426,15 @@ function getBlogPublishedIsoDate(publishedAt: string) {
 }
 
 function getBlogReadableText(post: BlogPost) {
+  const articleSections =
+    post.slug === "what-you-can-build-with-mcp-expense-tracker"
+      ? [mcpFundamentalsMarkdown]
+      : post.sections.flatMap((section) => [
+          section.heading,
+          ...section.paragraphs,
+          ...(section.bullets ?? []),
+        ]);
+
   return [
     post.title,
     post.category,
@@ -433,11 +442,7 @@ function getBlogReadableText(post: BlogPost) {
     ...post.tags,
     ...post.takeaways,
     ...post.stats.flatMap((stat) => [stat.label, stat.value]),
-    ...post.sections.flatMap((section) => [
-      section.heading,
-      ...section.paragraphs,
-      ...(section.bullets ?? []),
-    ]),
+    ...articleSections,
   ].join(" ");
 }
 
@@ -448,11 +453,7 @@ function getBlogWordCount(post: BlogPost) {
 }
 
 function getEstimatedReadMinutes(post: BlogPost) {
-  if (post.slug === "what-you-can-build-with-mcp-expense-tracker") {
-    return 12;
-  }
-
-  return Math.max(1, Math.ceil(getBlogWordCount(post) / 210));
+  return Math.max(1, Math.ceil(getEstimatedReadSeconds(post) / 60));
 }
 
 function getEstimatedReadTimeLabel(post: BlogPost) {
