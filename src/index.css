@@ -23434,7 +23434,14 @@ html[data-header-visibility="hidden"] .article-site-header {
 /* On phones, subpages use only simple left/right navigation instead of a header card. */
 @media (max-width: 720px) {
   .article-site-header {
+    position: fixed !important;
+    inset: 0 0 auto !important;
+    z-index: 120 !important;
+    width: 100% !important;
+    height: 0 !important;
+    min-height: 0 !important;
     margin-top: 0 !important;
+    overflow: visible !important;
     border: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
@@ -23443,8 +23450,11 @@ html[data-header-visibility="hidden"] .article-site-header {
 
   .article-header-shell {
     display: block !important;
-    min-height: 3.35rem !important;
-    padding: .28rem .72rem !important;
+    width: 100% !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
@@ -23464,8 +23474,12 @@ html[data-header-visibility="hidden"] .article-site-header {
 
   .article-header-actions {
     display: flex !important;
+    position: absolute !important;
+    top: max(.55rem, env(safe-area-inset-top, 0px)) !important;
+    right: .72rem !important;
+    left: .72rem !important;
     justify-content: space-between !important;
-    width: 100% !important;
+    width: auto !important;
     max-width: none !important;
     min-width: 0 !important;
     overflow: visible !important;
@@ -23503,5 +23517,11 @@ html[data-header-visibility="hidden"] .article-site-header {
     font-size: 1.45rem;
     font-weight: 700;
     line-height: 1;
+  }
+
+  html[data-header-visibility="hidden"] .article-header-actions {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4rem);
   }
 }
