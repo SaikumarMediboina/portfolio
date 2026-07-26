@@ -23431,44 +23431,66 @@ html[data-header-visibility="hidden"] .article-site-header {
   }
 }
 
-/* On phones, subpage headers stay focused: the SK mark and one reliable Back action. */
+/* On phones, subpages use only simple left/right navigation instead of a header card. */
 @media (max-width: 720px) {
-  .article-header-shell {
-    grid-template-columns: auto minmax(0, 1fr) !important;
-    min-height: 3.8rem !important;
-    padding: .48rem .58rem !important;
+  .article-site-header {
+    margin-top: 0 !important;
   }
 
-  .article-header-shell .brand-copy {
-    display: none !important;
+  .article-header-shell {
+    display: block !important;
+    min-height: 3.35rem !important;
+    padding: .28rem .72rem !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
   .article-header-shell .brand {
-    min-width: auto !important;
-  }
-
-  .article-header-shell .brand-mark {
-    width: 2.75rem;
-    height: 2.75rem;
+    display: none !important;
   }
 
   .article-header-actions {
     display: flex !important;
-    justify-content: flex-end !important;
+    justify-content: space-between !important;
+    width: 100% !important;
     max-width: none !important;
     min-width: 0 !important;
     overflow: visible !important;
   }
 
-  .article-header-actions > :not(.page-back-button):not(.article-back-button) {
+  .article-header-actions > :not(a.button):not(.page-back-button):not(.article-back-button) {
     display: none !important;
   }
 
+  .article-header-actions > a.button,
   .article-header-actions .page-back-button,
   .article-header-actions .article-back-button {
     display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2.7rem;
+    min-width: 2.7rem;
     min-height: 2.7rem !important;
-    padding-inline: .88rem !important;
-    white-space: nowrap;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    font-size: 0 !important;
+    line-height: 1;
+  }
+
+  .article-header-actions > a.button::before {
+    content: "⌂";
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .article-header-actions .page-back-button::before,
+  .article-header-actions .article-back-button::before {
+    content: "←";
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1;
   }
 }
