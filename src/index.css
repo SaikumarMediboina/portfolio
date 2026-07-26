@@ -17527,6 +17527,20 @@ body {
   color: var(--ink) !important;
 }
 
+:root:not([data-theme="dark"]) .collaboration-secondary {
+  border-color: color-mix(in srgb, var(--accent) 46%, var(--readable-border)) !important;
+  background: color-mix(in srgb, var(--accent) 12%, #fffaf5) !important;
+  color: var(--accent-deep) !important;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 15%, transparent) !important;
+}
+
+:root:not([data-theme="dark"]) .collaboration-secondary:hover,
+:root:not([data-theme="dark"]) .collaboration-secondary:focus-visible {
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 20%, #fffaf5) !important;
+  color: var(--accent-deep) !important;
+}
+
 :root:not([data-theme="dark"]) .collaboration-signal-card {
   border-color: var(--readable-border) !important;
   background:

@@ -448,6 +448,10 @@ function getBlogWordCount(post: BlogPost) {
 }
 
 function getEstimatedReadMinutes(post: BlogPost) {
+  if (post.slug === "what-you-can-build-with-mcp-expense-tracker") {
+    return 12;
+  }
+
   return Math.max(1, Math.ceil(getBlogWordCount(post) / 210));
 }
 
