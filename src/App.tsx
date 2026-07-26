@@ -5308,9 +5308,106 @@ def add_expense(amount: str, category: str, description: str):
   );
 }
 
+const mcpArchitectureParts = [
+  ["User", "Makes a natural-language request such as ‘Add ₹350 for lunch under food.’"],
+  ["MCP Host", "The application that contains both the AI Model and the MCP Client."],
+  ["AI Model", "Understands the request and selects an allowed capability. It never gets direct SQLite access."],
+  ["MCP Client", "Sends and receives MCP messages for the Host."],
+  ["Expense Tracker MCP Server", "Validates arguments, applies business rules, and executes the requested tool."],
+  ["SQLite Database", "Stores validated expense records. SQLite is the server’s storage layer, not part of MCP."],
+] as const;
+
+const mcpRequestSteps = [
+  "The user sends: ‘I spent ₹350 on lunch. Add it under food.’",
+  "The Model extracts amount 350, category food, and description Lunch.",
+  "The Model selects the add_expense tool.",
+  "The MCP Client sends a tools/call message over stdio.",
+  "The MCP Server validates the arguments and allowed category.",
+  "The Server converts ₹350.00 into 35,000 paise.",
+  "SQLite stores the validated record.",
+  "The result returns to the Host through the MCP Client.",
+  "The Host confirms that Lunch was added for ₹350.00.",
+] as const;
+
+function McpCodeBlock({ code, label }: { code: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  const copyCode = async () => {
+    await navigator.clipboard?.writeText(code);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
+  return (
+    <div className="mcp-code-block">
+      <div><span>{label}</span><button type="button" onClick={copyCode}>{copied ? "Copied" : "Copy code"}</button></div>
+      <pre><code>{code}</code></pre>
+    </div>
+  );
+}
+
+function McpArchitecture() {
+  const [selected, setSelected] = useState(0);
+  const [name, detail] = mcpArchitectureParts[selected];
+  return (
+    <section className="mcp-section mcp-wide-section" aria-labelledby="mcp-architecture-title">
+      <p className="mcp-kicker">05 · Architecture</p><h2 id="mcp-architecture-title">MCP Architecture in This Project</h2>
+      <p>The Host contains the Model and Client. The Model chooses a capability; the Client communicates; the Server owns validation and database access.</p>
+      <div className="mcp-architecture">
+        <div className="mcp-architecture-map" aria-label="Expense Tracker MCP architecture">
+          <button type="button" className={selected === 0 ? "is-selected" : ""} onClick={() => setSelected(0)}>User</button>
+          <span aria-hidden="true">↓</span>
+          <div className={`mcp-host-node${selected === 1 ? " is-selected" : ""}`}><button type="button" onClick={() => setSelected(1)}>MCP Host</button><div><button type="button" className={selected === 2 ? "is-selected" : ""} onClick={() => setSelected(2)}>AI Model</button><button type="button" className={selected === 3 ? "is-selected" : ""} onClick={() => setSelected(3)}>MCP Client</button></div></div>
+          <span aria-hidden="true">↓ JSON-RPC over stdio</span>
+          <button type="button" className={selected === 4 ? "is-selected" : ""} onClick={() => setSelected(4)}>Expense Tracker MCP Server</button>
+          <span aria-hidden="true">↓</span>
+          <button type="button" className={selected === 5 ? "is-selected" : ""} onClick={() => setSelected(5)}>SQLite Database</button>
+        </div>
+        <aside className="mcp-architecture-detail" aria-live="polite"><span>Selected component</span><h3>{name}</h3><p>{detail}</p></aside>
+      </div><p>Notice the boundary: SQLite is deliberately below the MCP Server. The Model never receives a database connection or permission to construct arbitrary SQL. The Server is the only component that can turn a validated tool call into a parameterized database operation. Select any component above for its role in the boundary.</p>
+    </section>
+  );
+}
+
+function McpRequestFlow() {
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const reducedMotion = useReducedMotion();
+  useEffect(() => {
+    if (!playing || reducedMotion) return undefined;
+    const timer = window.setTimeout(() => setStep((current) => {
+      if (current === mcpRequestSteps.length - 1) { setPlaying(false); return current; }
+      return current + 1;
+    }), 1450);
+    return () => window.clearTimeout(timer);
+  }, [playing, step, reducedMotion]);
+  return (
+    <section className="mcp-section mcp-wide-section" aria-labelledby="mcp-flow-title">
+      <p className="mcp-kicker">06 · Request flow</p><h2 id="mcp-flow-title">Add ₹350 for Lunch: Complete Request Flow</h2><p className="mcp-request">“I spent ₹350 on lunch. Add it under food.”</p>
+      <div className="mcp-flow-panel" aria-live="polite"><ol>{mcpRequestSteps.map((item, index) => <li className={index === step ? "is-current" : index < step ? "is-done" : ""} key={item}><span>{index + 1}</span><p>{item}</p></li>)}</ol>
+        <div className="mcp-flow-controls"><button type="button" onClick={() => setPlaying((value) => !value)} disabled={reducedMotion || step === mcpRequestSteps.length - 1}>{playing ? "Pause" : "Play"}</button><button type="button" onClick={() => setStep((current) => Math.min(current + 1, mcpRequestSteps.length - 1))} disabled={step === mcpRequestSteps.length - 1}>Next step</button><button type="button" onClick={() => { setPlaying(false); setStep(0); }}>Reset</button></div>
+      </div><p className="mcp-flow-summary">The Model selects. The Client communicates. The Server validates and executes. SQLite stores.</p><p>At no point does the user’s sentence become a database command. It first becomes a tool choice and structured arguments. The server can reject a missing description, an unsupported category, an invalid amount, or a deletion without confirmation. That is what makes the flow suitable for real application logic rather than a simple text demonstration.</p>
+    </section>
+  );
+}
+
+function McpFundamentalsArticle() {
+  const serverCode = `@mcp.tool()\ndef add_expense(amount: str, category: str, description: str):\n    amount_paise = to_paise(amount)\n    return db.create_expense(amount_paise, category, description)`;
+  const terminalCode = `PS C:\\...\\expense-tracker-mcp> uv run --no-sync python terminal_app.py\n\nExpense Tracker is ready. Type help for examples; type exit to close.\n\nexpense> add 350 Lunch under food\n{\n  "message": "Expense added successfully.",\n  "expense": {\n    "id": 1,\n    "amount_paise": 35000,\n    "category": "food",\n    "description": "Lunch",\n    "amount": "₹350.00"\n  }\n}\n\nexpense> add ₹1,200 Electricity bill under bills via bank_transfer\n{\n  "message": "Expense added successfully.",\n  "expense": {\n    "id": 2,\n    "amount_paise": 120000,\n    "category": "bills",\n    "description": "Electricity bill",\n    "amount": "₹1,200.00"\n  }\n}\n\nexpense> list\n{\n  "count": 2,\n  "total": "₹1,550.00"\n}\n\nexpense> total 2026-07\n{\n  "month": "2026-07",\n  "expense_count": 2,\n  "total": "₹1,550.00"\n}\n\nexpense> breakdown 2026-07\n{\n  "bills": "₹1,200.00 (77.42%)",\n  "food": "₹350.00 (22.58%)"\n}\n\nexpense> delete 1\nDeletion needs explicit confirmation.\n\nexpense> delete 1 confirm\nExpense deleted successfully.`;
+  return <div className="mcp-article-experience">
+    <section className="mcp-premium-hero"><p className="mcp-kicker">MCP Fundamentals · Practical Project</p><h1>Build AI Applications That Can Take Real Action</h1><p>MCP lets AI applications work with GitHub, databases, files, calendars, and business tools—not only generate text.</p><ul><li>“Find the login bug and prepare a pull request.”</li><li>“Add ₹350 for lunch under food.”</li><li>“Show this month’s spending.”</li><li>“Search approved company documentation.”</li></ul><strong>Learn MCP through a working Expense Tracker.</strong></section>
+    <section className="mcp-section"><p className="mcp-kicker">02 · Possibilities</p><h2>What Can You Build with MCP?</h2><p>MCP connects AI applications to controlled real-world capabilities. A GitHub assistant can search code and run tests, a support assistant can create a ticket, and a knowledge assistant can read approved documentation. Each integration has a structured interface instead of asking a model to improvise against an internal system.</p><p>That structure matters when actions have consequences. The application can show a clear tool name, ask for approval where appropriate, limit what data is exposed, and return a result that the user can understand. MCP is useful wherever natural language needs to become a deliberate, auditable operation.</p></section>
+    <section className="mcp-section"><p className="mcp-kicker">03 · Foundation</p><h2>What Is MCP?</h2><p>Model Context Protocol is a standard for connecting an AI application to tools, data, and reusable workflows. It does not grant unrestricted access: the developer exposes intended capabilities, and the server checks every request before it reaches a real system.</p><p>Think of MCP as the agreement between an application and a capability provider. The server describes what it can do, the client sends a typed request, and the server returns a structured response. A model may help decide which capability is useful, but it does not bypass the contract.</p><p>An AI model can understand a sentence; MCP gives the surrounding application a safe way to take action.</p></section>
+    <section className="mcp-section"><p className="mcp-kicker">04 · Working project</p><h2>Meet the Expense Tracker</h2><p>This Python project exposes focused MCP tools for adding, listing, reporting on, updating, and safely deleting expenses. <code>server.py</code> defines tools, <code>database.py</code> owns parameterized SQLite work, <code>money.py</code> stores exact integer paise, and <code>terminal_app.py</code> acts as a simple local Host and MCP Client.</p><p>The tools are intentionally narrow: add an expense, list expenses, calculate a monthly total, break spending down by category, update a record, or delete only after explicit confirmation. Narrow tools make the allowed behavior clear for both the AI Host and the person using it.</p><p>The money representation is a practical example of why server-side rules matter. Currency values are parsed with Decimal and stored as integer paise, so ₹350.00 becomes 35,000. Totals and category percentages are calculated from exact stored values, not floating-point approximations or a model’s guess.</p><McpCodeBlock label="server.py" code={serverCode} /></section>
+    <McpArchitecture /><McpRequestFlow />
+    <section className="mcp-section"><p className="mcp-kicker">07 · Building blocks</p><h2>Tools, Resources, and Prompts</h2><p className="mcp-callout">Tools do. Resources inform. Prompts guide.</p><p>These are three different MCP primitives. A tool can change state or run a calculation, so it should have well-defined arguments and safety rules. A resource is for read-only context that a Host can fetch without pretending it is an operation. A prompt packages a repeatable workflow, such as analysing spending without changing any records.</p><div className="mcp-capability-grid"><article><h3>Tool</h3><p>Performs an operation.</p><code>add_expense</code></article><article><h3>Resource</h3><p>Provides read-only context.</p><code>expenses://current-month/summary</code></article><article><h3>Prompt</h3><p>Guides a reusable workflow.</p><code>analyze_monthly_spending</code></article></div></section>
+    <section className="mcp-section mcp-wide-section"><p className="mcp-kicker">08 · Run it locally</p><h2>Real Terminal Demo</h2><p><code>terminal_app.py</code> uses the real MCP Server through stdio. It does not use an AI model: it parses terminal commands and acts as the application and MCP Client. The same server can later connect to an AI Host.</p><p>This is useful for learning because it proves that MCP is not tied to a chat UI. The terminal client sends the same controlled tool calls a future AI application would send. You can verify validation, totals, category reporting, and the confirmation rule without npm, an Inspector, or an external service.</p><p>The last two commands demonstrate an important safety property. The first delete request is intentionally rejected because it lacks confirmation. Only the explicit follow-up is allowed to change data. This rule lives in the server, so it remains true whether the caller is a terminal client, an AI application, or a future web interface.</p><McpCodeBlock label="PowerShell" code={terminalCode} /></section>
+    <section className="mcp-section"><p className="mcp-kicker">09 · Beyond expenses</p><h2>What Else Can You Build?</h2><p>The data source and tools change, but the design stays stable: expose the smallest useful capability, validate inputs on the server, and return a structured result to the Host.</p><p>Start with one small, high-confidence workflow rather than an assistant that claims to do everything. For example, a repository assistant might begin with read-only code search and test execution before it can prepare a pull request. A calendar assistant might show availability before it can create an event. Capabilities can grow as the server rules, authentication, and approval experience become clear.</p><div className="mcp-ideas">{[["GitHub Assistant", "Search code and prepare pull requests."], ["Task Manager", "Create and update work items."], ["Customer Support Assistant", "Read approved data and create tickets."], ["Company Knowledge Assistant", "Search permitted documentation."], ["Database Analyst", "Run approved reports safely."], ["DevOps Assistant", "Inspect logs or run approved operations."], ["Calendar Assistant", "Find availability and schedule events."]].map(([name, text]) => <span key={name}><b>{name}</b>{text}</span>)}</div></section>
+    <section className="mcp-section mcp-key-takeaways"><p className="mcp-kicker">10 · Key takeaways</p><h2>Keep the responsibilities separate</h2><p>A useful MCP application is not an AI model with unlimited access to a system. It is a set of deliberately designed boundaries: a Host coordinates, a Model proposes, a Client communicates, and a Server remains responsible for every privileged action. That design makes behavior easier to test, reason about, and extend.</p><ul><li>The Model understands a goal and selects a capability.</li><li>The MCP Client communicates with the server.</li><li>The Server validates and executes trusted operations.</li><li>SQLite stores data; it is never exposed as unrestricted model access.</li></ul></section>
+  </div>;
+}
+
 function BlogArticleBody({ post }: BlogArticleBodyProps) {
   if (post.slug === MCP_EXPENSE_TRACKER_SLUG) {
-    return <McpExpenseTrackerExperience />;
+    return <McpFundamentalsArticle />;
   }
 
   return (
@@ -9155,7 +9252,7 @@ function BlogArticlePage({
           <div className="reading-progress-panel">
             <div className="shell reading-progress-shell">
               <ReadingProgressBar progress={readingProgress} />
-              <ReadingTimeLeftPill secondsLeft={readingSecondsLeft} />
+              {post.slug !== MCP_EXPENSE_TRACKER_SLUG ? <ReadingTimeLeftPill secondsLeft={readingSecondsLeft} /> : null}
             </div>
           </div>
         ) : null}
@@ -9219,7 +9316,7 @@ function BlogArticlePage({
             </div>
           </section>
         ) : post ? (
-          <article className="standalone-blog" ref={articleRef}>
+          <article className={`standalone-blog${post.slug === MCP_EXPENSE_TRACKER_SLUG ? " mcp-fundamentals-page" : ""}`} ref={articleRef}>
             <div className="standalone-blog-hero">
               <p className="eyebrow">Unlocked Article</p>
               <h1>{post.title}</h1>
