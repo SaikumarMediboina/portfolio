@@ -23352,3 +23352,81 @@ body {
 .home-mcp-banner { margin-block: clamp(1rem, 3vw, 2rem); }.home-mcp-banner-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: clamp(1rem, 3vw, 2rem); padding: clamp(1rem, 3vw, 1.6rem); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--panel-border)); border-radius: 20px; background: linear-gradient(110deg, color-mix(in srgb, var(--accent) 13%, var(--panel-soft)), var(--panel)); color: inherit; text-decoration: none; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }.home-mcp-banner-card:hover, .home-mcp-banner-card:focus-visible { border-color: var(--accent); box-shadow: 0 18px 38px color-mix(in srgb, var(--accent) 14%, transparent); outline: 0; transform: translateY(-2px); }.home-mcp-banner-mark { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border-radius: 14px; background: var(--accent); color: #fffaf6; font: 900 1rem "IBM Plex Mono", monospace; letter-spacing: -.06em; }.home-mcp-banner-copy .eyebrow { margin-bottom: .35rem; }.home-mcp-banner-copy h2 { max-width: 50rem; margin: 0; color: var(--ink-strong); font-size: clamp(1.25rem, 2.5vw, 1.8rem); line-height: 1.12; }.home-mcp-banner-copy > p:not(.eyebrow) { margin: .55rem 0 0; color: var(--ink-soft); line-height: 1.55; }.home-mcp-banner-tags { display: flex; flex-wrap: wrap; gap: .42rem; margin-top: .75rem; }.home-mcp-banner-tags span { padding: .26rem .48rem; border: 1px solid var(--chip-border); border-radius: 999px; color: var(--ink-soft); font-size: .72rem; font-weight: 750; }.home-mcp-banner-cta { display: inline-flex; align-items: center; gap: .45rem; color: var(--accent); font-weight: 850; white-space: nowrap; }.home-mcp-banner-cta b { font-size: 1.1em; transition: transform .2s ease; }.home-mcp-banner-card:hover .home-mcp-banner-cta b { transform: translateX(3px); }
 @media (max-width: 720px) { .home-mcp-banner-card { grid-template-columns: auto 1fr; gap: .85rem; border-radius: 16px; }.home-mcp-banner-mark { width: 3.4rem; height: 3.4rem; border-radius: 11px; font-size: .8rem; }.home-mcp-banner-copy h2 { font-size: 1.2rem; }.home-mcp-banner-cta { grid-column: 1 / -1; padding-top: .2rem; }.home-mcp-banner-copy > p:not(.eyebrow) { font-size: .92rem; } }
 @media (max-width: 720px) { .mcp-pasted-article { width: 100%; gap: 1.15rem; padding-top: .7rem; }.mcp-pasted-hero h1 { font-size: clamp(2rem, 11vw, 3rem); }.mcp-pasted-paragraph { font-size: 1rem; line-height: 1.72; }.mcp-pasted-quote { font-size: 1.02rem; }.mcp-pasted-article .mcp-code-block pre { font-size: .74rem; } }
+
+/* Shared reader behavior: every page header moves out on downward reading and returns on upward scroll. */
+.site-header,
+.article-site-header {
+  transition: transform 220ms ease, opacity 180ms ease !important;
+  will-change: transform;
+}
+
+html[data-header-visibility="hidden"] .site-header,
+html[data-header-visibility="hidden"] .article-site-header {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(calc(-100% - 1.5rem)) !important;
+}
+
+.blog-tag-list {
+  align-items: flex-start;
+}
+
+.blog-tag-toggle {
+  appearance: none;
+  min-height: 2rem;
+  padding: .26rem .58rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--panel-soft);
+  color: var(--ink-strong);
+  cursor: pointer;
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.blog-tag-toggle:hover,
+.blog-tag-toggle:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+@media (max-width: 720px) {
+  .standalone-blog.mcp-fundamentals-page {
+    min-width: 0;
+    padding-inline: .85rem;
+  }
+
+  .mcp-pasted-article,
+  .mcp-pasted-article > * {
+    min-width: 0;
+  }
+
+  .mcp-pasted-hero h1 {
+    font-size: clamp(1.8rem, 9vw, 2.65rem);
+    overflow-wrap: anywhere;
+  }
+
+  .mcp-pasted-article .mcp-code-block,
+  .mcp-pasted-article .mcp-code-block pre {
+    max-width: 100%;
+  }
+
+  .mcp-pasted-article .mcp-code-block pre {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .blog-tag-list {
+    gap: .42rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header,
+  .article-site-header {
+    transition: none !important;
+  }
+}

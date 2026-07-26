@@ -70,7 +70,7 @@ function useScrolled() {
   return isScrolled;
 }
 
-function useScrollHeaderVisibility() {
+function useScrollHeaderVisibility(syncDocument = false) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -104,6 +104,18 @@ function useScrollHeaderVisibility() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    if (!syncDocument) {
+      return undefined;
+    }
+
+    document.documentElement.dataset.headerVisibility = isVisible ? "visible" : "hidden";
+
+    return () => {
+      delete document.documentElement.dataset.headerVisibility;
+    };
+  }, [isVisible, syncDocument]);
 
   return isVisible;
 }
@@ -233,6 +245,18 @@ type SiteUpdate = {
 };
 
 const siteUpdates: SiteUpdate[] = [
+  {
+    category: "Featured article",
+    date: "2026-07-26",
+    href: "/blogs/what-you-can-build-with-mcp-expense-tracker",
+    title: "MCP Expense Tracker: real AI terminal walkthrough added",
+    summary:
+      "A featured hands-on article now shows the complete terminal to OpenAI model to MCP server flow, with a downloadable project.",
+    details: [
+      "The guide now distinguishes the local direct-MCP demo from the natural-language AI terminal host.",
+      "The download includes the server, both terminal clients, and safe API-key setup instructions.",
+    ],
+  },
   {
     category: "Access",
     date: "2026-05-20",
@@ -2523,8 +2547,9 @@ function BlogLockNote() {
 }
 
 function BlogTagList({ limit = 3, post }: { limit?: number; post: BlogPost }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const tags = getBlogPostTags(post);
-  const visibleTags = tags.slice(0, limit);
+  const visibleTags = isExpanded ? tags : tags.slice(0, limit);
   const hiddenTagCount = Math.max(tags.length - visibleTags.length, 0);
 
   return (
@@ -2532,7 +2557,21 @@ function BlogTagList({ limit = 3, post }: { limit?: number; post: BlogPost }) {
       {visibleTags.map((tag) => (
         <span key={`${post.slug}-${tag}`}>{tag}</span>
       ))}
-      {hiddenTagCount ? <span>+{hiddenTagCount}</span> : null}
+      {hiddenTagCount || isExpanded ? (
+        <button
+          aria-expanded={isExpanded}
+          aria-label={isExpanded ? `Show fewer ${post.title} tags` : `Show ${hiddenTagCount} more ${post.title} tags`}
+          className="blog-tag-toggle"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setIsExpanded((current) => !current);
+          }}
+          type="button"
+        >
+          {isExpanded ? "Show less" : `+${hiddenTagCount}`}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -6715,6 +6754,27 @@ function HomePage({
         </aside>
       </motion.section>
 
+      {mcpArticle ? (
+        <motion.section className="home-section shell home-mcp-banner" {...sectionAnimationProps}>
+          <a
+            className="home-mcp-banner-card"
+            href={getBlogArticleHref(mcpArticle.slug)}
+            onClick={() => onTrackBlogOpen(mcpArticle, "home_mcp_banner")}
+          >
+            <div className="home-mcp-banner-mark" aria-hidden="true">MCP</div>
+            <div className="home-mcp-banner-copy">
+              <p className="eyebrow">Featured article · MCP Fundamentals</p>
+              <h2>{mcpArticle.title}</h2>
+              <p>{mcpArticle.summary}</p>
+              <div className="home-mcp-banner-tags" aria-label="Article topics">
+                <span>Python</span><span>SQLite</span><span>AI tools</span>
+              </div>
+            </div>
+            <span className="home-mcp-banner-cta">Read article <b aria-hidden="true">→</b></span>
+          </a>
+        </motion.section>
+      ) : null}
+
       <motion.section className="home-section shell home-lanes" id="about" {...sectionAnimationProps}>
         <div className="home-section-heading">
           <p className="eyebrow">Start Fast</p>
@@ -6791,27 +6851,6 @@ function HomePage({
           <a href={latestUpdate?.href ?? "/whats-new"}>Open what's new</a>
         </div>
       </motion.section>
-
-      {mcpArticle ? (
-        <motion.section className="home-section shell home-mcp-banner" {...sectionAnimationProps}>
-          <a
-            className="home-mcp-banner-card"
-            href={getBlogArticleHref(mcpArticle.slug)}
-            onClick={() => onTrackBlogOpen(mcpArticle, "home_mcp_banner")}
-          >
-            <div className="home-mcp-banner-mark" aria-hidden="true">MCP</div>
-            <div className="home-mcp-banner-copy">
-              <p className="eyebrow">New article · MCP Fundamentals</p>
-              <h2>{mcpArticle.title}</h2>
-              <p>{mcpArticle.summary}</p>
-              <div className="home-mcp-banner-tags" aria-label="Article topics">
-                <span>Python</span><span>SQLite</span><span>AI tools</span>
-              </div>
-            </div>
-            <span className="home-mcp-banner-cta">Read article <b aria-hidden="true">→</b></span>
-          </a>
-        </motion.section>
-      ) : null}
 
       <motion.section className="home-section shell home-writing" {...sectionAnimationProps}>
         <div className="home-section-heading">
@@ -10651,6 +10690,7 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 
 function App() {
   const isScrolled = useScrolled();
+  useScrollHeaderVisibility(true);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
