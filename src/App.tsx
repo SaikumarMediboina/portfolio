@@ -5505,12 +5505,38 @@ function renderMcpMarkdownInline(value: string, key: string) {
   });
 }
 
-function McpProjectDownload() {
+function McpProjectDownloadCard() {
   const directSetupCode = `# 1. Download and extract expense-tracker-mcp.zip\n# 2. Open PowerShell in the extracted folder\ncd expense-tracker-mcp\n\n# 3. Install dependencies\nuv sync --all-groups\n\n# 4. Start the direct MCP terminal client (no AI or API key required)\nuv run --no-sync python terminal_app.py\n\n# 5. Try these fixed commands in the app\nadd 350 Lunch under food\nlist\ntotal 2026-07\nbreakdown 2026-07\ndelete 1\ndelete 1 confirm`;
   const aiSetupCode = `# 1. Set your OpenAI API key only for this PowerShell window\n$env:OPENAI_API_KEY = "your_api_key_here"\n\n# 2. Start the AI-powered MCP Host\nuv run --no-sync python ai_terminal_app.py\n\n# 3. Type normal language in the app\nAdd INR 350 for lunch under food\nShow my spending breakdown for 2026-07\nDelete expense 1\nYes, delete expense 1`;
   const setupCode = `${directSetupCode}\n\n# Optional: run the real AI + MCP flow\n${aiSetupCode}`;
   const checksCode = `# Run project checks\nuv run ruff check .\nuv run pytest\n\n# Start the MCP server for an MCP-compatible AI application\nuv run expense-tracker-mcp`;
   return <section className="mcp-download-section mcp-pasted-download"><p className="mcp-kicker">Build it yourself</p><h2>Download and run the Expense Tracker project</h2><p>Download the complete Python source project. The ZIP includes the MCP server, interactive terminal client, tests, documentation, and dependency lock file. It does not include anyone’s local expense database.</p><a className="mcp-download-link" href="/downloads/expense-tracker-mcp.zip" download>Download Expense Tracker MCP · ZIP</a><h3>Prerequisites</h3><ul><li>Windows, macOS, or Linux with Python 3.11 or later.</li><li><code>uv</code> for installing and running the locked Python dependencies.</li></ul><McpCodeBlock label="PowerShell · install uv (only if needed)" code={`winget install --id=astral-sh.uv -e\n\n# Close PowerShell completely, then open a new window.\nuv --version`} /><h3>Run it locally</h3><McpCodeBlock label="PowerShell · setup and interactive demo" code={setupCode} /><p>The terminal client calls the real MCP server over stdio. It does not need an AI model, npm, an Inspector, or a proxy. When you are ready to connect an AI application, start the server with the command below.</p><McpCodeBlock label="PowerShell · checks and MCP server" code={checksCode} /><p>If PowerShell says <code>uv</code> is not recognized, the installation succeeded but the terminal has not picked up the new PATH yet—close it, open a new PowerShell window, and run <code>uv --version</code> again.</p></section>;
+}
+
+function McpProjectFileMap() {
+  const files = [
+    ["AI Host", "ai_terminal_app.py", "Accepts natural language and lets the AI model choose a permitted MCP tool."],
+    ["Direct terminal demo", "terminal_app.py", "Runs the same MCP tools from fixed terminal commands; no AI key is needed."],
+    ["MCP Server", "src/expense_tracker_mcp/server.py", "Defines the focused expense tools exposed to an MCP Host."],
+    ["Database layer", "src/expense_tracker_mcp/database.py", "Performs the trusted SQLite reads and writes."],
+    ["Validation and money", "validation.py · money.py", "Checks inputs and converts rupees into exact integer paise."],
+    ["Tests and guide", "tests/ · README.md · LEARNING_GUIDE.md", "Explains the project and verifies its core behavior."],
+  ];
+
+  return <section className="mcp-project-file-map" aria-labelledby="mcp-project-file-map-title">
+    <p className="mcp-kicker">Project file reference</p>
+    <h2 id="mcp-project-file-map-title">Where is each MCP part in the download?</h2>
+    <p>After extracting the ZIP, use this map to connect the architecture in the article to the actual Python files.</p>
+    <div className="mcp-project-file-map-grid" role="list">
+      {files.map(([part, file, purpose]) => <article key={file} role="listitem">
+        <span>{part}</span><code>{file}</code><p>{purpose}</p>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function McpProjectDownload() {
+  return <><McpProjectDownloadCard /><McpProjectFileMap /></>;
 }
 
 function McpPastedArticle() {

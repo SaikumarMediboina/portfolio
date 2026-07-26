@@ -1,313 +1,234 @@
-# What Can You Build with MCP? Learn Through an Expense Tracker
+# What Is MCP? Learn It Through an Expense Tracker
 
-Before defining MCP, imagine what an AI assistant could do if it could safely work with real applications.
+Before learning the definition, start with one question.
 
-It could:
+**Can an AI assistant automatically see the files on your computer?**
 
-```text
-Read files from a project
-Search a GitHub repository
-Run tests and create a pull request
-Add and complete personal tasks
-Query a business database
-Create support tickets
-Read internal documentation
-Generate reports from live data
-Schedule meetings
-Track personal expenses
-```
+No.
 
-For example, you could say:
+**Can it automatically open your GitHub repository, read your database, or add an expense?**
 
-> “Find the login bug in my repository, fix it, run the tests, and prepare a pull request.”
+No.
 
-Or:
+An AI model can understand language, reason about a request, and suggest an answer. But it does not automatically have permission to use your files, databases, APIs, or applications.
 
-> “Show this month’s expenses and tell me where I spent the most.”
+For example, you can say:
 
-The AI model can understand these requests, but understanding alone is not enough. It needs a safe and structured way to communicate with GitHub, databases, files, calendars, and other systems.
+> "Add INR 350 for lunch under food."
 
-That is what MCP provides.
-
-> **MCP turns an AI application from something that only answers questions into something that can work with real tools and data.**
-
-In this article, we will understand MCP through a simple Expense Tracker.
+The AI understands the sentence. Understanding alone is not enough: a real application still needs to validate the amount, store it safely, and return a result. That is where MCP comes in.
 
 ---
 
-## What Is MCP?
+## The Problem
 
-MCP stands for **Model Context Protocol**.
+Imagine asking an AI assistant:
 
-It is a standard way for an AI application to connect to external tools, data, and services.
+> "Show this month's expenses and tell me where I spent the most."
 
-In simple terms:
+Without an approved connection to your expense data, the assistant can only ask you to share the data. It cannot see your SQLite database, run your Expense Tracker, or change anything on its own.
 
-> **MCP gives an AI application a controlled way to use capabilities outside the AI model.**
+The same issue appears with many real systems.
 
-MCP does not make the model smarter.
+* Files on your computer
+* GitHub repositories
+* Databases
+* Slack workspaces
+* Google Drive folders
+* Internal APIs
+* Personal tools such as an Expense Tracker
 
-Instead, it gives the application a common communication method for accessing useful capabilities.
-
-For example:
-
-```text
-AI understands:
-“Add ₹350 for lunch.”
-
-MCP connects the application to:
-add_expense(...)
-
-Expense Tracker Server:
-Validates and saves the expense
-```
+An AI application needs a controlled connection to those systems.
 
 ---
 
-## Our Expense Tracker Example
+## MCP Is the Solution
 
-Imagine you tell an AI assistant:
+MCP means **Model Context Protocol**.
 
-> “I spent ₹350 on lunch. Add it under food.”
+> **MCP is a common communication standard that lets an AI application safely connect to external tools, data, and services.**
 
-The AI understands:
-
-```json
-{
-  "amount": "350",
-  "category": "food",
-  "description": "Lunch"
-}
-```
-
-But the expense still needs to be:
-
-* validated,
-* converted into a safe money format,
-* stored in a database,
-* and returned as a confirmed result.
-
-The AI model should not receive unrestricted database access.
-
-Instead, it uses the Expense Tracker MCP Server.
-
----
-
-## MCP Architecture in This Project
-
-Our example contains these components:
-
-```text
-User
-  ↓
-MCP Host
-  ├── AI Model
-  └── MCP Client
-          ↓
-    MCP messages over stdio
-          ↓
-Expense Tracker MCP Server
-          ↓
-SQLite Database
-```
-
-Let us understand each part.
-
-### User
-
-The user speaks naturally:
-
-> “Add ₹350 for lunch under food.”
-
-The user does not need to know Python, SQL, or MCP message formats.
-
-### MCP Host
-
-The Host is the application the user interacts with.
-
-It coordinates the complete workflow. It can:
-
-* communicate with the AI model,
-* manage MCP Client connections,
-* display tool requests,
-* ask for approval,
-* and show the final result.
-
-### AI Model
-
-The model understands the user’s request.
-
-It decides that the user wants to create an expense and selects the appropriate capability.
-
-The model decides what should happen, but it does not directly modify SQLite.
-
-### MCP Client
-
-The MCP Client lives inside the Host.
-
-It communicates with the MCP Server using structured protocol messages.
-
-For this request, it sends a tool call to the Expense Tracker Server.
-
-### MCP Server
-
-The Expense Tracker MCP Server contains the trusted application logic.
-
-It knows how to:
-
-```text
-Add an expense
-List stored expenses
-Calculate monthly totals
-Group spending by category
-Update an expense
-Delete an expense safely
-```
-
-### SQLite
-
-SQLite stores the expense records.
-
-SQLite is not MCP. It is an external system used by the MCP Server.
-
-### Where are these parts in our Expense Tracker code?
-
-Here is the same architecture mapped to the actual project files.
+Think of it like a translator. Two people who speak different languages need a translator to communicate.
 
 ```text
 You
-  = the person typing a message in the terminal
-
-MCP Host + MCP Client
-  = ai_terminal_app.py
-
-AI Model
-  = the OpenAI model that understands the message
-
-MCP Server
-  = src/expense_tracker_mcp/server.py
-
-MCP Tools
-  = add_expense, list_expenses, get_monthly_total,
-    category_breakdown, update_expense, delete_expense
-
-Database code
-  = src/expense_tracker_mcp/database.py
-
-Database file
-  = data/expenses.sqlite3
-
-Safety checks
-  = validation.py and money.py
+  ↓
+Translator
+  ↓
+Another person
 ```
 
-For example, when you type:
-
-> “Add ₹350 for lunch under food.”
-
-The flow is:
+MCP plays the same role between an AI application and an external system.
 
 ```text
-You type a message
+AI application
   ↓
-ai_terminal_app.py
+MCP
   ↓
-OpenAI model chooses add_expense
-  ↓
-server.py checks the amount and category
-  ↓
-database.py saves it in SQLite
-  ↓
-The result comes back to your terminal
+Files, GitHub, APIs, databases, or another application
 ```
 
-There is also a simpler learning version called `terminal_app.py`. It is a Host and MCP Client too, but it does not use AI. It only understands fixed commands such as `add 350 Lunch under food`.
+MCP is not an AI model. It is not ChatGPT, Claude, or Cursor. It is the agreement that lets compatible software exchange structured requests and results.
 
 ---
 
-## Adding an Expense: Complete Flow
+## What Does “Protocol” Mean?
 
-The user says:
+A protocol is simply a set of rules for communication.
 
-> “I spent ₹350 on lunch. Add it under food.”
+* Browsers and websites use HTTP.
+* Email systems use SMTP.
+* File transfer can use FTP.
+* AI applications and external tools can use MCP.
 
-### Step 1: The AI understands the request
+Before MCP, each AI application often needed a separate custom integration for every system.
 
-The model extracts:
+```text
+AI application → GitHub integration
+AI application → Google Drive integration
+AI application → Slack integration
+AI application → Database integration
+AI application → Expense Tracker integration
+```
+
+With MCP, a system can expose its capabilities once through an MCP server. Any compatible host can communicate with it using the same protocol.
+
+```text
+GitHub MCP Server
+Filesystem MCP Server
+Database MCP Server
+Expense Tracker MCP Server
+          ↓
+      MCP standard
+          ↓
+AI applications
+```
+
+---
+
+## Meet Our Expense Tracker
+
+Our Expense Tracker stores expenses in a local SQLite database. Its direct terminal version accepts a fixed command such as:
+
+```text
+add 350 Lunch under food
+```
+
+That creates a record like this.
 
 ```json
 {
-  "amount_rupees": "350",
+  "id": 1,
+  "amount": "₹350.00",
   "category": "food",
   "description": "Lunch",
   "payment_method": "upi"
 }
 ```
 
-No database operation has happened yet.
+Now imagine using natural language instead:
+
+> "I spent INR 350 on lunch today. Add it under food."
+
+The AI can understand the request, but it should not receive unrestricted SQLite access. Instead, it asks our Expense Tracker MCP Server to use one focused, approved tool.
+
+```text
+You
+  ↓
+AI application
+  ↓
+Expense Tracker MCP Server
+  ↓
+SQLite database
+```
+
+---
+
+## Host, Client, and Server
+
+MCP has three important roles.
+
+```text
++--------------------------------------+
+|              MCP Host                |
+|                                      |
+|  AI model                            |
+|  MCP Client                          |
++------------------↓-------------------+
+                   ↓ MCP protocol
+          Expense Tracker MCP Server
+                   ↓
+             SQLite database
+```
+
+### The Host
+
+The **Host** is the AI application that you interact with. It receives the request, coordinates the AI model, manages MCP connections, shows approvals, and displays the result.
+
+In our project, `ai_terminal_app.py` is a small AI-powered Host. It accepts natural language in the terminal and lets an OpenAI model choose from the tools exposed by the local MCP server.
+
+### The MCP Client
+
+The **MCP Client** lives inside the Host. It is not normally a separate application that the user opens.
+
+Its job is to connect to one server, send structured requests, receive responses, and maintain the connection. A Host can create one client connection for each server it uses.
+
+### The MCP Server
+
+The **MCP Server** exposes useful capabilities. Our Expense Tracker MCP Server knows how to validate data, work with SQLite, enforce safety rules, and return structured results.
+
+```text
+add_expense()
+list_expenses()
+get_monthly_total()
+category_breakdown()
+update_expense()
+delete_expense()
+```
+
+---
+
+## Add an Expense: Complete Flow
+
+You type:
+
+> "I spent INR 350 on lunch today. Add it under food."
+
+### Step 1: The Host receives the request
+
+The AI model understands that this is an expense-creation request.
+
+```text
+You
+  ↓
+AI Host
+```
 
 ### Step 2: The model selects a Tool
 
-The Expense Tracker Server exposes a Tool called:
+The server exposes a tool named `add_expense`. The model decides that this is the right capability for the user's request. It does not write a SQL statement.
 
-```text
-add_expense
-```
-
-The model sees that this Tool can create a new expense.
-
-> **Tools perform operations.**
-
-### Step 3: The MCP Client sends the request
-
-A simplified MCP request looks like this:
+### Step 3: The Client sends structured arguments
 
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
-    "name": "add_expense",
-    "arguments": {
-      "amount_rupees": "350",
-      "category": "food",
-      "description": "Lunch",
-      "payment_method": "upi"
-    }
+  "tool": "add_expense",
+  "arguments": {
+    "amount": 350,
+    "category": "food",
+    "description": "Lunch",
+    "payment_method": "upi"
   }
 }
 ```
 
-This message means:
+### Step 4: The Server validates the request
 
-```text
-Run the add_expense Tool
-using these arguments.
-```
+Before changing data, the server checks the amount, category, description, payment method, and date. These are application rules written by the developer. The AI model cannot bypass them.
 
-### Step 4: The Server validates the data
+### Step 5: The Server stores money safely
 
-Before saving anything, the Server checks:
-
-```text
-Is the amount greater than zero?
-Does it have at most two decimal places?
-Is food an allowed category?
-Is the description empty?
-Is the payment method supported?
-Is the date valid?
-```
-
-These rules are defined by the application developer.
-
-The model cannot bypass them.
-
-### Step 5: The Server converts rupees to paise
-
-Money should not be stored as a floating-point value.
-
-The Server converts:
+The server converts money into integer paise before storing it.
 
 ```text
 ₹350.00
@@ -315,40 +236,19 @@ The Server converts:
 35,000 paise
 ```
 
-The database stores an integer:
+This avoids floating-point money errors.
 
-```text
-amount_paise = 35000
-```
+### Step 6: SQLite saves the record
 
-This keeps calculations accurate.
-
-### Step 6: SQLite stores the expense
-
-The MCP Server runs a safe, parameterized database operation.
-
-The model does not receive direct SQL access.
-
-SQLite stores a record such as:
-
-```text
-ID: 1
-Amount: 35000 paise
-Category: food
-Description: Lunch
-Payment method: upi
-```
+The MCP server uses the trusted database layer to save the validated expense.
 
 ### Step 7: The result returns to the user
-
-The Server returns:
 
 ```json
 {
   "message": "Expense added successfully.",
   "expense": {
     "id": 1,
-    "amount_paise": 35000,
     "amount": "₹350.00",
     "category": "food",
     "description": "Lunch"
@@ -356,64 +256,60 @@ The Server returns:
 }
 ```
 
-The AI application can now say:
-
-> “Your lunch expense of ₹350.00 has been added under food.”
+The AI application can now say: **“Added ₹350.00 for Lunch under Food.”**
 
 ---
 
-## Complete Request Flow
+## The Important Distinction
+
+People often say, “The AI added the expense.” That is convenient language, but the real responsibilities are different.
+
+* The **AI Model** understands the request and selects a useful tool.
+* The **Host** coordinates the interaction and user approval.
+* The **MCP Client** communicates with the server.
+* The **MCP Server** validates and performs the action.
+* **SQLite** stores the expense.
+
+> **The model decides what action is useful. The MCP Server safely performs the trusted operation.**
+
+The model only receives the capabilities that the server intentionally exposes. It does not automatically gain unrestricted access to a computer or database.
+
+---
+
+## Why Not Give the AI Direct Database Access?
+
+An application could technically call a database API directly. But that becomes difficult to manage when the application needs to support GitHub, databases, files, calendars, or many other systems.
+
+More importantly, direct access can be unsafe. A broad database connection could allow invalid amounts, unsafe queries, accidental deletion, or access to unrelated records.
+
+Our server exposes narrow operations instead.
 
 ```text
-User:
-“I spent ₹350 on lunch.”
+add_expense(...)
+get_monthly_total(...)
+update_expense(...)
+delete_expense(confirm=true)
+```
 
-        ↓
+The server owns validation, database queries, permissions, and confirmation requirements. For example, deleting an expense requires an explicit confirmation, even when an AI model is involved.
 
-AI Model:
-Understands the request
+```text
+delete expense 1
+→ Deletion needs explicit confirmation.
 
-        ↓
-
-AI Model:
-Selects add_expense
-
-        ↓
-
-MCP Client:
-Sends tools/call
-
-        ↓
-
-Expense Tracker MCP Server:
-Validates the arguments
-
-        ↓
-
-MCP Server:
-Converts ₹350 into 35,000 paise
-
-        ↓
-
-SQLite:
-Stores the record
-
-        ↓
-
-MCP Server:
-Returns the result
-
-        ↓
-
-Host:
-Shows confirmation to the user
+delete expense 1 confirm
+→ Expense deleted successfully.
 ```
 
 ---
 
-## What Can Our Expense Tracker MCP Server Do?
+## Tools, Resources, and Prompts
 
-Our server exposes six Tools:
+An MCP server can expose three important kinds of capabilities.
+
+### Tools
+
+Tools are executable actions.
 
 ```text
 add_expense
@@ -424,200 +320,112 @@ update_expense
 delete_expense
 ```
 
-This means a user can ask:
-
-> “Add ₹1,200 for the electricity bill.”
-
-> “Show all expenses from July 2026.”
-
-> “How much did I spend this month?”
-
-> “Which category has the highest spending?”
-
-> “Change expense 3 from travel to groceries.”
-
-> “Delete expense 3 after I confirm.”
-
-The model understands the language. The MCP Server performs the trusted operation.
-
----
-
-## Tools, Resources, and Prompts
-
-An MCP Server can expose three important types of capabilities.
-
-### Tools
-
-Tools perform operations.
-
-In our project:
-
-```text
-add_expense
-get_monthly_total
-update_expense
-delete_expense
-```
-
-A Tool may create data, retrieve data, run a calculation, or perform an external action.
-
 > **Tools do something.**
 
 ### Resources
 
-Resources provide contextual information.
-
-Our server exposes:
+Resources provide read-only context. For an Expense Tracker, they could provide available categories, a database schema, or the current month’s summary.
 
 ```text
-expenses://current-month/summary
+expense://categories
+expense://current-month-summary
+expense://database-schema
 ```
-
-It may return:
-
-```json
-{
-  "month": "2026-07",
-  "expense_count": 8,
-  "total": "₹6,450.00",
-  "highest_category": "bills"
-}
-```
-
-The Resource does not modify the database.
 
 > **Resources provide information.**
 
 ### Prompts
 
-Prompts provide reusable workflow instructions.
-
-Our server exposes:
-
-```text
-analyze_monthly_spending
-```
-
-It can guide the model to:
-
-```text
-Get the monthly total
-Get the category breakdown
-Find unusually large expenses
-Suggest realistic savings
-Never modify or delete data
-```
+Prompts are reusable workflow templates. For example, a monthly-review prompt could ask the model to fetch totals, find the largest category, and suggest savings without modifying any data.
 
 > **Prompts guide a workflow.**
 
 ---
 
-## Why Not Give the AI Direct Database Access?
+## Where Are These Parts in Our Expense Tracker?
 
-Direct SQLite access would give the application too much power.
-
-It could accidentally:
+The following reference maps the MCP architecture to the files in the downloadable project.
 
 ```text
-Run an unsafe SQL query
-Delete the wrong expense
-Store an invalid amount
-Access unrelated records
-Ignore confirmation rules
+You
+  = the person typing a message in the terminal
+
+AI Host + MCP Client
+  = ai_terminal_app.py
+
+AI Model
+  = OpenAI model selected by ai_terminal_app.py
+
+MCP Server
+  = src/expense_tracker_mcp/server.py
+
+MCP Tools
+  = add_expense, list_expenses, get_monthly_total,
+    category_breakdown, update_expense, delete_expense
+
+Database layer
+  = src/expense_tracker_mcp/database.py
+
+Database file
+  = data/expenses.sqlite3 (created locally when you run the app)
+
+Validation and money rules
+  = validation.py and money.py
+
+Direct terminal demo
+  = terminal_app.py
+
+AI + MCP terminal demo
+  = ai_terminal_app.py
 ```
-
-Instead, the MCP Server exposes narrow operations:
-
-```text
-add_expense(...)
-get_monthly_total(...)
-update_expense(...)
-delete_expense(confirm=true)
-```
-
-The developer controls:
-
-* accepted inputs,
-* validation rules,
-* database queries,
-* permissions,
-* and confirmation requirements.
-
-MCP standardizes the communication. The Server enforces the business rules.
 
 ---
 
-## Quick Understanding Check
+## Terminal Demos: Direct MCP and Real AI + MCP
 
-The user says:
+The project includes two terminal applications that use the same local MCP server and SQLite database.
 
-> “Add ₹500 for groceries.”
+### Direct MCP terminal demo
 
-Which component understands the sentence?
+`terminal_app.py` understands a small, predictable command format itself. It makes a real stdio MCP tool call, but it does not use an AI model.
 
-**AI Model**
-
-Which capability creates the expense?
-
-**`add_expense` Tool**
-
-Which component validates the amount?
-
-**Expense Tracker MCP Server**
-
-Which system stores the record?
-
-**SQLite**
-
-Which component sends the `tools/call` message?
-
-**MCP Client**
-
----
-
-## What Else Could You Build?
-
-The same MCP concepts can be used to build:
-
-```text
-GitHub Assistant
-Search code, read files, run tests, create pull requests
-
-Task Manager
-Create tasks, set priorities, complete work
-
-Customer Support Assistant
-Read orders, check refunds, create tickets
-
-Company Knowledge Assistant
-Search approved internal documents
-
-Database Analyst
-Run controlled queries and generate reports
-
-DevOps Assistant
-Read logs, inspect deployments, restart approved services
-
-Calendar Assistant
-Find free time and schedule meetings
-
-Content Publishing Assistant
-Draft, review, and publish website content
+```powershell
+uv run --no-sync python terminal_app.py
 ```
 
-The external system changes, but the pattern remains the same:
+```text
+expense> add 350 Lunch under food
+expense> add ₹1,200 Electricity bill under bills via bank_transfer
+expense> list
+expense> total 2026-07
+expense> breakdown 2026-07
+expense> delete 1
+expense> delete 1 confirm
+```
+
+This demo proves that the terminal client, MCP server, validation, and SQLite database are all working locally.
+
+### Real AI + MCP terminal demo
+
+`ai_terminal_app.py` is the real AI flow. The terminal acts as the Host, the OpenAI model chooses an allowed tool, the MCP Client sends that tool call to the local server over stdio, and the result returns for a helpful final answer.
 
 ```text
-User describes a goal
-        ↓
-Model selects a capability
-        ↓
-MCP Client sends a request
-        ↓
-MCP Server performs the operation
-        ↓
-Result returns to the application
+Your terminal message
+  ↓
+OpenAI model chooses an allowed tool
+  ↓
+Local MCP Host / Client sends the tool call over stdio
+  ↓
+Expense Tracker MCP Server validates the request
+  ↓
+SQLite reads or stores the data
+  ↓
+Tool result returns to the model
+  ↓
+Helpful answer appears in the terminal
 ```
+
+The AI model never receives a SQLite connection and cannot run arbitrary SQL. It can request only the focused MCP tools defined by the server.
 
 ---
 
@@ -632,82 +440,9 @@ The Host coordinates the workflow
 
 The MCP Client sends structured messages
 
-The MCP Server validates and performs the operation
+The MCP Server validates and executes trusted operations
 
 SQLite stores the data
 ```
 
-The key idea is:
-
-> **The model decides what action is useful, while the MCP Server safely performs the trusted operation.**
-
-And the three server capabilities are:
-
-```text
-Tool     → Performs an operation
-Resource → Provides context
-Prompt   → Guides a workflow
-```
-
-Most importantly:
-
-> **MCP lets you build AI applications that can safely work with real tools, real data, and real services—not just generate text.**
-
----
-
-## Terminal Demos: Direct MCP and Real AI + MCP
-
-The project includes two terminal applications. They use the same local MCP server and SQLite database, but they teach two different ideas.
-
-`terminal_app.py` is the direct MCP demo. It parses a small, predictable command format itself, then makes a real stdio MCP tool call. It does not use an AI model.
-
-```powershell
-uv run --no-sync python terminal_app.py
-```
-
-```text
-expense> add 350 Lunch under food
-expense> list
-expense> total 2026-07
-expense> delete 1
-expense> delete 1 confirm
-```
-
-The real AI flow is `ai_terminal_app.py`. Here the terminal is the MCP Host: it sends your natural-language message to an OpenAI model, gives the model the tools exposed by the local MCP server, executes the tool selected by the model, and sends the result back to the model for a final answer.
-
-```text
-Your terminal message
-   -> OpenAI model chooses an allowed tool
-   -> local MCP Host / Client sends the tool call over stdio
-   -> Expense Tracker MCP Server validates the request
-   -> SQLite stores or reads the expense data
-   -> tool result returns to the model
-   -> helpful answer appears in the terminal
-```
-
-To run the AI version, create an OpenAI API key and set it only in the current PowerShell window. Do not put the key in source code or commit it.
-
-```powershell
-$env:OPENAI_API_KEY = "your_api_key_here"
-uv run --no-sync python ai_terminal_app.py
-```
-
-Now you can write normal sentences instead of fixed commands:
-
-```text
-you> Add INR 350 for lunch under food
-assistant> Added Lunch under food for ₹350.00.
-
-you> Where did I spend the most in 2026-07?
-assistant> Bills are your highest category for July 2026.
-
-you> Delete expense 1
-assistant> Please confirm that you want to delete expense 1.
-
-you> Yes, delete expense 1
-assistant> Expense 1 was deleted successfully.
-```
-
-The model never receives a SQLite connection and cannot run arbitrary SQL. It can only request the focused MCP tools defined by the server. The delete confirmation is enforced by the server, so it still applies even when the model is involved.
-
-`ai_terminal_app.py` calls the OpenAI API, so your typed request and the tool result needed for the answer are sent to OpenAI. The direct `terminal_app.py` flow stays entirely local. An OpenAI API key and API billing are separate from a ChatGPT subscription.
+MCP turns an AI application from something that only generates text into something that can safely work with real tools, real data, and real services.
