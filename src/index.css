@@ -23600,6 +23600,18 @@ html[data-header-visibility="hidden"] .article-site-header {
     position: absolute !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
+    z-index: 1;
+    border-color: var(--panel-border) !important;
+    background: var(--panel-strong) !important;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--ink) 14%, transparent) !important;
+  }
+
+  .article-header-actions .page-back-button,
+  .article-header-actions .article-back-button {
+    z-index: 1;
+    border-color: var(--panel-border) !important;
+    background: var(--panel-strong) !important;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--ink) 14%, transparent) !important;
   }
 
   .article-header-actions > a.button::before {
@@ -23625,7 +23637,7 @@ html[data-header-visibility="hidden"] .article-site-header {
 
   /* Fixed controls must never cover the first heading or card on any page. */
   .site-header + main,
-  .article-site-header + main {
+  .article-site-header ~ main {
     margin-top: 0 !important;
     padding-top: calc(3.9rem + env(safe-area-inset-top, 0px)) !important;
   }
