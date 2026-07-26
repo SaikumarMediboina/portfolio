@@ -12599,6 +12599,20 @@ body::before {
   line-height: 1.58;
 }
 
+/* Keep the role tag visually between the greeting and its description. */
+.home-hero-copy .home-hero-greeting {
+  margin: 0 !important;
+}
+
+.home-hero-copy .home-hero-role {
+  margin: .7rem 0 .65rem;
+  font-size: 1.1rem;
+}
+
+.home-hero-copy .home-hero-lede {
+  margin: 0;
+}
+
 .home-hero-actions {
   margin-top: 1.35rem;
 }
