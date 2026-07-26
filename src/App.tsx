@@ -6527,6 +6527,9 @@ function HomePage({
   const homeWritingPreview = [featuredBlog, ...remainingBlogPosts]
     .filter((post): post is BlogPost => Boolean(post))
     .slice(0, 3);
+  const mcpArticle = blogPosts.find(
+    (post) => post.slug === "what-you-can-build-with-mcp-expense-tracker",
+  );
   const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
   const homeRadarPreviewSignals = (homeRadarSignals.length ? homeRadarSignals : aiRadarSignals).slice(
     0,
@@ -6786,6 +6789,27 @@ function HomePage({
           <a href={latestUpdate?.href ?? "/whats-new"}>Open what's new</a>
         </div>
       </motion.section>
+
+      {mcpArticle ? (
+        <motion.section className="home-section shell home-mcp-banner" {...sectionAnimationProps}>
+          <a
+            className="home-mcp-banner-card"
+            href={getBlogArticleHref(mcpArticle.slug)}
+            onClick={() => onTrackBlogOpen(mcpArticle, "home_mcp_banner")}
+          >
+            <div className="home-mcp-banner-mark" aria-hidden="true">MCP</div>
+            <div className="home-mcp-banner-copy">
+              <p className="eyebrow">New article · MCP Fundamentals</p>
+              <h2>{mcpArticle.title}</h2>
+              <p>{mcpArticle.summary}</p>
+              <div className="home-mcp-banner-tags" aria-label="Article topics">
+                <span>Python</span><span>SQLite</span><span>AI tools</span>
+              </div>
+            </div>
+            <span className="home-mcp-banner-cta">Read article <b aria-hidden="true">→</b></span>
+          </a>
+        </motion.section>
+      ) : null}
 
       <motion.section className="home-section shell home-writing" {...sectionAnimationProps}>
         <div className="home-section-heading">
