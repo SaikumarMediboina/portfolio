@@ -6408,7 +6408,7 @@ function NewsletterCallout({
       : `Use ${subscriberEmail} for selected deep dives, engineering notes, and meaningful portfolio updates.`
     : newsletterIsConfirmed
       ? "Future deep dives and engineering notes will land in your inbox when there is something worth opening."
-      : "Get notified when new deep dives, engineering notes, and meaningful portfolio updates are published. No spam. Unsubscribe from any email.";
+      : "Get notified when new deep dives, engineering notes, and meaningful portfolio updates are published. No spam.";
 
   const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
