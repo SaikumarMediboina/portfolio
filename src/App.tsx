@@ -17,6 +17,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
+import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import {
   certifications,
   currentFocus,
@@ -5452,9 +5453,59 @@ function McpFundamentalsArticle() {
   </div>;
 }
 
+function renderMcpMarkdownInline(value: string, key: string) {
+  return value.split(/(\*\*.*?\*\*|`.*?`)/g).filter(Boolean).map((part, index) => {
+    const partKey = `${key}-${index}`;
+    if (part.startsWith("**") && part.endsWith("**")) return <strong key={partKey}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith("`") && part.endsWith("`")) return <code key={partKey}>{part.slice(1, -1)}</code>;
+    return <span key={partKey}>{part}</span>;
+  });
+}
+
+function McpPastedArticle() {
+  const lines = mcpFundamentalsMarkdown.replace(/\r\n/g, "\n").split("\n");
+  const blocks: ReactNode[] = [];
+  let cursor = 0;
+  let blockId = 0;
+
+  while (cursor < lines.length) {
+    const line = lines[cursor].trim();
+    if (!line || line === "---") { cursor += 1; continue; }
+    if (line.startsWith("```")) {
+      const language = line.slice(3) || "text";
+      const code: string[] = [];
+      cursor += 1;
+      while (cursor < lines.length && !lines[cursor].trim().startsWith("```")) code.push(lines[cursor++]);
+      cursor += 1;
+      blocks.push(<McpCodeBlock key={`code-${blockId++}`} label={language} code={code.join("\n")} />);
+      continue;
+    }
+    if (line.startsWith("# ")) { blocks.push(<header className="mcp-pasted-hero" key={`heading-${blockId++}`}><p className="mcp-kicker">MCP Fundamentals · Practical Project</p><h1>{renderMcpMarkdownInline(line.slice(2), `h1-${blockId}`)}</h1></header>); cursor += 1; continue; }
+    if (line.startsWith("## ")) { blocks.push(<section className="mcp-pasted-section" key={`h2-${blockId++}`}><h2>{renderMcpMarkdownInline(line.slice(3), `h2-${blockId}`)}</h2></section>); cursor += 1; continue; }
+    if (line.startsWith("### ")) { blocks.push(<h3 className="mcp-pasted-subheading" key={`h3-${blockId++}`}>{renderMcpMarkdownInline(line.slice(4), `h3-${blockId}`)}</h3>); cursor += 1; continue; }
+    if (line.startsWith("> ")) { blocks.push(<blockquote className="mcp-pasted-quote" key={`quote-${blockId++}`}>{renderMcpMarkdownInline(line.slice(2), `quote-${blockId}`)}</blockquote>); cursor += 1; continue; }
+    if (line.startsWith("* ")) {
+      const items: string[] = [];
+      while (cursor < lines.length && lines[cursor].trim().startsWith("* ")) items.push(lines[cursor++].trim().slice(2));
+      blocks.push(<ul className="mcp-pasted-list" key={`list-${blockId++}`}>{items.map((item, index) => <li key={item}>{renderMcpMarkdownInline(item, `list-${index}`)}</li>)}</ul>);
+      continue;
+    }
+    const paragraph: string[] = [];
+    while (cursor < lines.length) {
+      const next = lines[cursor].trim();
+      if (!next || next === "---" || next.startsWith("#") || next.startsWith("> ") || next.startsWith("* ") || next.startsWith("```")) break;
+      paragraph.push(next);
+      cursor += 1;
+    }
+    blocks.push(<p className="mcp-pasted-paragraph" key={`paragraph-${blockId++}`}>{renderMcpMarkdownInline(paragraph.join(" "), `paragraph-${blockId}`)}</p>);
+  }
+
+  return <article className="mcp-pasted-article">{blocks}</article>;
+}
+
 function BlogArticleBody({ post }: BlogArticleBodyProps) {
   if (post.slug === MCP_EXPENSE_TRACKER_SLUG) {
-    return <McpFundamentalsArticle />;
+    return <McpPastedArticle />;
   }
 
   return (
@@ -9295,15 +9346,16 @@ function BlogArticlePage({
             </button>
           </div>
         </div>
-        {post && !isAccessChecking && !isLocked ? (
-          <div className="reading-progress-panel">
-            <div className="shell reading-progress-shell">
-              <ReadingProgressBar progress={readingProgress} />
-              <ReadingTimeLeftPill secondsLeft={readingSecondsLeft} />
-            </div>
-          </div>
-        ) : null}
       </header>
+
+      {post && !isAccessChecking && !isLocked ? (
+        <aside className={`article-reading-dock${isArticleHeaderVisible ? " is-below-header" : " is-pinned"}`} aria-label="Reading progress and time remaining">
+          <div className="shell reading-progress-shell">
+            <ReadingProgressBar progress={readingProgress} />
+            <ReadingTimeLeftPill secondsLeft={readingSecondsLeft} />
+          </div>
+        </aside>
+      ) : null}
 
       <main className="article-page shell" id="main-content">
         {post && isAccessChecking ? (
