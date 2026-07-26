@@ -23539,4 +23539,9 @@ html[data-header-visibility="hidden"] .article-site-header {
     pointer-events: none;
     transform: translateY(-4rem);
   }
+
+  /* Keep the first card clear of the compact fixed Home / Back controls. */
+  .article-page {
+    padding-top: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
+  }
 }
