@@ -2286,8 +2286,9 @@ function BugReportButton() {
       if (!response.ok) throw new Error(result.error || "Unable to save the report.");
 
       setDescription("");
-      setStatus("sent");
-      setMessage("Thanks — the bug report was saved.");
+      setStatus("idle");
+      setMessage("");
+      setIsOpen(false);
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Unable to save the report.");
