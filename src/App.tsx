@@ -796,7 +796,7 @@ function getSeoMetadata({
                     analyticsTitle: "Dashboard",
                     canonicalPath: "/dashboard",
                     description:
-                      "A creator dashboard showing portfolio content coverage, publishing rhythm, analytics signals, and engineering-note momentum.",
+                      "A creator dashboard showing portfolio content coverage, analytics signals, and engineering-note momentum.",
                     imageAlt: "Creator dashboard preview by Sai Kumar Mediboina",
                     imagePath: DASHBOARD_SEO_IMAGE_PATH,
                     title: getSeoTitle("Creator Dashboard"),
@@ -1973,54 +1973,6 @@ function formatUpdateDate(date: string) {
     month: "short",
     year: "numeric",
   }).format(new Date(`${date}T00:00:00`));
-}
-
-function getDateKey(date: Date) {
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
-}
-
-function getDashboardActivityBars(updates: SiteUpdate[], days = 30) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const updateCounts = new Map<string, number>();
-
-  updates.forEach((update) => {
-    const updateDate = new Date(`${update.date}T00:00:00`);
-    updateDate.setHours(0, 0, 0, 0);
-
-    const ageInDays = Math.round((today.getTime() - updateDate.getTime()) / (24 * 60 * 60 * 1000));
-
-    if (ageInDays >= 0 && ageInDays < days) {
-      const dateKey = getDateKey(updateDate);
-      updateCounts.set(dateKey, (updateCounts.get(dateKey) ?? 0) + 1);
-    }
-  });
-
-  const maxCount = Math.max(...Array.from(updateCounts.values()), 1);
-
-  return Array.from({ length: days }, (_, index) => {
-    const currentDate = new Date(today);
-    currentDate.setDate(today.getDate() - (days - 1 - index));
-
-    const dateKey = getDateKey(currentDate);
-    const updateCount = updateCounts.get(dateKey) ?? 0;
-    const isPublishedDay = updateCount > 0;
-
-    return {
-      date: dateKey,
-      height: isPublishedDay ? Math.max((updateCount / maxCount) * 100, 36) : 8,
-      isPublishedDay,
-      label: `${formatUpdateDate(dateKey)}: ${
-        isPublishedDay ? `${updateCount} update${updateCount === 1 ? "" : "s"}` : "quiet day"
-      }`,
-      updateCount,
-    };
-  });
 }
 
 const dashboardTopicColors = ["#e85b3f", "#f28443", "#1fb58f", "#e2b43c", "#7c3fe0", "#5f7ce5"];
@@ -4137,8 +4089,8 @@ function getAssistantKnowledgeEntries(
       category: "dashboard",
       title: "Creator dashboard",
       summary:
-        "The dashboard summarizes portfolio momentum: blog coverage, topic distribution, publishing rhythm, top content, and recent site signals.",
-      keywords: ["dashboard", "analytics", "metrics", "charts", "content", "topics", "rhythm"],
+        "The dashboard summarizes portfolio momentum: blog coverage, topic distribution, top content, and recent site signals.",
+      keywords: ["dashboard", "analytics", "metrics", "charts", "content", "topics"],
       links: [{ href: "/dashboard", label: "Open dashboard" }],
       priority: 4,
     }),
@@ -10007,11 +9959,7 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
     0,
   );
   const averageReadMinutes = blogPosts.length ? Math.round(totalReadMinutes / blogPosts.length) : 0;
-  const publicFeatureCount = blogPosts.some((post) => post.slug === PUBLIC_BLOG_SLUG) ? 1 : 0;
   const maxTopicScore = Math.max(...topics.map((topic) => topic.score), 1);
-  const cadenceBars = getDashboardActivityBars(siteUpdates);
-  const activeCadenceDays = cadenceBars.filter((bar) => bar.isPublishedDay).length;
-  const recentUpdateCount = cadenceBars.reduce((total, bar) => total + bar.updateCount, 0);
   const topArticles = [...blogPosts]
     .map((post) => ({
       ...post,
@@ -10305,45 +10253,6 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
                   <strong>{post.title}</strong>
                 </a>
               ))}
-            </div>
-          </article>
-
-          <article className="dashboard-card dashboard-cadence-card">
-            <div className="dashboard-card-heading">
-              <h2>Publishing Rhythm</h2>
-              <span>Last 30 days</span>
-            </div>
-            <p className="dashboard-card-helper">
-              This timeline is based on the site update log. Each bar represents one day; highlighted
-              bars show when a page, blog, or dashboard item was published or meaningfully updated.
-            </p>
-            <div className="dashboard-cadence-stats">
-              <span><strong>{recentUpdateCount}</strong> recent updates</span>
-              <span><strong>{activeCadenceDays}</strong> active days</span>
-              <span><strong>{publicFeatureCount}</strong> public article</span>
-              <span><strong>{totalReadMinutes}</strong> min library</span>
-            </div>
-            <div
-              className="dashboard-cadence-chart"
-              aria-label="Publishing rhythm chart for the last 30 days"
-            >
-              {cadenceBars.map((bar, index) => (
-                <span
-                  className={bar.isPublishedDay ? "is-published" : ""}
-                  key={`cadence-${index}`}
-                  style={{ "--cadence-height": `${bar.height}%` } as CSSProperties}
-                  title={bar.label}
-                />
-              ))}
-            </div>
-            <div className="dashboard-cadence-axis" aria-hidden="true">
-              <span>{formatUpdateDate(cadenceBars[0]?.date ?? getDateKey(new Date()))}</span>
-              <span>30-day window</span>
-              <span>Today</span>
-            </div>
-            <div className="dashboard-legend dashboard-cadence-legend">
-              <span><i className="is-published" /> Published or updated</span>
-              <span><i className="is-quiet" /> Quiet day</span>
             </div>
           </article>
 
