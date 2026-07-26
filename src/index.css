@@ -23435,6 +23435,10 @@ html[data-header-visibility="hidden"] .article-site-header {
 @media (max-width: 720px) {
   .article-site-header {
     margin-top: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
   }
 
   .article-header-shell {
@@ -23445,6 +23449,13 @@ html[data-header-visibility="hidden"] .article-site-header {
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
+  }
+
+  .article-header-shell::before,
+  .article-header-shell::after,
+  .article-site-header::before,
+  .article-site-header::after {
+    display: none !important;
   }
 
   .article-header-shell .brand {
