@@ -23555,7 +23555,7 @@ html[data-header-visibility="hidden"] .article-site-header {
   .article-header-actions {
     display: flex !important;
     position: absolute !important;
-    top: max(.55rem, env(safe-area-inset-top, 0px)) !important;
+    top: max(.7rem, env(safe-area-inset-top, 0px)) !important;
     right: .72rem !important;
     left: .72rem !important;
     justify-content: flex-start !important;
@@ -23626,6 +23626,7 @@ html[data-header-visibility="hidden"] .article-site-header {
   /* Fixed controls must never cover the first heading or card on any page. */
   .site-header + main,
   .article-site-header + main {
+    margin-top: 0 !important;
     padding-top: calc(3.9rem + env(safe-area-inset-top, 0px)) !important;
   }
 }
