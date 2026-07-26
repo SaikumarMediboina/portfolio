@@ -23518,8 +23518,8 @@ html[data-header-visibility="hidden"] .article-site-header {
     inset: 0 0 auto !important;
     z-index: 120 !important;
     width: 100% !important;
-    height: 0 !important;
-    min-height: 0 !important;
+    height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
+    min-height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
     margin-top: 0 !important;
     overflow: visible !important;
     border: 0 !important;
@@ -23531,8 +23531,8 @@ html[data-header-visibility="hidden"] .article-site-header {
   .article-header-shell {
     display: block !important;
     width: 100% !important;
-    height: 0 !important;
-    min-height: 0 !important;
+    height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
+    min-height: calc(4.25rem + env(safe-area-inset-top, 0px)) !important;
     padding: 0 !important;
     overflow: visible !important;
     border: 0 !important;
@@ -23555,7 +23555,7 @@ html[data-header-visibility="hidden"] .article-site-header {
   .article-header-actions {
     display: flex !important;
     position: absolute !important;
-    top: max(.7rem, env(safe-area-inset-top, 0px)) !important;
+    top: calc(.7rem + env(safe-area-inset-top, 0px)) !important;
     right: .72rem !important;
     left: .72rem !important;
     justify-content: flex-start !important;
@@ -23563,6 +23563,7 @@ html[data-header-visibility="hidden"] .article-site-header {
     max-width: none !important;
     min-width: 0 !important;
     overflow: visible !important;
+    z-index: 2;
   }
 
   .article-header-actions > :not(a.button):not(.page-back-button):not(.article-back-button):not(.bug-report-button):not(.bug-report-overlay) {
@@ -23606,6 +23607,12 @@ html[data-header-visibility="hidden"] .article-site-header {
     box-shadow: 0 6px 16px color-mix(in srgb, var(--ink) 14%, transparent) !important;
   }
 
+  .article-header-actions .bug-report-icon {
+    display: block;
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
   .article-header-actions .page-back-button,
   .article-header-actions .article-back-button {
     z-index: 1;
@@ -23635,10 +23642,18 @@ html[data-header-visibility="hidden"] .article-site-header {
     transform: translateY(-4rem);
   }
 
+  /* Keep the reading timer in the same mobile control row; it never covers the article title. */
+  .article-reading-dock,
+  .article-reading-dock.is-below-header {
+    top: calc(.7rem + env(safe-area-inset-top, 0px)) !important;
+    right: .72rem !important;
+    z-index: 122 !important;
+  }
+
   /* Fixed controls must never cover the first heading or card on any page. */
   .site-header + main,
   .article-site-header ~ main {
     margin-top: 0 !important;
-    padding-top: calc(3.9rem + env(safe-area-inset-top, 0px)) !important;
+    padding-top: calc(4.55rem + env(safe-area-inset-top, 0px)) !important;
   }
 }
