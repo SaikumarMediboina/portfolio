@@ -2249,7 +2249,7 @@ function PageBackButton({ fallbackHref, label = "Back" }: PageBackButtonProps) {
   };
 
   return (
-    <button className="button button-secondary" type="button" onClick={handleBack}>
+    <button className="button button-secondary page-back-button" type="button" onClick={handleBack}>
       {label}
     </button>
   );

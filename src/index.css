@@ -23430,3 +23430,45 @@ html[data-header-visibility="hidden"] .article-site-header {
     transition: none !important;
   }
 }
+
+/* On phones, subpage headers stay focused: the SK mark and one reliable Back action. */
+@media (max-width: 720px) {
+  .article-header-shell {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    min-height: 3.8rem !important;
+    padding: .48rem .58rem !important;
+  }
+
+  .article-header-shell .brand-copy {
+    display: none !important;
+  }
+
+  .article-header-shell .brand {
+    min-width: auto !important;
+  }
+
+  .article-header-shell .brand-mark {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .article-header-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  .article-header-actions > :not(.page-back-button):not(.article-back-button) {
+    display: none !important;
+  }
+
+  .article-header-actions .page-back-button,
+  .article-header-actions .article-back-button {
+    display: inline-flex !important;
+    min-height: 2.7rem !important;
+    padding-inline: .88rem !important;
+    white-space: nowrap;
+  }
+}
