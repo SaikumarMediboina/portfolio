@@ -9220,10 +9220,6 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
                 <dt>Email</dt>
                 <dd>{profile.email}</dd>
               </div>
-              <div>
-                <dt>Location</dt>
-                <dd>{profile.location}</dd>
-              </div>
             </dl>
           </aside>
         </section>
