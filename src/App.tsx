@@ -1209,6 +1209,10 @@ const ALL_BLOG_CATEGORIES = "All";
 const ALL_AI_RADAR_CATEGORIES = "All signals";
 const ALL_SAVED_POSTS_TAG = "All";
 const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
+const PUBLIC_BLOG_SLUGS = new Set([
+  PUBLIC_BLOG_SLUG,
+  "what-you-can-build-with-mcp-expense-tracker",
+]);
 const LOCKED_BLOG_CAPTION = "Members-only. Sign in to unlock.";
 
 type AiRadarSignal = {
@@ -1584,7 +1588,7 @@ function getSavedReaderItemTags(item: SavedReaderItem) {
 }
 
 function canReadBlogPost(post: BlogPost | undefined, user: User | null) {
-  return Boolean(post && (post.slug === PUBLIC_BLOG_SLUG || user));
+  return Boolean(post && (PUBLIC_BLOG_SLUGS.has(post.slug) || user));
 }
 
 function orderBlogPostsForAccess(posts: BlogPost[]) {
@@ -2139,20 +2143,7 @@ function returnToPortfolioBlog(slug?: string) {
 }
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") {
-    return "light";
-  }
-
-  try {
-    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-    if (storedTheme === "light" || storedTheme === "dark") {
-      return storedTheme;
-    }
-  } catch {
-    return "light";
-  }
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 }
 
 function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {
@@ -5462,6 +5453,12 @@ function renderMcpMarkdownInline(value: string, key: string) {
   });
 }
 
+function McpProjectDownload() {
+  const setupCode = `# 1. Download and extract expense-tracker-mcp.zip\n# 2. Open PowerShell in the extracted folder\ncd expense-tracker-mcp\n\n# 3. Install dependencies\nuv sync --all-groups\n\n# 4. Start the interactive terminal client\nuv run --no-sync python terminal_app.py\n\n# 5. Try this in the app\nadd 350 Lunch under food\nlist\ntotal 2026-07\nbreakdown 2026-07\ndelete 1\ndelete 1 confirm`;
+  const checksCode = `# Run project checks\nuv run ruff check .\nuv run pytest\n\n# Start the MCP server for an MCP-compatible AI application\nuv run expense-tracker-mcp`;
+  return <section className="mcp-download-section mcp-pasted-download"><p className="mcp-kicker">Build it yourself</p><h2>Download and run the Expense Tracker project</h2><p>Download the complete Python source project. The ZIP includes the MCP server, interactive terminal client, tests, documentation, and dependency lock file. It does not include anyone’s local expense database.</p><a className="mcp-download-link" href="/downloads/expense-tracker-mcp.zip" download>Download Expense Tracker MCP · ZIP</a><h3>Prerequisites</h3><ul><li>Windows, macOS, or Linux with Python 3.11 or later.</li><li><code>uv</code> for installing and running the locked Python dependencies.</li></ul><McpCodeBlock label="PowerShell · install uv (only if needed)" code={`winget install --id=astral-sh.uv -e\n\n# Close PowerShell completely, then open a new window.\nuv --version`} /><h3>Run it locally</h3><McpCodeBlock label="PowerShell · setup and interactive demo" code={setupCode} /><p>The terminal client calls the real MCP server over stdio. It does not need an AI model, npm, an Inspector, or a proxy. When you are ready to connect an AI application, start the server with the command below.</p><McpCodeBlock label="PowerShell · checks and MCP server" code={checksCode} /><p>If PowerShell says <code>uv</code> is not recognized, the installation succeeded but the terminal has not picked up the new PATH yet—close it, open a new PowerShell window, and run <code>uv --version</code> again.</p></section>;
+}
+
 function McpPastedArticle() {
   const lines = mcpFundamentalsMarkdown.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
@@ -5500,7 +5497,7 @@ function McpPastedArticle() {
     blocks.push(<p className="mcp-pasted-paragraph" key={`paragraph-${blockId++}`}>{renderMcpMarkdownInline(paragraph.join(" "), `paragraph-${blockId}`)}</p>);
   }
 
-  return <article className="mcp-pasted-article">{blocks}</article>;
+  return <article className="mcp-pasted-article">{blocks}<McpProjectDownload /></article>;
 }
 
 function BlogArticleBody({ post }: BlogArticleBodyProps) {
@@ -9351,7 +9348,6 @@ function BlogArticlePage({
       {post && !isAccessChecking && !isLocked ? (
         <aside className={`article-reading-dock${isArticleHeaderVisible ? " is-below-header" : " is-pinned"}`} aria-label="Reading progress and time remaining">
           <div className="shell reading-progress-shell">
-            <ReadingProgressBar progress={readingProgress} />
             <ReadingTimeLeftPill secondsLeft={readingSecondsLeft} />
           </div>
         </aside>
@@ -10677,7 +10673,7 @@ function App() {
     ? blogPosts.find((post) => post.slug === standaloneBlogSlug)
     : undefined;
   const standaloneBlogNeedsAuth = Boolean(
-    standaloneBlog && standaloneBlog.slug !== PUBLIC_BLOG_SLUG,
+    standaloneBlog && !PUBLIC_BLOG_SLUGS.has(standaloneBlog.slug),
   );
   const standaloneBlogIsLocked = Boolean(
     standaloneBlogNeedsAuth && authReady && !canReadBlogPost(standaloneBlog, subscriberUser),
