@@ -9346,11 +9346,11 @@ function BlogArticlePage({
                 onToggle={onToggleSavedPost}
               />
             ) : null}
-            <a className="button button-secondary" href="/">
+            <a className="button button-secondary article-home-button" href="/">
               Home
             </a>
             <button
-              className="button button-secondary"
+              className="button button-secondary article-back-button"
               type="button"
               onClick={() => returnToPortfolioBlog(post?.slug)}
             >

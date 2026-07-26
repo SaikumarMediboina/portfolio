@@ -3139,6 +3139,9 @@ dt {
 }
 
 .article-reading-dock .reading-progress-shell {
+  width: fit-content;
+  max-width: none;
+  margin: 0;
   min-height: 2.7rem;
   padding: 0;
 }
@@ -3155,6 +3158,8 @@ dt {
   }
 
   .article-reading-dock .reading-progress-shell {
+    width: fit-content;
+    max-width: calc(100vw - 1.1rem);
     gap: .45rem;
     min-height: 2.55rem;
     padding: 0;
@@ -3164,6 +3169,20 @@ dt {
     min-height: 1.9rem;
     padding: .35rem .48rem;
     font-size: .72rem;
+  }
+
+  .article-header-actions > :not(.article-back-button) {
+    display: none !important;
+  }
+
+  .article-header-actions {
+    max-width: none !important;
+    overflow: visible !important;
+  }
+
+  .article-back-button {
+    min-width: 0;
+    white-space: nowrap;
   }
 }
 
