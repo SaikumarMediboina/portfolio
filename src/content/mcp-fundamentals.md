@@ -459,87 +459,62 @@ Never modify or delete data
 
 ---
 
-## Real Terminal Demo
+## Terminal Demos: Direct MCP and Real AI + MCP
 
-Our project also includes a terminal application.
+The project includes two terminal applications. They use the same local MCP server and SQLite database, but they teach two different ideas.
 
-Start it with:
+`terminal_app.py` is the direct MCP demo. It parses a small, predictable command format itself, then makes a real stdio MCP tool call. It does not use an AI model.
 
 ```powershell
 uv run --no-sync python terminal_app.py
 ```
 
-Then add an expense:
-
 ```text
 expense> add 350 Lunch under food
-```
-
-List expenses:
-
-```text
 expense> list
-```
-
-Get a monthly total:
-
-```text
 expense> total 2026-07
-```
-
-View category totals:
-
-```text
-expense> breakdown 2026-07
-```
-
-Delete safely:
-
-```text
 expense> delete 1
-```
-
-The Server refuses to delete the record without confirmation.
-
-```text
 expense> delete 1 confirm
 ```
 
-The terminal application calls the real MCP Tools through stdio.
-
-However, it does not require an AI model. It parses the command itself and sends the corresponding MCP request.
+The real AI flow is `ai_terminal_app.py`. Here the terminal is the MCP Host: it sends your natural-language message to an OpenAI model, gives the model the tools exposed by the local MCP server, executes the tool selected by the model, and sends the result back to the model for a final answer.
 
 ```text
-Terminal Demo
-
-User command
-   ↓
-terminal_app.py
-   ↓
-MCP Client
-   ↓
-Expense Tracker MCP Server
-   ↓
-SQLite
+Your terminal message
+   -> OpenAI model chooses an allowed tool
+   -> local MCP Host / Client sends the tool call over stdio
+   -> Expense Tracker MCP Server validates the request
+   -> SQLite stores or reads the expense data
+   -> tool result returns to the model
+   -> helpful answer appears in the terminal
 ```
 
-A complete AI application would use this flow:
+To run the AI version, create an OpenAI API key and set it only in the current PowerShell window. Do not put the key in source code or commit it.
+
+```powershell
+$env:OPENAI_API_KEY = "your_api_key_here"
+uv run --no-sync python ai_terminal_app.py
+```
+
+Now you can write normal sentences instead of fixed commands:
 
 ```text
-AI Application
+you> Add INR 350 for lunch under food
+assistant> Added Lunch under food for ₹350.00.
 
-User request
-   ↓
-AI Model
-   ↓
-MCP Client
-   ↓
-Expense Tracker MCP Server
-   ↓
-SQLite
+you> Where did I spend the most in 2026-07?
+assistant> Bills are your highest category for July 2026.
+
+you> Delete expense 1
+assistant> Please confirm that you want to delete expense 1.
+
+you> Yes, delete expense 1
+assistant> Expense 1 was deleted successfully.
 ```
 
-Both flows use the same MCP Server.
+The model never receives a SQLite connection and cannot run arbitrary SQL. It can only request the focused MCP tools defined by the server. The delete confirmation is enforced by the server, so it still applies even when the model is involved.
+
+`ai_terminal_app.py` calls the OpenAI API, so your typed request and the tool result needed for the answer are sent to OpenAI. The direct `terminal_app.py` flow stays entirely local. An OpenAI API key and API billing are separate from a ChatGPT subscription.
 
 ---
 
