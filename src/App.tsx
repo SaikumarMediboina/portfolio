@@ -7,6 +7,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion, useInView, useSpring, useTransform, animate } from "framer-motion";
 import type { User } from "firebase/auth";
 import {
@@ -2299,7 +2300,7 @@ function BugReportButton() {
     <button className="bug-report-button" type="button" aria-label="Report a bug" onClick={() => setIsOpen(true)}>
       <BugReportIcon />
     </button>
-    {isOpen ? <div className="bug-report-overlay" role="presentation" onMouseDown={close}>
+    {isOpen && typeof document !== "undefined" ? createPortal(<div className="bug-report-overlay" role="presentation" onMouseDown={close}>
       <section className="bug-report-dialog" role="dialog" aria-modal="true" aria-labelledby="bug-report-title" onMouseDown={(event) => event.stopPropagation()}>
         <div className="bug-report-dialog-heading"><div><p className="eyebrow">Quick feedback</p><h2 id="bug-report-title">Report a bug</h2></div><button type="button" className="bug-report-close" aria-label="Close bug report" onClick={close}>×</button></div>
         <p>Describe what happened. We do not ask for your name, email, or any personal details.</p>
@@ -2310,7 +2311,7 @@ function BugReportButton() {
           {message ? <p className={`bug-report-status is-${status}`} role="status">{message}</p> : null}
         </form>
       </section>
-    </div> : null}
+    </div>, document.body) : null}
   </>;
 }
 
