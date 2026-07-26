@@ -23348,6 +23348,21 @@ body {
 .mcp-pasted-article .mcp-code-block { width: min(100%, 1040px); margin: .1rem auto; }.mcp-pasted-article .mcp-code-block pre { max-height: none; }
 .mcp-pasted-download { margin-top: clamp(2rem, 5vw, 4rem); padding-top: 1.5rem; }
 
+/* The MCP reader uses stronger light-theme ink so long lesson text stays crisp. */
+:root:not([data-theme="dark"]) .mcp-pasted-hero h1,
+:root:not([data-theme="dark"]) .mcp-pasted-section h2,
+:root:not([data-theme="dark"]) .mcp-pasted-subheading,
+:root:not([data-theme="dark"]) .mcp-pasted-quote,
+:root:not([data-theme="dark"]) .mcp-pasted-paragraph strong,
+:root:not([data-theme="dark"]) .mcp-pasted-quote strong {
+  color: #29211d;
+}
+
+:root:not([data-theme="dark"]) .mcp-pasted-paragraph,
+:root:not([data-theme="dark"]) .mcp-pasted-list {
+  color: #4c4038;
+}
+
 /* Home-page callout for the public MCP fundamentals article. */
 .home-mcp-banner { margin-block: clamp(1rem, 3vw, 2rem); }.home-mcp-banner-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: clamp(1rem, 3vw, 2rem); padding: clamp(1rem, 3vw, 1.6rem); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--panel-border)); border-radius: 20px; background: linear-gradient(110deg, color-mix(in srgb, var(--accent) 13%, var(--panel-soft)), var(--panel)); color: inherit; text-decoration: none; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }.home-mcp-banner-card:hover, .home-mcp-banner-card:focus-visible { border-color: var(--accent); box-shadow: 0 18px 38px color-mix(in srgb, var(--accent) 14%, transparent); outline: 0; transform: translateY(-2px); }.home-mcp-banner-mark { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border-radius: 14px; background: var(--accent); color: #fffaf6; font: 900 1rem "IBM Plex Mono", monospace; letter-spacing: -.06em; }.home-mcp-banner-copy .eyebrow { margin-bottom: .35rem; }.home-mcp-banner-copy h2 { max-width: 50rem; margin: 0; color: var(--ink-strong); font-size: clamp(1.25rem, 2.5vw, 1.8rem); line-height: 1.12; }.home-mcp-banner-copy > p:not(.eyebrow) { margin: .55rem 0 0; color: var(--ink-soft); line-height: 1.55; }.home-mcp-banner-tags { display: flex; flex-wrap: wrap; gap: .42rem; margin-top: .75rem; }.home-mcp-banner-tags span { padding: .26rem .48rem; border: 1px solid var(--chip-border); border-radius: 999px; color: var(--ink-soft); font-size: .72rem; font-weight: 750; }.home-mcp-banner-cta { display: inline-flex; align-items: center; gap: .45rem; color: var(--accent); font-weight: 850; white-space: nowrap; }.home-mcp-banner-cta b { font-size: 1.1em; transition: transform .2s ease; }.home-mcp-banner-card:hover .home-mcp-banner-cta b { transform: translateX(3px); }
 @media (max-width: 720px) { .home-mcp-banner-card { grid-template-columns: auto 1fr; gap: .85rem; border-radius: 16px; }.home-mcp-banner-mark { width: 3.4rem; height: 3.4rem; border-radius: 11px; font-size: .8rem; }.home-mcp-banner-copy h2 { font-size: 1.2rem; }.home-mcp-banner-cta { grid-column: 1 / -1; padding-top: .2rem; }.home-mcp-banner-copy > p:not(.eyebrow) { font-size: .92rem; } }

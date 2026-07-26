@@ -273,7 +273,7 @@ export default async function handler(request, response) {
       return jsonResponse(response, 400, { error: "No subscribed recipients found." });
     }
 
-    const subject = testEmail ? `[TEST] Portfolio update: ${title}` : `New portfolio update: ${title}`;
+    const subject = `Portfolio update: ${title}`;
     const results = [];
 
     for (const recipient of recipients) {
