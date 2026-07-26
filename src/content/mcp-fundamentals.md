@@ -170,6 +170,59 @@ SQLite stores the expense records.
 
 SQLite is not MCP. It is an external system used by the MCP Server.
 
+### Where are these parts in our Expense Tracker code?
+
+Here is the same architecture mapped to the actual project files.
+
+```text
+You
+  = the person typing a message in the terminal
+
+MCP Host + MCP Client
+  = ai_terminal_app.py
+
+AI Model
+  = the OpenAI model that understands the message
+
+MCP Server
+  = src/expense_tracker_mcp/server.py
+
+MCP Tools
+  = add_expense, list_expenses, get_monthly_total,
+    category_breakdown, update_expense, delete_expense
+
+Database code
+  = src/expense_tracker_mcp/database.py
+
+Database file
+  = data/expenses.sqlite3
+
+Safety checks
+  = validation.py and money.py
+```
+
+For example, when you type:
+
+> “Add ₹350 for lunch under food.”
+
+The flow is:
+
+```text
+You type a message
+  ↓
+ai_terminal_app.py
+  ↓
+OpenAI model chooses add_expense
+  ↓
+server.py checks the amount and category
+  ↓
+database.py saves it in SQLite
+  ↓
+The result comes back to your terminal
+```
+
+There is also a simpler learning version called `terminal_app.py`. It is a Host and MCP Client too, but it does not use AI. It only understands fixed commands such as `add 350 Lunch under food`.
+
 ---
 
 ## Adding an Expense: Complete Flow
