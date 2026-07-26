@@ -344,7 +344,7 @@ Prompts are reusable workflow templates. For example, a monthly-review prompt co
 
 ## Where Are These Parts in Our Expense Tracker?
 
-The following reference maps the MCP architecture to the files in the downloadable project.
+**The complete Expense Tracker project is available to download at the end of this article.** When you download and extract it for the first time, use the reference below to see exactly where each MCP component lives in the project files.
 
 ```text
 You
@@ -381,7 +381,7 @@ AI + MCP terminal demo
 
 ---
 
-## Terminal Demos: Direct MCP and Real AI + MCP
+## Try It in Your Terminal
 
 The project includes two terminal applications that use the same local MCP server and SQLite database.
 
