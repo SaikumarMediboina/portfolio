@@ -6642,7 +6642,11 @@ function HomePage({
       <motion.section className="home-hero shell" id="top" {...sectionAnimationProps}>
         <div className="home-hero-copy">
           <h1 className="home-hero-greeting">Hey, Sai here.</h1>
-          <p className="eyebrow home-hero-role">Software Application Engineer @ Oracle</p>
+          <div className="home-hero-credentials" aria-label="Professional and education credentials">
+            <p className="eyebrow home-hero-role">Software Application Engineer @ Oracle</p>
+            <span className="home-hero-credential-divider" aria-hidden="true" />
+            <p className="eyebrow home-hero-alumni">NITK Surathkal alumnus</p>
+          </div>
           <p className="home-hero-lede">
             I build reliable backend systems, search workflows, and practical AI experiments for
             high-volume products.

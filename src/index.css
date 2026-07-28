@@ -1132,6 +1132,34 @@ dt {
   color: #8ed5d5;
 }
 
+.home-hero-credentials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.home-hero-credentials .eyebrow {
+  margin: 0;
+}
+
+.home-hero-alumni {
+  color: rgba(255, 248, 239, 0.82);
+  letter-spacing: 0.1em;
+}
+
+.home-hero-copy .home-hero-alumni {
+  color: rgba(255, 248, 239, 0.82);
+}
+
+.home-hero-credential-divider {
+  width: 0.26rem;
+  height: 0.26rem;
+  border-radius: 50%;
+  background: #f0b487;
+  box-shadow: 0 0 0 0.22rem rgba(240, 180, 135, 0.12);
+}
+
 .home-hero-lede {
   max-width: 36rem;
   margin-top: 0.95rem;
@@ -23600,5 +23628,19 @@ html[data-header-visibility="hidden"] .article-site-header {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior-y: contain !important;
+  }
+
+  .home-hero-credentials {
+    gap: 0.5rem 0.58rem;
+  }
+
+  .home-hero-credential-divider {
+    width: 0.22rem;
+    height: 0.22rem;
+  }
+
+  .home-hero-copy .home-hero-alumni {
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
   }
 }
