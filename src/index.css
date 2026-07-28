@@ -1145,6 +1145,7 @@ dt {
 
 .home-hero-alumni {
   color: rgba(255, 248, 239, 0.82);
+  font-size: 0.78rem;
   letter-spacing: 0.1em;
 }
 
@@ -23640,7 +23641,7 @@ html[data-header-visibility="hidden"] .article-site-header {
   }
 
   .home-hero-copy .home-hero-alumni {
-    font-size: 0.66rem;
+    font-size: 0.72rem;
     letter-spacing: 0.08em;
   }
 }
