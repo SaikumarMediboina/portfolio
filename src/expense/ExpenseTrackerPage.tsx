@@ -31,6 +31,7 @@ type ExpenseTrackerPageProps = {
 };
 
 type SpendView = "all" | "Sai" | "Naveen";
+type ExpenseDialog = "add" | "recent" | null;
 
 const EXPENSE_CHART_COLORS = [
   "#7a6ff0",
@@ -54,6 +55,9 @@ const money = (paise: number) =>
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(paise / 100);
+
+const percentage = (part: number, total: number) =>
+  total > 0 ? ((part / total) * 100).toFixed(1) : "0.0";
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -176,6 +180,7 @@ export default function ExpenseTrackerPage({
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [spendView, setSpendView] = useState<SpendView>("all");
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
+  const [expenseDialog, setExpenseDialog] = useState<ExpenseDialog>(null);
 
   useEffect(() => {
     setAccess(null);
@@ -292,6 +297,28 @@ export default function ExpenseTrackerPage({
     (sum, entry) => sum + entry.amountPaise,
     0,
   );
+  const recentEntries = visibleEntries.slice(0, 20);
+
+  useEffect(() => {
+    if (!expenseDialog) {
+      return undefined;
+    }
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setExpenseDialog(null);
+      }
+    };
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [expenseDialog]);
 
   useEffect(() => {
     if (!selectedCategoryEntries.length) {
@@ -354,6 +381,7 @@ export default function ExpenseTrackerPage({
     if (saved) {
       setAmount("");
       setDescription("");
+      setExpenseDialog(null);
     }
   };
 
@@ -565,6 +593,175 @@ export default function ExpenseTrackerPage({
   const activePayer =
     liveData.members.find((member) => member.id === paidByUid) ?? liveData.members[0];
 
+  const addExpenseContent = (
+    <div className="expense-modal-content">
+      {error ? <p className="expense-message is-error">{error}</p> : null}
+      {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
+      <form className="expense-form" onSubmit={(event) => void addExpense(event)}>
+        {!liveData.categories.length ? (
+          <button
+            className="expense-button expense-button-secondary expense-field-wide"
+            disabled={Boolean(busyAction)}
+            onClick={() =>
+              void runAction(
+                "restore-categories",
+                () => ensureDefaultExpenseCategories(user.uid),
+                "Standard categories restored for both users.",
+              )
+            }
+            type="button"
+          >
+            {busyAction === "restore-categories" ? "Restoring…" : "Restore standard categories"}
+          </button>
+        ) : null}
+        <label>
+          Amount
+          <div className="expense-amount-field">
+            <span>₹</span>
+            <input
+              inputMode="decimal"
+              onChange={(event) => setAmount(event.target.value)}
+              placeholder="350"
+              required
+              value={amount}
+            />
+          </div>
+        </label>
+        <label>
+          Date
+          <input
+            max={today()}
+            onChange={(event) => setExpenseDate(event.target.value)}
+            required
+            type="date"
+            value={expenseDate}
+          />
+        </label>
+        <label className="expense-field-wide">
+          Description
+          <input
+            maxLength={80}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="Lunch"
+            required
+            value={description}
+          />
+        </label>
+        <label>
+          Category
+          <select
+            onChange={(event) => setCategoryId(event.target.value)}
+            value={activeCategory?.id ?? ""}
+          >
+            {liveData.categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Paid by
+          <select
+            onChange={(event) => setPaidByUid(event.target.value)}
+            value={activePayer?.id ?? ""}
+          >
+            {liveData.members.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.displayName}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="expense-button expense-button-primary expense-field-wide expense-submit-button"
+          disabled={Boolean(busyAction) || !activeCategory || !activePayer}
+          type="submit"
+        >
+          {busyAction === "add-expense" ? "Saving to Firestore…" : "Add expense"}
+        </button>
+      </form>
+      <form className="expense-category-form" onSubmit={(event) => void addCategory(event)}>
+        <label>
+          Need your own category?
+          <input
+            maxLength={40}
+            onChange={(event) => setNewCategory(event.target.value)}
+            placeholder="Pet Care"
+            value={newCategory}
+          />
+        </label>
+        <button
+          className="expense-button expense-button-secondary"
+          disabled={busyAction === "add-category"}
+          type="submit"
+        >
+          {busyAction === "add-category" ? "Creating…" : "Create category"}
+        </button>
+      </form>
+    </div>
+  );
+
+  const recentExpenseContent = (
+    <div className="expense-modal-content">
+      {error ? <p className="expense-message is-error">{error}</p> : null}
+      {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
+      {recentEntries.length ? (
+        <div className="expense-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Paid by</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th aria-label="Actions" />
+              </tr>
+            </thead>
+            <tbody>
+              {recentEntries.map((entry) => (
+                <tr key={entry.id}>
+                  <td data-label="Description">
+                    <strong>{entry.description}</strong>
+                  </td>
+                  <td data-label="Category">
+                    <span className="expense-category-chip">{entry.categoryName}</span>
+                  </td>
+                  <td data-label="Paid by">{entry.paidByName}</td>
+                  <td data-label="Date">
+                    {new Intl.DateTimeFormat("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                    }).format(new Date(`${entry.expenseDate}T00:00:00`))}
+                  </td>
+                  <td data-label="Amount">
+                    <strong>{money(entry.amountPaise)}</strong>
+                  </td>
+                  <td className="expense-row-action">
+                    <button
+                      aria-label={`Delete ${entry.description}`}
+                      disabled={busyAction === `delete-${entry.id}`}
+                      onClick={() => void deleteEntry(entry)}
+                      type="button"
+                    >
+                      {busyAction === `delete-${entry.id}` ? "…" : "Delete"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="expense-empty-state is-compact">
+          <h3>No expenses for this month</h3>
+          <p>Close this view and use + Add expense to create the first entry.</p>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="expense-page-shell">
       <main className="expense-page">
@@ -612,15 +809,37 @@ export default function ExpenseTrackerPage({
             <p className="expense-eyebrow">Household overview</p>
             <h2>{monthLabel(selectedMonth)}</h2>
           </div>
-          <label>
-            View month
-            <input
-              max={currentMonth()}
-              onChange={(event) => setSelectedMonth(event.target.value)}
-              type="month"
-              value={selectedMonth}
-            />
-          </label>
+          <div className="expense-period-actions">
+            <label className="expense-month-control">
+              View month
+              <input
+                max={currentMonth()}
+                onChange={(event) => setSelectedMonth(event.target.value)}
+                type="month"
+                value={selectedMonth}
+              />
+            </label>
+            <button
+              className="expense-period-action expense-add-trigger"
+              onClick={() => {
+                setError("");
+                setFeedback("");
+                setExpenseDialog("add");
+              }}
+              type="button"
+            >
+              <span aria-hidden="true">+</span>
+              <strong>Add expense</strong>
+            </button>
+            <button
+              className="expense-period-action"
+              onClick={() => setExpenseDialog("recent")}
+              type="button"
+            >
+              <span aria-hidden="true">20</span>
+              <strong>Recent</strong>
+            </button>
+          </div>
         </section>
 
         <section className="expense-summary-grid" aria-label="Monthly expense summary">
@@ -632,13 +851,13 @@ export default function ExpenseTrackerPage({
           <article>
             <span>Sai paid</span>
             <strong>{money(saiPaidPaise)}</strong>
-            <small>{totalPaise ? Math.round((saiPaidPaise / totalPaise) * 100) : 0}% of total</small>
+            <small>{percentage(saiPaidPaise, totalPaise)}% of total</small>
           </article>
           <article>
             <span>Naveen paid</span>
             <strong>{money(naveenPaidPaise)}</strong>
             <small>
-              {totalPaise ? Math.round((naveenPaidPaise / totalPaise) * 100) : 0}% of total
+              {percentage(naveenPaidPaise, totalPaise)}% of total
             </small>
           </article>
         </section>
@@ -685,7 +904,7 @@ export default function ExpenseTrackerPage({
         {error ? <p className="expense-message is-error">{error}</p> : null}
         {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
 
-        <div className="expense-main-grid">
+        <div className="expense-main-grid is-visual-only">
           <section className="expense-panel expense-visual-panel">
             <div className="expense-panel-heading">
               <div>
@@ -754,10 +973,7 @@ export default function ExpenseTrackerPage({
                         />
                       </div>
                       <small>
-                        {chartTotalPaise
-                          ? Math.round((value / chartTotalPaise) * 100)
-                          : 0}
-                        %
+                        {percentage(value, chartTotalPaise)}%
                       </small>
                     </button>
                   ))}
@@ -846,185 +1062,77 @@ export default function ExpenseTrackerPage({
             ) : null}
           </section>
 
-          <section className="expense-panel">
-            <div className="expense-panel-heading">
-              <div>
-                <p className="expense-eyebrow">Quick entry</p>
-                <h2>Add expense</h2>
-              </div>
-            </div>
-            <form className="expense-form" onSubmit={(event) => void addExpense(event)}>
-              {!liveData.categories.length ? (
-                <button
-                  className="expense-button expense-button-secondary expense-field-wide"
-                  disabled={Boolean(busyAction)}
-                  onClick={() =>
-                    void runAction(
-                      "restore-categories",
-                      () => ensureDefaultExpenseCategories(user.uid),
-                      "Standard categories restored for both users.",
-                    )
-                  }
-                  type="button"
-                >
-                  {busyAction === "restore-categories"
-                    ? "Restoring…"
-                    : "Restore standard categories"}
-                </button>
-              ) : null}
-              <label>
-                Amount
-                <div className="expense-amount-field">
-                  <span>₹</span>
-                  <input
-                    inputMode="decimal"
-                    onChange={(event) => setAmount(event.target.value)}
-                    placeholder="350"
-                    required
-                    value={amount}
-                  />
-                </div>
-              </label>
-              <label>
-                Date
-                <input
-                  max={today()}
-                  onChange={(event) => setExpenseDate(event.target.value)}
-                  required
-                  type="date"
-                  value={expenseDate}
-                />
-              </label>
-              <label className="expense-field-wide">
-                Description
-                <input
-                  maxLength={80}
-                  onChange={(event) => setDescription(event.target.value)}
-                  placeholder="Lunch"
-                  required
-                  value={description}
-                />
-              </label>
-              <label>
-                Category
-                <select
-                  onChange={(event) => setCategoryId(event.target.value)}
-                  value={activeCategory?.id ?? ""}
-                >
-                  {liveData.categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Paid by
-                <select
-                  onChange={(event) => setPaidByUid(event.target.value)}
-                  value={activePayer?.id ?? ""}
-                >
-                  {liveData.members.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.displayName}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                className="expense-button expense-button-primary expense-field-wide"
-                disabled={Boolean(busyAction) || !activeCategory || !activePayer}
-                type="submit"
-              >
-                {busyAction === "add-expense" ? "Saving to Firestore…" : "Add shared expense"}
-              </button>
-            </form>
-            <form
-              className="expense-category-form"
-              onSubmit={(event) => void addCategory(event)}
-            >
-              <label>
-                Need your own category?
-                <input
-                  maxLength={40}
-                  onChange={(event) => setNewCategory(event.target.value)}
-                  placeholder="Pet Care"
-                  value={newCategory}
-                />
-              </label>
-              <button
-                className="expense-button expense-button-secondary"
-                disabled={busyAction === "add-category"}
-                type="submit"
-              >
-                Create
-              </button>
-            </form>
-          </section>
         </div>
 
-        <section className="expense-panel expense-recent-panel">
-          <div className="expense-panel-heading">
-            <div>
-              <p className="expense-eyebrow">Shared activity</p>
-              <h2>Recent expenses</h2>
+        {expenseDialog === "add" ? (
+          <section
+            aria-labelledby="expense-add-dialog-title"
+            aria-modal="true"
+            className="expense-modal-overlay"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setExpenseDialog(null);
+              }
+            }}
+            role="dialog"
+          >
+            <div className="expense-modal-sheet expense-add-modal">
+              <header className="expense-modal-header">
+                <div>
+                  <p className="expense-eyebrow">New shared entry</p>
+                  <h2 id="expense-add-dialog-title">Add expense</h2>
+                  <p>{monthLabel(expenseDate.slice(0, 7))} · synced for both users</p>
+                </div>
+                <button
+                  aria-label="Close add expense dialog"
+                  className="expense-modal-close"
+                  onClick={() => setExpenseDialog(null)}
+                  type="button"
+                >
+                  <span aria-hidden="true">×</span>
+                  Close
+                </button>
+              </header>
+              {addExpenseContent}
             </div>
-            <span>Synced live</span>
-          </div>
-          {visibleEntries.length ? (
-            <div className="expense-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Paid by</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th aria-label="Actions" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleEntries.map((entry) => (
-                    <tr key={entry.id}>
-                      <td data-label="Description">
-                        <strong>{entry.description}</strong>
-                      </td>
-                      <td data-label="Category">
-                        <span className="expense-category-chip">{entry.categoryName}</span>
-                      </td>
-                      <td data-label="Paid by">{entry.paidByName}</td>
-                      <td data-label="Date">
-                        {new Intl.DateTimeFormat("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                        }).format(new Date(`${entry.expenseDate}T00:00:00`))}
-                      </td>
-                      <td data-label="Amount">
-                        <strong>{money(entry.amountPaise)}</strong>
-                      </td>
-                      <td className="expense-row-action">
-                        <button
-                          aria-label={`Delete ${entry.description}`}
-                          disabled={busyAction === `delete-${entry.id}`}
-                          onClick={() => void deleteEntry(entry)}
-                          type="button"
-                        >
-                          {busyAction === `delete-${entry.id}` ? "…" : "Delete"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          </section>
+        ) : null}
+
+        {expenseDialog === "recent" ? (
+          <section
+            aria-labelledby="expense-recent-dialog-title"
+            aria-modal="true"
+            className="expense-modal-overlay"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setExpenseDialog(null);
+              }
+            }}
+            role="dialog"
+          >
+            <div className="expense-modal-sheet expense-recent-modal">
+              <header className="expense-modal-header">
+                <div>
+                  <p className="expense-eyebrow">Shared activity</p>
+                  <h2 id="expense-recent-dialog-title">Recent expenses</h2>
+                  <p>
+                    Showing latest {recentEntries.length} · up to 20 · {monthLabel(selectedMonth)}
+                  </p>
+                </div>
+                <button
+                  aria-label="Close recent expenses dialog"
+                  className="expense-modal-close"
+                  onClick={() => setExpenseDialog(null)}
+                  type="button"
+                >
+                  <span aria-hidden="true">×</span>
+                  Close
+                </button>
+              </header>
+              {recentExpenseContent}
             </div>
-          ) : (
-            <div className="expense-empty-state is-compact">
-              <h3>No expenses for this month</h3>
-              <p>Choose another month or add a new shared expense.</p>
-            </div>
-          )}
-        </section>
+          </section>
+        ) : null}
 
         <footer className="expense-footer">
           <span>
