@@ -81,6 +81,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/expenses",
+      "destination": "/index.html"
+    },
+    {
       "source": "/work-with-me",
       "destination": "/index.html"
     },

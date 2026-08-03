@@ -17555,7 +17555,6 @@ body {
   background: var(--page-background) !important;
   color: var(--ink) !important;
 }
-
 :root:not([data-theme="dark"]) .collaboration-secondary {
   border-color: color-mix(in srgb, var(--accent) 46%, var(--readable-border)) !important;
   background: color-mix(in srgb, var(--accent) 12%, #fffaf5) !important;

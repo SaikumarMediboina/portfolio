@@ -21,18 +21,38 @@ npm run dev
 
 ## Firestore Rules
 
-Use these rules for the first release so each signed-in user can only access their own subscriber document.
+The repository includes `firestore.rules`. It preserves the existing private subscriber documents
+and adds the two-member expense household. Deploy it from the Firebase console or with:
 
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /subscribers/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
+```bash
+npx firebase-tools deploy --only firestore:rules --project YOUR_FIREBASE_PROJECT_ID
 ```
+
+Do not use a public `allow read, write: if true` rule. Expense access is granted only through the
+Sai owner record or a single-use Naveen invite.
+
+## Sai & Naveen Expense Tracker
+
+Open `/expenses` after Firebase Authentication, Firestore, and the rules above are active.
+
+1. Sign in with Sai's Google account and choose **Create as Sai**.
+2. Choose **Create new invite**. The private link is copied and expires in seven days.
+3. Open that link in a separate browser/profile, sign in with Naveen's Google account, and choose
+   **Join as Naveen**.
+4. Expenses and custom categories now sync live between both browsers through Firestore.
+
+The tracker stores integer paise instead of floating-point rupees. Its collections are:
+
+```text
+expenseHouseholds/sai-naveen
+expenseHouseholds/sai-naveen/members/{uid}
+expenseHouseholds/sai-naveen/expenses/{expenseId}
+expenseHouseholds/sai-naveen/categories/{categoryId}
+expenseInvites/{singleUseToken}
+```
+
+The old browser-only `sai-naveen-expenses` and `sai-naveen-categories` localStorage values are no
+longer read. Clearing browser storage therefore does not delete Firestore expenses.
 
 ## Sending Updates
 

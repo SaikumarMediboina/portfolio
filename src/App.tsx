@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
+import ExpenseTrackerPage from "./expense/ExpenseTrackerPage";
 import {
   certifications,
   currentFocus,
@@ -1693,6 +1694,10 @@ function isDashboardPathname() {
   }
 
   return window.location.pathname.replace(/\/$/, "") === "/dashboard";
+}
+
+function isExpenseTrackerPathname() {
+  return window.location.pathname.replace(/\/$/, "") === "/expenses";
 }
 
 function isLearnPathname() {
@@ -10705,6 +10710,7 @@ function App() {
   const isSavedPostsPage = isSavedPostsPathname();
   const isShelfPage = isShelfPathname();
   const isDashboardPage = isDashboardPathname();
+  const isExpenseTrackerPage = isExpenseTrackerPathname();
   const isLearnPage = isLearnPathname();
   const isActiveBuildsPage = isActiveBuildsPathname();
   const activeBuildSlug = getActiveBuildSlugFromPathname();
@@ -11668,6 +11674,21 @@ function App() {
         theme={theme}
         onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />,
+    );
+  }
+
+  if (isExpenseTrackerPage) {
+    return (
+      <ExpenseTrackerPage
+        authBusy={subscriptionBusy}
+        authError={subscriptionError}
+        authReady={authReady}
+        theme={theme}
+        user={subscriberUser}
+        onSignIn={handleGoogleSignIn}
+        onSignOut={handleSignOut}
+        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
+      />
     );
   }
 
