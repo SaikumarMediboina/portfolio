@@ -293,6 +293,34 @@ export default function ExpenseTrackerPage({
     0,
   );
 
+  useEffect(() => {
+    if (!selectedCategoryEntries.length) {
+      return undefined;
+    }
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedCategoryName("");
+      }
+    };
+    const isMobilePopup = window.matchMedia("(max-width: 680px)").matches;
+    const previousOverflow = document.body.style.overflow;
+
+    if (isMobilePopup) {
+      document.body.style.overflow = "hidden";
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+
+      if (isMobilePopup) {
+        document.body.style.overflow = previousOverflow;
+      }
+    };
+  }, [selectedCategoryEntries.length]);
+
   const addExpense = async (event: FormEvent) => {
     event.preventDefault();
     const amountPaise = parseRupees(amount);
@@ -753,56 +781,66 @@ export default function ExpenseTrackerPage({
             ) : null}
             {selectedCategoryEntries.length ? (
               <section
+                aria-label={`${selectedCategoryName} expense details`}
                 aria-live="polite"
                 className="expense-category-detail"
                 id="expense-category-details"
+                onClick={(event) => {
+                  if (event.target === event.currentTarget) {
+                    setSelectedCategoryName("");
+                  }
+                }}
+                role="dialog"
               >
-                <div className="expense-category-detail-heading">
-                  <div>
-                    <p className="expense-eyebrow">Category details</p>
-                    <h3>{selectedCategoryName}</h3>
-                    <p>
-                      {chartViewLabel} · {selectedCategoryEntries.length} expenses · {money(selectedCategoryTotalPaise)}
-                    </p>
+                <div className="expense-category-detail-sheet">
+                  <div className="expense-category-detail-heading">
+                    <div>
+                      <p className="expense-eyebrow">Category details</p>
+                      <h3>{selectedCategoryName}</h3>
+                      <p>
+                        {chartViewLabel} · {selectedCategoryEntries.length} expenses · {money(selectedCategoryTotalPaise)}
+                      </p>
+                    </div>
+                    <button
+                      aria-label="Close category details"
+                      onClick={() => setSelectedCategoryName("")}
+                      type="button"
+                    >
+                      <span aria-hidden="true">×</span>
+                      Close
+                    </button>
                   </div>
-                  <button
-                    aria-label="Close category details"
-                    onClick={() => setSelectedCategoryName("")}
-                    type="button"
-                  >
-                    Close
-                  </button>
-                </div>
-                <div className="expense-table-wrap expense-category-detail-table">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Description</th>
-                        <th>Date</th>
-                        <th>Paid by</th>
-                        <th>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedCategoryEntries.map((entry) => (
-                        <tr key={entry.id}>
-                          <td data-label="Description">
-                            <strong>{entry.description}</strong>
-                          </td>
-                          <td data-label="Date">
-                            {new Intl.DateTimeFormat("en-IN", {
-                              day: "numeric",
-                              month: "short",
-                            }).format(new Date(`${entry.expenseDate}T00:00:00`))}
-                          </td>
-                          <td data-label="Paid by">{entry.paidByName}</td>
-                          <td data-label="Amount">
-                            <strong>{money(entry.amountPaise)}</strong>
-                          </td>
+                  <div className="expense-table-wrap expense-category-detail-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Description</th>
+                          <th>Date</th>
+                          <th>Paid by</th>
+                          <th>Amount</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {selectedCategoryEntries.map((entry) => (
+                          <tr key={entry.id}>
+                            <td data-label="Description">
+                              <strong>{entry.description}</strong>
+                            </td>
+                            <td data-label="Date">
+                              {new Intl.DateTimeFormat("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                              }).format(new Date(`${entry.expenseDate}T00:00:00`))}
+                            </td>
+                            <td data-label="Paid by">{entry.paidByName}</td>
+                            <td data-label="Amount">
+                              <strong>{money(entry.amountPaise)}</strong>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </section>
             ) : null}
