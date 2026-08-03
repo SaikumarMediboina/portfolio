@@ -6,9 +6,12 @@ import {
   addExpenseEntry,
   createExpenseHousehold,
   createExpenseInvite,
+  createPersonalExpenseInvite,
   deleteExpenseEntry,
   ensureDefaultExpenseCategories,
   joinExpenseHousehold,
+  joinPersonalExpenseWorkspace,
+  SHARED_EXPENSE_WORKSPACE,
   subscribeToExpenseAccess,
   subscribeToExpenseData,
   type ExpenseAccessState,
@@ -16,6 +19,7 @@ import {
   type ExpenseEntry,
   type ExpenseLiveData,
   type ExpenseMember,
+  type ExpenseWorkspace,
 } from "./firestore";
 import "./ExpenseTrackerPage.css";
 
@@ -110,6 +114,14 @@ function getInviteToken() {
   return new URLSearchParams(window.location.search).get("invite")?.trim() ?? "";
 }
 
+function getPersonalInviteToken() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return new URLSearchParams(window.location.search).get("personalInvite")?.trim() ?? "";
+}
+
 function getErrorMessage(error: unknown) {
   const code =
     typeof error === "object" && error && "code" in error
@@ -164,10 +176,12 @@ export default function ExpenseTrackerPage({
   user,
 }: ExpenseTrackerPageProps) {
   const inviteToken = useMemo(getInviteToken, []);
+  const personalInviteToken = useMemo(getPersonalInviteToken, []);
   const [access, setAccess] = useState<ExpenseAccessState | null>(null);
   const [liveData, setLiveData] = useState<ExpenseLiveData>(EMPTY_LIVE_DATA);
   const [dataReady, setDataReady] = useState(false);
   const [generatedInviteLink, setGeneratedInviteLink] = useState("");
+  const [generatedPersonalInviteLink, setGeneratedPersonalInviteLink] = useState("");
   const [busyAction, setBusyAction] = useState("");
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
@@ -181,6 +195,17 @@ export default function ExpenseTrackerPage({
   const [spendView, setSpendView] = useState<SpendView>("all");
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
   const [expenseDialog, setExpenseDialog] = useState<ExpenseDialog>(null);
+  const workspace = useMemo<ExpenseWorkspace | null>(() => {
+    if (access?.member) {
+      return SHARED_EXPENSE_WORKSPACE;
+    }
+
+    return access?.personalProfile
+      ? { kind: "personal", userId: access.personalProfile.id }
+      : null;
+  }, [access?.member, access?.personalProfile]);
+  const currentMember = access?.member ?? access?.personalProfile ?? null;
+  const isSharedWorkspace = workspace?.kind === "shared";
 
   useEffect(() => {
     setAccess(null);
@@ -199,18 +224,21 @@ export default function ExpenseTrackerPage({
   }, [user]);
 
   useEffect(() => {
-    if (!access?.member) {
+    if (!workspace) {
       return undefined;
     }
 
+    setDataReady(false);
     return subscribeToExpenseData(
+      workspace,
+      access?.personalProfile ?? null,
       (nextData) => {
         setLiveData(nextData);
         setDataReady(true);
       },
       (nextError) => setError(getErrorMessage(nextError)),
     );
-  }, [access?.member?.id]);
+  }, [access?.personalProfile, workspace]);
 
   useEffect(() => {
     if (!liveData.categories.length) {
@@ -229,11 +257,11 @@ export default function ExpenseTrackerPage({
 
     if (!liveData.members.some((member) => member.id === paidByUid)) {
       setPaidByUid(
-        liveData.members.find((member) => member.id === access?.member?.id)?.id ??
+        liveData.members.find((member) => member.id === currentMember?.id)?.id ??
           liveData.members[0].id,
       );
     }
-  }, [access?.member?.id, liveData.members, paidByUid]);
+  }, [currentMember?.id, liveData.members, paidByUid]);
 
   const runAction = async (name: string, action: () => Promise<void>, successMessage: string) => {
     setBusyAction(name);
@@ -265,10 +293,10 @@ export default function ExpenseTrackerPage({
 
   const chartEntries = useMemo(
     () =>
-      spendView === "all"
+      !isSharedWorkspace || spendView === "all"
         ? visibleEntries
         : visibleEntries.filter((entry) => entry.paidByName === spendView),
-    [spendView, visibleEntries],
+    [isSharedWorkspace, spendView, visibleEntries],
   );
   const chartTotalPaise = chartEntries.reduce((sum, entry) => sum + entry.amountPaise, 0);
 
@@ -280,8 +308,16 @@ export default function ExpenseTrackerPage({
 
     return [...totals].sort((left, right) => right[1] - left[1]);
   }, [chartEntries]);
+  const averageExpensePaise = visibleEntries.length
+    ? Math.round(totalPaise / visibleEntries.length)
+    : 0;
+  const topCategory = breakdown[0] ?? null;
   const highestCategoryValue = Math.max(...breakdown.map(([, value]) => value), 1);
-  const chartViewLabel = spendView === "all" ? "Household" : spendView;
+  const chartViewLabel = isSharedWorkspace
+    ? spendView === "all"
+      ? "Household"
+      : spendView
+    : "My spending";
   const pieChartGradient = useMemo(
     () => getPieChartGradient(breakdown, chartTotalPaise),
     [breakdown, chartTotalPaise],
@@ -359,7 +395,7 @@ export default function ExpenseTrackerPage({
       return;
     }
 
-    if (!description.trim() || !category || !paidBy || !user) {
+    if (!description.trim() || !category || !paidBy || !user || !workspace) {
       setError("Complete the amount, description, category, and paid-by fields.");
       return;
     }
@@ -368,6 +404,7 @@ export default function ExpenseTrackerPage({
       "add-expense",
       () =>
         addExpenseEntry({
+          workspace,
           amountPaise,
           category,
           description,
@@ -375,7 +412,9 @@ export default function ExpenseTrackerPage({
           paidBy,
           userUid: user.uid,
         }),
-      "Expense added. It is now synced for Sai and Naveen.",
+      isSharedWorkspace
+        ? "Expense added. It is now synced for Sai and Naveen."
+        : "Expense added to your private tracker.",
     );
 
     if (saved) {
@@ -389,7 +428,7 @@ export default function ExpenseTrackerPage({
     event.preventDefault();
     const name = newCategory.trim();
 
-    if (!user || !name) {
+    if (!user || !workspace || !name) {
       return;
     }
 
@@ -405,22 +444,26 @@ export default function ExpenseTrackerPage({
     await runAction(
       "add-category",
       async () => {
-        await addExpenseCategory(user.uid, name);
+        await addExpenseCategory(workspace, user.uid, name);
         setNewCategory("");
       },
-      `${name} is ready for both users.`,
+      isSharedWorkspace ? `${name} is ready for both users.` : `${name} is ready for you.`,
     );
   };
 
   const deleteEntry = async (entry: ExpenseEntry) => {
+    if (!workspace) {
+      return;
+    }
+
     if (!window.confirm(`Delete “${entry.description}” for ${money(entry.amountPaise)}?`)) {
       return;
     }
 
     await runAction(
       `delete-${entry.id}`,
-      () => deleteExpenseEntry(entry.id),
-      "Expense deleted for both users.",
+      () => deleteExpenseEntry(workspace, entry.id),
+      isSharedWorkspace ? "Expense deleted for both users." : "Expense deleted.",
     );
   };
 
@@ -459,6 +502,41 @@ export default function ExpenseTrackerPage({
     }
   };
 
+  const createPersonalInvite = async () => {
+    if (!user) {
+      return;
+    }
+
+    await runAction(
+      "create-personal-invite",
+      async () => {
+        const token = await createPersonalExpenseInvite(user.uid);
+        const url = `${window.location.origin}/expenses?personalInvite=${encodeURIComponent(token)}`;
+        setGeneratedPersonalInviteLink(url);
+
+        try {
+          await navigator.clipboard?.writeText(url);
+        } catch {
+          // The link remains visible so it can still be copied manually.
+        }
+      },
+      "Independent-user invite created. It expires in 7 days.",
+    );
+  };
+
+  const copyPersonalInvite = async () => {
+    if (!generatedPersonalInviteLink) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard?.writeText(generatedPersonalInviteLink);
+      setFeedback("Private-user invite copied. Send it only to the intended person.");
+    } catch {
+      setFeedback("Select the visible private-user link and copy it manually.");
+    }
+  };
+
   if (!authReady) {
     return (
       <AccessCard eyebrow="Private household" title="Opening your expense space">
@@ -482,12 +560,18 @@ export default function ExpenseTrackerPage({
   if (!user) {
     return (
       <AccessCard
-        eyebrow={inviteToken ? "Naveen, you have a private invite" : "Private household"}
-        title="Sai & Naveen Expense Tracker"
+        eyebrow={
+          personalInviteToken
+            ? "Your independent tracker is ready"
+            : inviteToken
+              ? "Naveen, you have a private invite"
+              : "Private expense spaces"
+        }
+        title={personalInviteToken ? "Start your personal expense tracker" : "Expense Tracker"}
       >
         <p className="expense-access-copy">
-          Sign in with Google. Only the two household member accounts can read or change this
-          Firestore data.
+          Sign in with Google. Firestore keeps the Sai–Naveen household and every personal
+          workspace in completely separate, UID-protected paths.
         </p>
         <button
           className="expense-button expense-button-primary"
@@ -511,7 +595,7 @@ export default function ExpenseTrackerPage({
     );
   }
 
-  if (!access.householdExists) {
+  if (!access.householdExists && !access.personalProfile) {
     return (
       <AccessCard eyebrow="First-time setup" title="Create your shared household">
         <p className="expense-access-copy">
@@ -538,17 +622,43 @@ export default function ExpenseTrackerPage({
     );
   }
 
-  if (!access.member) {
+  if (!access.member && !access.personalProfile) {
     return (
       <AccessCard
-        eyebrow={inviteToken ? "Private invitation" : "Account not linked"}
-        title={inviteToken ? "Join Sai as Naveen" : "This is a private two-user tracker"}
+        eyebrow={inviteToken || personalInviteToken ? "Private invitation" : "Account not linked"}
+        title={
+          personalInviteToken
+            ? "Create your independent expense space"
+            : inviteToken
+              ? "Join Sai as Naveen"
+              : "This account needs a private invite"
+        }
       >
         <p className="expense-access-copy">
-          {inviteToken
-            ? `You are signed in as ${user.email}. Confirm to join the shared Firestore space as Naveen.`
-            : "This Google account is not a household member. Ask Sai for the latest private invite link."}
+          {personalInviteToken
+            ? `You are signed in as ${user.email}. Your expenses will be visible only to this Google account.`
+            : inviteToken
+              ? `You are signed in as ${user.email}. Confirm to join the shared Firestore space as Naveen.`
+              : "Ask Sai for either the Naveen household link or a separate personal-tracker link."}
         </p>
+        {personalInviteToken ? (
+          <button
+            className="expense-button expense-button-primary"
+            disabled={Boolean(busyAction)}
+            onClick={() =>
+              void runAction(
+                "join-personal-workspace",
+                () => joinPersonalExpenseWorkspace(user, personalInviteToken),
+                "Your private expense tracker is ready.",
+              )
+            }
+            type="button"
+          >
+            {busyAction === "join-personal-workspace"
+              ? "Creating securely…"
+              : "Create my private tracker"}
+          </button>
+        ) : null}
         {inviteToken ? (
           <button
             className="expense-button expense-button-primary"
@@ -580,11 +690,17 @@ export default function ExpenseTrackerPage({
 
   if (!dataReady) {
     return (
-      <AccessCard eyebrow={`Welcome, ${access.member.displayName}`} title="Syncing live expenses">
-        <p className="expense-access-copy">Loading the shared Firestore dashboard…</p>
+      <AccessCard eyebrow={`Welcome, ${currentMember?.displayName}`} title="Syncing live expenses">
+        <p className="expense-access-copy">
+          Loading your {isSharedWorkspace ? "shared" : "private"} Firestore dashboard…
+        </p>
         <div className="expense-loading-bar" aria-label="Loading" />
       </AccessCard>
     );
+  }
+
+  if (!workspace || !currentMember) {
+    return null;
   }
 
   const activeCategory =
@@ -605,8 +721,10 @@ export default function ExpenseTrackerPage({
             onClick={() =>
               void runAction(
                 "restore-categories",
-                () => ensureDefaultExpenseCategories(user.uid),
-                "Standard categories restored for both users.",
+                () => ensureDefaultExpenseCategories(workspace, user.uid),
+                isSharedWorkspace
+                  ? "Standard categories restored for both users."
+                  : "Standard categories restored for your private tracker.",
               )
             }
             type="button"
@@ -768,16 +886,19 @@ export default function ExpenseTrackerPage({
         <header className="expense-topbar">
           <div className="expense-title-group">
             <div className="expense-brand-mark" aria-hidden="true">
-              S<span>N</span>
+              {isSharedWorkspace ? "S" : currentMember.displayName.slice(0, 1).toUpperCase()}
+              <span>{isSharedWorkspace ? "N" : "P"}</span>
             </div>
             <div>
               <div className="expense-live-line">
                 <span className="expense-live-dot" />
                 Live on Firestore
               </div>
-              <h1>Sai & Naveen</h1>
+              <h1>
+                {isSharedWorkspace ? "Sai & Naveen" : `${currentMember.displayName}'s Expenses`}
+              </h1>
               <p>
-                Signed in as {access.member.displayName} · {user.email}
+                Signed in as {currentMember.displayName} · {user.email}
               </p>
             </div>
           </div>
@@ -806,7 +927,9 @@ export default function ExpenseTrackerPage({
 
         <section className="expense-period-bar">
           <div>
-            <p className="expense-eyebrow">Household overview</p>
+            <p className="expense-eyebrow">
+              {isSharedWorkspace ? "Household overview" : "Personal overview"}
+            </p>
             <h2>{monthLabel(selectedMonth)}</h2>
           </div>
           <div className="expense-period-actions">
@@ -846,23 +969,42 @@ export default function ExpenseTrackerPage({
           <article>
             <span>Total spent</span>
             <strong>{money(totalPaise)}</strong>
-            <small>{visibleEntries.length} shared expenses</small>
-          </article>
-          <article>
-            <span>Sai paid</span>
-            <strong>{money(saiPaidPaise)}</strong>
-            <small>{percentage(saiPaidPaise, totalPaise)}% of total</small>
-          </article>
-          <article>
-            <span>Naveen paid</span>
-            <strong>{money(naveenPaidPaise)}</strong>
             <small>
-              {percentage(naveenPaidPaise, totalPaise)}% of total
+              {visibleEntries.length} {isSharedWorkspace ? "shared" : "private"} expenses
             </small>
           </article>
+          {isSharedWorkspace ? (
+            <>
+              <article>
+                <span>Sai paid</span>
+                <strong>{money(saiPaidPaise)}</strong>
+                <small>{percentage(saiPaidPaise, totalPaise)}% of total</small>
+              </article>
+              <article>
+                <span>Naveen paid</span>
+                <strong>{money(naveenPaidPaise)}</strong>
+                <small>{percentage(naveenPaidPaise, totalPaise)}% of total</small>
+              </article>
+            </>
+          ) : (
+            <>
+              <article>
+                <span>Average expense</span>
+                <strong>{money(averageExpensePaise)}</strong>
+                <small>Based on this month</small>
+              </article>
+              <article>
+                <span>Top category</span>
+                <strong>{topCategory?.[0] ?? "No spending"}</strong>
+                <small>
+                  {topCategory ? `${percentage(topCategory[1], totalPaise)}% of total` : "Add an expense to begin"}
+                </small>
+              </article>
+            </>
+          )}
         </section>
 
-        {access.member.role === "owner" && liveData.members.length < 2 ? (
+        {access.member?.role === "owner" && liveData.members.length < 2 ? (
           <section className="expense-invite-banner">
             <div>
               <p className="expense-eyebrow">Connect user 2</p>
@@ -901,6 +1043,50 @@ export default function ExpenseTrackerPage({
           </section>
         ) : null}
 
+        {access.member?.role === "owner" ? (
+          <section className="expense-invite-banner expense-personal-invite-banner">
+            <div>
+              <p className="expense-eyebrow">Independent user</p>
+              <h2>Invite a separate personal tracker</h2>
+              <p>
+                This user gets the same features in a UID-isolated space. Their expenses never
+                appear in the Sai–Naveen dashboard.
+              </p>
+            </div>
+            <div className="expense-invite-actions">
+              {generatedPersonalInviteLink ? (
+                <button
+                  className="expense-button expense-button-secondary"
+                  onClick={() => void copyPersonalInvite()}
+                  type="button"
+                >
+                  Copy personal invite
+                </button>
+              ) : null}
+              <button
+                className="expense-button expense-button-primary"
+                disabled={Boolean(busyAction)}
+                onClick={() => void createPersonalInvite()}
+                type="button"
+              >
+                {busyAction === "create-personal-invite"
+                  ? "Creating…"
+                  : "Create personal invite"}
+              </button>
+            </div>
+            {generatedPersonalInviteLink ? (
+              <label className="expense-invite-link">
+                One-time private-user link
+                <input
+                  onFocus={(event) => event.currentTarget.select()}
+                  readOnly
+                  value={generatedPersonalInviteLink}
+                />
+              </label>
+            ) : null}
+          </section>
+        ) : null}
+
         {error ? <p className="expense-message is-error">{error}</p> : null}
         {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
 
@@ -913,23 +1099,29 @@ export default function ExpenseTrackerPage({
               </div>
               <span>{breakdown.length} categories</span>
             </div>
-            <div className="expense-spend-toggle" role="group" aria-label="Choose spending view">
-              {([
-                ["all", "Household"],
-                ["Sai", "Sai spent"],
-                ["Naveen", "Naveen spent"],
-              ] as const).map(([value, label]) => (
-                <button
-                  aria-pressed={spendView === value}
-                  className={spendView === value ? "is-active" : ""}
-                  key={value}
-                  onClick={() => setSpendView(value)}
-                  type="button"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            {isSharedWorkspace ? (
+              <div className="expense-spend-toggle" role="group" aria-label="Choose spending view">
+                {([
+                  ["all", "Household"],
+                  ["Sai", "Sai spent"],
+                  ["Naveen", "Naveen spent"],
+                ] as const).map(([value, label]) => (
+                  <button
+                    aria-pressed={spendView === value}
+                    className={spendView === value ? "is-active" : ""}
+                    key={value}
+                    onClick={() => setSpendView(value)}
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="expense-private-view-note">
+                <span className="expense-live-dot" /> Only your Google account can see this data
+              </div>
+            )}
             {breakdown.length ? (
               <div className="expense-chart-layout">
                 <div className="expense-pie-visual">
@@ -984,7 +1176,7 @@ export default function ExpenseTrackerPage({
                 <span>◔</span>
                 <h3>No {chartViewLabel.toLowerCase()} spending in {monthLabel(selectedMonth)}</h3>
                 <p>
-                  {spendView === "all"
+                  {!isSharedWorkspace || spendView === "all"
                     ? "Add the first expense and the visual summary appears here instantly."
                     : `No expenses paid by ${spendView} in this month.`}
                 </p>
@@ -1079,9 +1271,14 @@ export default function ExpenseTrackerPage({
             <div className="expense-modal-sheet expense-add-modal">
               <header className="expense-modal-header">
                 <div>
-                  <p className="expense-eyebrow">New shared entry</p>
+                  <p className="expense-eyebrow">
+                    {isSharedWorkspace ? "New shared entry" : "New private entry"}
+                  </p>
                   <h2 id="expense-add-dialog-title">Add expense</h2>
-                  <p>{monthLabel(expenseDate.slice(0, 7))} · synced for both users</p>
+                  <p>
+                    {monthLabel(expenseDate.slice(0, 7))} ·{" "}
+                    {isSharedWorkspace ? "synced for both users" : "private to your account"}
+                  </p>
                 </div>
                 <button
                   aria-label="Close add expense dialog"
@@ -1113,7 +1310,9 @@ export default function ExpenseTrackerPage({
             <div className="expense-modal-sheet expense-recent-modal">
               <header className="expense-modal-header">
                 <div>
-                  <p className="expense-eyebrow">Shared activity</p>
+                  <p className="expense-eyebrow">
+                    {isSharedWorkspace ? "Shared activity" : "Private activity"}
+                  </p>
                   <h2 id="expense-recent-dialog-title">Recent expenses</h2>
                   <p>
                     Showing latest {recentEntries.length} · up to 20 · {monthLabel(selectedMonth)}
@@ -1138,7 +1337,11 @@ export default function ExpenseTrackerPage({
           <span>
             <i className="expense-live-dot" /> Firestore real-time sync
           </span>
-          <span>Private to Sai and Naveen</span>
+          <span>
+            {isSharedWorkspace
+              ? "Private to Sai and Naveen"
+              : `Private to ${currentMember.displayName}`}
+          </span>
         </footer>
       </main>
     </div>

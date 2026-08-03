@@ -17,6 +17,12 @@ import { db, isFirebaseConfigured } from "../lib/firebase";
 
 export const EXPENSE_HOUSEHOLD_ID = "sai-naveen";
 
+export type ExpenseWorkspace =
+  | { kind: "shared" }
+  | { kind: "personal"; userId: string };
+
+export const SHARED_EXPENSE_WORKSPACE: ExpenseWorkspace = { kind: "shared" };
+
 export const DEFAULT_EXPENSE_CATEGORIES = [
   "Food",
   "Housing",
@@ -31,8 +37,8 @@ export const DEFAULT_EXPENSE_CATEGORIES = [
 
 export type ExpenseMember = {
   id: string;
-  displayName: "Sai" | "Naveen";
-  role: "owner" | "member";
+  displayName: string;
+  role: "owner" | "member" | "personal";
   email: string;
   photoURL: string;
 };
@@ -51,7 +57,7 @@ export type ExpenseEntry = {
   description: string;
   expenseDate: string;
   paidByUid: string;
-  paidByName: "Sai" | "Naveen";
+  paidByName: string;
   createdByUid: string;
   createdAtMillis: number;
 };
@@ -59,6 +65,7 @@ export type ExpenseEntry = {
 export type ExpenseAccessState = {
   householdExists: boolean;
   member: ExpenseMember | null;
+  personalProfile: ExpenseMember | null;
 };
 
 export type ExpenseLiveData = {
@@ -89,12 +96,20 @@ function memberRef(uid: string, store = assertExpenseStore()) {
   return doc(store, "expenseHouseholds", EXPENSE_HOUSEHOLD_ID, "members", uid);
 }
 
-function categoriesRef(store = assertExpenseStore()) {
-  return collection(store, "expenseHouseholds", EXPENSE_HOUSEHOLD_ID, "categories");
+function personalProfileRef(uid: string, store = assertExpenseStore()) {
+  return doc(store, "personalExpenseUsers", uid);
 }
 
-function expensesRef(store = assertExpenseStore()) {
-  return collection(store, "expenseHouseholds", EXPENSE_HOUSEHOLD_ID, "expenses");
+function categoriesRef(workspace: ExpenseWorkspace, store = assertExpenseStore()) {
+  return workspace.kind === "shared"
+    ? collection(store, "expenseHouseholds", EXPENSE_HOUSEHOLD_ID, "categories")
+    : collection(store, "personalExpenseUsers", workspace.userId, "categories");
+}
+
+function expensesRef(workspace: ExpenseWorkspace, store = assertExpenseStore()) {
+  return workspace.kind === "shared"
+    ? collection(store, "expenseHouseholds", EXPENSE_HOUSEHOLD_ID, "expenses")
+    : collection(store, "personalExpenseUsers", workspace.userId, "expenses");
 }
 
 function normalizedText(value: unknown) {
@@ -106,6 +121,16 @@ function mapMember(id: string, data: DocumentData): ExpenseMember {
     id,
     displayName: data.displayName === "Naveen" ? "Naveen" : "Sai",
     role: data.role === "owner" ? "owner" : "member",
+    email: normalizedText(data.email),
+    photoURL: normalizedText(data.photoURL),
+  };
+}
+
+function mapPersonalProfile(id: string, data: DocumentData): ExpenseMember {
+  return {
+    id,
+    displayName: normalizedText(data.displayName) || "Personal user",
+    role: "personal",
     email: normalizedText(data.email),
     photoURL: normalizedText(data.photoURL),
   };
@@ -133,7 +158,7 @@ function mapEntry(id: string, data: DocumentData): ExpenseEntry {
     description: normalizedText(data.description),
     expenseDate: normalizedText(data.expenseDate),
     paidByUid: normalizedText(data.paidByUid),
-    paidByName: data.paidByName === "Naveen" ? "Naveen" : "Sai",
+    paidByName: normalizedText(data.paidByName) || "Personal user",
     createdByUid: normalizedText(data.createdByUid),
     createdAtMillis:
       createdAt && typeof createdAt.toMillis === "function" ? createdAt.toMillis() : 0,
@@ -168,12 +193,14 @@ export function subscribeToExpenseAccess(
   const store = assertExpenseStore();
   let householdReady = false;
   let memberReady = false;
+  let personalReady = false;
   let householdExists = false;
   let member: ExpenseMember | null = null;
+  let personalProfile: ExpenseMember | null = null;
 
   const emit = () => {
-    if (householdReady && memberReady) {
-      onChange({ householdExists, member });
+    if (householdReady && memberReady && personalReady) {
+      onChange({ householdExists, member, personalProfile });
     }
   };
 
@@ -195,14 +222,28 @@ export function subscribeToExpenseAccess(
     },
     onError,
   );
+  const unsubscribePersonalProfile = onSnapshot(
+    personalProfileRef(uid, store),
+    (snapshot) => {
+      personalReady = true;
+      personalProfile = snapshot.exists()
+        ? mapPersonalProfile(snapshot.id, snapshot.data())
+        : null;
+      emit();
+    },
+    onError,
+  );
 
   return () => {
     unsubscribeHousehold();
     unsubscribeMember();
+    unsubscribePersonalProfile();
   };
 }
 
 export function subscribeToExpenseData(
+  workspace: ExpenseWorkspace,
+  personalProfile: ExpenseMember | null,
   onChange: LiveDataHandler,
   onError: (error: Error) => void,
 ) {
@@ -210,12 +251,12 @@ export function subscribeToExpenseData(
   const current: ExpenseLiveData = {
     categories: [],
     entries: [],
-    members: [],
+    members: personalProfile ? [personalProfile] : [],
   };
   const ready = {
     categories: false,
     entries: false,
-    members: false,
+    members: workspace.kind === "personal",
   };
 
   const emit = () => {
@@ -230,7 +271,7 @@ export function subscribeToExpenseData(
 
   const unsubscribes: Unsubscribe[] = [
     onSnapshot(
-      categoriesRef(store),
+      categoriesRef(workspace, store),
       (snapshot) => {
         current.categories = snapshot.docs
           .map((item) => mapCategory(item.id, item.data()))
@@ -242,7 +283,7 @@ export function subscribeToExpenseData(
       onError,
     ),
     onSnapshot(
-      expensesRef(store),
+      expensesRef(workspace, store),
       (snapshot) => {
         current.entries = snapshot.docs
           .map((item) => mapEntry(item.id, item.data()))
@@ -257,18 +298,25 @@ export function subscribeToExpenseData(
       },
       onError,
     ),
-    onSnapshot(
-      membersRef(store),
-      (snapshot) => {
-        current.members = snapshot.docs
-          .map((item) => mapMember(item.id, item.data()))
-          .sort((left, right) => (left.role === "owner" ? -1 : right.role === "owner" ? 1 : 0));
-        ready.members = true;
-        emit();
-      },
-      onError,
-    ),
   ];
+
+  if (workspace.kind === "shared") {
+    unsubscribes.push(
+      onSnapshot(
+        membersRef(store),
+        (snapshot) => {
+          current.members = snapshot.docs
+            .map((item) => mapMember(item.id, item.data()))
+            .sort((left, right) =>
+              left.role === "owner" ? -1 : right.role === "owner" ? 1 : 0,
+            );
+          ready.members = true;
+          emit();
+        },
+        onError,
+      ),
+    );
+  }
 
   return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
 }
@@ -305,7 +353,7 @@ export async function createExpenseHousehold(user: User) {
 
   const categoryBatch = writeBatch(store);
   DEFAULT_EXPENSE_CATEGORIES.forEach((name) => {
-    categoryBatch.set(doc(categoriesRef(store), defaultCategoryId(name)), {
+    categoryBatch.set(doc(categoriesRef(SHARED_EXPENSE_WORKSPACE, store), defaultCategoryId(name)), {
       name,
       isDefault: true,
       createdByUid: user.uid,
@@ -331,6 +379,24 @@ export async function createExpenseInvite(ownerUid: string) {
     expiresAt,
   });
   await batch.commit();
+
+  return token;
+}
+
+export async function createPersonalExpenseInvite(ownerUid: string) {
+  const store = assertExpenseStore();
+  const token = randomInviteToken();
+  const expiresAt = Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+
+  await writeBatch(store)
+    .set(doc(store, "personalExpenseInvites", token), {
+      inviteType: "personal",
+      active: true,
+      createdByUid: ownerUid,
+      createdAt: serverTimestamp(),
+      expiresAt,
+    })
+    .commit();
 
   return token;
 }
@@ -401,9 +467,77 @@ export async function joinExpenseHousehold(user: User, token: string) {
   });
 }
 
-export async function addExpenseCategory(userUid: string, name: string) {
+export async function joinPersonalExpenseWorkspace(user: User, token: string) {
   const store = assertExpenseStore();
-  await addDoc(categoriesRef(store), {
+  const cleanToken = token.trim();
+
+  if (!/^[a-f0-9]{32,64}$/i.test(cleanToken)) {
+    throw new Error("This private invite link is not valid. Ask Sai for a fresh link.");
+  }
+
+  const inviteRef = doc(store, "personalExpenseInvites", cleanToken);
+  const profileRef = personalProfileRef(user.uid, store);
+
+  await runTransaction(store, async (transaction) => {
+    const [inviteSnapshot, profileSnapshot] = await Promise.all([
+      transaction.get(inviteRef),
+      transaction.get(profileRef),
+    ]);
+
+    if (profileSnapshot.exists()) {
+      return;
+    }
+
+    if (!inviteSnapshot.exists()) {
+      throw new Error("This private invite does not exist. Ask Sai to create a new one.");
+    }
+
+    const invite = inviteSnapshot.data();
+    const expiresAt = invite.expiresAt;
+    const expired =
+      expiresAt && typeof expiresAt.toMillis === "function"
+        ? expiresAt.toMillis() <= Date.now()
+        : true;
+
+    if (invite.inviteType !== "personal" || invite.active !== true || expired) {
+      throw new Error("This private invite has expired or was already used.");
+    }
+
+    transaction.update(inviteRef, {
+      active: false,
+      claimedBy: user.uid,
+      claimedAt: serverTimestamp(),
+    });
+    transaction.set(profileRef, {
+      uid: user.uid,
+      displayName: user.displayName?.trim() || "Personal user",
+      email: user.email ?? "",
+      photoURL: user.photoURL ?? "",
+      inviteToken: cleanToken,
+      createdAt: serverTimestamp(),
+    });
+  });
+
+  const workspace: ExpenseWorkspace = { kind: "personal", userId: user.uid };
+  const categoryBatch = writeBatch(store);
+  DEFAULT_EXPENSE_CATEGORIES.forEach((name) => {
+    categoryBatch.set(doc(categoriesRef(workspace, store), defaultCategoryId(name)), {
+      name,
+      isDefault: true,
+      createdByUid: user.uid,
+      createdAt: serverTimestamp(),
+    });
+  });
+  await categoryBatch.commit();
+}
+
+export async function addExpenseCategory(
+  workspace: ExpenseWorkspace,
+  userUid: string,
+  name: string,
+) {
+  const store = assertExpenseStore();
+  await addDoc(categoriesRef(workspace, store), {
     name: name.trim(),
     isDefault: false,
     createdByUid: userUid,
@@ -412,6 +546,7 @@ export async function addExpenseCategory(userUid: string, name: string) {
 }
 
 export async function addExpenseEntry(input: {
+  workspace: ExpenseWorkspace;
   amountPaise: number;
   category: ExpenseCategory;
   description: string;
@@ -420,7 +555,7 @@ export async function addExpenseEntry(input: {
   userUid: string;
 }) {
   const store = assertExpenseStore();
-  await addDoc(expensesRef(store), {
+  await addDoc(expensesRef(input.workspace, store), {
     amountPaise: input.amountPaise,
     categoryId: input.category.id,
     categoryName: input.category.name,
@@ -434,18 +569,21 @@ export async function addExpenseEntry(input: {
   });
 }
 
-export async function deleteExpenseEntry(expenseId: string) {
+export async function deleteExpenseEntry(workspace: ExpenseWorkspace, expenseId: string) {
   const store = assertExpenseStore();
-  await deleteDoc(doc(expensesRef(store), expenseId));
+  await deleteDoc(doc(expensesRef(workspace, store), expenseId));
 }
 
-export async function ensureDefaultExpenseCategories(userUid: string) {
+export async function ensureDefaultExpenseCategories(
+  workspace: ExpenseWorkspace,
+  userUid: string,
+) {
   const store = assertExpenseStore();
   const batch = writeBatch(store);
 
   DEFAULT_EXPENSE_CATEGORIES.forEach((name) => {
     batch.set(
-      doc(categoriesRef(store), defaultCategoryId(name)),
+      doc(categoriesRef(workspace, store), defaultCategoryId(name)),
       {
         name,
         isDefault: true,

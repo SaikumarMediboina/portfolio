@@ -217,6 +217,144 @@ service cloud.firestore {
       }
     }
 
+    match /personalExpenseUsers/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list: if false;
+
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && !exists(expenseMemberPath("sai-naveen", userId))
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "displayName",
+          "email",
+          "photoURL",
+          "inviteToken",
+          "createdAt"
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 80
+        && request.resource.data.email is string
+        && request.resource.data.photoURL is string
+        && request.resource.data.inviteToken is string
+        && request.resource.data.createdAt == request.time
+        && get(
+          /databases/$(database)/documents/personalExpenseInvites/$(request.resource.data.inviteToken)
+        ).data.inviteType == "personal"
+        && get(
+          /databases/$(database)/documents/personalExpenseInvites/$(request.resource.data.inviteToken)
+        ).data.active == true
+        && get(
+          /databases/$(database)/documents/personalExpenseInvites/$(request.resource.data.inviteToken)
+        ).data.expiresAt > request.time
+        && getAfter(
+          /databases/$(database)/documents/personalExpenseInvites/$(request.resource.data.inviteToken)
+        ).data.active == false
+        && getAfter(
+          /databases/$(database)/documents/personalExpenseInvites/$(request.resource.data.inviteToken)
+        ).data.claimedBy == userId;
+
+      allow update, delete: if false;
+
+      match /categories/{categoryId} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly([
+            "name",
+            "isDefault",
+            "createdByUid",
+            "createdAt"
+          ])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.name.size() <= 40
+          && request.resource.data.isDefault is bool
+          && request.resource.data.createdByUid == userId
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+
+      match /expenses/{expenseId} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly([
+            "amountPaise",
+            "categoryId",
+            "categoryName",
+            "description",
+            "expenseDate",
+            "paidByUid",
+            "paidByName",
+            "createdByUid",
+            "createdAt",
+            "updatedAt"
+          ])
+          && request.resource.data.amountPaise is int
+          && request.resource.data.amountPaise > 0
+          && request.resource.data.amountPaise <= 1000000000
+          && request.resource.data.categoryId is string
+          && request.resource.data.categoryName is string
+          && request.resource.data.categoryName.size() > 0
+          && request.resource.data.categoryName.size() <= 40
+          && request.resource.data.description is string
+          && request.resource.data.description.size() > 0
+          && request.resource.data.description.size() <= 80
+          && request.resource.data.expenseDate is string
+          && request.resource.data.expenseDate.matches(
+            "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          )
+          && request.resource.data.paidByUid == userId
+          && request.resource.data.paidByName == get(
+            /databases/$(database)/documents/personalExpenseUsers/$(userId)
+          ).data.displayName
+          && request.resource.data.createdByUid == userId
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+
+        allow update: if false;
+        allow delete: if signedIn() && request.auth.uid == userId;
+      }
+    }
+
+    match /personalExpenseInvites/{inviteToken} {
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          "inviteType",
+          "active",
+          "createdByUid",
+          "createdAt",
+          "expiresAt"
+        ])
+        && request.resource.data.inviteType == "personal"
+        && isExpenseOwner("sai-naveen")
+        && request.resource.data.active == true
+        && request.resource.data.createdByUid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.expiresAt > request.time;
+
+      allow update: if signedIn()
+        && resource.data.inviteType == "personal"
+        && resource.data.active == true
+        && resource.data.expiresAt > request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          "active",
+          "claimedBy",
+          "claimedAt"
+        ])
+        && request.resource.data.active == false
+        && request.resource.data.claimedBy == request.auth.uid
+        && request.resource.data.claimedAt == request.time;
+
+      allow delete: if false;
+    }
+
     match /expenseInvites/{inviteToken} {
       allow get: if signedIn();
       allow list: if false;

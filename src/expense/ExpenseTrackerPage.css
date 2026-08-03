@@ -371,6 +371,13 @@
   color: var(--ink-soft);
 }
 
+.expense-personal-invite-banner {
+  border-color: color-mix(in srgb, #36b993 48%, var(--panel-border));
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, #36b993 16%, transparent), transparent 22rem),
+    var(--panel-soft);
+}
+
 .expense-invite-actions {
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -464,6 +471,20 @@
   background: var(--accent);
   color: var(--accent-contrast, #fff);
   box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.expense-private-view-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.15rem;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid color-mix(in srgb, #36b993 38%, var(--panel-border));
+  border-radius: 12px;
+  background: color-mix(in srgb, #36b993 9%, var(--page-background));
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-weight: 720;
 }
 
 .expense-chart-layout {
