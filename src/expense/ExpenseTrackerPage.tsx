@@ -30,6 +30,17 @@ type ExpenseTrackerPageProps = {
   user: User | null;
 };
 
+type SpendView = "all" | "Sai" | "Naveen";
+
+const EXPENSE_CHART_COLORS = [
+  "#7a6ff0",
+  "#ef8a5d",
+  "#36b993",
+  "#e05f91",
+  "#e6b94e",
+  "#4f9fed",
+] as const;
+
 const EMPTY_LIVE_DATA: ExpenseLiveData = {
   categories: [],
   entries: [],
@@ -40,7 +51,8 @@ const money = (paise: number) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(paise / 100);
 
 function today() {
@@ -67,6 +79,23 @@ function monthLabel(value: string) {
 function parseRupees(value: string) {
   const amount = Number(value.replace(/[₹,\s]/g, ""));
   return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
+}
+
+function getPieChartGradient(breakdown: Array<[string, number]>, totalPaise: number) {
+  if (!breakdown.length || totalPaise <= 0) {
+    return "var(--panel-border)";
+  }
+
+  let currentPercentage = 0;
+  const segments = breakdown.map(([, value], index) => {
+    const startPercentage = currentPercentage;
+    currentPercentage += (value / totalPaise) * 100;
+    const color = EXPENSE_CHART_COLORS[index % EXPENSE_CHART_COLORS.length];
+
+    return `${color} ${startPercentage.toFixed(2)}% ${currentPercentage.toFixed(2)}%`;
+  });
+
+  return `conic-gradient(${segments.join(", ")})`;
 }
 
 function getInviteToken() {
@@ -145,6 +174,7 @@ export default function ExpenseTrackerPage({
   const [expenseDate, setExpenseDate] = useState(today);
   const [newCategory, setNewCategory] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [spendView, setSpendView] = useState<SpendView>("all");
 
   useEffect(() => {
     setAccess(null);
@@ -226,25 +256,30 @@ export default function ExpenseTrackerPage({
     .filter((entry) => entry.paidByName === "Sai")
     .reduce((sum, entry) => sum + entry.amountPaise, 0);
   const naveenPaidPaise = totalPaise - saiPaidPaise;
-  const settlementPaise = Math.abs(saiPaidPaise - totalPaise / 2);
-  const settlementText =
-    liveData.members.length < 2
-      ? "Invite Naveen to start shared settlement"
-      : settlementPaise < 1
-        ? "You are settled up"
-        : saiPaidPaise > naveenPaidPaise
-          ? `Naveen owes Sai ${money(settlementPaise)}`
-          : `Sai owes Naveen ${money(settlementPaise)}`;
+
+  const chartEntries = useMemo(
+    () =>
+      spendView === "all"
+        ? visibleEntries
+        : visibleEntries.filter((entry) => entry.paidByName === spendView),
+    [spendView, visibleEntries],
+  );
+  const chartTotalPaise = chartEntries.reduce((sum, entry) => sum + entry.amountPaise, 0);
 
   const breakdown = useMemo(() => {
     const totals = new Map<string, number>();
-    visibleEntries.forEach((entry) => {
+    chartEntries.forEach((entry) => {
       totals.set(entry.categoryName, (totals.get(entry.categoryName) ?? 0) + entry.amountPaise);
     });
 
     return [...totals].sort((left, right) => right[1] - left[1]);
-  }, [visibleEntries]);
+  }, [chartEntries]);
   const highestCategoryValue = Math.max(...breakdown.map(([, value]) => value), 1);
+  const chartViewLabel = spendView === "all" ? "Household" : spendView;
+  const pieChartGradient = useMemo(
+    () => getPieChartGradient(breakdown, chartTotalPaise),
+    [breakdown, chartTotalPaise],
+  );
 
   const addExpense = async (event: FormEvent) => {
     event.preventDefault();
@@ -566,11 +601,6 @@ export default function ExpenseTrackerPage({
               {totalPaise ? Math.round((naveenPaidPaise / totalPaise) * 100) : 0}% of total
             </small>
           </article>
-          <article className="expense-settlement-card">
-            <span>Equal split</span>
-            <strong>{settlementText}</strong>
-            <small>Calculated from this month</small>
-          </article>
         </section>
 
         {access.member.role === "owner" && liveData.members.length < 2 ? (
@@ -624,31 +654,73 @@ export default function ExpenseTrackerPage({
               </div>
               <span>{breakdown.length} categories</span>
             </div>
+            <div className="expense-spend-toggle" role="group" aria-label="Choose spending view">
+              {([
+                ["all", "Household"],
+                ["Sai", "Sai spent"],
+                ["Naveen", "Naveen spent"],
+              ] as const).map(([value, label]) => (
+                <button
+                  aria-pressed={spendView === value}
+                  className={spendView === value ? "is-active" : ""}
+                  key={value}
+                  onClick={() => setSpendView(value)}
+                  type="button"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             {breakdown.length ? (
-              <div className="expense-category-bars">
-                {breakdown.map(([name, value], index) => (
-                  <div className="expense-category-row" key={name}>
-                    <div className="expense-category-label">
-                      <span>{name}</span>
-                      <strong>{money(value)}</strong>
-                    </div>
-                    <div className="expense-bar-track">
-                      <i
-                        className={`expense-bar-tone-${(index % 4) + 1}`}
-                        style={{ width: `${Math.max((value / highestCategoryValue) * 100, 3)}%` }}
-                      />
-                    </div>
-                    <small>
-                      {totalPaise ? ((value / totalPaise) * 100).toFixed(1) : "0.0"}%
-                    </small>
+              <div className="expense-chart-layout">
+                <div className="expense-pie-visual">
+                  <div
+                    aria-label={`${chartViewLabel} category spending pie chart for ${monthLabel(selectedMonth)}`}
+                    className="expense-pie-chart"
+                    role="img"
+                    style={{ background: pieChartGradient }}
+                  />
+                  <div className="expense-pie-caption">
+                    <span>{chartViewLabel} total</span>
+                    <strong>{money(chartTotalPaise)}</strong>
+                    <small>{chartEntries.length} expenses</small>
                   </div>
-                ))}
+                </div>
+                <div className="expense-category-bars">
+                  {breakdown.map(([name, value], index) => (
+                    <div className="expense-category-row" key={name}>
+                      <div className="expense-category-label">
+                        <span className="expense-category-name">
+                          <i className={`expense-category-dot expense-bar-tone-${(index % 6) + 1}`} />
+                          {name}
+                        </span>
+                        <strong>{money(value)}</strong>
+                      </div>
+                      <div className="expense-bar-track">
+                        <i
+                          className={`expense-bar-tone-${(index % 6) + 1}`}
+                          style={{ width: `${Math.max((value / highestCategoryValue) * 100, 3)}%` }}
+                        />
+                      </div>
+                      <small>
+                        {chartTotalPaise
+                          ? Math.round((value / chartTotalPaise) * 100)
+                          : 0}
+                        %
+                      </small>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="expense-empty-state">
                 <span>◔</span>
-                <h3>No spending in {monthLabel(selectedMonth)}</h3>
-                <p>Add the first expense and the visual summary appears here instantly.</p>
+                <h3>No {chartViewLabel.toLowerCase()} spending in {monthLabel(selectedMonth)}</h3>
+                <p>
+                  {spendView === "all"
+                    ? "Add the first expense and the visual summary appears here instantly."
+                    : `No expenses paid by ${spendView} in this month.`}
+                </p>
               </div>
             )}
           </section>
