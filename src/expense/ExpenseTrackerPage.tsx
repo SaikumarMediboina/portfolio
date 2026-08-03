@@ -175,6 +175,7 @@ export default function ExpenseTrackerPage({
   const [newCategory, setNewCategory] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [spendView, setSpendView] = useState<SpendView>("all");
+  const [selectedCategoryName, setSelectedCategoryName] = useState("");
 
   useEffect(() => {
     setAccess(null);
@@ -279,6 +280,17 @@ export default function ExpenseTrackerPage({
   const pieChartGradient = useMemo(
     () => getPieChartGradient(breakdown, chartTotalPaise),
     [breakdown, chartTotalPaise],
+  );
+  const selectedCategoryEntries = useMemo(
+    () =>
+      selectedCategoryName
+        ? chartEntries.filter((entry) => entry.categoryName === selectedCategoryName)
+        : [],
+    [chartEntries, selectedCategoryName],
+  );
+  const selectedCategoryTotalPaise = selectedCategoryEntries.reduce(
+    (sum, entry) => sum + entry.amountPaise,
+    0,
   );
 
   const addExpense = async (event: FormEvent) => {
@@ -688,7 +700,18 @@ export default function ExpenseTrackerPage({
                 </div>
                 <div className="expense-category-bars">
                   {breakdown.map(([name, value], index) => (
-                    <div className="expense-category-row" key={name}>
+                    <button
+                      aria-controls="expense-category-details"
+                      aria-expanded={selectedCategoryName === name}
+                      className={`expense-category-row${
+                        selectedCategoryName === name ? " is-active" : ""
+                      }`}
+                      key={name}
+                      onClick={() =>
+                        setSelectedCategoryName((current) => (current === name ? "" : name))
+                      }
+                      type="button"
+                    >
                       <div className="expense-category-label">
                         <span className="expense-category-name">
                           <i className={`expense-category-dot expense-bar-tone-${(index % 6) + 1}`} />
@@ -708,7 +731,7 @@ export default function ExpenseTrackerPage({
                           : 0}
                         %
                       </small>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -723,6 +746,66 @@ export default function ExpenseTrackerPage({
                 </p>
               </div>
             )}
+            {breakdown.length && !selectedCategoryEntries.length ? (
+              <p className="expense-category-click-hint">
+                Select a category to see its expense descriptions and amounts.
+              </p>
+            ) : null}
+            {selectedCategoryEntries.length ? (
+              <section
+                aria-live="polite"
+                className="expense-category-detail"
+                id="expense-category-details"
+              >
+                <div className="expense-category-detail-heading">
+                  <div>
+                    <p className="expense-eyebrow">Category details</p>
+                    <h3>{selectedCategoryName}</h3>
+                    <p>
+                      {chartViewLabel} · {selectedCategoryEntries.length} expenses · {money(selectedCategoryTotalPaise)}
+                    </p>
+                  </div>
+                  <button
+                    aria-label="Close category details"
+                    onClick={() => setSelectedCategoryName("")}
+                    type="button"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="expense-table-wrap expense-category-detail-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Paid by</th>
+                        <th>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedCategoryEntries.map((entry) => (
+                        <tr key={entry.id}>
+                          <td data-label="Description">
+                            <strong>{entry.description}</strong>
+                          </td>
+                          <td data-label="Date">
+                            {new Intl.DateTimeFormat("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                            }).format(new Date(`${entry.expenseDate}T00:00:00`))}
+                          </td>
+                          <td data-label="Paid by">{entry.paidByName}</td>
+                          <td data-label="Amount">
+                            <strong>{money(entry.amountPaise)}</strong>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            ) : null}
           </section>
 
           <section className="expense-panel">

@@ -450,6 +450,31 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.38rem 0.75rem;
   align-items: center;
+  width: 100%;
+  padding: 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.expense-category-row:hover {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--panel-border));
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  transform: translateY(-1px);
+}
+
+.expense-category-row.is-active {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--panel-border));
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .expense-category-label {
@@ -522,6 +547,67 @@
   min-width: 3rem;
   color: var(--ink-soft);
   text-align: right;
+}
+
+.expense-category-click-hint {
+  margin: 1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--panel-border);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.expense-category-detail {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+.expense-category-detail-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.expense-category-detail-heading h3 {
+  margin: 0.18rem 0 0.2rem;
+  font-size: 1.15rem;
+}
+
+.expense-category-detail-heading p:not(.expense-eyebrow) {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+.expense-category-detail-heading > button {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 9px;
+  background: var(--page-background);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.expense-category-detail-heading > button:hover {
+  border-color: var(--accent);
+  color: var(--ink-strong);
+}
+
+.expense-category-detail-table th:last-child,
+.expense-category-detail-table td:last-child {
+  text-align: right;
+}
+
+.expense-category-detail-table th:nth-last-child(2),
+.expense-category-detail-table td:nth-last-child(2) {
+  text-align: left;
 }
 
 .expense-form {
@@ -795,6 +881,15 @@
 
   .expense-pie-chart {
     width: min(62vw, 190px);
+  }
+
+  .expense-category-detail-heading {
+    align-items: center;
+  }
+
+  .expense-category-detail-table td:last-child,
+  .expense-category-detail-table td:nth-last-child(2) {
+    text-align: right !important;
   }
 
   .expense-invite-actions {
