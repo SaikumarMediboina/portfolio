@@ -35,7 +35,7 @@ type ExpenseTrackerPageProps = {
 };
 
 type SpendView = "all" | "Sai" | "Naveen";
-type ExpenseDialog = "add" | "recent" | null;
+type ExpenseDialog = "add" | "recent" | "invite" | null;
 
 const EXPENSE_CHART_COLORS = [
   "#7a6ff0",
@@ -1043,50 +1043,6 @@ export default function ExpenseTrackerPage({
           </section>
         ) : null}
 
-        {access.member?.role === "owner" ? (
-          <section className="expense-invite-banner expense-personal-invite-banner">
-            <div>
-              <p className="expense-eyebrow">Independent user</p>
-              <h2>Invite a separate personal tracker</h2>
-              <p>
-                This user gets the same features in a UID-isolated space. Their expenses never
-                appear in the Sai–Naveen dashboard.
-              </p>
-            </div>
-            <div className="expense-invite-actions">
-              {generatedPersonalInviteLink ? (
-                <button
-                  className="expense-button expense-button-secondary"
-                  onClick={() => void copyPersonalInvite()}
-                  type="button"
-                >
-                  Copy personal invite
-                </button>
-              ) : null}
-              <button
-                className="expense-button expense-button-primary"
-                disabled={Boolean(busyAction)}
-                onClick={() => void createPersonalInvite()}
-                type="button"
-              >
-                {busyAction === "create-personal-invite"
-                  ? "Creating…"
-                  : "Create personal invite"}
-              </button>
-            </div>
-            {generatedPersonalInviteLink ? (
-              <label className="expense-invite-link">
-                One-time private-user link
-                <input
-                  onFocus={(event) => event.currentTarget.select()}
-                  readOnly
-                  value={generatedPersonalInviteLink}
-                />
-              </label>
-            ) : null}
-          </section>
-        ) : null}
-
         {error ? <p className="expense-message is-error">{error}</p> : null}
         {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
 
@@ -1333,15 +1289,102 @@ export default function ExpenseTrackerPage({
           </section>
         ) : null}
 
+        {expenseDialog === "invite" && access.member?.role === "owner" ? (
+          <section
+            aria-labelledby="expense-invite-dialog-title"
+            aria-modal="true"
+            className="expense-modal-overlay"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setExpenseDialog(null);
+              }
+            }}
+            role="dialog"
+          >
+            <div className="expense-modal-sheet expense-invite-modal">
+              <header className="expense-modal-header">
+                <div>
+                  <p className="expense-eyebrow">Independent user</p>
+                  <h2 id="expense-invite-dialog-title">Personal tracker invite</h2>
+                  <p>One-time link · valid for 7 days</p>
+                </div>
+                <button
+                  aria-label="Close personal invite dialog"
+                  className="expense-modal-close"
+                  onClick={() => setExpenseDialog(null)}
+                  type="button"
+                >
+                  <span aria-hidden="true">×</span>
+                  Close
+                </button>
+              </header>
+              <div className="expense-modal-content expense-invite-modal-content">
+                <p className="expense-invite-explanation">
+                  The invited user gets a separate UID-protected dashboard. Their expenses never
+                  appear in the Sai–Naveen household.
+                </p>
+                {error ? <p className="expense-message is-error">{error}</p> : null}
+                {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
+                <div className="expense-invite-modal-actions">
+                  <button
+                    className="expense-button expense-button-primary"
+                    disabled={Boolean(busyAction)}
+                    onClick={() => void createPersonalInvite()}
+                    type="button"
+                  >
+                    {busyAction === "create-personal-invite"
+                      ? "Creating…"
+                      : "Create personal invite"}
+                  </button>
+                  {generatedPersonalInviteLink ? (
+                    <button
+                      className="expense-button expense-button-secondary"
+                      onClick={() => void copyPersonalInvite()}
+                      type="button"
+                    >
+                      Copy invite link
+                    </button>
+                  ) : null}
+                </div>
+                {generatedPersonalInviteLink ? (
+                  <label className="expense-invite-link expense-invite-modal-link">
+                    Private link
+                    <input
+                      onFocus={(event) => event.currentTarget.select()}
+                      readOnly
+                      value={generatedPersonalInviteLink}
+                    />
+                  </label>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         <footer className="expense-footer">
           <span>
             <i className="expense-live-dot" /> Firestore real-time sync
           </span>
-          <span>
-            {isSharedWorkspace
-              ? "Private to Sai and Naveen"
-              : `Private to ${currentMember.displayName}`}
-          </span>
+          <div className="expense-footer-end">
+            <span>
+              {isSharedWorkspace
+                ? "Private to Sai and Naveen"
+                : `Private to ${currentMember.displayName}`}
+            </span>
+            {access.member?.role === "owner" ? (
+              <button
+                className="expense-footer-invite"
+                onClick={() => {
+                  setError("");
+                  setFeedback("");
+                  setExpenseDialog("invite");
+                }}
+                type="button"
+              >
+                Invite
+              </button>
+            ) : null}
+          </div>
         </footer>
       </main>
     </div>

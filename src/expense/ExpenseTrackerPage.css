@@ -371,13 +371,6 @@
   color: var(--ink-soft);
 }
 
-.expense-personal-invite-banner {
-  border-color: color-mix(in srgb, #36b993 48%, var(--panel-border));
-  background:
-    radial-gradient(circle at 100% 0, color-mix(in srgb, #36b993 16%, transparent), transparent 22rem),
-    var(--panel-soft);
-}
-
 .expense-invite-actions {
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -898,6 +891,26 @@
   margin-top: 0;
 }
 
+.expense-invite-modal {
+  width: min(100%, 620px);
+}
+
+.expense-invite-explanation {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+
+.expense-invite-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.expense-invite-modal-link {
+  margin-top: 1rem;
+}
+
 .expense-submit-button {
   min-height: 50px;
   margin-top: 0.2rem;
@@ -1014,6 +1027,27 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+}
+
+.expense-footer-end {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.expense-footer-invite {
+  padding: 0.25rem 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 52%, transparent);
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 780;
+  cursor: pointer;
+}
+
+.expense-footer-invite:hover {
+  border-bottom-color: var(--accent);
 }
 
 .expense-loading-bar {
@@ -1252,6 +1286,16 @@
   .expense-invite-actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .expense-invite-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .expense-footer-end {
+    justify-content: space-between;
+    width: 100%;
   }
 
   .expense-form {
