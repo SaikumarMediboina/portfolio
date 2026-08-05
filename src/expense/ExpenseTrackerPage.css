@@ -495,14 +495,31 @@
 }
 
 .expense-pie-chart {
+  display: block;
   width: min(100%, 188px);
   aspect-ratio: 1;
-  border: 5px solid color-mix(in srgb, var(--panel-soft) 85%, transparent);
   border-radius: 50%;
-  box-shadow:
-    0 16px 32px color-mix(in srgb, #000 13%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, #fff 22%, transparent);
-  transition: background 240ms ease;
+  background: color-mix(in srgb, var(--panel-soft) 92%, var(--page-background));
+  box-shadow: 0 16px 32px color-mix(in srgb, #000 18%, transparent);
+  overflow: visible;
+}
+
+.expense-pie-surface {
+  fill: var(--panel-soft);
+}
+
+.expense-pie-slice {
+  stroke: var(--page-background);
+  stroke-width: 1.45;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.expense-pie-outline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ink-strong) 42%, var(--panel-border));
+  stroke-width: 1.35;
+  vector-effect: non-scaling-stroke;
 }
 
 .expense-pie-caption {
@@ -601,10 +618,28 @@
   transition: width 420ms ease;
 }
 
+.expense-bar-track.has-budget {
+  outline: 1px solid color-mix(in srgb, var(--ink-soft) 22%, transparent);
+  outline-offset: 2px;
+}
+
+.expense-bar-track.is-over {
+  background: color-mix(in srgb, #e85d68 22%, var(--panel-border));
+}
+
+.expense-bar-track.is-over i {
+  background: #e85d68 !important;
+}
+
 .expense-category-row small {
   min-width: 3rem;
   color: var(--ink-soft);
   text-align: right;
+}
+
+.expense-category-row .expense-bar-track.is-over + small {
+  color: #e85d68;
+  font-weight: 760;
 }
 
 .expense-category-click-hint {
@@ -761,6 +796,86 @@
   flex: 1;
 }
 
+.expense-budget-modal {
+  width: min(100%, 760px);
+}
+
+.expense-budget-intro {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.expense-budget-form,
+.expense-budget-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.expense-budget-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.45fr);
+  gap: 0.6rem 1rem;
+  align-items: center;
+  padding: 0.9rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel-soft) 76%, transparent);
+}
+
+.expense-budget-row-heading {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.expense-budget-row-heading strong {
+  color: var(--ink-strong);
+  font-size: 0.9rem;
+}
+
+.expense-budget-row-heading small,
+.expense-budget-status {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
+.expense-budget-input {
+  min-width: 0;
+}
+
+.expense-budget-progress {
+  height: 0.42rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel-border) 74%, transparent);
+}
+
+.expense-budget-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 240ms ease;
+}
+
+.expense-budget-progress.is-over i {
+  background: #e85d68;
+}
+
+.expense-budget-status {
+  text-align: right;
+}
+
+.expense-budget-status.is-over {
+  color: #e85d68;
+  font-weight: 760;
+}
+
+.expense-budget-form > .expense-submit-button {
+  justify-self: end;
+  min-width: min(100%, 240px);
+}
+
 .expense-modal-overlay {
   position: fixed;
   inset: 0;
@@ -895,6 +1010,51 @@
   box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
+.expense-recent-filters {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.6fr) minmax(145px, 0.75fr) minmax(130px, 0.65fr) auto;
+  gap: 0.65rem;
+  align-items: end;
+  margin-bottom: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel-soft) 72%, transparent);
+}
+
+.expense-recent-filters label {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 720;
+}
+
+.expense-recent-filters input,
+.expense-recent-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0.62rem 0.7rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  outline: none;
+  background: var(--page-background);
+  color: var(--ink-strong);
+  font: inherit;
+}
+
+.expense-recent-filters input:focus,
+.expense-recent-filters select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.expense-filter-reset {
+  min-height: 42px;
+}
+
 .expense-table-wrap {
   overflow-x: auto;
 }
@@ -947,6 +1107,7 @@
 .expense-row-action {
   width: 1%;
   text-align: right !important;
+  white-space: nowrap;
 }
 
 .expense-row-action button {
@@ -958,8 +1119,20 @@
   cursor: pointer;
 }
 
-.expense-row-action button:hover {
+.expense-row-action button + button {
+  margin-left: 0.65rem;
+}
+
+.expense-row-action button:first-child {
+  color: var(--accent);
+}
+
+.expense-row-action button:last-child:hover {
   color: #e85d68;
+}
+
+.expense-row-action button:first-child:hover {
+  color: color-mix(in srgb, var(--accent) 72%, var(--ink-strong));
 }
 
 .expense-empty-state {
@@ -1066,6 +1239,10 @@
   .expense-topbar {
     align-items: flex-start;
   }
+
+  .expense-recent-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 680px) {
@@ -1098,7 +1275,7 @@
 
   .expense-period-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.55rem;
   }
 
@@ -1287,6 +1464,28 @@
     flex-direction: column;
   }
 
+  .expense-budget-row {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-budget-status {
+    text-align: left;
+  }
+
+  .expense-budget-form > .expense-submit-button {
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .expense-recent-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0.75rem;
+  }
+
+  .expense-search-field {
+    grid-column: 1 / -1;
+  }
+
   .expense-table-wrap {
     overflow: visible;
   }
@@ -1407,12 +1606,28 @@
     padding-inline: 0.5rem;
   }
 
+  .expense-period-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expense-period-action.expense-add-trigger {
+    grid-column: 1 / -1;
+  }
+
   .expense-period-action strong {
     font-size: 0.74rem;
   }
 
   .expense-topbar-actions {
     grid-template-columns: 44px 1fr;
+  }
+
+  .expense-recent-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-search-field {
+    grid-column: auto;
   }
 
 }

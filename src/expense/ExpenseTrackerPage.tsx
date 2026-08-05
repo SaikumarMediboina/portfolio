@@ -11,9 +11,11 @@ import {
   ensureDefaultExpenseCategories,
   joinExpenseHousehold,
   joinPersonalExpenseWorkspace,
+  saveExpenseBudgets,
   SHARED_EXPENSE_WORKSPACE,
   subscribeToExpenseAccess,
   subscribeToExpenseData,
+  updateExpenseEntry,
   type ExpenseAccessState,
   type ExpenseCategory,
   type ExpenseEntry,
@@ -35,9 +37,16 @@ type ExpenseTrackerPageProps = {
 };
 
 type SpendView = "all" | "Sai" | "Naveen";
-type ExpenseDialog = "add" | "recent" | "invite" | null;
+type ExpenseDialog = "add" | "budgets" | "edit" | "recent" | "invite" | null;
+type ExpensePieSlice = {
+  color: string;
+  fullCircle: boolean;
+  name: string;
+  path: string;
+};
 
 const EMPTY_LIVE_DATA: ExpenseLiveData = {
+  budgets: [],
   categories: [],
   entries: [],
   members: [],
@@ -101,6 +110,11 @@ function formatRupeeInput(value: string) {
     : formattedInteger;
 }
 
+function formatPaiseForInput(paise: number) {
+  const rupees = (paise / 100).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+  return formatRupeeInput(rupees);
+}
+
 function hashCategoryName(value: string) {
   let hash = 2166136261;
 
@@ -139,25 +153,57 @@ function getCategoryColorMap(categoryNames: string[]) {
   return colors;
 }
 
-function getPieChartGradient(
+function getPiePoint(angle: number, radius = 46.5) {
+  const radians = ((angle - 90) * Math.PI) / 180;
+
+  return {
+    x: 50 + radius * Math.cos(radians),
+    y: 50 + radius * Math.sin(radians),
+  };
+}
+
+function getPieSlices(
   breakdown: Array<[string, number]>,
   totalPaise: number,
   categoryColors: Map<string, string>,
-) {
+): ExpensePieSlice[] {
   if (!breakdown.length || totalPaise <= 0) {
-    return "var(--panel-border)";
+    return [];
   }
 
-  let currentPercentage = 0;
-  const segments = breakdown.map(([name, value]) => {
-    const startPercentage = currentPercentage;
-    currentPercentage += (value / totalPaise) * 100;
-    const color = categoryColors.get(name) ?? "var(--accent)";
+  let currentAngle = 0;
 
-    return `${color} ${startPercentage.toFixed(2)}% ${currentPercentage.toFixed(2)}%`;
+  return breakdown.map(([name, value]) => {
+    const startAngle = currentAngle;
+    currentAngle += (value / totalPaise) * 360;
+    const endAngle = Math.min(currentAngle, 360);
+
+    if (breakdown.length === 1) {
+      return {
+        color: categoryColors.get(name) ?? "var(--accent)",
+        fullCircle: true,
+        name,
+        path: "",
+      };
+    }
+
+    const start = getPiePoint(startAngle);
+    const end = getPiePoint(endAngle);
+    const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+    const path = [
+      "M 50 50",
+      `L ${start.x.toFixed(4)} ${start.y.toFixed(4)}`,
+      `A 46.5 46.5 0 ${largeArcFlag} 1 ${end.x.toFixed(4)} ${end.y.toFixed(4)}`,
+      "Z",
+    ].join(" ");
+
+    return {
+      color: categoryColors.get(name) ?? "var(--accent)",
+      fullCircle: false,
+      name,
+      path,
+    };
   });
-
-  return `conic-gradient(${segments.join(", ")})`;
 }
 
 function getInviteToken() {
@@ -246,6 +292,16 @@ export default function ExpenseTrackerPage({
   const [spendView, setSpendView] = useState<SpendView>("all");
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
   const [expenseDialog, setExpenseDialog] = useState<ExpenseDialog>(null);
+  const [budgetInputs, setBudgetInputs] = useState<Record<string, string>>({});
+  const [editingExpense, setEditingExpense] = useState<ExpenseEntry | null>(null);
+  const [editAmount, setEditAmount] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCategoryId, setEditCategoryId] = useState("");
+  const [editPaidByUid, setEditPaidByUid] = useState("");
+  const [editExpenseDate, setEditExpenseDate] = useState(today);
+  const [expenseSearch, setExpenseSearch] = useState("");
+  const [expenseCategoryFilter, setExpenseCategoryFilter] = useState("all");
+  const [expensePayerFilter, setExpensePayerFilter] = useState("all");
   const workspace = useMemo<ExpenseWorkspace | null>(() => {
     if (access?.member) {
       return SHARED_EXPENSE_WORKSPACE;
@@ -377,8 +433,8 @@ export default function ExpenseTrackerPage({
       ]),
     [liveData.categories, liveData.entries],
   );
-  const pieChartGradient = useMemo(
-    () => getPieChartGradient(breakdown, chartTotalPaise, categoryColors),
+  const pieSlices = useMemo(
+    () => getPieSlices(breakdown, chartTotalPaise, categoryColors),
     [breakdown, categoryColors, chartTotalPaise],
   );
   const selectedCategoryEntries = useMemo(
@@ -392,7 +448,63 @@ export default function ExpenseTrackerPage({
     (sum, entry) => sum + entry.amountPaise,
     0,
   );
-  const recentEntries = visibleEntries.slice(0, 20);
+  const budgetByCategoryId = useMemo(
+    () => new Map(liveData.budgets.map((budget) => [budget.categoryId, budget])),
+    [liveData.budgets],
+  );
+  const budgetByCategoryName = useMemo(
+    () => new Map(liveData.budgets.map((budget) => [budget.categoryName, budget])),
+    [liveData.budgets],
+  );
+  const categorySpendById = useMemo(() => {
+    const totals = new Map<string, number>();
+
+    visibleEntries.forEach((entry) => {
+      const category = liveData.categories.find(
+        (item) => item.id === entry.categoryId || item.name === entry.categoryName,
+      );
+      const key = category?.id ?? entry.categoryId;
+
+      if (key) {
+        totals.set(key, (totals.get(key) ?? 0) + entry.amountPaise);
+      }
+    });
+
+    return totals;
+  }, [liveData.categories, visibleEntries]);
+  const recentEntries = useMemo(() => {
+    const search = expenseSearch.trim().toLocaleLowerCase();
+    const selectedFilterCategory = liveData.categories.find(
+      (category) => category.id === expenseCategoryFilter,
+    );
+
+    return visibleEntries
+      .filter((entry) => {
+        const matchesSearch =
+          !search ||
+          entry.description.toLocaleLowerCase().includes(search) ||
+          entry.categoryName.toLocaleLowerCase().includes(search) ||
+          entry.paidByName.toLocaleLowerCase().includes(search);
+        const matchesCategory =
+          expenseCategoryFilter === "all" ||
+          entry.categoryId === expenseCategoryFilter ||
+          entry.categoryName === selectedFilterCategory?.name;
+        const matchesPayer =
+          expensePayerFilter === "all" || entry.paidByUid === expensePayerFilter;
+
+        return matchesSearch && matchesCategory && matchesPayer;
+      })
+      .slice(0, 20);
+  }, [
+    expenseCategoryFilter,
+    expensePayerFilter,
+    expenseSearch,
+    liveData.categories,
+    visibleEntries,
+  ]);
+  const filtersActive = Boolean(
+    expenseSearch.trim() || expenseCategoryFilter !== "all" || expensePayerFilter !== "all",
+  );
 
   useEffect(() => {
     if (!expenseDialog) {
@@ -508,6 +620,115 @@ export default function ExpenseTrackerPage({
       },
       isSharedWorkspace ? `${name} is ready for both users.` : `${name} is ready for you.`,
     );
+  };
+
+  const openBudgets = () => {
+    const nextInputs: Record<string, string> = {};
+
+    liveData.categories.forEach((category) => {
+      const budget = budgetByCategoryId.get(category.id);
+      nextInputs[category.id] = budget ? formatPaiseForInput(budget.monthlyLimitPaise) : "";
+    });
+
+    setBudgetInputs(nextInputs);
+    setError("");
+    setFeedback("");
+    setExpenseDialog("budgets");
+  };
+
+  const saveBudgets = async (event: FormEvent) => {
+    event.preventDefault();
+
+    if (!workspace || !user) {
+      return;
+    }
+
+    const items = liveData.categories.map((category) => ({
+      category,
+      monthlyLimitPaise: parseRupees(budgetInputs[category.id] ?? ""),
+    }));
+
+    if (items.some((item) => item.monthlyLimitPaise > 1_000_000_000)) {
+      setError("Keep each monthly category budget at ₹1 crore or less.");
+      return;
+    }
+
+    const saved = await runAction(
+      "save-budgets",
+      () => saveExpenseBudgets(workspace, user.uid, items),
+      isSharedWorkspace
+        ? "Monthly category budgets updated for Sai and Naveen."
+        : "Your monthly category budgets are updated.",
+    );
+
+    if (saved) {
+      setExpenseDialog(null);
+    }
+  };
+
+  const startEditingExpense = (entry: ExpenseEntry) => {
+    const category = liveData.categories.find(
+      (item) => item.id === entry.categoryId || item.name === entry.categoryName,
+    );
+    const payer = liveData.members.find(
+      (item) => item.id === entry.paidByUid || item.displayName === entry.paidByName,
+    );
+
+    setEditingExpense(entry);
+    setEditAmount(formatPaiseForInput(entry.amountPaise));
+    setEditDescription(entry.description);
+    setEditCategoryId(category?.id ?? liveData.categories[0]?.id ?? "");
+    setEditPaidByUid(payer?.id ?? liveData.members[0]?.id ?? "");
+    setEditExpenseDate(entry.expenseDate);
+    setError("");
+    setFeedback("");
+    setExpenseDialog("edit");
+  };
+
+  const saveEditedExpense = async (event: FormEvent) => {
+    event.preventDefault();
+
+    const amountPaise = parseRupees(editAmount);
+    const category = liveData.categories.find((item) => item.id === editCategoryId);
+    const paidBy = liveData.members.find((item) => item.id === editPaidByUid);
+
+    if (amountPaise < 1) {
+      setError("Enter an amount greater than ₹0.");
+      return;
+    }
+
+    if (
+      !editingExpense ||
+      !editDescription.trim() ||
+      !category ||
+      !paidBy ||
+      !workspace ||
+      !user
+    ) {
+      setError("Complete the amount, description, category, and paid-by fields.");
+      return;
+    }
+
+    const saved = await runAction(
+      `edit-${editingExpense.id}`,
+      () =>
+        updateExpenseEntry({
+          workspace,
+          expenseId: editingExpense.id,
+          amountPaise,
+          category,
+          description: editDescription,
+          expenseDate: editExpenseDate,
+          paidBy,
+          userUid: user.uid,
+        }),
+      isSharedWorkspace ? "Expense updated for both users." : "Expense updated.",
+    );
+
+    if (saved) {
+      setEditingExpense(null);
+      setExpenseDialog("recent");
+    }
   };
 
   const deleteEntry = async (entry: ExpenseEntry) => {
@@ -879,10 +1100,208 @@ export default function ExpenseTrackerPage({
     </div>
   );
 
+  const editExpenseContent = editingExpense ? (
+    <div className="expense-modal-content">
+      {error ? <p className="expense-message is-error">{error}</p> : null}
+      <form className="expense-form" onSubmit={(event) => void saveEditedExpense(event)}>
+        <label>
+          Amount
+          <div className="expense-amount-field">
+            <span>₹</span>
+            <input
+              inputMode="decimal"
+              onChange={(event) => setEditAmount(formatRupeeInput(event.target.value))}
+              required
+              value={editAmount}
+            />
+          </div>
+        </label>
+        <label>
+          Date
+          <input
+            max={today()}
+            onChange={(event) => setEditExpenseDate(event.target.value)}
+            required
+            type="date"
+            value={editExpenseDate}
+          />
+        </label>
+        <label className="expense-field-wide">
+          Description
+          <input
+            maxLength={80}
+            onChange={(event) => setEditDescription(event.target.value)}
+            required
+            value={editDescription}
+          />
+        </label>
+        <label>
+          Category
+          <select
+            onChange={(event) => setEditCategoryId(event.target.value)}
+            value={editCategoryId}
+          >
+            {liveData.categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Paid by
+          <select
+            onChange={(event) => setEditPaidByUid(event.target.value)}
+            value={editPaidByUid}
+          >
+            {liveData.members.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.displayName}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="expense-button expense-button-primary expense-field-wide expense-submit-button"
+          disabled={busyAction === `edit-${editingExpense.id}`}
+          type="submit"
+        >
+          {busyAction === `edit-${editingExpense.id}` ? "Saving changes…" : "Save changes"}
+        </button>
+      </form>
+    </div>
+  ) : null;
+
+  const budgetContent = (
+    <div className="expense-modal-content">
+      {error ? <p className="expense-message is-error">{error}</p> : null}
+      <p className="expense-budget-intro">
+        Set a recurring monthly limit for any category. Leave an amount blank to remove its
+        budget.
+      </p>
+      {liveData.categories.length ? (
+        <form className="expense-budget-form" onSubmit={(event) => void saveBudgets(event)}>
+          <div className="expense-budget-list">
+            {liveData.categories.map((category) => {
+              const spentPaise = categorySpendById.get(category.id) ?? 0;
+              const enteredLimitPaise = parseRupees(budgetInputs[category.id] ?? "");
+              const previewLimitPaise = enteredLimitPaise;
+              const usedPercent = previewLimitPaise
+                ? Math.min((spentPaise / previewLimitPaise) * 100, 100)
+                : 0;
+              const isOverBudget = previewLimitPaise > 0 && spentPaise > previewLimitPaise;
+
+              return (
+                <label className="expense-budget-row" key={category.id}>
+                  <span className="expense-budget-row-heading">
+                    <strong>{category.name}</strong>
+                    <small>
+                      {money(spentPaise)} spent in {monthLabel(selectedMonth)}
+                    </small>
+                  </span>
+                  <span className="expense-amount-field expense-budget-input">
+                    <span>₹</span>
+                    <input
+                      aria-label={`${category.name} monthly budget`}
+                      inputMode="decimal"
+                      onChange={(event) =>
+                        setBudgetInputs((current) => ({
+                          ...current,
+                          [category.id]: formatRupeeInput(event.target.value),
+                        }))
+                      }
+                      placeholder="No limit"
+                      value={budgetInputs[category.id] ?? ""}
+                    />
+                  </span>
+                  {previewLimitPaise ? (
+                    <span className={`expense-budget-progress${isOverBudget ? " is-over" : ""}`}>
+                      <i style={{ width: `${usedPercent}%` }} />
+                    </span>
+                  ) : null}
+                  <small className={isOverBudget ? "expense-budget-status is-over" : "expense-budget-status"}>
+                    {previewLimitPaise
+                      ? isOverBudget
+                        ? `${money(spentPaise - previewLimitPaise)} over budget`
+                        : `${percentage(spentPaise, previewLimitPaise)}% used`
+                      : "No monthly limit"}
+                  </small>
+                </label>
+              );
+            })}
+          </div>
+          <button
+            className="expense-button expense-button-primary expense-submit-button"
+            disabled={busyAction === "save-budgets"}
+            type="submit"
+          >
+            {busyAction === "save-budgets" ? "Saving budgets…" : "Save monthly budgets"}
+          </button>
+        </form>
+      ) : (
+        <div className="expense-empty-state is-compact">
+          <h3>Create a category first</h3>
+          <p>Budgets become available as soon as your first expense category exists.</p>
+        </div>
+      )}
+    </div>
+  );
+
   const recentExpenseContent = (
     <div className="expense-modal-content">
       {error ? <p className="expense-message is-error">{error}</p> : null}
       {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
+      <div className="expense-recent-filters" aria-label="Filter recent expenses">
+        <label className="expense-search-field">
+          Search
+          <input
+            onChange={(event) => setExpenseSearch(event.target.value)}
+            placeholder="Description, category, or payer"
+            type="search"
+            value={expenseSearch}
+          />
+        </label>
+        <label>
+          Category
+          <select
+            onChange={(event) => setExpenseCategoryFilter(event.target.value)}
+            value={expenseCategoryFilter}
+          >
+            <option value="all">All categories</option>
+            {liveData.categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Paid by
+          <select
+            onChange={(event) => setExpensePayerFilter(event.target.value)}
+            value={expensePayerFilter}
+          >
+            <option value="all">All payers</option>
+            {liveData.members.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.displayName}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="expense-button expense-button-secondary expense-filter-reset"
+          disabled={!filtersActive}
+          onClick={() => {
+            setExpenseSearch("");
+            setExpenseCategoryFilter("all");
+            setExpensePayerFilter("all");
+          }}
+          type="button"
+        >
+          Reset
+        </button>
+      </div>
       {recentEntries.length ? (
         <div className="expense-table-wrap">
           <table>
@@ -917,6 +1336,13 @@ export default function ExpenseTrackerPage({
                   </td>
                   <td className="expense-row-action">
                     <button
+                      aria-label={`Edit ${entry.description}`}
+                      onClick={() => startEditingExpense(entry)}
+                      type="button"
+                    >
+                      Edit
+                    </button>
+                    <button
                       aria-label={`Delete ${entry.description}`}
                       disabled={busyAction === `delete-${entry.id}`}
                       onClick={() => void deleteEntry(entry)}
@@ -932,8 +1358,12 @@ export default function ExpenseTrackerPage({
         </div>
       ) : (
         <div className="expense-empty-state is-compact">
-          <h3>No expenses for this month</h3>
-          <p>Close this view and use + Add expense to create the first entry.</p>
+          <h3>{filtersActive ? "No matching expenses" : "No expenses for this month"}</h3>
+          <p>
+            {filtersActive
+              ? "Try a different search or reset the filters."
+              : "Close this view and use + Add expense to create the first entry."}
+          </p>
         </div>
       )}
     </div>
@@ -1009,6 +1439,14 @@ export default function ExpenseTrackerPage({
             >
               <span aria-hidden="true">+</span>
               <strong>Add expense</strong>
+            </button>
+            <button
+              className="expense-period-action"
+              onClick={openBudgets}
+              type="button"
+            >
+              <span aria-hidden="true">₹</span>
+              <strong>Budgets</strong>
             </button>
             <button
               className="expense-period-action"
@@ -1137,12 +1575,35 @@ export default function ExpenseTrackerPage({
             {breakdown.length ? (
               <div className="expense-chart-layout">
                 <div className="expense-pie-visual">
-                  <div
+                  <svg
                     aria-label={`${chartViewLabel} category spending pie chart for ${monthLabel(selectedMonth)}`}
                     className="expense-pie-chart"
                     role="img"
-                    style={{ background: pieChartGradient }}
-                  />
+                    shapeRendering="geometricPrecision"
+                    viewBox="0 0 100 100"
+                  >
+                    <circle className="expense-pie-surface" cx="50" cy="50" r="46.5" />
+                    {pieSlices.map((slice) =>
+                      slice.fullCircle ? (
+                        <circle
+                          className="expense-pie-slice"
+                          cx="50"
+                          cy="50"
+                          fill={slice.color}
+                          key={slice.name}
+                          r="46.5"
+                        />
+                      ) : (
+                        <path
+                          className="expense-pie-slice"
+                          d={slice.path}
+                          fill={slice.color}
+                          key={slice.name}
+                        />
+                      ),
+                    )}
+                    <circle className="expense-pie-outline" cx="50" cy="50" r="46.5" />
+                  </svg>
                   <div className="expense-pie-caption">
                     <span>{chartViewLabel} total</span>
                     <strong>{money(chartTotalPaise)}</strong>
@@ -1150,8 +1611,18 @@ export default function ExpenseTrackerPage({
                   </div>
                 </div>
                 <div className="expense-category-bars">
-                  {breakdown.map(([name, value]) => (
-                    <button
+                  {breakdown.map(([name, value]) => {
+                    const budget =
+                      !isSharedWorkspace || spendView === "all"
+                        ? budgetByCategoryName.get(name)
+                        : undefined;
+                    const budgetUsed = budget
+                      ? Math.min((value / budget.monthlyLimitPaise) * 100, 100)
+                      : 0;
+                    const isOverBudget = Boolean(budget && value > budget.monthlyLimitPaise);
+
+                    return (
+                      <button
                       aria-controls="expense-category-details"
                       aria-expanded={selectedCategoryName === name}
                       className={`expense-category-row${
@@ -1173,19 +1644,33 @@ export default function ExpenseTrackerPage({
                         </span>
                         <strong>{money(value)}</strong>
                       </div>
-                      <div className="expense-bar-track">
+                      <div
+                        className={`expense-bar-track${budget ? " has-budget" : ""}${
+                          isOverBudget ? " is-over" : ""
+                        }`}
+                      >
                         <i
                           style={{
                             background: categoryColors.get(name),
-                            width: `${Math.max((value / highestCategoryValue) * 100, 3)}%`,
+                            width: `${Math.max(
+                              budget
+                                ? budgetUsed
+                                : (value / highestCategoryValue) * 100,
+                              3,
+                            )}%`,
                           }}
                         />
                       </div>
                       <small>
-                        {percentage(value, chartTotalPaise)}%
+                        {budget
+                          ? isOverBudget
+                            ? `${percentage(value, budget.monthlyLimitPaise)}% · over`
+                            : `${percentage(value, budget.monthlyLimitPaise)}% of budget`
+                          : `${percentage(value, chartTotalPaise)}%`}
                       </small>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
@@ -1312,6 +1797,74 @@ export default function ExpenseTrackerPage({
           </section>
         ) : null}
 
+        {expenseDialog === "budgets" ? (
+          <section
+            aria-labelledby="expense-budget-dialog-title"
+            aria-modal="true"
+            className="expense-modal-overlay"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setExpenseDialog(null);
+              }
+            }}
+            role="dialog"
+          >
+            <div className="expense-modal-sheet expense-budget-modal">
+              <header className="expense-modal-header">
+                <div>
+                  <p className="expense-eyebrow">Monthly guardrails</p>
+                  <h2 id="expense-budget-dialog-title">Category budgets</h2>
+                  <p>{monthLabel(selectedMonth)} spending shown against recurring limits</p>
+                </div>
+                <button
+                  aria-label="Close category budgets dialog"
+                  className="expense-modal-close"
+                  onClick={() => setExpenseDialog(null)}
+                  type="button"
+                >
+                  <span aria-hidden="true">×</span>
+                  Close
+                </button>
+              </header>
+              {budgetContent}
+            </div>
+          </section>
+        ) : null}
+
+        {expenseDialog === "edit" && editingExpense ? (
+          <section
+            aria-labelledby="expense-edit-dialog-title"
+            aria-modal="true"
+            className="expense-modal-overlay"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setExpenseDialog("recent");
+              }
+            }}
+            role="dialog"
+          >
+            <div className="expense-modal-sheet expense-edit-modal">
+              <header className="expense-modal-header">
+                <div>
+                  <p className="expense-eyebrow">Correct an entry</p>
+                  <h2 id="expense-edit-dialog-title">Edit expense</h2>
+                  <p>Changes sync immediately after you save</p>
+                </div>
+                <button
+                  aria-label="Cancel editing expense"
+                  className="expense-modal-close"
+                  onClick={() => setExpenseDialog("recent")}
+                  type="button"
+                >
+                  <span aria-hidden="true">×</span>
+                  Cancel
+                </button>
+              </header>
+              {editExpenseContent}
+            </div>
+          </section>
+        ) : null}
+
         {expenseDialog === "recent" ? (
           <section
             aria-labelledby="expense-recent-dialog-title"
@@ -1331,9 +1884,7 @@ export default function ExpenseTrackerPage({
                     {isSharedWorkspace ? "Shared activity" : "Private activity"}
                   </p>
                   <h2 id="expense-recent-dialog-title">Recent expenses</h2>
-                  <p>
-                    Showing latest {recentEntries.length} · {monthLabel(selectedMonth)}
-                  </p>
+                  <p>Search, filter, edit, or delete · {monthLabel(selectedMonth)}</p>
                 </div>
                 <button
                   aria-label="Close recent expenses dialog"

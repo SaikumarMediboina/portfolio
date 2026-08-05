@@ -8,6 +8,7 @@ import {
   runTransaction,
   serverTimestamp,
   Timestamp,
+  updateDoc,
   writeBatch,
   type DocumentData,
   type Firestore,
@@ -62,6 +63,12 @@ export type ExpenseEntry = {
   createdAtMillis: number;
 };
 
+export type ExpenseBudget = {
+  categoryId: string;
+  categoryName: string;
+  monthlyLimitPaise: number;
+};
+
 export type ExpenseAccessState = {
   householdExists: boolean;
   member: ExpenseMember | null;
@@ -69,6 +76,7 @@ export type ExpenseAccessState = {
 };
 
 export type ExpenseLiveData = {
+  budgets: ExpenseBudget[];
   categories: ExpenseCategory[];
   entries: ExpenseEntry[];
   members: ExpenseMember[];
@@ -112,6 +120,12 @@ function expensesRef(workspace: ExpenseWorkspace, store = assertExpenseStore()) 
     : collection(store, "personalExpenseUsers", workspace.userId, "expenses");
 }
 
+function budgetsRef(workspace: ExpenseWorkspace, store = assertExpenseStore()) {
+  return workspace.kind === "shared"
+    ? collection(store, "expenseHouseholds", EXPENSE_HOUSEHOLD_ID, "budgets")
+    : collection(store, "personalExpenseUsers", workspace.userId, "budgets");
+}
+
 function normalizedText(value: unknown) {
   return typeof value === "string" ? value : "";
 }
@@ -141,6 +155,17 @@ function mapCategory(id: string, data: DocumentData): ExpenseCategory {
     id,
     name: normalizedText(data.name),
     isDefault: Boolean(data.isDefault),
+  };
+}
+
+function mapBudget(id: string, data: DocumentData): ExpenseBudget {
+  return {
+    categoryId: normalizedText(data.categoryId) || id,
+    categoryName: normalizedText(data.categoryName) || "Category",
+    monthlyLimitPaise:
+      typeof data.monthlyLimitPaise === "number" && Number.isFinite(data.monthlyLimitPaise)
+        ? Math.round(data.monthlyLimitPaise)
+        : 0,
   };
 }
 
@@ -249,19 +274,22 @@ export function subscribeToExpenseData(
 ) {
   const store = assertExpenseStore();
   const current: ExpenseLiveData = {
+    budgets: [],
     categories: [],
     entries: [],
     members: personalProfile ? [personalProfile] : [],
   };
   const ready = {
+    budgets: false,
     categories: false,
     entries: false,
     members: workspace.kind === "personal",
   };
 
   const emit = () => {
-    if (ready.categories && ready.entries && ready.members) {
+    if (ready.budgets && ready.categories && ready.entries && ready.members) {
       onChange({
+        budgets: [...current.budgets],
         categories: [...current.categories],
         entries: [...current.entries],
         members: [...current.members],
@@ -270,6 +298,23 @@ export function subscribeToExpenseData(
   };
 
   const unsubscribes: Unsubscribe[] = [
+    onSnapshot(
+      budgetsRef(workspace, store),
+      (snapshot) => {
+        current.budgets = snapshot.docs
+          .map((item) => mapBudget(item.id, item.data()))
+          .filter((budget) => budget.monthlyLimitPaise > 0)
+          .sort((left, right) => left.categoryName.localeCompare(right.categoryName));
+        ready.budgets = true;
+        emit();
+      },
+      (error) => {
+        current.budgets = [];
+        ready.budgets = true;
+        emit();
+        onError(error);
+      },
+    ),
     onSnapshot(
       categoriesRef(workspace, store),
       (snapshot) => {
@@ -567,6 +612,57 @@ export async function addExpenseEntry(input: {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function updateExpenseEntry(input: {
+  workspace: ExpenseWorkspace;
+  expenseId: string;
+  amountPaise: number;
+  category: ExpenseCategory;
+  description: string;
+  expenseDate: string;
+  paidBy: ExpenseMember;
+  userUid: string;
+}) {
+  const store = assertExpenseStore();
+  await updateDoc(doc(expensesRef(input.workspace, store), input.expenseId), {
+    amountPaise: input.amountPaise,
+    categoryId: input.category.id,
+    categoryName: input.category.name,
+    description: input.description.trim(),
+    expenseDate: input.expenseDate,
+    paidByUid: input.paidBy.id,
+    paidByName: input.paidBy.displayName,
+    updatedByUid: input.userUid,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function saveExpenseBudgets(
+  workspace: ExpenseWorkspace,
+  userUid: string,
+  items: Array<{ category: ExpenseCategory; monthlyLimitPaise: number }>,
+) {
+  const store = assertExpenseStore();
+  const batch = writeBatch(store);
+
+  items.forEach(({ category, monthlyLimitPaise }) => {
+    const budgetRef = doc(budgetsRef(workspace, store), category.id);
+
+    if (monthlyLimitPaise > 0) {
+      batch.set(budgetRef, {
+        categoryId: category.id,
+        categoryName: category.name,
+        monthlyLimitPaise,
+        updatedByUid: userUid,
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      batch.delete(budgetRef);
+    }
+  });
+
+  await batch.commit();
 }
 
 export async function deleteExpenseEntry(workspace: ExpenseWorkspace, expenseId: string) {
