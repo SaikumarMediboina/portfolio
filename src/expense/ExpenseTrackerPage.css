@@ -601,30 +601,6 @@
   transition: width 420ms ease;
 }
 
-.expense-bar-tone-1 {
-  background: #7a6ff0;
-}
-
-.expense-bar-tone-2 {
-  background: #ef8a5d;
-}
-
-.expense-bar-tone-3 {
-  background: #36b993;
-}
-
-.expense-bar-tone-4 {
-  background: #e05f91;
-}
-
-.expense-bar-tone-5 {
-  background: #e6b94e;
-}
-
-.expense-bar-tone-6 {
-  background: #4f9fed;
-}
-
 .expense-category-row small {
   min-width: 3rem;
   color: var(--ink-soft);
@@ -1112,7 +1088,7 @@
 
   .expense-topbar-actions {
     display: grid;
-    grid-template-columns: 44px 1fr 1fr;
+    grid-template-columns: 44px 1fr;
     width: 100%;
   }
 
@@ -1439,9 +1415,6 @@
     grid-template-columns: 44px 1fr;
   }
 
-  .expense-topbar-actions .expense-button:last-child {
-    grid-column: 1 / -1;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

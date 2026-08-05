@@ -37,15 +37,6 @@ type ExpenseTrackerPageProps = {
 type SpendView = "all" | "Sai" | "Naveen";
 type ExpenseDialog = "add" | "recent" | "invite" | null;
 
-const EXPENSE_CHART_COLORS = [
-  "#7a6ff0",
-  "#ef8a5d",
-  "#36b993",
-  "#e05f91",
-  "#e6b94e",
-  "#4f9fed",
-] as const;
-
 const EMPTY_LIVE_DATA: ExpenseLiveData = {
   categories: [],
   entries: [],
@@ -89,16 +80,79 @@ function parseRupees(value: string) {
   return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
 }
 
-function getPieChartGradient(breakdown: Array<[string, number]>, totalPaise: number) {
+function formatRupeeInput(value: string) {
+  const cleaned = value.replace(/[^\d.]/g, "");
+  const decimalPosition = cleaned.indexOf(".");
+  const integerSource = decimalPosition >= 0 ? cleaned.slice(0, decimalPosition) : cleaned;
+  const decimalSource = decimalPosition >= 0 ? cleaned.slice(decimalPosition + 1) : "";
+  const integerDigits = integerSource.replace(/^0+(?=\d)/, "");
+
+  if (!integerDigits && decimalPosition < 0) {
+    return "";
+  }
+
+  const formattedInteger = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+    useGrouping: true,
+  }).format(Number(integerDigits || "0"));
+
+  return decimalPosition >= 0
+    ? `${formattedInteger}.${decimalSource.replace(/\D/g, "").slice(0, 2)}`
+    : formattedInteger;
+}
+
+function hashCategoryName(value: string) {
+  let hash = 2166136261;
+
+  for (const character of value.trim().toLocaleLowerCase()) {
+    hash ^= character.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function getCategoryColorMap(categoryNames: string[]) {
+  const colors = new Map<string, string>();
+  const usedColors = new Set<string>();
+  const stableNames = [...new Set(categoryNames.filter(Boolean))].sort((left, right) =>
+    left.localeCompare(right),
+  );
+
+  stableNames.forEach((name) => {
+    const hash = hashCategoryName(name);
+    let attempt = 0;
+    let color = "";
+
+    do {
+      const hue = (hash + attempt * 137.508) % 360;
+      const saturation = 64 + ((hash + attempt * 17) % 17);
+      const lightness = 48 + ((hash + attempt * 11) % 9);
+      color = `hsl(${hue.toFixed(1)} ${saturation}% ${lightness}%)`;
+      attempt += 1;
+    } while (usedColors.has(color));
+
+    usedColors.add(color);
+    colors.set(name, color);
+  });
+
+  return colors;
+}
+
+function getPieChartGradient(
+  breakdown: Array<[string, number]>,
+  totalPaise: number,
+  categoryColors: Map<string, string>,
+) {
   if (!breakdown.length || totalPaise <= 0) {
     return "var(--panel-border)";
   }
 
   let currentPercentage = 0;
-  const segments = breakdown.map(([, value], index) => {
+  const segments = breakdown.map(([name, value]) => {
     const startPercentage = currentPercentage;
     currentPercentage += (value / totalPaise) * 100;
-    const color = EXPENSE_CHART_COLORS[index % EXPENSE_CHART_COLORS.length];
+    const color = categoryColors.get(name) ?? "var(--accent)";
 
     return `${color} ${startPercentage.toFixed(2)}% ${currentPercentage.toFixed(2)}%`;
   });
@@ -157,9 +211,6 @@ function AccessCard({
         <p className="expense-eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
         {children}
-        <a className="expense-text-link" href="/">
-          Back to portfolio
-        </a>
       </section>
     </main>
   );
@@ -318,9 +369,17 @@ export default function ExpenseTrackerPage({
       ? "Household"
       : spendView
     : "My spending";
+  const categoryColors = useMemo(
+    () =>
+      getCategoryColorMap([
+        ...liveData.categories.map((category) => category.name),
+        ...liveData.entries.map((entry) => entry.categoryName),
+      ]),
+    [liveData.categories, liveData.entries],
+  );
   const pieChartGradient = useMemo(
-    () => getPieChartGradient(breakdown, chartTotalPaise),
-    [breakdown, chartTotalPaise],
+    () => getPieChartGradient(breakdown, chartTotalPaise, categoryColors),
+    [breakdown, categoryColors, chartTotalPaise],
   );
   const selectedCategoryEntries = useMemo(
     () =>
@@ -738,7 +797,7 @@ export default function ExpenseTrackerPage({
             <span>₹</span>
             <input
               inputMode="decimal"
-              onChange={(event) => setAmount(event.target.value)}
+              onChange={(event) => setAmount(formatRupeeInput(event.target.value))}
               placeholder="350"
               required
               value={amount}
@@ -911,9 +970,6 @@ export default function ExpenseTrackerPage({
             >
               {theme === "light" ? "☾" : "☀"}
             </button>
-            <a className="expense-button expense-button-secondary" href="/">
-              Portfolio
-            </a>
             <button
               className="expense-button expense-button-secondary"
               disabled={authBusy}
@@ -959,7 +1015,7 @@ export default function ExpenseTrackerPage({
               onClick={() => setExpenseDialog("recent")}
               type="button"
             >
-              <span aria-hidden="true">20</span>
+              <span aria-hidden="true">↻</span>
               <strong>Recent</strong>
             </button>
           </div>
@@ -1094,7 +1150,7 @@ export default function ExpenseTrackerPage({
                   </div>
                 </div>
                 <div className="expense-category-bars">
-                  {breakdown.map(([name, value], index) => (
+                  {breakdown.map(([name, value]) => (
                     <button
                       aria-controls="expense-category-details"
                       aria-expanded={selectedCategoryName === name}
@@ -1109,15 +1165,20 @@ export default function ExpenseTrackerPage({
                     >
                       <div className="expense-category-label">
                         <span className="expense-category-name">
-                          <i className={`expense-category-dot expense-bar-tone-${(index % 6) + 1}`} />
+                          <i
+                            className="expense-category-dot"
+                            style={{ background: categoryColors.get(name) }}
+                          />
                           {name}
                         </span>
                         <strong>{money(value)}</strong>
                       </div>
                       <div className="expense-bar-track">
                         <i
-                          className={`expense-bar-tone-${(index % 6) + 1}`}
-                          style={{ width: `${Math.max((value / highestCategoryValue) * 100, 3)}%` }}
+                          style={{
+                            background: categoryColors.get(name),
+                            width: `${Math.max((value / highestCategoryValue) * 100, 3)}%`,
+                          }}
                         />
                       </div>
                       <small>
@@ -1271,7 +1332,7 @@ export default function ExpenseTrackerPage({
                   </p>
                   <h2 id="expense-recent-dialog-title">Recent expenses</h2>
                   <p>
-                    Showing latest {recentEntries.length} · up to 20 · {monthLabel(selectedMonth)}
+                    Showing latest {recentEntries.length} · {monthLabel(selectedMonth)}
                   </p>
                 </div>
                 <button
