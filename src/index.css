@@ -23513,6 +23513,257 @@ html[data-header-visibility="hidden"] .article-site-header {
   }
 }
 
+/* Token-saving guide: exact article copy in a focused, theme-aware reader. */
+.token-saving-guide-page {
+  max-width: 1040px;
+}
+
+.token-guide-article {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 800px);
+  margin: clamp(1.5rem, 4vw, 2.75rem) auto 0;
+  padding-bottom: clamp(2rem, 6vw, 4rem);
+}
+
+.token-guide-callout {
+  display: grid;
+  gap: .42rem;
+  margin-bottom: 1rem;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--panel-border));
+  border-radius: 16px;
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 65%),
+    var(--panel-soft);
+}
+
+.token-guide-callout span {
+  color: var(--accent);
+  font: 800 .7rem/1.3 "IBM Plex Mono", monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.token-guide-callout strong {
+  color: var(--ink-strong);
+  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+  line-height: 1.25;
+  letter-spacing: -.025em;
+}
+
+.token-guide-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .8rem;
+  align-items: start;
+  margin-top: clamp(1.65rem, 4vw, 3rem);
+  padding-top: 1rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+.token-guide-heading > span {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  color: var(--accent);
+  font: 850 .68rem "IBM Plex Mono", monospace;
+}
+
+.token-guide-heading h2 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: clamp(1.55rem, 3.5vw, 2.35rem);
+  line-height: 1.12;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+
+.token-guide-subheading {
+  margin: clamp(1.15rem, 3vw, 1.85rem) 0 .15rem;
+  color: var(--ink-strong);
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+  line-height: 1.3;
+  letter-spacing: -.025em;
+}
+
+.token-guide-paragraph {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 1.04rem;
+  line-height: 1.8;
+}
+
+.token-guide-paragraph strong,
+.token-guide-list strong,
+.token-guide-reasons strong,
+.token-guide-checklist strong {
+  color: var(--ink-strong);
+}
+
+.token-guide-paragraph em {
+  color: var(--ink-strong);
+  font-style: italic;
+}
+
+.token-guide-paragraph code,
+.token-guide-list code {
+  padding: .12rem .28rem;
+  border: 1px solid var(--chip-border);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--accent);
+  font: .88em "IBM Plex Mono", monospace;
+}
+
+.token-guide-list {
+  display: grid;
+  gap: .58rem;
+  margin: .2rem 0;
+  padding-left: 1.25rem;
+  color: var(--ink-soft);
+  line-height: 1.65;
+}
+
+.token-guide-list li::marker {
+  color: var(--accent);
+}
+
+.token-guide-reasons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+  margin: .35rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.token-guide-reasons li {
+  display: grid;
+  gap: .55rem;
+  min-width: 0;
+  padding: .9rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 13px;
+  background: var(--panel-soft);
+}
+
+.token-guide-reasons li > span {
+  color: var(--accent);
+  font: 850 .7rem "IBM Plex Mono", monospace;
+}
+
+.token-guide-reasons p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.58;
+}
+
+.token-guide-checklist {
+  display: grid;
+  gap: .65rem;
+  margin: .35rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.token-guide-checklist li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .7rem;
+  align-items: start;
+  padding: .8rem .9rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel-soft) 78%, transparent);
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.token-guide-checkbox {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: .15rem;
+  border: 1.5px solid var(--accent);
+  border-radius: 4px;
+  background: var(--page-background);
+  box-shadow: inset 0 0 0 3px var(--page-background);
+}
+
+.token-guide-article .mcp-code-block {
+  width: 100%;
+  margin: .3rem 0 .6rem;
+  border-color: color-mix(in srgb, var(--accent) 28%, #4f372d);
+  box-shadow: 0 14px 32px color-mix(in srgb, #000 16%, transparent);
+}
+
+.token-guide-article .mcp-code-block pre {
+  max-width: 100%;
+  max-height: none;
+  white-space: pre;
+}
+
+:root:not([data-theme="dark"]) .token-guide-article .mcp-code-block {
+  background: #211914;
+}
+
+:root[data-theme="dark"] .token-guide-callout {
+  background:
+    linear-gradient(120deg, rgba(223, 113, 86, .12), transparent 65%),
+    rgba(35, 29, 25, .9);
+}
+
+@media (max-width: 720px) {
+  .token-saving-guide-page {
+    min-width: 0;
+    padding-inline: .85rem;
+  }
+
+  .token-guide-article,
+  .token-guide-article > * {
+    min-width: 0;
+  }
+
+  .token-guide-article {
+    width: 100%;
+    gap: .9rem;
+    margin-top: 1.25rem;
+  }
+
+  .token-guide-heading {
+    gap: .62rem;
+    margin-top: 1.4rem;
+  }
+
+  .token-guide-heading h2 {
+    font-size: clamp(1.42rem, 7vw, 1.9rem);
+    overflow-wrap: anywhere;
+  }
+
+  .token-guide-paragraph {
+    font-size: 1rem;
+    line-height: 1.72;
+  }
+
+  .token-guide-reasons {
+    grid-template-columns: 1fr;
+  }
+
+  .token-guide-article .mcp-code-block,
+  .token-guide-article .mcp-code-block pre {
+    max-width: 100%;
+  }
+
+  .token-guide-article .mcp-code-block pre {
+    overflow-x: auto;
+    font-size: .74rem;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* On phones, subpages use only simple left/right navigation instead of a header card. */
 @media (max-width: 720px) {
   .article-site-header {

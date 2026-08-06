@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
+import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import ExpenseTrackerPage from "./expense/ExpenseTrackerPage";
 import {
   certifications,
@@ -248,6 +249,18 @@ type SiteUpdate = {
 const siteUpdates: SiteUpdate[] = [
   {
     category: "Featured article",
+    date: "2026-08-06",
+    href: "/blog/save-tokens-claude-chatgpt-simple-guide",
+    title: "Simple token-saving guide published",
+    summary:
+      "A new public article explains how to reduce token usage in Claude, ChatGPT, Gemini, and API workflows without making prompts harder to use.",
+    details: [
+      "Six before-and-after examples show how to trim prompts, files, chat history, and response length.",
+      "Copyable code blocks and a quick checklist work across desktop, mobile, light, and dark themes.",
+    ],
+  },
+  {
+    category: "Featured article",
     date: "2026-07-26",
     href: "/blogs/what-you-can-build-with-mcp-expense-tracker",
     title: "MCP Expense Tracker: real AI terminal walkthrough added",
@@ -430,6 +443,8 @@ function getBlogReadableText(post: BlogPost) {
   const articleSections =
     post.slug === "what-you-can-build-with-mcp-expense-tracker"
       ? [mcpFundamentalsMarkdown]
+      : post.slug === "save-tokens-claude-chatgpt-simple-guide"
+        ? [tokenSavingGuideMarkdown]
       : post.sections.flatMap((section) => [
           section.heading,
           ...section.paragraphs,
@@ -1238,9 +1253,10 @@ const AI_RADAR_SAVE_ID_PREFIX = "ai-radar:";
 const ALL_BLOG_CATEGORIES = "All";
 const ALL_AI_RADAR_CATEGORIES = "All signals";
 const ALL_SAVED_POSTS_TAG = "All";
-const PUBLIC_BLOG_SLUG = "backend-throughput-database-cache-async-optimization";
+const PUBLIC_BLOG_SLUG = "save-tokens-claude-chatgpt-simple-guide";
 const PUBLIC_BLOG_SLUGS = new Set([
   PUBLIC_BLOG_SLUG,
+  "backend-throughput-database-cache-async-optimization",
   "what-you-can-build-with-mcp-expense-tracker",
 ]);
 const LOCKED_BLOG_CAPTION = "Members-only. Sign in to unlock.";
@@ -5131,6 +5147,7 @@ type BlogArticleBodyProps = {
 };
 
 const MCP_EXPENSE_TRACKER_SLUG = "what-you-can-build-with-mcp-expense-tracker";
+const TOKEN_SAVING_GUIDE_SLUG = "save-tokens-claude-chatgpt-simple-guide";
 
 const mcpConversationSteps = [
   {
@@ -5459,12 +5476,174 @@ function McpFundamentalsArticle() {
 }
 
 function renderMcpMarkdownInline(value: string, key: string) {
-  return value.split(/(\*\*.*?\*\*|`.*?`)/g).filter(Boolean).map((part, index) => {
+  return value.split(/(\*\*.*?\*\*|`.*?`|\*(?!\*).*?\*)/g).filter(Boolean).map((part, index) => {
     const partKey = `${key}-${index}`;
     if (part.startsWith("**") && part.endsWith("**")) return <strong key={partKey}>{part.slice(2, -2)}</strong>;
     if (part.startsWith("`") && part.endsWith("`")) return <code key={partKey}>{part.slice(1, -1)}</code>;
+    if (part.startsWith("*") && part.endsWith("*")) return <em key={partKey}>{part.slice(1, -1)}</em>;
     return <span key={partKey}>{part}</span>;
   });
+}
+
+function TokenSavingGuideArticle() {
+  const lines = tokenSavingGuideMarkdown.replace(/\r\n/g, "\n").split("\n");
+  const blocks: ReactNode[] = [];
+  let cursor = 0;
+  let blockId = 0;
+  let sectionNumber = 0;
+
+  const isBlockStart = (value: string) =>
+    !value ||
+    value.startsWith("#") ||
+    value.startsWith("```") ||
+    value.startsWith("- ") ||
+    /^\d+\.\s+/.test(value);
+
+  while (cursor < lines.length) {
+    const line = lines[cursor].trim();
+
+    if (!line) {
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith("```")) {
+      const language = line.slice(3).trim();
+      const code: string[] = [];
+      cursor += 1;
+
+      while (cursor < lines.length && !lines[cursor].trim().startsWith("```")) {
+        code.push(lines[cursor]);
+        cursor += 1;
+      }
+
+      cursor += 1;
+      blocks.push(
+        <McpCodeBlock
+          code={code.join("\n")}
+          key={`token-code-${blockId++}`}
+          label={language ? `${language.toUpperCase()} example` : "Prompt example"}
+        />,
+      );
+      continue;
+    }
+
+    if (line.startsWith("# ")) {
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith("## ")) {
+      sectionNumber += 1;
+      blocks.push(
+        <section className="token-guide-heading" key={`token-h2-${blockId++}`}>
+          <span aria-hidden="true">{String(sectionNumber).padStart(2, "0")}</span>
+          <h2>{renderMcpMarkdownInline(line.slice(3), `token-h2-${blockId}`)}</h2>
+        </section>,
+      );
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      blocks.push(
+        <h3 className="token-guide-subheading" key={`token-h3-${blockId++}`}>
+          {renderMcpMarkdownInline(line.slice(4), `token-h3-${blockId}`)}
+        </h3>,
+      );
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith("- [ ] ")) {
+      const items: string[] = [];
+
+      while (cursor < lines.length && lines[cursor].trim().startsWith("- [ ] ")) {
+        items.push(lines[cursor].trim().slice(6));
+        cursor += 1;
+      }
+
+      blocks.push(
+        <ul className="token-guide-checklist" key={`token-checklist-${blockId++}`}>
+          {items.map((item, index) => (
+            <li key={item}>
+              <span className="token-guide-checkbox" aria-hidden="true" />
+              {renderMcpMarkdownInline(item, `token-check-${index}`)}
+            </li>
+          ))}
+        </ul>,
+      );
+      continue;
+    }
+
+    if (line.startsWith("- ")) {
+      const items: string[] = [];
+
+      while (cursor < lines.length && lines[cursor].trim().startsWith("- ")) {
+        items.push(lines[cursor].trim().slice(2));
+        cursor += 1;
+      }
+
+      blocks.push(
+        <ul className="token-guide-list" key={`token-list-${blockId++}`}>
+          {items.map((item, index) => (
+            <li key={item}>{renderMcpMarkdownInline(item, `token-list-${index}`)}</li>
+          ))}
+        </ul>,
+      );
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(line)) {
+      const items: string[] = [];
+
+      while (cursor < lines.length && /^\d+\.\s+/.test(lines[cursor].trim())) {
+        items.push(lines[cursor].trim().replace(/^\d+\.\s+/, ""));
+        cursor += 1;
+      }
+
+      blocks.push(
+        <ol className="token-guide-reasons" key={`token-reasons-${blockId++}`}>
+          {items.map((item, index) => (
+            <li key={item}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <p>{renderMcpMarkdownInline(item, `token-reason-${index}`)}</p>
+            </li>
+          ))}
+        </ol>,
+      );
+      continue;
+    }
+
+    const paragraph: string[] = [];
+
+    while (cursor < lines.length) {
+      const nextLine = lines[cursor].trim();
+
+      if (isBlockStart(nextLine)) {
+        break;
+      }
+
+      paragraph.push(nextLine);
+      cursor += 1;
+    }
+
+    blocks.push(
+      <p className="token-guide-paragraph" key={`token-paragraph-${blockId++}`}>
+        {renderMcpMarkdownInline(paragraph.join(" "), `token-paragraph-${blockId}`)}
+      </p>,
+    );
+  }
+
+  return (
+    <article className="token-guide-article">
+      <aside className="token-guide-callout">
+        <span>One idea to remember</span>
+        <strong>Clear input. Relevant context. Right-sized output.</strong>
+      </aside>
+      {blocks}
+    </article>
+  );
 }
 
 function McpProjectDownloadCard() {
@@ -5545,6 +5724,10 @@ function McpPastedArticle() {
 function BlogArticleBody({ post }: BlogArticleBodyProps) {
   if (post.slug === MCP_EXPENSE_TRACKER_SLUG) {
     return <McpPastedArticle />;
+  }
+
+  if (post.slug === TOKEN_SAVING_GUIDE_SLUG) {
+    return <TokenSavingGuideArticle />;
   }
 
   return (
@@ -6569,9 +6752,7 @@ function HomePage({
   const homeWritingPreview = [featuredBlog, ...remainingBlogPosts]
     .filter((post): post is BlogPost => Boolean(post))
     .slice(0, 3);
-  const mcpArticle = blogPosts.find(
-    (post) => post.slug === "what-you-can-build-with-mcp-expense-tracker",
-  );
+  const highlightedArticle = featuredBlog;
   const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
   const homeRadarPreviewSignals = (homeRadarSignals.length ? homeRadarSignals : aiRadarSignals).slice(
     0,
@@ -6759,20 +6940,20 @@ function HomePage({
         </aside>
       </motion.section>
 
-      {mcpArticle ? (
+      {highlightedArticle ? (
         <motion.section className="home-section shell home-mcp-banner" {...sectionAnimationProps}>
           <a
             className="home-mcp-banner-card"
-            href={getBlogArticleHref(mcpArticle.slug)}
-            onClick={() => onTrackBlogOpen(mcpArticle, "home_mcp_banner")}
+            href={getBlogArticleHref(highlightedArticle.slug)}
+            onClick={() => onTrackBlogOpen(highlightedArticle, "home_featured_banner")}
           >
-            <div className="home-mcp-banner-mark" aria-hidden="true">MCP</div>
+            <div className="home-mcp-banner-mark" aria-hidden="true">AI</div>
             <div className="home-mcp-banner-copy">
-              <p className="eyebrow">Featured article · MCP Fundamentals</p>
-              <h2>{mcpArticle.title}</h2>
-              <p>{mcpArticle.summary}</p>
+              <p className="eyebrow">Featured article · {highlightedArticle.category}</p>
+              <h2>{highlightedArticle.title}</h2>
+              <p>{highlightedArticle.summary}</p>
               <div className="home-mcp-banner-tags" aria-label="Article topics">
-                <span>Python</span><span>SQLite</span><span>AI tools</span>
+                {highlightedArticle.tags.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}
               </div>
             </div>
             <span className="home-mcp-banner-cta">Read article <b aria-hidden="true">→</b></span>
@@ -9477,7 +9658,12 @@ function BlogArticlePage({
             </div>
           </section>
         ) : post ? (
-          <article className={`standalone-blog${post.slug === MCP_EXPENSE_TRACKER_SLUG ? " mcp-fundamentals-page" : ""}`} ref={articleRef}>
+          <article
+            className={`standalone-blog${
+              post.slug === MCP_EXPENSE_TRACKER_SLUG ? " mcp-fundamentals-page" : ""
+            }${post.slug === TOKEN_SAVING_GUIDE_SLUG ? " token-saving-guide-page" : ""}`}
+            ref={articleRef}
+          >
             <div className="standalone-blog-hero">
               <p className="eyebrow">Unlocked Article</p>
               <h1>{post.title}</h1>

@@ -44,6 +44,74 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "save-tokens-claude-chatgpt-simple-guide",
+    title: "How to Save Tokens While Using AI Tools Like Claude and ChatGPT",
+    category: "AI Productivity",
+    publishedAt: "August 2026",
+    summary:
+      "A simple, practical guide to reducing token usage with clearer prompts, focused context, shorter answers, and smarter chat habits.",
+    tags: ["AI Tokens", "ChatGPT", "Claude", "Prompting", "API Cost", "Productivity"],
+    stats: [
+      { label: "Practical habits", value: "6" },
+      { label: "Biggest example", value: "~8K" },
+      { label: "Difficulty", value: "Simple" },
+    ],
+    takeaways: [
+      "Clear, direct prompts reduce unnecessary input and often improve the structure of the answer.",
+      "Sharing only relevant files or code is usually the biggest token-saving opportunity.",
+      "Fresh chats, explicit answer lengths, and bullet-point requests keep context focused and responses efficient.",
+    ],
+    sections: [
+      {
+        heading: "What is a token, really?",
+        paragraphs: [
+          "A token is a small piece of text. Short words may use one token, longer words can use several, and punctuation or spaces also contribute to token usage.",
+          "As a simple English rule of thumb, one token is roughly four characters, or about 100 tokens for 75 words. Both the prompt and the AI response consume tokens.",
+        ],
+        bullets: [
+          "Short words such as cat or run can be one token.",
+          "Longer words such as optimization may split into multiple tokens.",
+          "Uploaded files and pasted articles are converted into tokens too.",
+        ],
+      },
+      {
+        heading: "Why token usage matters",
+        paragraphs: [
+          "Token usage can affect API cost, response speed, and how much conversation context fits inside a model's available context window.",
+          "A long chat is like a conversation with limited storage: as more context accumulates, earlier information may eventually be compressed or pushed out.",
+        ],
+      },
+      {
+        heading: "Be direct and share only what matters",
+        paragraphs: [
+          "Skip unnecessary introductions when a direct request communicates the same goal. Instead of a long greeting, ask for the exact explanation or result you need.",
+          "Avoid pasting an entire large file for a local bug. Share the relevant method, error, and nearby context so the model can focus on the real problem.",
+        ],
+      },
+      {
+        heading: "Keep chat context intentional",
+        paragraphs: [
+          "Start a new chat when the topic changes. An unrelated question does not benefit from carrying a long coding conversation as context.",
+          "Inside one focused conversation, avoid repeating project details the AI already has unless something changed or the detail is necessary for the next step.",
+        ],
+      },
+      {
+        heading: "Control response length and structure",
+        paragraphs: [
+          "Ask for two lines, a short checklist, or a detailed explanation depending on what you actually need. Explicit length guidance prevents unnecessarily long output.",
+          "Bullet-point prompts make multiple review goals easier to understand and often produce a better-organized answer.",
+        ],
+      },
+      {
+        heading: "Quick checklist",
+        paragraphs: [
+          "Before sending, remove unnecessary small talk, include only relevant context, decide whether the topic needs a new chat, and state the answer length you want.",
+          "The core habit is simple: be clear, short, and specific—like messaging a busy friend who wants to help.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "what-you-can-build-with-mcp-expense-tracker",
     title: "What can you build with MCP? Learn through an Expense Tracker",
     category: "AI and LLM",
