@@ -106,7 +106,8 @@ export const blogPosts: BlogPost[] = [
         heading: "Quick checklist",
         paragraphs: [
           "Before sending, remove unnecessary small talk, include only relevant context, decide whether the topic needs a new chat, and state the answer length you want.",
-          "The core habit is simple: be clear, short, and specific—like messaging a busy friend who wants to help.",
+          "I started noticing this in my daily use of AI tools: clear and focused prompts usually produced faster and more useful answers while using less context.",
+          "You do not need to be an engineer to save tokens. Small changes in how you ask can make everyday AI conversations faster, more focused, and more efficient.",
         ],
       },
     ],

@@ -12,7 +12,7 @@ Think of a token as a small piece of a word.
 
 **Simple rule of thumb:** 1 token ≈ 4 characters in English, or roughly 100 tokens ≈ 75 words.
 
-So when you type a message, and when the AI replies, both are counted in tokens. And when you upload a file or paste a long article, that content is ALSO converted into tokens.
+So when you type a message, and when the AI replies, both are counted in tokens. And when you upload a file or paste a long article, that content is also converted into tokens.
 
 ## Why Does This Matter?
 
@@ -101,7 +101,7 @@ request is independent."
 ❌ **Before (~60 tokens):**
 ```
 So earlier I told you I'm working on a Spring Boot project using
-Oracle DB, remember that project I mentioned with the matching
+Oracle DB, remember that project I mentioned with the customer
 service? For that project, how do I fix an ORA-01747 error?
 ```
 
@@ -147,4 +147,6 @@ Tokens work exactly like this. **Direct, clear questions = shorter, cheaper, fas
 
 ## Final Thought
 
-You don't need to be an engineer to save tokens. Just be **clear, short, and specific** — like texting a busy friend who wants to help but doesn't have time for a long story. That's it. That's the whole trick.
+I started noticing this in my daily use of AI tools: clear and focused prompts usually produced faster and more useful answers while using less context.
+
+You don't need to be an engineer to save tokens. Just be **clear, short, and specific** — like texting a busy friend who wants to help but doesn't have time for a long story. Small changes in how you ask can make everyday AI conversations faster, more focused, and more efficient.
