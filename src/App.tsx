@@ -523,7 +523,7 @@ function getBlogCardSummary(post: BlogPost) {
     "opensearch-to-oracle-text-migration": "Search migration closer to data.",
   };
 
-  return summaries[post.slug] ?? post.title.split(/\s+/).slice(0, 6).join(" ");
+  return summaries[post.slug] ?? post.summary;
 }
 
 function getRelatedBlogPosts(currentPost: BlogPost, posts: BlogPost[], limit = 3) {
