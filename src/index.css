@@ -3316,22 +3316,16 @@ dt {
   text-wrap: pretty;
 }
 
-.article-reader-panel,
 .standalone-lock-preview {
   display: grid;
   gap: 0.75rem;
   margin-top: 1.2rem;
 }
 
-.article-reader-panel {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
 .standalone-lock-preview {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.article-reader-panel span,
 .standalone-lock-preview span {
   display: grid;
   gap: 0.2rem;
@@ -3344,7 +3338,6 @@ dt {
   font-weight: 800;
 }
 
-.article-reader-panel strong,
 .standalone-lock-preview strong {
   color: var(--ink-strong);
   font-family: "Outfit", sans-serif;
@@ -9540,7 +9533,6 @@ body::before {
     grid-template-columns: 1fr;
   }
 
-  .article-reader-panel,
   .standalone-lock-preview {
     grid-template-columns: 1fr;
   }

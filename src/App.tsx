@@ -9670,24 +9670,6 @@ function BlogArticlePage({
               <BlogMetaLine accessLabel="Reader view" post={post} />
               <p>{post.summary}</p>
               <BlogTagList limit={6} post={post} />
-              <div className="article-reader-panel" aria-label="Article reader details">
-                <span>
-                  <strong>{getBlogWordCount(post).toLocaleString()}</strong>
-                  Words
-                </span>
-                <span>
-                  <strong>{post.sections.length}</strong>
-                  Sections
-                </span>
-                <span>
-                  <strong>{Math.round(readingProgress)}%</strong>
-                  Progress
-                </span>
-                <span>
-                  <strong>{formatReadingTimeLeft(readingSecondsLeft)}</strong>
-                  Time left
-                </span>
-              </div>
               <div className="blog-action-row">
                 <SavePostButton
                   isBusy={savedPostsBusySlug === post.slug}
