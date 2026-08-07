@@ -49,6 +49,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/learn-with-me/:path*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/active-builds",
       "destination": "/index.html"
     },
