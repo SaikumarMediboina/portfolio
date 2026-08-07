@@ -19,6 +19,7 @@ import {
 import { blogPosts, type BlogPost } from "./data/blogs";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
+import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
 import ExpenseTrackerPage from "./expense/ExpenseTrackerPage";
 import {
   certifications,
@@ -1109,7 +1110,7 @@ function getAssistantQuickPrompts(pathname: string): AssistantQuickPrompt[] {
     ];
   }
 
-  if (normalizedPathname === "/learn-with-me") {
+  if (normalizedPathname === "/learn-with-me" || normalizedPathname.startsWith("/learn-with-me/")) {
     return [
       { label: "Learn", prompt: "What can I learn with Sai?" },
       { label: "Backend", prompt: "Give me a backend learning path" },
@@ -1721,7 +1722,9 @@ function isLearnPathname() {
     return false;
   }
 
-  return window.location.pathname.replace(/\/$/, "") === "/learn-with-me";
+  const pathname = window.location.pathname.replace(/\/$/, "");
+
+  return pathname === "/learn-with-me" || pathname.startsWith("/learn-with-me/");
 }
 
 function isActiveBuildsPathname() {
@@ -7468,14 +7471,666 @@ function getStoredLearnAccess() {
   }
 }
 
+const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
+const VERTICAL_HORIZONTAL_SCALING_PATH =
+  `${DISTRIBUTED_CONCEPTS_PATH}/vertical-vs-horizontal-scaling`;
+
+type DistributedTopic = {
+  detail?: string;
+  href?: string;
+  title: string;
+};
+
+type DistributedTopicGroup = {
+  title: string;
+  topics: DistributedTopic[];
+};
+
+type DistributedCurriculumTier = {
+  description: string;
+  groups: DistributedTopicGroup[];
+  label: string;
+  title: string;
+};
+
+const distributedCurriculum: DistributedCurriculumTier[] = [
+  {
+    label: "Tier 1",
+    title: "Compulsory",
+    description: "Core ideas to explain confidently before attempting a full HLD interview design.",
+    groups: [
+      {
+        title: "Scaling & Infra",
+        topics: [
+          {
+            title: "Vertical vs horizontal scaling",
+            detail: "Scale up, scale out, state, failure domains, autoscaling, and trade-offs.",
+            href: VERTICAL_HORIZONTAL_SCALING_PATH,
+          },
+          { title: "Load balancing", detail: "L4 vs L7, round robin, least connections, and consistent hashing." },
+          { title: "Caching", detail: "Cache-aside, write-through/back/around, LRU, and LFU." },
+          { title: "CDN basics" },
+        ],
+      },
+      {
+        title: "Storage Fundamentals",
+        topics: [
+          {
+            title: "Object vs block vs file storage",
+            detail: "A recurring choice in file-upload, media, and YouTube-style designs.",
+          },
+        ],
+      },
+      {
+        title: "Database Core",
+        topics: [
+          { title: "SQL vs NoSQL + CAP theorem" },
+          { title: "Indexing internals", detail: "B-tree vs LSM tree with a search-system perspective." },
+          { title: "Replication", detail: "Leader-follower, replica lag, and failover." },
+          { title: "Sharding and partitioning", detail: "Range, hash, and geo-based strategies." },
+        ],
+      },
+      {
+        title: "Distributed Transactions",
+        topics: [
+          { title: "Strong vs eventual consistency" },
+          { title: "2PC and Saga", detail: "Choreography vs orchestration." },
+          { title: "Idempotency", detail: "Critical for payments and retry-safe workflows." },
+        ],
+      },
+      {
+        title: "Messaging",
+        topics: [
+          { title: "Synchronous vs asynchronous communication" },
+          { title: "Kafka vs RabbitMQ basics" },
+          { title: "Pub-sub vs point-to-point" },
+        ],
+      },
+      {
+        title: "API & Communication Patterns",
+        topics: [
+          { title: "REST, pagination, and API versioning", detail: "Offset vs cursor pagination." },
+          { title: "WebSockets vs SSE vs long polling" },
+          { title: "Rate limiting", detail: "Token bucket, sliding window, and leaky bucket." },
+        ],
+      },
+      {
+        title: "Estimation",
+        topics: [{ title: "Back-of-envelope estimation", detail: "QPS, storage, and bandwidth." }],
+      },
+    ],
+  },
+  {
+    label: "Tier 2",
+    title: "3+ years differentiators",
+    description: "Production trade-offs that separate a definition-only answer from engineering judgment.",
+    groups: [
+      {
+        title: "Failure Handling",
+        topics: [
+          { title: "Partial failures, timeouts, retry storms, and thundering herd" },
+          { title: "Cascading failures, split brain, and clock skew" },
+          { title: "Duplicate messages and out-of-order events" },
+          { title: "Backpressure, graceful degradation, and DLQ" },
+        ],
+      },
+      {
+        title: "Kafka Deep Dive",
+        topics: [
+          { title: "Consumer groups, partition ordering, and rebalancing" },
+          { title: "Delivery semantics", detail: "At-most-once, at-least-once, and exactly-once." },
+          { title: "Consumer lag, retry topics, and schema evolution" },
+        ],
+      },
+      {
+        title: "Cache Deep Dive",
+        topics: [
+          { title: "Cache stampede, penetration, and avalanche" },
+          { title: "Hot keys problem" },
+          { title: "Concurrent cache-miss race", detail: "DB read followed by competing cache population." },
+        ],
+      },
+      {
+        title: "DB Scaling Path",
+        topics: [
+          { title: "Consistent hashing and hot shards" },
+          { title: "Cross-shard queries and transactions" },
+          { title: "Index → cache → replicas → partitioning → sharding" },
+        ],
+      },
+      {
+        title: "Distributed Coordination",
+        topics: [
+          { title: "Distributed locks", detail: "Redis Redlock and ZooKeeper." },
+          { title: "Distributed ID generation", detail: "Snowflake, UUID, and collision handling." },
+        ],
+      },
+      {
+        title: "Service Architecture",
+        topics: [
+          { title: "Monolith vs microservices", detail: "Trade-offs, team boundaries, and migration triggers." },
+          { title: "Stateless vs stateful services" },
+          { title: "Service discovery" },
+        ],
+      },
+      {
+        title: "Availability",
+        topics: [
+          { title: "Multi-AZ and multi-region", detail: "Active-active vs active-passive." },
+          { title: "RPO, RTO, and disaster recovery" },
+        ],
+      },
+      {
+        title: "Observability",
+        topics: [
+          { title: "Logs, metrics, traces, SLI, SLO, and SLA" },
+          { title: "Latency percentiles", detail: "P50, P95, and P99." },
+        ],
+      },
+      {
+        title: "Async Processing",
+        topics: [
+          { title: "Job queues and worker pools", detail: "Exponential backoff with jitter." },
+          { title: "Job deduplication and idempotent workers" },
+        ],
+      },
+      {
+        title: "Security",
+        topics: [
+          { title: "OAuth2, JWT, and RBAC basics" },
+          { title: "Encryption at rest and in transit" },
+          { title: "Tokenization and PCI concepts", detail: "Useful for fintech system design." },
+        ],
+      },
+      {
+        title: "Data Modeling",
+        topics: [
+          { title: "Denormalization and hot partitions" },
+          { title: "Materialized views and soft vs hard delete" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Tier 3",
+    title: "Conceptual only",
+    description: "Know the mental model and trade-off; implementation depth can come later.",
+    groups: [
+      {
+        title: "Advanced Concepts",
+        topics: [
+          { title: "Raft and Paxos consensus" },
+          { title: "CRDTs and vector clocks" },
+          { title: "CQRS and event sourcing" },
+          { title: "Multi-leader replication and quorum reads/writes" },
+          { title: "Bloom filters" },
+        ],
+      },
+    ],
+  },
+];
+
+function getDistributedHeadingId(value: string) {
+  return value
+    .replace(/\*\*/g, "")
+    .replace(/^\d+\.\s*/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function DistributedConceptsHub() {
+  const topics = distributedCurriculum.flatMap((tier) =>
+    tier.groups.flatMap((group) => group.topics),
+  );
+  const availableTopics = topics.filter((topic) => Boolean(topic.href)).length;
+
+  return (
+    <div className="distributed-hub">
+      <section className="distributed-hub-hero">
+        <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+          <a href="/learn-with-me">Learn With Me</a>
+          <span aria-hidden="true">/</span>
+          <strong>Distributed Concepts</strong>
+        </nav>
+        <p className="eyebrow">HLD Learning Path</p>
+        <h1>Distributed systems, one interview-ready concept at a time.</h1>
+        <p>
+          Start with compulsory foundations, then move into production failure modes and deeper
+          coordination ideas. Locked lessons stay visible so the complete path is always clear.
+        </p>
+        <div className="distributed-hub-stats" aria-label="Curriculum status">
+          <span><strong>{distributedCurriculum.length}</strong>Tiers</span>
+          <span><strong>{topics.length}</strong>Topics</span>
+          <span><strong>{availableTopics}</strong>Available now</span>
+        </div>
+      </section>
+
+      <div className="distributed-tier-list">
+        {distributedCurriculum.map((tier) => (
+          <section className="distributed-tier" key={tier.label}>
+            <header className="distributed-tier-head">
+              <span>{tier.label}</span>
+              <div>
+                <h2>{tier.title}</h2>
+                <p>{tier.description}</p>
+              </div>
+            </header>
+
+            <div className="distributed-group-grid">
+              {tier.groups.map((group) => (
+                <article className="distributed-group-card" key={group.title}>
+                  <div className="distributed-group-head">
+                    <h3>{group.title}</h3>
+                    <span>{group.topics.length} {group.topics.length === 1 ? "topic" : "topics"}</span>
+                  </div>
+                  <div className="distributed-topic-list">
+                    {group.topics.map((topic) =>
+                      topic.href ? (
+                        <a className="distributed-topic is-available" href={topic.href} key={topic.title}>
+                          <span>
+                            <strong>{topic.title}</strong>
+                            {topic.detail ? <small>{topic.detail}</small> : null}
+                          </span>
+                          <em>Unlocked <b aria-hidden="true">→</b></em>
+                        </a>
+                      ) : (
+                        <button
+                          aria-label={`${topic.title}, locked`}
+                          className="distributed-topic is-locked"
+                          disabled
+                          key={topic.title}
+                          type="button"
+                        >
+                          <span>
+                            <strong>{topic.title}</strong>
+                            {topic.detail ? <small>{topic.detail}</small> : null}
+                          </span>
+                          <em><b aria-hidden="true">🔒</b> Locked</em>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DistributedScalingVisual() {
+  return (
+    <section className="scaling-visual" aria-labelledby="scaling-visual-title">
+      <div className="scaling-visual-head">
+        <p className="eyebrow">Visual mental model</p>
+        <h2 id="scaling-visual-title">A bigger kitchen or more kitchens?</h2>
+        <p>Both add capacity. Only one immediately introduces distribution and coordination.</p>
+      </div>
+      <div className="scaling-visual-grid">
+        <article className="scaling-model is-vertical">
+          <span>Scale up</span>
+          <h3>Vertical scaling</h3>
+          <div className="vertical-server-visual" aria-hidden="true">
+            <div><small>Before</small><strong>8 CPU</strong><b>32 GB</b></div>
+            <i>→</i>
+            <div><small>After</small><strong>64 CPU</strong><b>256 GB</b></div>
+          </div>
+          <p>One machine becomes more powerful. Operations stay simpler, but the ceiling and failure domain remain concentrated.</p>
+        </article>
+        <article className="scaling-model is-horizontal">
+          <span>Scale out</span>
+          <h3>Horizontal scaling</h3>
+          <div className="horizontal-server-visual" aria-hidden="true">
+            <strong>Load balancer</strong>
+            <i />
+            <div><b>App 1</b><b>App 2</b><b>App 3</b></div>
+          </div>
+          <p>More machines share traffic. Capacity and redundancy improve, while state, routing, and consistency become real design work.</p>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function ScalingCapacitySimulator() {
+  const [traffic, setTraffic] = useState(10000);
+  const [nodeCapacity, setNodeCapacity] = useState(1250);
+  const minimumNodes = Math.max(1, Math.ceil(traffic / nodeCapacity));
+  const recommendedNodes = Math.max(2, Math.ceil(minimumNodes * 1.2));
+  const capacityAfterFailure = Math.max(0, (recommendedNodes - 1) * nodeCapacity);
+  const survivesOneFailure = capacityAfterFailure >= traffic;
+
+  return (
+    <section className="scaling-simulator" aria-labelledby="scaling-simulator-title">
+      <div className="scaling-simulator-copy">
+        <p className="eyebrow">Capacity lab</p>
+        <h2 id="scaling-simulator-title">Turn QPS into a safer node count.</h2>
+        <p>Adjust demand and per-node throughput. The recommendation adds roughly 20% capacity headroom.</p>
+      </div>
+      <div className="scaling-simulator-controls">
+        <label>
+          <span>Peak traffic <strong>{traffic.toLocaleString("en-IN")} QPS</strong></span>
+          <input
+            aria-label="Peak traffic in requests per second"
+            max="50000"
+            min="1000"
+            step="1000"
+            type="range"
+            value={traffic}
+            onChange={(event) => setTraffic(Number(event.target.value))}
+          />
+        </label>
+        <label>
+          <span>Per-node capacity <strong>{nodeCapacity.toLocaleString("en-IN")} QPS</strong></span>
+          <input
+            aria-label="Per-node capacity in requests per second"
+            max="5000"
+            min="250"
+            step="250"
+            type="range"
+            value={nodeCapacity}
+            onChange={(event) => setNodeCapacity(Number(event.target.value))}
+          />
+        </label>
+      </div>
+      <div className="scaling-simulator-results" aria-live="polite">
+        <span><small>Minimum</small><strong>{minimumNodes}</strong>nodes</span>
+        <span><small>With headroom</small><strong>{recommendedNodes}</strong>nodes</span>
+        <span className={survivesOneFailure ? "is-safe" : "is-warning"}>
+          <small>After one node fails</small>
+          <strong>{capacityAfterFailure.toLocaleString("en-IN")}</strong>QPS capacity
+        </span>
+      </div>
+    </section>
+  );
+}
+
+function DistributedCodeBlock({ code, label, tone }: { code: string; label: string; tone: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyCode = async () => {
+    await navigator.clipboard?.writeText(code);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
+
+  return (
+    <div className={`distributed-code-block ${tone}`}>
+      <div><span>{label}</span><button type="button" onClick={copyCode}>{copied ? "Copied" : "Copy"}</button></div>
+      <pre><code>{code}</code></pre>
+    </div>
+  );
+}
+
+function DistributedScalingMarkdown() {
+  const lines = verticalHorizontalScalingMarkdown.replace(/\r\n/g, "\n").split("\n");
+  const blocks: ReactNode[] = [];
+  const codeTones = ["is-coral", "is-blue", "is-sage", "is-gold"];
+  let blockId = 0;
+  let codeIndex = 0;
+  let cursor = 0;
+
+  const isTableSeparator = (value: string) =>
+    /^\|?\s*:?-{3,}/.test(value) && value.includes("|");
+  const parseTableRow = (value: string) =>
+    value.replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim());
+  const isBlockStart = (value: string) =>
+    !value ||
+    value === "---" ||
+    value.startsWith("#") ||
+    value.startsWith(">") ||
+    value.startsWith("```") ||
+    value.startsWith("| ") ||
+    value.startsWith("- ") ||
+    value.startsWith("* ") ||
+    /^\d+\.\s+/.test(value);
+
+  while (cursor < lines.length) {
+    const line = lines[cursor].trim();
+
+    if (!line || line === "---") {
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith("```")) {
+      const language = line.slice(3).trim();
+      const code: string[] = [];
+      cursor += 1;
+
+      while (cursor < lines.length && !lines[cursor].trim().startsWith("```")) {
+        code.push(lines[cursor]);
+        cursor += 1;
+      }
+
+      cursor += 1;
+      const label = language === "yaml"
+        ? "Kubernetes HPA · YAML"
+        : language === "http"
+          ? "HTTP request"
+          : "System diagram";
+      blocks.push(
+        <DistributedCodeBlock
+          code={code.join("\n")}
+          key={`distributed-code-${blockId++}`}
+          label={label}
+          tone={codeTones[codeIndex++ % codeTones.length]}
+        />,
+      );
+      continue;
+    }
+
+    if (line.startsWith("# ")) {
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith("## ")) {
+      const heading = line.slice(3);
+      const match = heading.match(/^(\d+)\.\s*(.*)$/);
+      blocks.push(
+        <section className="distributed-article-heading" id={getDistributedHeadingId(heading)} key={`distributed-h2-${blockId++}`}>
+          <span aria-hidden="true">{match ? match[1].padStart(2, "0") : "•"}</span>
+          <h2>{renderMcpMarkdownInline(match ? match[2] : heading, `distributed-h2-${blockId}`)}</h2>
+        </section>,
+      );
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      blocks.push(
+        <h3 className="distributed-article-subheading" key={`distributed-h3-${blockId++}`}>
+          {renderMcpMarkdownInline(line.slice(4), `distributed-h3-${blockId}`)}
+        </h3>,
+      );
+      cursor += 1;
+      continue;
+    }
+
+    if (line.startsWith(">")) {
+      const quote: string[] = [];
+
+      while (cursor < lines.length && lines[cursor].trim().startsWith(">")) {
+        quote.push(lines[cursor].trim().replace(/^>\s?/, ""));
+        cursor += 1;
+      }
+
+      blocks.push(
+        <blockquote className="distributed-article-quote" key={`distributed-quote-${blockId++}`}>
+          {renderMcpMarkdownInline(quote.join(" "), `distributed-quote-${blockId}`)}
+        </blockquote>,
+      );
+      continue;
+    }
+
+    if (
+      line.startsWith("|") &&
+      cursor + 1 < lines.length &&
+      isTableSeparator(lines[cursor + 1].trim())
+    ) {
+      const headers = parseTableRow(line);
+      const rows: string[][] = [];
+      cursor += 2;
+
+      while (cursor < lines.length && lines[cursor].trim().startsWith("|")) {
+        rows.push(parseTableRow(lines[cursor].trim()));
+        cursor += 1;
+      }
+
+      blocks.push(
+        <div className="distributed-table-wrap" key={`distributed-table-${blockId++}`}>
+          <table>
+            <thead><tr>{headers.map((header) => <th key={header}>{renderMcpMarkdownInline(header, `table-head-${header}`)}</th>)}</tr></thead>
+            <tbody>
+              {rows.map((row, rowIndex) => (
+                <tr key={`${row.join("-")}-${rowIndex}`}>
+                  {row.map((cell, cellIndex) => <td key={`${cell}-${cellIndex}`}>{renderMcpMarkdownInline(cell, `table-cell-${rowIndex}-${cellIndex}`)}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>,
+      );
+      continue;
+    }
+
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      const marker = line.slice(0, 2);
+      const items: string[] = [];
+
+      while (cursor < lines.length && lines[cursor].trim().startsWith(marker)) {
+        items.push(lines[cursor].trim().slice(2));
+        cursor += 1;
+      }
+
+      blocks.push(
+        <ul className="distributed-article-list" key={`distributed-list-${blockId++}`}>
+          {items.map((item, index) => <li key={`${item}-${index}`}>{renderMcpMarkdownInline(item, `distributed-list-${index}`)}</li>)}
+        </ul>,
+      );
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(line)) {
+      const items: string[] = [];
+
+      while (cursor < lines.length && /^\d+\.\s+/.test(lines[cursor].trim())) {
+        items.push(lines[cursor].trim().replace(/^\d+\.\s+/, ""));
+        cursor += 1;
+      }
+
+      blocks.push(
+        <ol className="distributed-article-numbered-list" key={`distributed-ordered-${blockId++}`}>
+          {items.map((item, index) => <li key={`${item}-${index}`}>{renderMcpMarkdownInline(item, `distributed-ordered-${index}`)}</li>)}
+        </ol>,
+      );
+      continue;
+    }
+
+    const paragraph: string[] = [];
+
+    while (cursor < lines.length) {
+      const nextLine = lines[cursor].trim();
+
+      if (isBlockStart(nextLine)) {
+        break;
+      }
+
+      paragraph.push(nextLine);
+      cursor += 1;
+    }
+
+    blocks.push(
+      <p className="distributed-article-paragraph" key={`distributed-paragraph-${blockId++}`}>
+        {renderMcpMarkdownInline(paragraph.join(" "), `distributed-paragraph-${blockId}`)}
+      </p>,
+    );
+  }
+
+  return <div className="distributed-markdown">{blocks}</div>;
+}
+
+function DistributedScalingArticle() {
+  const articleHeadings = verticalHorizontalScalingMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <article className="distributed-scaling-article">
+      <header className="distributed-article-hero">
+        <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+          <a href="/learn-with-me">Learn With Me</a>
+          <span aria-hidden="true">/</span>
+          <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+          <span aria-hidden="true">/</span>
+          <strong>Scaling</strong>
+        </nav>
+        <p className="eyebrow">Tier 1 · Scaling & Infra · Unlocked</p>
+        <h1>Vertical vs Horizontal Scaling — HLD Interview Guide</h1>
+        <p>
+          One restaurant-kitchen analogy, real QPS numbers, failure cases, autoscaling, database
+          evolution, and a decision framework you can reuse in interviews.
+        </p>
+        <div className="distributed-article-tags" aria-label="Article topics">
+          <span>Scale up</span><span>Scale out</span><span>Load balancing</span><span>State</span><span>Failure domains</span>
+        </div>
+      </header>
+
+      <DistributedScalingVisual />
+      <ScalingCapacitySimulator />
+
+      <nav className="distributed-article-toc" aria-label="Article sections">
+        <div><p className="eyebrow">Quick jump</p><h2>20-part interview guide</h2></div>
+        <div>
+          {articleHeadings.map((heading) => (
+            <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+              {heading.replace(/\*\*/g, "")}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <DistributedScalingMarkdown />
+
+      <footer className="distributed-article-footer">
+        <p className="eyebrow">Continue learning</p>
+        <h2>One concept unlocked. The full distributed-systems path stays visible.</h2>
+        <a className="button button-primary" href={DISTRIBUTED_CONCEPTS_PATH}>Back to Distributed Concepts</a>
+      </footer>
+    </article>
+  );
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
+  const learnPathname = typeof window === "undefined"
+    ? "/learn-with-me"
+    : window.location.pathname.replace(/\/$/, "");
+  const isDistributedConceptsPage = learnPathname === DISTRIBUTED_CONCEPTS_PATH;
+  const isVerticalHorizontalScalingPage = learnPathname === VERTICAL_HORIZONTAL_SCALING_PATH;
+  const learnBackHref = isVerticalHorizontalScalingPage
+    ? DISTRIBUTED_CONCEPTS_PATH
+    : isDistributedConceptsPage
+      ? "/learn-with-me"
+      : "/";
   const [accessGranted, setAccessGranted] = useState(getStoredLearnAccess);
   const [accessBusy, setAccessBusy] = useState(false);
   const [accessError, setAccessError] = useState("");
   const [accessPassword, setAccessPassword] = useState("");
   const [accessMessage, setAccessMessage] = useState("");
-  const learningTracks = [
+  const learningTracks: Array<{
+    detail: string;
+    href?: string;
+    icon: "spark" | "briefcase" | "radar" | "news";
+    label: string;
+    title: string;
+  }> = [
     {
       detail:
         "Short, beginner-friendly explainers for distributed systems, databases, networking, and core CS ideas.",
@@ -7485,23 +8140,31 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     },
     {
       detail:
+        "A tiered HLD path covering scaling, storage, databases, messaging, failures, coordination, and availability.",
+      href: DISTRIBUTED_CONCEPTS_PATH,
+      icon: "spark",
+      label: "Track 02 · Open",
+      title: "Distributed Concepts",
+    },
+    {
+      detail:
         "Practical notes on latency, caching, indexing, async processing, and production backend tradeoffs.",
-      icon: "briefcase" as const,
-      label: "Track 02",
+      icon: "briefcase",
+      label: "Track 03",
       title: "Backend Performance",
     },
     {
       detail:
         "Simple breakdowns of matching, ranking, semantic retrieval, scoring, and search-heavy architecture.",
-      icon: "radar" as const,
-      label: "Track 03",
+      icon: "radar",
+      label: "Track 04",
       title: "Search Systems",
     },
     {
       detail:
         "Hands-on AI workflow ideas with clear boundaries, useful automation, and real engineering context.",
-      icon: "news" as const,
-      label: "Track 04",
+      icon: "news",
+      label: "Track 05",
       title: "Practical AI",
     },
   ];
@@ -7597,7 +8260,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
             <a className="button button-secondary" href="/">
               Home
             </a>
-            <PageBackButton fallbackHref="/" label="Back" />
+            <PageBackButton fallbackHref={learnBackHref} label="Back" />
             {accessGranted ? (
               <button
                 className="button button-secondary"
@@ -7620,7 +8283,10 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
         </div>
       </header>
 
-      <main className="guide-page learn-page shell" id="main-content">
+      <main
+        className={`guide-page learn-page shell${isDistributedConceptsPage ? " distributed-hub-page" : ""}${isVerticalHorizontalScalingPage ? " distributed-article-page" : ""}`}
+        id="main-content"
+      >
         {!accessGranted ? (
           <section className="learn-access-panel" aria-labelledby="learn-access-title">
             <div className="learn-access-copy">
@@ -7666,6 +8332,10 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isVerticalHorizontalScalingPage ? (
+          <DistributedScalingArticle />
+        ) : isDistributedConceptsPage ? (
+          <DistributedConceptsHub />
         ) : (
           <>
             <section className="guide-hero learn-hero">
@@ -7679,16 +8349,27 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
             </section>
 
             <section className="learn-track-grid" aria-label="Learning tracks">
-              {learningTracks.map((track) => (
-                <article className="learn-track-card" key={track.title}>
-                  <div className="guide-feature-icon">
-                    <ReaderMenuGlyph type={track.icon} />
-                  </div>
-                  <span>{track.label}</span>
-                  <h2>{track.title}</h2>
-                  <p>{track.detail}</p>
-                </article>
-              ))}
+              {learningTracks.map((track) => {
+                const content = (
+                  <>
+                    <div className="guide-feature-icon">
+                      <ReaderMenuGlyph type={track.icon} />
+                    </div>
+                    <span>{track.label}</span>
+                    <h2>{track.title}</h2>
+                    <p>{track.detail}</p>
+                    {track.href ? <small>Open learning path <b aria-hidden="true">→</b></small> : null}
+                  </>
+                );
+
+                return track.href ? (
+                  <a className="learn-track-card is-open" href={track.href} key={track.title}>
+                    {content}
+                  </a>
+                ) : (
+                  <article className="learn-track-card" key={track.title}>{content}</article>
+                );
+              })}
             </section>
 
             <section className="learn-flow-panel" aria-label="Learning format">
