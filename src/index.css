@@ -25624,7 +25624,7 @@ a.load-balancer-lesson-link:focus-visible {
   place-items: center;
   width: 2.15rem;
   height: 2.15rem;
-  border: 1px solid color-mix(in srgb, #4f9cf9 48%, #758194);
+  border: 1px solid color-mix(in srgb, var(--course-sidebar-blue) 48%, var(--course-sidebar-border));
   border-radius: 50%;
   background: var(--panel-strong);
   box-shadow: var(--shadow-soft);
@@ -25661,8 +25661,8 @@ a.load-balancer-lesson-link:focus-visible {
 
 .routing-course-sidebar-toggle:hover,
 .routing-course-sidebar-toggle:focus-visible {
-  border-color: #4f9cf9;
-  outline: 3px solid color-mix(in srgb, #4f9cf9 24%, transparent);
+  border-color: var(--course-sidebar-blue);
+  outline: 3px solid color-mix(in srgb, var(--course-sidebar-blue) 24%, transparent);
   outline-offset: 2px;
 }
 
@@ -25674,20 +25674,20 @@ a.load-balancer-lesson-link:focus-visible {
 
 .routing-course-sidebar {
   --course-sidebar-bg-top: #ffffff;
-  --course-sidebar-bg-bottom: #edf2f7;
-  --course-sidebar-border: #d5dde8;
-  --course-sidebar-text: #293548;
-  --course-sidebar-strong: #111827;
-  --course-sidebar-muted: #667085;
-  --course-sidebar-subtle: #8792a3;
-  --course-sidebar-line: rgba(39, 52, 72, .13);
-  --course-sidebar-tile: rgba(39, 52, 72, .055);
-  --course-sidebar-nested: rgba(79, 156, 249, .045);
-  --course-sidebar-blue: #2674bd;
-  --course-sidebar-coral: #c94e34;
-  --course-sidebar-glow: rgba(79, 156, 249, .12);
-  --course-sidebar-shadow: rgba(23, 35, 54, .14);
-  --course-sidebar-scrollbar: #a6b3c4;
+  --course-sidebar-bg-bottom: #ffffff;
+  --course-sidebar-border: rgba(111, 70, 45, .16);
+  --course-sidebar-text: #2b231d;
+  --course-sidebar-strong: #1e1814;
+  --course-sidebar-muted: #716255;
+  --course-sidebar-subtle: #948274;
+  --course-sidebar-line: rgba(88, 62, 43, .13);
+  --course-sidebar-tile: rgba(81, 54, 36, .05);
+  --course-sidebar-nested: rgba(178, 71, 50, .035);
+  --course-sidebar-blue: #8a5b3f;
+  --course-sidebar-coral: #b24732;
+  --course-sidebar-glow: transparent;
+  --course-sidebar-shadow: rgba(79, 49, 31, .1);
+  --course-sidebar-scrollbar: #c7b4a4;
   position: sticky;
   top: 1rem;
   display: flex;
@@ -25862,8 +25862,8 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .distributed-tier-topic.is-available .distributed-tier-topic-code {
-  border-color: rgba(79, 156, 249, .48);
-  background: rgba(79, 156, 249, .11);
+  border-color: color-mix(in srgb, var(--course-sidebar-blue) 48%, transparent);
+  background: color-mix(in srgb, var(--course-sidebar-blue) 11%, transparent);
   color: var(--course-sidebar-blue);
 }
 
@@ -25873,8 +25873,8 @@ a.load-balancer-lesson-link:focus-visible {
 
 .distributed-tier-topic.is-available:hover,
 .distributed-tier-topic.is-available:focus-visible {
-  background: rgba(79, 156, 249, .1);
-  box-shadow: inset 4px 0 #4f9cf9;
+  background: color-mix(in srgb, var(--course-sidebar-blue) 10%, transparent);
+  box-shadow: inset 4px 0 var(--course-sidebar-blue);
   outline: 0;
   transform: translateY(-1px);
 }
@@ -25889,7 +25889,7 @@ a.load-balancer-lesson-link:focus-visible {
   display: grid;
   margin: .7rem;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, #4f9cf9 30%, var(--course-sidebar-line));
+  border: 1px solid color-mix(in srgb, var(--course-sidebar-blue) 30%, var(--course-sidebar-line));
   border-radius: 12px;
   background: var(--course-sidebar-nested);
 }
@@ -25901,7 +25901,7 @@ a.load-balancer-lesson-link:focus-visible {
   align-items: center;
   padding: .65rem .7rem;
   border-bottom: 1px solid var(--course-sidebar-line);
-  background: color-mix(in srgb, #4f9cf9 9%, var(--course-sidebar-tile));
+  background: color-mix(in srgb, var(--course-sidebar-blue) 9%, var(--course-sidebar-tile));
 }
 
 .distributed-tier-expanded-head > span {
@@ -25910,7 +25910,7 @@ a.load-balancer-lesson-link:focus-visible {
   width: 1.9rem;
   height: 1.9rem;
   border-radius: 8px;
-  background: #4f9cf9;
+  background: var(--course-sidebar-blue);
   color: #fff;
   font: 900 .52rem/1 "IBM Plex Mono", monospace;
 }
@@ -26107,8 +26107,8 @@ a.load-balancer-lesson-link:focus-visible {
 
 .routing-course-sublesson.is-available:hover,
 .routing-course-sublesson.is-available:focus-visible {
-  border-color: rgba(79, 156, 249, .55);
-  background: rgba(79, 156, 249, .1);
+  border-color: color-mix(in srgb, var(--course-sidebar-blue) 55%, transparent);
+  background: color-mix(in srgb, var(--course-sidebar-blue) 10%, transparent);
   outline: 0;
 }
 
@@ -26151,8 +26151,8 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-lesson.is-available .routing-course-lesson-code {
-  border-color: rgba(79, 156, 249, .5);
-  background: rgba(79, 156, 249, .12);
+  border-color: color-mix(in srgb, var(--course-sidebar-blue) 50%, transparent);
+  background: color-mix(in srgb, var(--course-sidebar-blue) 12%, transparent);
   color: var(--course-sidebar-blue);
 }
 
@@ -26162,8 +26162,8 @@ a.load-balancer-lesson-link:focus-visible {
 
 .routing-course-lesson.is-available:hover,
 .routing-course-lesson.is-available:focus-visible {
-  border-color: rgba(79, 156, 249, .72);
-  background: rgba(79, 156, 249, .1);
+  border-color: color-mix(in srgb, var(--course-sidebar-blue) 72%, transparent);
+  background: color-mix(in srgb, var(--course-sidebar-blue) 10%, transparent);
   outline: 0;
   transform: translateY(-1px);
 }
@@ -26188,15 +26188,15 @@ a.load-balancer-lesson-link:focus-visible {
   align-items: start;
   margin: auto .8rem .8rem;
   padding: .75rem;
-  border: 1px solid rgba(79, 156, 249, .25);
+  border: 1px solid color-mix(in srgb, var(--course-sidebar-blue) 25%, transparent);
   border-radius: 13px;
-  background: rgba(79, 156, 249, .08);
+  background: color-mix(in srgb, var(--course-sidebar-blue) 8%, transparent);
 }
 
 .routing-course-sidebar-foot > span {
   padding: .24rem .38rem;
   border-radius: 7px;
-  background: #4f9cf9;
+  background: var(--course-sidebar-blue);
   color: #fff;
   font: 900 .55rem "IBM Plex Mono", monospace;
   text-transform: uppercase;
