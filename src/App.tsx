@@ -7679,6 +7679,72 @@ function getDistributedHeadingId(value: string) {
     .replace(/^-|-$/g, "");
 }
 
+const distributedOverviewStages = [
+  {
+    title: "Foundations",
+    description: "Build the core mental models you need before designing a large system.",
+    focus: ["Scaling", "Storage", "Databases", "Transactions", "Messaging", "APIs"],
+  },
+  {
+    title: "Production depth",
+    description: "Reason about failures, coordination, recovery, and operational trade-offs.",
+    focus: ["Failures", "Kafka", "Caching", "Sharding", "Services", "Security"],
+  },
+  {
+    title: "Advanced models",
+    description: "Recognize the deeper ideas behind agreement, ordering, and data convergence.",
+    focus: ["Consensus", "CRDTs", "CQRS", "Quorums", "Bloom filters"],
+  },
+] as const;
+
+function DistributedRoadmapOverview() {
+  return (
+    <section className="roadmap-overview" aria-labelledby="roadmap-overview-title">
+      <header className="roadmap-overview-head">
+        <div>
+          <p className="eyebrow">Roadmap at a glance</p>
+          <h2 id="roadmap-overview-title">See the full journey before you begin.</h2>
+          <p>Move from essential foundations to production judgment, then finish with advanced mental models.</p>
+        </div>
+        <span>1 of 53 lessons unlocked</span>
+      </header>
+
+      <div className="roadmap-overview-map" role="list" aria-label="Three-stage distributed systems roadmap">
+        {distributedCurriculum.map((tier, tierIndex) => {
+          const overview = distributedOverviewStages[tierIndex];
+          const topicCount = tier.groups.reduce((count, group) => count + group.topics.length, 0);
+
+          return (
+            <article className={`roadmap-overview-node overview-node-${tierIndex + 1}`} key={tier.label} role="listitem">
+              <div className="roadmap-overview-marker" aria-hidden="true">
+                <span>{String(tierIndex + 1).padStart(2, "0")}</span>
+              </div>
+              <div className="roadmap-overview-copy">
+                <p>{tier.label}</p>
+                <h3>{overview.title}</h3>
+                <strong>{topicCount} topics</strong>
+                <small>{overview.description}</small>
+                <div className="roadmap-overview-focus" aria-label={`${overview.title} focus areas`}>
+                  {overview.focus.map((item) => <span key={item}>{item}</span>)}
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <a className="roadmap-overview-start" href={VERTICAL_HORIZONTAL_SCALING_PATH}>
+        <span aria-hidden="true">01</span>
+        <span>
+          <small>Start with the unlocked lesson</small>
+          <strong>Vertical vs horizontal scaling</strong>
+        </span>
+        <b aria-hidden="true">→</b>
+      </a>
+    </section>
+  );
+}
+
 function DistributedConceptsHub() {
   const topics = distributedCurriculum.flatMap((tier) =>
     tier.groups.flatMap((group) => group.topics),
@@ -7705,6 +7771,8 @@ function DistributedConceptsHub() {
           <span><strong>{availableTopics}</strong>Available now</span>
         </div>
       </section>
+
+      <DistributedRoadmapOverview />
 
       <div className="distributed-roadmap" aria-label="Distributed systems learning roadmap">
         {distributedCurriculum.map((tier, tierIndex) => {
