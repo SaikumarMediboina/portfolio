@@ -7698,6 +7698,10 @@ const distributedOverviewStages = [
 ] as const;
 
 function DistributedRoadmapOverview() {
+  const [activeTierIndex, setActiveTierIndex] = useState<number | null>(null);
+  const activeTier = activeTierIndex === null ? null : distributedCurriculum[activeTierIndex];
+  const activeOverview = activeTierIndex === null ? null : distributedOverviewStages[activeTierIndex];
+
   return (
     <section className="roadmap-overview" aria-labelledby="roadmap-overview-title">
       <header className="roadmap-overview-head">
@@ -7709,38 +7713,126 @@ function DistributedRoadmapOverview() {
         <span>1 of 53 lessons unlocked</span>
       </header>
 
-      <div className="roadmap-overview-map" role="list" aria-label="Three-stage distributed systems roadmap">
-        {distributedCurriculum.map((tier, tierIndex) => {
-          const overview = distributedOverviewStages[tierIndex];
-          const topicCount = tier.groups.reduce((count, group) => count + group.topics.length, 0);
+      {activeTier && activeOverview && activeTierIndex !== null ? (
+        <div className={`roadmap-detail-view roadmap-detail-${activeTierIndex + 1}`}>
+          <header className="roadmap-detail-head">
+            <button type="button" onClick={() => setActiveTierIndex(null)}>
+              <span aria-hidden="true">←</span> All paths
+            </button>
+            <div>
+              <p>{activeTier.label} visual map</p>
+              <h3>{activeOverview.title}</h3>
+              <small>{activeOverview.description}</small>
+            </div>
+            <strong>
+              {activeTier.groups.reduce((count, group) => count + group.topics.length, 0)} topics
+            </strong>
+          </header>
 
-          return (
-            <article className={`roadmap-overview-node overview-node-${tierIndex + 1}`} key={tier.label} role="listitem">
-              <div className="roadmap-overview-marker" aria-hidden="true">
-                <span>{String(tierIndex + 1).padStart(2, "0")}</span>
-              </div>
-              <div className="roadmap-overview-copy">
-                <p>{tier.label}</p>
-                <h3>{overview.title}</h3>
-                <strong>{topicCount} topics</strong>
-                <small>{overview.description}</small>
-                <div className="roadmap-overview-focus" aria-label={`${overview.title} focus areas`}>
-                  {overview.focus.map((item) => <span key={item}>{item}</span>)}
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+          <p className="roadmap-detail-hint">
+            <span aria-hidden="true">↔</span> Swipe or scroll sideways to explore every checkpoint.
+          </p>
 
-      <a className="roadmap-overview-start" href={VERTICAL_HORIZONTAL_SCALING_PATH}>
-        <span aria-hidden="true">01</span>
-        <span>
-          <small>Start with the unlocked lesson</small>
-          <strong>Vertical vs horizontal scaling</strong>
-        </span>
-        <b aria-hidden="true">→</b>
-      </a>
+          <div
+            aria-label={`${activeOverview.title} detailed learning diagram`}
+            className="roadmap-detail-canvas"
+            role="region"
+            tabIndex={0}
+          >
+            <div className="roadmap-detail-track">
+              <div className="roadmap-detail-origin">
+                <small>Start here</small>
+                <strong>{activeOverview.title}</strong>
+              </div>
+
+              {activeTier.groups.map((group, groupIndex) => (
+                <section className="roadmap-detail-group" key={group.title}>
+                  <header>
+                    <span aria-hidden="true">{String(groupIndex + 1).padStart(2, "0")}</span>
+                    <div>
+                      <small>Checkpoint {activeTierIndex + 1}.{groupIndex + 1}</small>
+                      <h4>{group.title}</h4>
+                    </div>
+                  </header>
+
+                  <ol>
+                    {group.topics.map((topic, topicIndex) => (
+                      <li key={topic.title}>
+                        {topic.href ? (
+                          <a className="roadmap-detail-topic is-available" href={topic.href}>
+                            <span aria-hidden="true">{String(topicIndex + 1).padStart(2, "0")}</span>
+                            <strong>{topic.title}</strong>
+                            <small>Open lesson →</small>
+                          </a>
+                        ) : (
+                          <button
+                            aria-label={`${topic.title}, locked`}
+                            className="roadmap-detail-topic is-locked"
+                            disabled
+                            type="button"
+                          >
+                            <span aria-hidden="true">{String(topicIndex + 1).padStart(2, "0")}</span>
+                            <strong>{topic.title}</strong>
+                            <small>Locked</small>
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+
+              <div className="roadmap-detail-finish">
+                <span aria-hidden="true">✓</span>
+                <strong>{activeTierIndex === distributedCurriculum.length - 1 ? "Path complete" : "Next tier"}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="roadmap-decision-canvas">
+            <div className="roadmap-decision-tree">
+              <div className="roadmap-decision-start">Start here</div>
+              <div className="roadmap-choice-diamond" aria-hidden="true">
+                <span>Choose your depth</span>
+              </div>
+
+              <div className="roadmap-decision-branches" role="list" aria-label="Choose a roadmap depth">
+                {distributedCurriculum.map((tier, tierIndex) => {
+                  const overview = distributedOverviewStages[tierIndex];
+                  const topicCount = tier.groups.reduce((count, group) => count + group.topics.length, 0);
+
+                  return (
+                    <div className="roadmap-path-node-wrap" key={tier.label} role="listitem">
+                      <button
+                        className={`roadmap-path-node path-node-${tierIndex + 1}`}
+                        onClick={() => setActiveTierIndex(tierIndex)}
+                        type="button"
+                      >
+                        <span aria-hidden="true">{String(tierIndex + 1).padStart(2, "0")}</span>
+                        <small>{tier.label} · {topicCount} topics</small>
+                        <strong>{overview.title}</strong>
+                        <p>{overview.focus.join(" · ")}</p>
+                        <b>Open visual map <i aria-hidden="true">→</i></b>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <a className="roadmap-overview-start" href={VERTICAL_HORIZONTAL_SCALING_PATH}>
+            <span aria-hidden="true">01</span>
+            <span>
+              <small>Start with the unlocked lesson</small>
+              <strong>Vertical vs horizontal scaling</strong>
+            </span>
+            <b aria-hidden="true">→</b>
+          </a>
+        </>
+      )}
     </section>
   );
 }
@@ -7779,11 +7871,11 @@ function DistributedConceptsHub() {
           const tierTopicCount = tier.groups.reduce((count, group) => count + group.topics.length, 0);
 
           return (
-            <section
+            <details
               className={`roadmap-stage roadmap-stage-${tierIndex + 1}`}
               key={tier.label}
             >
-              <header className="roadmap-stage-head">
+              <summary className="roadmap-stage-head">
                 <span className="roadmap-stage-number" aria-hidden="true">
                   {String(tierIndex + 1).padStart(2, "0")}
                 </span>
@@ -7792,10 +7884,17 @@ function DistributedConceptsHub() {
                   <h2>{tier.title}</h2>
                   <p>{tier.description}</p>
                 </div>
-                <span className="roadmap-stage-count">
-                  {tierTopicCount} {tierTopicCount === 1 ? "topic" : "topics"}
+                <span className="roadmap-stage-actions">
+                  <span className="roadmap-stage-count">
+                    {tierTopicCount} {tierTopicCount === 1 ? "topic" : "topics"}
+                  </span>
+                  <span className="roadmap-stage-toggle" aria-hidden="true">
+                    <b className="when-closed">Open</b>
+                    <b className="when-open">Close</b>
+                    <i>⌄</i>
+                  </span>
                 </span>
-              </header>
+              </summary>
 
               <div className="roadmap-route">
                 {tier.groups.map((group, groupIndex) => (
@@ -7860,7 +7959,7 @@ function DistributedConceptsHub() {
                     : `Continue to ${distributedCurriculum[tierIndex + 1].label}`}
                 </strong>
               </footer>
-            </section>
+            </details>
           );
         })}
       </div>
