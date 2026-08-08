@@ -8363,7 +8363,11 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
           ? "HTTP request"
           : language === "json"
             ? "JSON response"
-            : "System diagram";
+            : language === "packet"
+              ? "Packet encapsulation"
+              : language === "flow"
+                ? "L4 → L7 request flow"
+                : "System diagram";
       blocks.push(
         <DistributedCodeBlock
           code={code.join("\n")}
