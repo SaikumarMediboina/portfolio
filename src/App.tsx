@@ -8739,6 +8739,99 @@ const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
   },
 ];
 
+function LoadBalancingSidebarSubtopics({
+  activePath,
+  onNavigate,
+}: {
+  activePath: string;
+  onNavigate: () => void;
+}) {
+  return (
+    <div className="distributed-tier-subtopics">
+      <div className="distributed-tier-subtopics-inner">
+        {loadBalancingCheckpoints.map((checkpoint, checkpointIndex) => {
+          const phase = loadBalancingPhases[checkpoint.phase - 1];
+          const isRoutingCheckpoint = checkpoint.href === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
+          const isCheckpointActive = checkpoint.href === activePath || (
+            isRoutingCheckpoint && activePath.startsWith(`${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/`)
+          );
+          const checkpointBody = (
+            <>
+              <span className="distributed-tier-subtopic-code" aria-hidden="true">
+                {String(checkpointIndex + 1).padStart(2, "0")}
+              </span>
+              <span className="distributed-tier-subtopic-copy">
+                <small>Phase {phase.id}</small>
+                <strong>{checkpoint.title}</strong>
+              </span>
+              <b>{isCheckpointActive ? "Current" : checkpoint.href ? "Open" : "Locked"}</b>
+            </>
+          );
+
+          return (
+            <div
+              className={`distributed-tier-subtopic-entry${isRoutingCheckpoint ? " has-algorithms" : ""}${isCheckpointActive ? " is-active" : ""}`}
+              key={checkpoint.title}
+            >
+              {checkpoint.href ? (
+                <a
+                  aria-current={isCheckpointActive ? "page" : undefined}
+                  className={`distributed-tier-subtopic ${isCheckpointActive ? "is-active" : "is-available"}`}
+                  href={checkpoint.href}
+                  onClick={onNavigate}
+                >
+                  {checkpointBody}
+                </a>
+              ) : (
+                <span aria-disabled="true" className="distributed-tier-subtopic is-locked">
+                  {checkpointBody}
+                </span>
+              )}
+
+              {isRoutingCheckpoint ? (
+                <div className="distributed-tier-algorithms" aria-label="Routing algorithm lessons">
+                  <div className="distributed-tier-algorithms-inner">
+                    {routingAlgorithmLessons.map((lesson, lessonIndex) => {
+                      const isLessonActive = lesson.href === activePath;
+                      const lessonBody = (
+                        <>
+                          <span aria-hidden="true">{lesson.code}</span>
+                          <span><small>{String(lessonIndex + 1).padStart(2, "0")}</small><strong>{lesson.title}</strong></span>
+                          <b>{isLessonActive ? "Reading" : lesson.href ? "Open" : "Locked"}</b>
+                        </>
+                      );
+
+                      return lesson.href ? (
+                        <a
+                          aria-current={isLessonActive ? "page" : undefined}
+                          className={`distributed-tier-algorithm ${isLessonActive ? "is-active" : "is-available"}`}
+                          href={lesson.href}
+                          key={lesson.title}
+                          onClick={onNavigate}
+                        >
+                          {lessonBody}
+                        </a>
+                      ) : (
+                        <span
+                          aria-disabled="true"
+                          className="distributed-tier-algorithm is-locked"
+                          key={lesson.title}
+                        >
+                          {lessonBody}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function DistributedTierCourseShell({
   activePath,
   children,
@@ -8757,6 +8850,9 @@ function DistributedTierCourseShell({
     .flatMap((group) => group.topics)
     .find(isTopicActive);
   const [isLessonMenuOpen, setIsLessonMenuOpen] = useState(false);
+  const [expandedTopicPath, setExpandedTopicPath] = useState<string | null>(() =>
+    activePath.startsWith(LOAD_BALANCING_PATH) ? LOAD_BALANCING_PATH : null,
+  );
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window === "undefined") {
       return false;
@@ -8869,6 +8965,8 @@ function DistributedTierCourseShell({
                   {group.topics.map((topic, topicIndex) => {
                     const topicNumber = groupStartIndex + topicIndex + 1;
                     const isActive = isTopicActive(topic);
+                    const hasSubtopics = topic.href === LOAD_BALANCING_PATH;
+                    const isExpanded = hasSubtopics && expandedTopicPath === topic.href;
                     const topicBody = (
                       <>
                         <span className="distributed-tier-topic-code" aria-hidden="true">
@@ -8882,24 +8980,49 @@ function DistributedTierCourseShell({
                       </>
                     );
 
-                    return topic.href ? (
-                      <a
-                        aria-current={isActive ? "page" : undefined}
-                        className={`distributed-tier-topic ${isActive ? "is-active" : "is-available"}`}
-                        href={topic.href}
-                        key={topic.title}
-                        onClick={() => setIsLessonMenuOpen(false)}
-                      >
-                        {topicBody}
-                      </a>
-                    ) : (
-                      <span
-                        aria-disabled="true"
-                        className="distributed-tier-topic is-locked"
+                    return (
+                      <div
+                        className={`distributed-tier-topic-entry${hasSubtopics ? " has-subtopics" : ""}${isActive ? " is-active" : ""}${isExpanded ? " is-expanded" : ""}`}
                         key={topic.title}
                       >
-                        {topicBody}
-                      </span>
+                        <div className="distributed-tier-topic-row">
+                          {topic.href ? (
+                            <a
+                              aria-current={isActive ? "page" : undefined}
+                              className={`distributed-tier-topic ${isActive ? "is-active" : "is-available"}`}
+                              href={topic.href}
+                              onClick={() => setIsLessonMenuOpen(false)}
+                            >
+                              {topicBody}
+                            </a>
+                          ) : (
+                            <span aria-disabled="true" className="distributed-tier-topic is-locked">
+                              {topicBody}
+                            </span>
+                          )}
+
+                          {hasSubtopics ? (
+                            <button
+                              aria-expanded={isExpanded}
+                              aria-label={`${isExpanded ? "Collapse" : "Expand"} ${topic.title} lessons`}
+                              className="distributed-tier-topic-toggle"
+                              onClick={() => setExpandedTopicPath((currentPath) =>
+                                currentPath === topic.href ? null : topic.href ?? null,
+                              )}
+                              type="button"
+                            >
+                              <span aria-hidden="true">⌄</span>
+                            </button>
+                          ) : null}
+                        </div>
+
+                        {hasSubtopics ? (
+                          <LoadBalancingSidebarSubtopics
+                            activePath={activePath}
+                            onNavigate={() => setIsLessonMenuOpen(false)}
+                          />
+                        ) : null}
+                      </div>
                     );
                   })}
                 </div>
@@ -8907,95 +9030,11 @@ function DistributedTierCourseShell({
             );
           })}
 
-          {activePath.startsWith(LOAD_BALANCING_PATH) ? (
-            <section className="distributed-tier-expanded-path" aria-label="Load balancing checkpoints">
-              <header className="distributed-tier-expanded-head">
-                <span aria-hidden="true">LB</span>
-                <div><small>Active topic</small><strong>Load Balancing checkpoints</strong></div>
-                <b>{loadBalancingCheckpoints.length}</b>
-              </header>
-
-              {loadBalancingCheckpoints.map((checkpoint, index) => {
-            const phase = loadBalancingPhases[checkpoint.phase - 1];
-            const isRoutingCheckpoint = checkpoint.href === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
-            const isActive = checkpoint.href === activePath || (
-              isRoutingCheckpoint && activePath.startsWith(`${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/`)
-            );
-            const lessonBody = (
-              <>
-                <span className="routing-course-lesson-code" aria-hidden="true">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="routing-course-lesson-copy">
-                  <small>Phase {phase.id} · {phase.title}</small>
-                  <strong>{checkpoint.title}</strong>
-                  <p>{checkpoint.detail}</p>
-                </span>
-                <b>{isActive ? "Current" : checkpoint.href ? "Open" : "Locked"}</b>
-              </>
-            );
-
-            return (
-              <div className={`routing-course-topic-group${isActive ? " is-current" : ""}`} key={checkpoint.title}>
-                {checkpoint.href ? (
-                  <a
-                    aria-current={isActive ? "page" : undefined}
-                    className={`routing-course-lesson ${isActive ? "is-active" : "is-available"}`}
-                    href={checkpoint.href}
-                    onClick={() => setIsLessonMenuOpen(false)}
-                  >
-                    {lessonBody}
-                  </a>
-                ) : (
-                  <span aria-disabled="true" className="routing-course-lesson is-locked">
-                    {lessonBody}
-                  </span>
-                )}
-
-                {isRoutingCheckpoint && isActive ? (
-                  <div className="routing-course-sublessons" aria-label="Routing algorithm sub-lessons">
-                    {routingAlgorithmLessons.map((lesson, lessonIndex) => {
-                      const isSublessonActive = lesson.href === activePath;
-                      const sublessonBody = (
-                        <>
-                          <span aria-hidden="true">{lesson.code}</span>
-                          <span><small>{String(lessonIndex + 1).padStart(2, "0")}</small><strong>{lesson.title}</strong></span>
-                          <b>{isSublessonActive ? "Reading" : lesson.href ? "Open" : "Locked"}</b>
-                        </>
-                      );
-
-                      return lesson.href ? (
-                        <a
-                          aria-current={isSublessonActive ? "page" : undefined}
-                          className={`routing-course-sublesson ${isSublessonActive ? "is-active" : "is-available"}`}
-                          href={lesson.href}
-                          key={lesson.title}
-                          onClick={() => setIsLessonMenuOpen(false)}
-                        >
-                          {sublessonBody}
-                        </a>
-                      ) : (
-                        <span
-                          aria-disabled="true"
-                          className="routing-course-sublesson is-locked"
-                          key={lesson.title}
-                        >
-                          {sublessonBody}
-                        </span>
-                      );
-                    })}
-                  </div>
-                ) : null}
-              </div>
-            );
-              })}
-            </section>
-          ) : null}
         </nav>
 
         <footer className="routing-course-sidebar-foot">
           <span aria-hidden="true">Path</span>
-          <p>Every lesson in {tier.label} stays in one index. Active topics reveal their deeper checkpoints here.</p>
+          <p>Every lesson in {tier.label} stays in one index. Hover or expand a topic to browse its checkpoints.</p>
         </footer>
       </aside>
 
