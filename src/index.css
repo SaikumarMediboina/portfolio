@@ -24191,10 +24191,12 @@ html[data-header-visibility="hidden"] .article-site-header {
 }
 
 .roadmap-decision-branches {
+  --branch-gap: clamp(1rem, 3vw, 2.2rem);
+  --branch-edge-correction: clamp(.333rem, 1vw, .733rem);
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1rem, 3vw, 2.2rem);
+  gap: var(--branch-gap);
   width: 100%;
   margin-top: 1.25rem;
   padding-top: 3.2rem;
@@ -24203,8 +24205,8 @@ html[data-header-visibility="hidden"] .article-site-header {
 .roadmap-decision-branches::before {
   position: absolute;
   top: 1.35rem;
-  right: 16.66%;
-  left: 16.66%;
+  right: calc(16.6667% - var(--branch-edge-correction));
+  left: calc(16.6667% - var(--branch-edge-correction));
   height: 3px;
   background: linear-gradient(90deg, #ff7858, #21b888 50%, #6d9cff);
   content: "";
@@ -24428,8 +24430,8 @@ html[data-header-visibility="hidden"] .article-site-header {
 .roadmap-detail-track::before {
   position: absolute;
   top: 5.8rem;
-  right: 4rem;
-  left: 4rem;
+  right: 5.5rem;
+  left: 7rem;
   height: 4px;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--detail-accent), color-mix(in srgb, var(--detail-accent) 44%, var(--panel-border)));
@@ -25017,7 +25019,7 @@ html[data-header-visibility="hidden"] .article-site-header {
   text-transform: uppercase;
 }
 
-.roadmap-stage-finish span {
+.roadmap-stage-finish > span {
   display: block;
   width: .85rem;
   height: .85rem;
@@ -25025,6 +25027,38 @@ html[data-header-visibility="hidden"] .article-site-header {
   border-radius: 50%;
   background: var(--roadmap-accent);
   box-shadow: 0 0 0 2px var(--roadmap-accent), 0 0 18px var(--roadmap-glow);
+}
+
+.roadmap-stage-collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 2.75rem;
+  margin-top: .55rem;
+  padding: .6rem .9rem;
+  border: 1px solid color-mix(in srgb, var(--roadmap-accent) 44%, var(--panel-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--roadmap-accent) 8%, var(--panel-strong));
+  color: var(--roadmap-accent);
+  cursor: pointer;
+  font: 900 var(--text-micro) "IBM Plex Mono", monospace;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.roadmap-stage-collapse b {
+  font-size: .92rem;
+}
+
+.roadmap-stage-collapse:hover,
+.roadmap-stage-collapse:focus-visible {
+  background: color-mix(in srgb, var(--roadmap-accent) 15%, var(--panel-strong));
+  box-shadow: 0 8px 24px var(--roadmap-glow);
+  outline: 2px solid color-mix(in srgb, var(--roadmap-accent) 45%, transparent);
+  outline-offset: 2px;
+  transform: translateY(-1px);
 }
 
 .scaling-visual,
@@ -25867,6 +25901,12 @@ html[data-header-visibility="hidden"] .article-site-header {
 
   .roadmap-stage-finish {
     padding-left: .95rem;
+  }
+
+  .roadmap-stage-collapse {
+    width: min(100%, 22rem);
+    margin-top: .75rem;
+    white-space: normal;
   }
 
   .vertical-server-visual {

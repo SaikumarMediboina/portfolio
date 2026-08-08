@@ -7496,7 +7496,7 @@ type DistributedCurriculumTier = {
 const distributedCurriculum: DistributedCurriculumTier[] = [
   {
     label: "Tier 1",
-    title: "Compulsory",
+    title: "Foundations",
     description: "Core ideas to explain confidently before attempting a full HLD interview design.",
     groups: [
       {
@@ -7562,7 +7562,7 @@ const distributedCurriculum: DistributedCurriculumTier[] = [
   },
   {
     label: "Tier 2",
-    title: "3+ years differentiators",
+    title: "Production depth",
     description: "Production trade-offs that separate a definition-only answer from engineering judgment.",
     groups: [
       {
@@ -7653,7 +7653,7 @@ const distributedCurriculum: DistributedCurriculumTier[] = [
   },
   {
     label: "Tier 3",
-    title: "Conceptual only",
+    title: "Advanced models",
     description: "Know the mental model and trade-off; implementation depth can come later.",
     groups: [
       {
@@ -7681,17 +7681,14 @@ function getDistributedHeadingId(value: string) {
 
 const distributedOverviewStages = [
   {
-    title: "Foundations",
     description: "Build the core mental models you need before designing a large system.",
     focus: ["Scaling", "Storage", "Databases", "Transactions", "Messaging", "APIs"],
   },
   {
-    title: "Production depth",
     description: "Reason about failures, coordination, recovery, and operational trade-offs.",
     focus: ["Failures", "Kafka", "Caching", "Sharding", "Services", "Security"],
   },
   {
-    title: "Advanced models",
     description: "Recognize the deeper ideas behind agreement, ordering, and data convergence.",
     focus: ["Consensus", "CRDTs", "CQRS", "Quorums", "Bloom filters"],
   },
@@ -7721,7 +7718,7 @@ function DistributedRoadmapOverview() {
             </button>
             <div>
               <p>{activeTier.label} visual map</p>
-              <h3>{activeOverview.title}</h3>
+              <h3>{activeTier.title}</h3>
               <small>{activeOverview.description}</small>
             </div>
             <strong>
@@ -7734,7 +7731,7 @@ function DistributedRoadmapOverview() {
           </p>
 
           <div
-            aria-label={`${activeOverview.title} detailed learning diagram`}
+            aria-label={`${activeTier.title} detailed learning diagram`}
             className="roadmap-detail-canvas"
             role="region"
             tabIndex={0}
@@ -7742,7 +7739,7 @@ function DistributedRoadmapOverview() {
             <div className="roadmap-detail-track">
               <div className="roadmap-detail-origin">
                 <small>Start here</small>
-                <strong>{activeOverview.title}</strong>
+                <strong>{activeTier.title}</strong>
               </div>
 
               {activeTier.groups.map((group, groupIndex) => (
@@ -7812,7 +7809,7 @@ function DistributedRoadmapOverview() {
                       >
                         <span aria-hidden="true">{String(tierIndex + 1).padStart(2, "0")}</span>
                         <small>{tier.label} · {topicCount} topics</small>
-                        <strong>{overview.title}</strong>
+                        <strong>{tier.title}</strong>
                         <p>{overview.focus.join(" · ")}</p>
                         <b>Open visual map <i aria-hidden="true">→</i></b>
                       </button>
@@ -7854,7 +7851,7 @@ function DistributedConceptsHub() {
         <p className="eyebrow">HLD Learning Path</p>
         <h1>Distributed systems, one interview-ready concept at a time.</h1>
         <p>
-          Start with compulsory foundations, then move into production failure modes and deeper
+          Start with foundations, then move into production failure modes and deeper
           coordination ideas. Locked lessons stay visible so the complete path is always clear.
         </p>
         <div className="distributed-hub-stats" aria-label="Curriculum status">
@@ -7958,6 +7955,22 @@ function DistributedConceptsHub() {
                     ? "Roadmap complete"
                     : `Continue to ${distributedCurriculum[tierIndex + 1].label}`}
                 </strong>
+                <button
+                  className="roadmap-stage-collapse"
+                  onClick={(event) => {
+                    const stage = event.currentTarget.closest("details");
+
+                    if (stage instanceof HTMLDetailsElement) {
+                      const summary = stage.querySelector<HTMLElement>("summary");
+                      stage.open = false;
+                      summary?.focus();
+                      stage.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                  type="button"
+                >
+                  Collapse {tier.label}: {tier.title} <b aria-hidden="true">↑</b>
+                </button>
               </footer>
             </details>
           );
