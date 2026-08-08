@@ -78,23 +78,15 @@ function useScrolled() {
 }
 
 function useScrollHeaderVisibility(syncDocument = false) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() =>
+    typeof window === "undefined" ? true : window.scrollY <= 24,
+  );
 
   useEffect(() => {
-    let previousScrollY = window.scrollY;
     let frameId = 0;
 
     const updateVisibility = () => {
-      const currentScrollY = window.scrollY;
-      const distance = currentScrollY - previousScrollY;
-
-      if (currentScrollY <= 24 || distance < -8) {
-        setIsVisible(true);
-      } else if (distance > 8) {
-        setIsVisible(false);
-      }
-
-      previousScrollY = currentScrollY;
+      setIsVisible(window.scrollY <= 24);
       frameId = 0;
     };
 
@@ -105,6 +97,7 @@ function useScrollHeaderVisibility(syncDocument = false) {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    updateVisibility();
 
     return () => {
       window.cancelAnimationFrame(frameId);
@@ -9078,6 +9071,13 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
+
+  useEffect(() => {
+    if (isLoadBalancingPage) {
+      window.location.replace(LOAD_BALANCER_BASICS_PATH);
+    }
+  }, [isLoadBalancingPage]);
+
   const learnBackHref = isLoadBalancerWeightedRoundRobinPage
     ? LOAD_BALANCER_ROUTING_ALGORITHMS_PATH
     : isLoadBalancerRoutingAlgorithmsPage

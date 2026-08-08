@@ -23427,14 +23427,13 @@ body {
 @media (max-width: 720px) { .home-mcp-banner-card { grid-template-columns: auto 1fr; gap: .85rem; border-radius: 16px; }.home-mcp-banner-mark { width: 3.4rem; height: 3.4rem; border-radius: 11px; font-size: .8rem; }.home-mcp-banner-copy h2 { font-size: 1.2rem; }.home-mcp-banner-cta { grid-column: 1 / -1; padding-top: .2rem; }.home-mcp-banner-copy > p:not(.eyebrow) { font-size: .92rem; } }
 @media (max-width: 720px) { .mcp-pasted-article { width: 100%; gap: 1.15rem; padding-top: .7rem; }.mcp-pasted-hero h1 { font-size: clamp(2rem, 11vw, 3rem); }.mcp-pasted-paragraph { font-size: 1rem; line-height: 1.72; }.mcp-pasted-quote { font-size: 1.02rem; }.mcp-pasted-article .mcp-code-block pre { font-size: .74rem; }.mcp-project-file-map-grid { grid-template-columns: 1fr; }.mcp-project-file-map { padding: 1rem; } }
 
-/* Shared reader behavior: every page header moves out on downward reading and returns on upward scroll. */
+/* Article headers stay out of the reading flow until the reader returns to the page top. */
 .site-header,
 .article-site-header {
   transition: transform 220ms ease, opacity 180ms ease !important;
   will-change: transform;
 }
 
-html[data-header-visibility="hidden"] .site-header,
 html[data-header-visibility="hidden"] .article-site-header {
   opacity: 0;
   pointer-events: none;
@@ -26702,6 +26701,12 @@ a.load-balancer-lesson-link:focus-visible {
   .distributed-tier-topic-toggle span {
     transition: none;
   }
+}
+
+/* The retired standalone Load Balancing roadmap must never render. */
+.load-balancing-hub,
+.load-balancing-map {
+  display: none !important;
 }
 
 .scaling-visual,
