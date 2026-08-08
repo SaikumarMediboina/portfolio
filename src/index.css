@@ -26071,7 +26071,7 @@ a.load-balancer-lesson-link:focus-visible {
 
 .distributed-tier-algorithm {
   display: grid;
-  grid-template-columns: 1.55rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.65rem minmax(0, 1fr) auto;
   gap: .45rem;
   align-items: center;
   min-width: 0;
@@ -26085,12 +26085,13 @@ a.load-balancer-lesson-link:focus-visible {
 .distributed-tier-algorithm > span:first-child {
   display: grid;
   place-items: center;
-  width: 1.55rem;
-  height: 1.55rem;
-  border-radius: 6px;
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 1px solid color-mix(in srgb, var(--course-sidebar-muted) 28%, transparent);
+  border-radius: 7px;
   background: var(--course-sidebar-tile);
   color: var(--course-sidebar-muted);
-  font: 900 .45rem/1 "IBM Plex Mono", monospace;
+  font: 900 .47rem/1 "IBM Plex Mono", monospace;
 }
 
 .distributed-tier-algorithm > span:nth-child(2) {
@@ -26653,15 +26654,15 @@ a.load-balancer-lesson-link:focus-visible {
     justify-self: start;
     grid-template-columns: 1fr;
     gap: 0;
-    width: 3.15rem;
-    height: 3.15rem;
-    min-height: 3.15rem;
+    width: 2.2rem;
+    height: 1.8rem;
+    min-height: 1.8rem;
     padding: 0;
     overflow: hidden;
     border-color: color-mix(in srgb, var(--accent) 38%, var(--panel-border));
-    border-radius: 50%;
+    border-radius: .55rem;
     background: var(--panel-strong);
-    box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 18%, transparent);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 14%, transparent);
     text-align: center;
     touch-action: manipulation;
   }
@@ -26674,8 +26675,9 @@ a.load-balancer-lesson-link:focus-visible {
   }
 
   .routing-course-mobile-trigger > span:first-child::before {
-    content: "☰";
-    font: 700 1.25rem/1 "DM Sans", Arial, sans-serif;
+    content: ">>";
+    font: 800 .72rem/1 "IBM Plex Mono", monospace;
+    letter-spacing: -.12em;
   }
 
   .routing-course-mobile-trigger > span:nth-child(2),

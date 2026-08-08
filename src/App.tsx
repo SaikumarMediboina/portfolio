@@ -8004,13 +8004,6 @@ type LoadBalancingCheckpoint = {
   title: string;
 };
 
-const loadBalancingPhases = [
-  { id: 1, title: "Foundations" },
-  { id: 2, title: "Routing intelligence" },
-  { id: 3, title: "Reliability & state" },
-  { id: 4, title: "Production engineering" },
-] as const;
-
 const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   {
     detail: "Why traffic needs a coordinator and where the load balancer sits.",
@@ -8121,97 +8114,6 @@ function LoadBalancingLessonNavigation({ currentPath }: { currentPath: string })
       </a>
       {renderLessonLink(nextCheckpoint, "next")}
     </nav>
-  );
-}
-
-function LoadBalancingHub() {
-  const availableCheckpoints = loadBalancingCheckpoints.filter((checkpoint) => checkpoint.href).length;
-
-  return (
-    <div className="load-balancing-hub">
-      <section className="distributed-hub-hero load-balancing-hero">
-        <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
-          <a href="/learn-with-me">Learn With Me</a>
-          <span aria-hidden="true">/</span>
-          <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
-          <span aria-hidden="true">/</span>
-          <strong>Load Balancing</strong>
-        </nav>
-        <p className="eyebrow">Foundations · Scaling & Infra</p>
-        <h1>Load balancing, from the first request to production decisions.</h1>
-        <p>
-          Follow ten connected checkpoints. Start with the beginner-friendly mental model, then
-          build toward routing, reliability, connection handling, and production trade-offs.
-        </p>
-        <div className="load-balancing-stats" aria-label="Load balancing learning path status">
-          <span><strong>{loadBalancingCheckpoints.length}</strong>Checkpoints</span>
-          <span><strong>{loadBalancingPhases.length}</strong>Learning phases</span>
-          <span><strong>{availableCheckpoints}</strong>Available now</span>
-        </div>
-      </section>
-
-      <section className="load-balancing-map" aria-labelledby="load-balancing-map-title">
-        <header className="load-balancing-map-head">
-          <div>
-            <p className="eyebrow">Visual learning path</p>
-            <h2 id="load-balancing-map-title">One route through all ten checkpoints.</h2>
-            <p>Follow the numbered connector line. Available lessons open; upcoming lessons stay visible and locked.</p>
-          </div>
-          <span>{availableCheckpoints} of {loadBalancingCheckpoints.length} unlocked</span>
-        </header>
-
-        <div className="load-balancing-phase-legend" aria-label="Learning phases">
-          {loadBalancingPhases.map((phase) => (
-            <span className={`phase-${phase.id}`} key={phase.id}>
-              <i aria-hidden="true" />
-              Phase {phase.id} · {phase.title}
-            </span>
-          ))}
-        </div>
-
-        <ol className="load-balancing-path">
-          {loadBalancingCheckpoints.map((checkpoint, index) => {
-            const phase = loadBalancingPhases[checkpoint.phase - 1];
-            const checkpointContent = (
-              <>
-                <span className="load-balancing-step-number" aria-hidden="true">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="load-balancing-step-copy">
-                  <small>Phase {phase.id} · {phase.title}</small>
-                  <strong>{checkpoint.title}</strong>
-                  <p>{checkpoint.detail}</p>
-                </span>
-                <b className="load-balancing-step-status">
-                  {checkpoint.href ? <>Open lesson <i aria-hidden="true">→</i></> : "Locked"}
-                </b>
-              </>
-            );
-
-            return (
-              <li
-                className={`load-balancing-path-step phase-${checkpoint.phase}${checkpoint.href ? " is-available" : " is-locked"}`}
-                key={checkpoint.title}
-              >
-                {checkpoint.href ? (
-                  <a href={checkpoint.href}>{checkpointContent}</a>
-                ) : (
-                  <button aria-label={`${checkpoint.title}, locked`} disabled type="button">
-                    {checkpointContent}
-                  </button>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-
-        <a className="load-balancing-start" href={LOAD_BALANCER_BASICS_PATH}>
-          <span aria-hidden="true">01</span>
-          <span><small>Begin with the unlocked checkpoint</small><strong>Load Balancer Basics</strong></span>
-          <b aria-hidden="true">→</b>
-        </a>
-      </section>
-    </div>
   );
 }
 
@@ -8690,7 +8592,6 @@ function LoadBalancerTypesArticle() {
 }
 
 type RoutingAlgorithmLesson = {
-  code: string;
   detail: string;
   href?: string;
   title: string;
@@ -8698,24 +8599,20 @@ type RoutingAlgorithmLesson = {
 
 const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
   {
-    code: "RR",
     detail: "Send each new request to the next healthy server in order.",
     href: LOAD_BALANCER_ROUTING_ALGORITHMS_PATH,
     title: "Round Robin",
   },
   {
-    code: "WR",
     detail: "Give higher-capacity servers a larger share of requests.",
     href: LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH,
     title: "Weighted Round Robin",
   },
   {
-    code: "LC",
     detail: "Choose the server with the fewest active connections.",
     title: "Least Connections",
   },
   {
-    code: "IP",
     detail: "Use a client identifier to keep routing stable across requests.",
     title: "IP Hash",
   },
@@ -8790,8 +8687,8 @@ function LoadBalancingSidebarSubtopics({
                       const isLessonActive = lesson.href === activePath;
                       const lessonBody = (
                         <>
-                          <span aria-hidden="true">{lesson.code}</span>
-                          <span><small>{String(lessonIndex + 1).padStart(2, "0")}</small><strong>{lesson.title}</strong></span>
+                          <span aria-hidden="true">{String(lessonIndex + 1).padStart(2, "0")}</span>
+                          <span><strong>{lesson.title}</strong></span>
                           <b>{isLessonActive ? "Reading" : lesson.href ? "Open" : "Locked"}</b>
                         </>
                       );
@@ -9048,7 +8945,6 @@ function RoutingAlgorithmLessonNavigation({ currentPath }: { currentPath: string
   const previousLesson: RoutingAlgorithmLesson | null = currentIndex > 0
     ? routingAlgorithmLessons[currentIndex - 1]
     : {
-        code: "L4",
         detail: "Understand where Layer 4 and Layer 7 routing decisions happen.",
         href: LOAD_BALANCER_TYPES_PATH,
         title: "Load Balancer Types: L4 vs L7",
@@ -9179,8 +9075,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerRoutingAlgorithmsPage = learnPathname === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
   const isLoadBalancerWeightedRoundRobinPage = learnPathname === LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
-  const isDistributedHubPage = isDistributedConceptsPage || isLoadBalancingPage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
+  const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
   const learnBackHref = isLoadBalancerWeightedRoundRobinPage
     ? LOAD_BALANCER_ROUTING_ALGORITHMS_PATH
@@ -9431,7 +9327,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
         ) : isLoadBalancerBasicsPage ? (
           <LoadBalancerBasicsArticle />
         ) : isLoadBalancingPage ? (
-          <LoadBalancingHub />
+          <LoadBalancerBasicsArticle />
         ) : isVerticalHorizontalScalingPage ? (
           <DistributedScalingArticle />
         ) : isDistributedConceptsPage ? (
