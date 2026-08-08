@@ -25626,9 +25626,9 @@ a.load-balancer-lesson-link:focus-visible {
   height: 2.15rem;
   border: 1px solid color-mix(in srgb, #4f9cf9 48%, #758194);
   border-radius: 50%;
-  background: #f7f9fc;
-  box-shadow: 0 7px 18px rgba(7, 12, 20, .25);
-  color: #263243;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow-soft);
+  color: var(--ink-strong);
   cursor: pointer;
   font: 900 1.4rem/1 "Outfit", sans-serif;
 }
@@ -25673,6 +25673,21 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-sidebar {
+  --course-sidebar-bg-top: #ffffff;
+  --course-sidebar-bg-bottom: #edf2f7;
+  --course-sidebar-border: #d5dde8;
+  --course-sidebar-text: #293548;
+  --course-sidebar-strong: #111827;
+  --course-sidebar-muted: #667085;
+  --course-sidebar-subtle: #8792a3;
+  --course-sidebar-line: rgba(39, 52, 72, .13);
+  --course-sidebar-tile: rgba(39, 52, 72, .055);
+  --course-sidebar-nested: rgba(79, 156, 249, .045);
+  --course-sidebar-blue: #2674bd;
+  --course-sidebar-coral: #c94e34;
+  --course-sidebar-glow: rgba(79, 156, 249, .12);
+  --course-sidebar-shadow: rgba(23, 35, 54, .14);
+  --course-sidebar-scrollbar: #a6b3c4;
   position: sticky;
   top: 1rem;
   display: flex;
@@ -25680,24 +25695,24 @@ a.load-balancer-lesson-link:focus-visible {
   height: calc(100dvh - 2rem);
   max-height: calc(100dvh - 2rem);
   overflow: visible;
-  border: 1px solid #4b5261;
+  border: 1px solid var(--course-sidebar-border);
   border-radius: 14px;
   background:
-    radial-gradient(circle at 100% 0, rgba(79, 156, 249, .14), transparent 32%),
-    linear-gradient(165deg, #454a52, #343941 72%);
-  box-shadow: 0 16px 38px rgba(8, 12, 19, .2);
-  color: #eef3fb;
-  scrollbar-color: #718096 #343941;
+    radial-gradient(circle at 100% 0, var(--course-sidebar-glow), transparent 32%),
+    linear-gradient(165deg, var(--course-sidebar-bg-top), var(--course-sidebar-bg-bottom) 72%);
+  box-shadow: 0 16px 38px var(--course-sidebar-shadow);
+  color: var(--course-sidebar-text);
+  scrollbar-color: var(--course-sidebar-scrollbar) var(--course-sidebar-bg-bottom);
   scrollbar-width: thin;
 }
 
 .routing-course-sidebar-head {
   padding: 1.45rem 1.25rem 1.3rem;
-  border-bottom: 1px solid rgba(255, 255, 255, .11);
+  border-bottom: 1px solid var(--course-sidebar-line);
 }
 
 .routing-course-sidebar-head > p {
-  color: #aeb9cb;
+  color: var(--course-sidebar-muted);
   font: 800 .62rem "IBM Plex Mono", monospace;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -25705,7 +25720,7 @@ a.load-balancer-lesson-link:focus-visible {
 
 .routing-course-sidebar-head h2 {
   margin-top: .5rem;
-  color: #fff;
+  color: var(--course-sidebar-strong);
   font-family: "Outfit", sans-serif;
   font-size: 1.7rem;
   letter-spacing: -.035em;
@@ -25719,7 +25734,7 @@ a.load-balancer-lesson-link:focus-visible {
   align-content: start;
   overflow-y: auto;
   padding: 0;
-  scrollbar-color: #718096 transparent;
+  scrollbar-color: var(--course-sidebar-scrollbar) transparent;
   scrollbar-width: thin;
 }
 
@@ -25731,7 +25746,7 @@ a.load-balancer-lesson-link:focus-visible {
   min-width: 0;
   padding: 1rem 1.05rem;
   border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  border-bottom: 1px solid var(--course-sidebar-line);
   border-radius: 0;
   background: transparent;
   color: inherit;
@@ -25744,10 +25759,10 @@ a.load-balancer-lesson-link:focus-visible {
   place-items: center;
   width: 2.35rem;
   height: 2.35rem;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid color-mix(in srgb, var(--course-sidebar-muted) 32%, transparent);
   border-radius: 11px;
-  background: rgba(255, 255, 255, .08);
-  color: #c9d3e3;
+  background: var(--course-sidebar-tile);
+  color: var(--course-sidebar-muted);
   font: 900 .65rem "IBM Plex Mono", monospace;
 }
 
@@ -25757,7 +25772,7 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-lesson-copy small {
-  color: #9ba7ba;
+  color: var(--course-sidebar-subtle);
   font: 800 .55rem "IBM Plex Mono", monospace;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -25765,14 +25780,14 @@ a.load-balancer-lesson-link:focus-visible {
 
 .routing-course-lesson-copy strong {
   margin-top: .16rem;
-  color: #f4f7fb;
+  color: var(--course-sidebar-strong);
   font-size: .9rem;
   line-height: 1.25;
 }
 
 .routing-course-lesson-copy p {
   margin-top: .3rem;
-  color: #abb6c8;
+  color: var(--course-sidebar-muted);
   font-size: .7rem;
   line-height: 1.45;
 }
@@ -25805,8 +25820,8 @@ a.load-balancer-lesson-link:focus-visible {
   display: grid;
   gap: .2rem;
   padding: .45rem .7rem .6rem 3.35rem;
-  border-bottom: 1px solid rgba(255, 255, 255, .1);
-  background: rgba(5, 10, 18, .12);
+  border-bottom: 1px solid var(--course-sidebar-line);
+  background: var(--course-sidebar-nested);
 }
 
 .routing-course-sublesson {
@@ -25828,8 +25843,8 @@ a.load-balancer-lesson-link:focus-visible {
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 7px;
-  background: rgba(255, 255, 255, .08);
-  color: #b7c2d2;
+  background: var(--course-sidebar-tile);
+  color: var(--course-sidebar-muted);
   font: 900 .52rem "IBM Plex Mono", monospace;
 }
 
@@ -25839,13 +25854,13 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-sublesson small {
-  color: #8f9bae;
+  color: var(--course-sidebar-subtle);
   font: 800 .5rem "IBM Plex Mono", monospace;
 }
 
 .routing-course-sublesson strong {
   overflow: hidden;
-  color: #dfe6f0;
+  color: var(--course-sidebar-text);
   font-size: .72rem;
   line-height: 1.25;
   text-overflow: ellipsis;
@@ -25853,7 +25868,7 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-sublesson > b {
-  color: #8f9bae;
+  color: var(--course-sidebar-subtle);
   font: 850 .48rem "IBM Plex Mono", monospace;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -25870,7 +25885,7 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-sublesson.is-active > b {
-  color: #ffad94;
+  color: var(--course-sidebar-coral);
 }
 
 .routing-course-sublesson.is-available {
@@ -25885,7 +25900,7 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-sublesson.is-available > b {
-  color: #8fc4ff;
+  color: var(--course-sidebar-blue);
 }
 
 .routing-course-sublesson.is-locked {
@@ -25895,7 +25910,7 @@ a.load-balancer-lesson-link:focus-visible {
 
 .routing-course-lesson > b {
   grid-column: 2;
-  color: #9ba7ba;
+  color: var(--course-sidebar-subtle);
   font: 850 .56rem "IBM Plex Mono", monospace;
   letter-spacing: .05em;
   text-transform: uppercase;
@@ -25915,7 +25930,7 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-lesson.is-active > b {
-  color: #ffad94;
+  color: var(--course-sidebar-coral);
 }
 
 .routing-course-lesson.is-available {
@@ -25925,11 +25940,11 @@ a.load-balancer-lesson-link:focus-visible {
 .routing-course-lesson.is-available .routing-course-lesson-code {
   border-color: rgba(79, 156, 249, .5);
   background: rgba(79, 156, 249, .12);
-  color: #9bc9ff;
+  color: var(--course-sidebar-blue);
 }
 
 .routing-course-lesson.is-available > b {
-  color: #8fc4ff;
+  color: var(--course-sidebar-blue);
 }
 
 .routing-course-lesson.is-available:hover,
@@ -25975,7 +25990,7 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .routing-course-sidebar-foot p {
-  color: #b8c3d3;
+  color: var(--course-sidebar-muted);
   font-size: .68rem;
   line-height: 1.5;
 }
@@ -26044,11 +26059,21 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 :root[data-theme="dark"] .routing-course-sidebar {
-  border-color: #3a4250;
-  background:
-    radial-gradient(circle at 100% 0, rgba(79, 156, 249, .15), transparent 32%),
-    linear-gradient(165deg, #202630, #151a22 72%);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, .38);
+  --course-sidebar-bg-top: #202630;
+  --course-sidebar-bg-bottom: #151a22;
+  --course-sidebar-border: #3a4250;
+  --course-sidebar-text: #dfe6f0;
+  --course-sidebar-strong: #f4f7fb;
+  --course-sidebar-muted: #aeb9cb;
+  --course-sidebar-subtle: #8f9bae;
+  --course-sidebar-line: rgba(255, 255, 255, .1);
+  --course-sidebar-tile: rgba(255, 255, 255, .08);
+  --course-sidebar-nested: rgba(5, 10, 18, .22);
+  --course-sidebar-blue: #8fc4ff;
+  --course-sidebar-coral: #ffad94;
+  --course-sidebar-glow: rgba(79, 156, 249, .15);
+  --course-sidebar-shadow: rgba(0, 0, 0, .38);
+  --course-sidebar-scrollbar: #718096;
 }
 
 @media (min-width: 1181px) {
@@ -26198,10 +26223,10 @@ a.load-balancer-lesson-link:focus-visible {
     place-items: center;
     width: 2.4rem;
     height: 2.4rem;
-    border: 1px solid rgba(255, 255, 255, .18);
+    border: 1px solid var(--course-sidebar-line);
     border-radius: 50%;
-    background: rgba(255, 255, 255, .07);
-    color: #fff;
+    background: var(--course-sidebar-tile);
+    color: var(--course-sidebar-strong);
     cursor: pointer;
     font-size: 1.35rem;
   }
