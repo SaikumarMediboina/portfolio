@@ -25593,6 +25593,364 @@ a.load-balancer-lesson-link:focus-visible {
   outline-offset: 2px;
 }
 
+.routing-course-shell {
+  display: grid;
+  grid-template-columns: minmax(15.5rem, 17.5rem) minmax(0, 1fr);
+  gap: clamp(1rem, 2.2vw, 1.5rem);
+  align-items: start;
+  width: 100%;
+}
+
+.routing-course-mobile-trigger,
+.routing-course-backdrop,
+.routing-course-sidebar-close {
+  display: none;
+}
+
+.routing-course-sidebar {
+  position: sticky;
+  top: 1.15rem;
+  max-height: calc(100vh - 2.3rem);
+  overflow: hidden auto;
+  border: 1px solid #4b5261;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(79, 156, 249, .18), transparent 32%),
+    linear-gradient(165deg, #343943, #252932 72%);
+  box-shadow: 0 18px 45px rgba(8, 12, 19, .25);
+  color: #eef3fb;
+  scrollbar-color: #718096 #252932;
+  scrollbar-width: thin;
+}
+
+.routing-course-sidebar-head {
+  padding: 1.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .11);
+}
+
+.routing-course-sidebar-head > p {
+  color: #aeb9cb;
+  font: 800 .62rem "IBM Plex Mono", monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.routing-course-sidebar-head h2 {
+  margin-top: .4rem;
+  color: #fff;
+  font-family: "Outfit", sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: -.035em;
+  line-height: 1.05;
+}
+
+.routing-course-progress {
+  display: grid;
+  gap: .45rem;
+  margin-top: 1rem;
+}
+
+.routing-course-progress > span {
+  height: .34rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .1);
+}
+
+.routing-course-progress i {
+  display: block;
+  width: 25%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff7858, #ffb34d);
+}
+
+.routing-course-progress small {
+  color: #aeb9cb;
+  font-size: .68rem;
+  font-weight: 750;
+}
+
+.routing-course-lessons {
+  display: grid;
+  gap: .55rem;
+  padding: .8rem;
+}
+
+.routing-course-lesson {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .2rem .65rem;
+  align-items: start;
+  min-width: 0;
+  padding: .75rem;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .035);
+  color: inherit;
+  text-decoration: none;
+}
+
+.routing-course-lesson-code {
+  display: grid;
+  grid-row: 1 / 3;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .08);
+  color: #c9d3e3;
+  font: 900 .65rem "IBM Plex Mono", monospace;
+}
+
+.routing-course-lesson-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.routing-course-lesson-copy small {
+  color: #9ba7ba;
+  font: 800 .55rem "IBM Plex Mono", monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.routing-course-lesson-copy strong {
+  margin-top: .16rem;
+  color: #f4f7fb;
+  font-size: .9rem;
+  line-height: 1.25;
+}
+
+.routing-course-lesson-copy p {
+  margin-top: .3rem;
+  color: #abb6c8;
+  font-size: .7rem;
+  line-height: 1.45;
+}
+
+.routing-course-lesson > b {
+  grid-column: 2;
+  color: #9ba7ba;
+  font: 850 .56rem "IBM Plex Mono", monospace;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.routing-course-lesson.is-active {
+  border-color: rgba(255, 120, 88, .72);
+  background: linear-gradient(135deg, rgba(255, 120, 88, .17), rgba(255, 179, 77, .06));
+  box-shadow: inset 3px 0 #ff7858, 0 10px 24px rgba(9, 13, 20, .22);
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.routing-course-lesson.is-active .routing-course-lesson-code {
+  border-color: rgba(255, 120, 88, .72);
+  background: #ff7858;
+  color: #fff;
+}
+
+.routing-course-lesson.is-active > b {
+  color: #ffad94;
+}
+
+.routing-course-lesson.is-active:hover,
+.routing-course-lesson.is-active:focus-visible {
+  border-color: #ff9a7f;
+  background: linear-gradient(135deg, rgba(255, 120, 88, .24), rgba(255, 179, 77, .09));
+  outline: 2px solid rgba(255, 154, 127, .42);
+  outline-offset: 2px;
+  transform: translateY(-1px);
+}
+
+.routing-course-lesson.is-locked {
+  filter: saturate(.45);
+  opacity: .58;
+}
+
+.routing-course-sidebar-foot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .6rem;
+  align-items: start;
+  margin: 0 .8rem .8rem;
+  padding: .75rem;
+  border: 1px solid rgba(79, 156, 249, .25);
+  border-radius: 13px;
+  background: rgba(79, 156, 249, .08);
+}
+
+.routing-course-sidebar-foot > span {
+  padding: .24rem .38rem;
+  border-radius: 7px;
+  background: #4f9cf9;
+  color: #fff;
+  font: 900 .55rem "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
+.routing-course-sidebar-foot p {
+  color: #b8c3d3;
+  font-size: .68rem;
+  line-height: 1.5;
+}
+
+.routing-algorithm-article {
+  min-width: 0;
+}
+
+.routing-algorithm-hero h1 {
+  max-width: 12ch;
+}
+
+:root[data-theme="dark"] .routing-course-sidebar {
+  border-color: #3a4250;
+  background:
+    radial-gradient(circle at 100% 0, rgba(79, 156, 249, .15), transparent 32%),
+    linear-gradient(165deg, #202630, #151a22 72%);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .38);
+}
+
+@media (max-width: 980px) {
+  body.routing-lesson-menu-open {
+    overflow: hidden;
+  }
+
+  .routing-course-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .routing-course-mobile-trigger {
+    position: sticky;
+    top: .65rem;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: .65rem;
+    align-items: center;
+    width: 100%;
+    padding: .7rem .8rem;
+    border: 1px solid color-mix(in srgb, #4f9cf9 42%, var(--panel-border));
+    border-radius: 15px;
+    background: color-mix(in srgb, var(--panel-strong) 92%, transparent);
+    box-shadow: var(--shadow-soft);
+    color: inherit;
+    text-align: left;
+    backdrop-filter: blur(18px);
+  }
+
+  .routing-course-mobile-trigger > span:first-child {
+    display: grid;
+    place-items: center;
+    width: 2.45rem;
+    height: 2.45rem;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #ff7858, #ff9e71);
+    color: #fff;
+    font: 900 .66rem "IBM Plex Mono", monospace;
+  }
+
+  .routing-course-mobile-trigger > span:nth-child(2) {
+    display: grid;
+    min-width: 0;
+  }
+
+  .routing-course-mobile-trigger small {
+    color: var(--ink-soft);
+    font-size: .62rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  .routing-course-mobile-trigger strong {
+    color: var(--ink-strong);
+    font-size: .9rem;
+  }
+
+  .routing-course-mobile-trigger > b {
+    color: #4f9cf9;
+    font-size: .68rem;
+    text-transform: uppercase;
+  }
+
+  .routing-course-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 220;
+    display: block;
+    border: 0;
+    background: rgba(5, 9, 15, .66);
+    cursor: pointer;
+    backdrop-filter: blur(3px);
+  }
+
+  .routing-course-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 230;
+    width: min(88vw, 21rem);
+    max-height: none;
+    border-width: 0 1px 0 0;
+    border-radius: 0 20px 20px 0;
+    box-shadow: 22px 0 55px rgba(0, 0, 0, .4);
+    transform: translateX(-105%);
+    transition: transform .24s ease;
+  }
+
+  .routing-course-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .routing-course-sidebar-head {
+    position: relative;
+    padding-top: 1.35rem;
+    padding-right: 3.8rem;
+  }
+
+  .routing-course-sidebar-close {
+    position: absolute;
+    top: .9rem;
+    right: .85rem;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .07);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .routing-course-shell {
+    gap: .8rem;
+  }
+
+  .routing-course-mobile-trigger {
+    top: .5rem;
+  }
+
+  .routing-course-sidebar {
+    width: min(92vw, 20.5rem);
+  }
+
+  .routing-course-lessons {
+    padding-bottom: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .routing-course-sidebar,
+  .routing-course-lesson.is-active {
+    transition: none;
+  }
+}
+
 .scaling-visual,
 .scaling-simulator,
 .distributed-article-toc,

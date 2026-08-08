@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
+import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
@@ -7479,6 +7480,7 @@ const VERTICAL_HORIZONTAL_SCALING_PATH =
 const LOAD_BALANCING_PATH = `${DISTRIBUTED_CONCEPTS_PATH}/load-balancing`;
 const LOAD_BALANCER_BASICS_PATH = `${LOAD_BALANCING_PATH}/basics`;
 const LOAD_BALANCER_TYPES_PATH = `${LOAD_BALANCING_PATH}/types`;
+const LOAD_BALANCER_ROUTING_ALGORITHMS_PATH = `${LOAD_BALANCING_PATH}/routing-algorithms`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8022,6 +8024,7 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Round robin, least connections, weighted routing, IP hash, and trade-offs.",
+    href: LOAD_BALANCER_ROUTING_ALGORITHMS_PATH,
     phase: 2,
     title: "Routing Algorithms — Which server?",
   },
@@ -8361,6 +8364,10 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
         ? "Kubernetes HPA · YAML"
         : language === "http"
           ? "HTTP request"
+          : language === "pseudocode"
+            ? "Round Robin · Pseudocode"
+            : language === "sequence"
+              ? "Request distribution"
           : language === "json"
             ? "JSON response"
             : language === "packet"
@@ -8690,6 +8697,190 @@ function LoadBalancerTypesArticle() {
   );
 }
 
+const routingAlgorithmLessons: ReadonlyArray<{
+  code: string;
+  detail: string;
+  href?: string;
+  title: string;
+}> = [
+  {
+    code: "RR",
+    detail: "Send each new request to the next healthy server in order.",
+    href: LOAD_BALANCER_ROUTING_ALGORITHMS_PATH,
+    title: "Round Robin",
+  },
+  {
+    code: "LC",
+    detail: "Choose the server with the fewest active connections.",
+    title: "Least Connections",
+  },
+  {
+    code: "WR",
+    detail: "Give higher-capacity servers a larger share of requests.",
+    title: "Weighted Round Robin",
+  },
+  {
+    code: "IP",
+    detail: "Use a client identifier to keep routing stable across requests.",
+    title: "IP Hash",
+  },
+];
+
+function RoutingAlgorithmsArticle() {
+  const [isLessonMenuOpen, setIsLessonMenuOpen] = useState(false);
+  const articleHeadings = loadBalancerRoundRobinMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsLessonMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    document.body.classList.toggle("routing-lesson-menu-open", isLessonMenuOpen);
+
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      document.body.classList.remove("routing-lesson-menu-open");
+    };
+  }, [isLessonMenuOpen]);
+
+  return (
+    <div className="routing-course-shell">
+      <button
+        aria-controls="routing-algorithm-lessons"
+        aria-expanded={isLessonMenuOpen}
+        className="routing-course-mobile-trigger"
+        onClick={() => setIsLessonMenuOpen(true)}
+        type="button"
+      >
+        <span aria-hidden="true">03</span>
+        <span><small>Routing Algorithms</small><strong>Browse 4 lessons</strong></span>
+        <b aria-hidden="true">Menu</b>
+      </button>
+
+      {isLessonMenuOpen ? (
+        <button
+          aria-label="Close algorithm lesson menu"
+          className="routing-course-backdrop"
+          onClick={() => setIsLessonMenuOpen(false)}
+          type="button"
+        />
+      ) : null}
+
+      <aside
+        className={`routing-course-sidebar${isLessonMenuOpen ? " is-open" : ""}`}
+        id="routing-algorithm-lessons"
+      >
+        <header className="routing-course-sidebar-head">
+          <button
+            aria-label="Close algorithm lesson menu"
+            className="routing-course-sidebar-close"
+            onClick={() => setIsLessonMenuOpen(false)}
+            type="button"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+          <p>Load Balancing · Checkpoint 03</p>
+          <h2>Routing Algorithms</h2>
+          <div className="routing-course-progress" aria-label="1 of 4 algorithm lessons available">
+            <span><i /></span>
+            <small>1 of 4 available</small>
+          </div>
+        </header>
+
+        <nav className="routing-course-lessons" aria-label="Routing algorithm lessons">
+          {routingAlgorithmLessons.map((lesson, index) => {
+            const lessonBody = (
+              <>
+                <span className="routing-course-lesson-code" aria-hidden="true">{lesson.code}</span>
+                <span className="routing-course-lesson-copy">
+                  <small>Lesson {String(index + 1).padStart(2, "0")}</small>
+                  <strong>{lesson.title}</strong>
+                  <p>{lesson.detail}</p>
+                </span>
+                <b>{lesson.href ? "Reading" : "Locked"}</b>
+              </>
+            );
+
+            return lesson.href ? (
+              <a
+                aria-current="page"
+                className="routing-course-lesson is-active"
+                href={lesson.href}
+                key={lesson.title}
+                onClick={() => setIsLessonMenuOpen(false)}
+              >
+                {lessonBody}
+              </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="routing-course-lesson is-locked"
+                key={lesson.title}
+              >
+                {lessonBody}
+              </span>
+            );
+          })}
+        </nav>
+
+        <footer className="routing-course-sidebar-foot">
+          <span aria-hidden="true">Tip</span>
+          <p>Start simple. Change the algorithm only when traffic behavior gives you a reason.</p>
+        </footer>
+      </aside>
+
+      <article className="distributed-scaling-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+            <span aria-hidden="true">/</span>
+            <strong>Round Robin</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 03 of 10 · Routing Intelligence · Lesson 01</p>
+          <h1>Round Robin Load Balancing</h1>
+          <p>
+            Learn the simplest server-selection algorithm, why health checks matter, and exactly
+            where equal request counts stop meaning equal work.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Server rotation</span><span>Health checks</span><span>Uneven workloads</span><span>Weighted routing</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part Round Robin guide</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={loadBalancerRoundRobinMarkdown} />
+
+        <footer className="distributed-article-footer load-balancer-article-footer">
+          <p className="eyebrow">Checkpoint 03 · Lesson 01 complete</p>
+          <h2>Round Robin is clear. Least Connections is the next routing decision to compare.</h2>
+          <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_ROUTING_ALGORITHMS_PATH} />
+        </footer>
+      </article>
+    </div>
+  );
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
   const learnPathname = typeof window === "undefined"
@@ -8700,9 +8891,12 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancingPage = learnPathname === LOAD_BALANCING_PATH;
   const isLoadBalancerBasicsPage = learnPathname === LOAD_BALANCER_BASICS_PATH;
   const isLoadBalancerTypesPage = learnPathname === LOAD_BALANCER_TYPES_PATH;
+  const isLoadBalancerRoutingAlgorithmsPage = learnPathname === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
   const isDistributedHubPage = isDistributedConceptsPage || isLoadBalancingPage;
-  const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage;
-  const learnBackHref = isLoadBalancerTypesPage
+  const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isLoadBalancerRoutingAlgorithmsPage;
+  const learnBackHref = isLoadBalancerRoutingAlgorithmsPage
+    ? LOAD_BALANCER_TYPES_PATH
+    : isLoadBalancerTypesPage
     ? LOAD_BALANCER_BASICS_PATH
     : isLoadBalancerBasicsPage
     ? LOAD_BALANCING_PATH
@@ -8924,6 +9118,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerRoutingAlgorithmsPage ? (
+          <RoutingAlgorithmsArticle />
         ) : isLoadBalancerTypesPage ? (
           <LoadBalancerTypesArticle />
         ) : isLoadBalancerBasicsPage ? (
