@@ -8530,7 +8530,8 @@ function DistributedScalingArticle() {
     .map((line) => line.slice(3));
 
   return (
-    <article className="distributed-scaling-article">
+    <DistributedTierCourseShell activePath={VERTICAL_HORIZONTAL_SCALING_PATH} tierIndex={0}>
+    <article className="distributed-scaling-article distributed-tier-article">
       <header className="distributed-article-hero">
         <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
           <a href="/learn-with-me">Learn With Me</a>
@@ -8572,6 +8573,7 @@ function DistributedScalingArticle() {
         <a className="button button-primary" href={DISTRIBUTED_CONCEPTS_PATH}>Back to Distributed Concepts</a>
       </footer>
     </article>
+    </DistributedTierCourseShell>
   );
 }
 
@@ -8583,7 +8585,7 @@ function LoadBalancerBasicsArticle() {
     .map((line) => line.slice(3));
 
   return (
-    <LoadBalancingCourseShell activePath={LOAD_BALANCER_BASICS_PATH}>
+    <DistributedTierCourseShell activePath={LOAD_BALANCER_BASICS_PATH} tierIndex={0}>
     <article className="distributed-scaling-article load-balancer-basics-article routing-algorithm-article">
       <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
         <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
@@ -8625,7 +8627,7 @@ function LoadBalancerBasicsArticle() {
         <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_BASICS_PATH} />
       </footer>
     </article>
-    </LoadBalancingCourseShell>
+    </DistributedTierCourseShell>
   );
 }
 
@@ -8644,7 +8646,7 @@ function LoadBalancerTypesArticle() {
     .map((line) => line.slice(3));
 
   return (
-    <LoadBalancingCourseShell activePath={LOAD_BALANCER_TYPES_PATH}>
+    <DistributedTierCourseShell activePath={LOAD_BALANCER_TYPES_PATH} tierIndex={0}>
     <article className="distributed-scaling-article load-balancer-types-article routing-algorithm-article">
       <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
         <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
@@ -8701,7 +8703,7 @@ function LoadBalancerTypesArticle() {
         <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_TYPES_PATH} />
       </footer>
     </article>
-    </LoadBalancingCourseShell>
+    </DistributedTierCourseShell>
   );
 }
 
@@ -8737,13 +8739,23 @@ const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
   },
 ];
 
-function LoadBalancingCourseShell({
+function DistributedTierCourseShell({
   activePath,
   children,
+  tierIndex,
 }: {
   activePath: string;
   children: ReactNode;
+  tierIndex: number;
 }) {
+  const tier = distributedCurriculum[tierIndex] ?? distributedCurriculum[0];
+  const tierTopicCount = tier.groups.reduce((count, group) => count + group.topics.length, 0);
+  const isTopicActive = (topic: DistributedTopic) => Boolean(
+    topic.href && (topic.href === activePath || activePath.startsWith(`${topic.href}/`)),
+  );
+  const activeTierTopic = tier.groups
+    .flatMap((group) => group.topics)
+    .find(isTopicActive);
   const [isLessonMenuOpen, setIsLessonMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window === "undefined") {
@@ -8790,20 +8802,20 @@ function LoadBalancingCourseShell({
   return (
     <div className={`routing-course-shell${isSidebarCollapsed ? " is-sidebar-collapsed" : ""}`}>
       <button
-        aria-controls="load-balancing-course-index"
+        aria-controls="distributed-tier-course-index"
         aria-expanded={isLessonMenuOpen}
         className="routing-course-mobile-trigger"
         onClick={() => setIsLessonMenuOpen(true)}
         type="button"
       >
-        <span aria-hidden="true">LB</span>
-        <span><small>Load Balancing</small><strong>Browse all 10 topics</strong></span>
+        <span aria-hidden="true">T{tierIndex + 1}</span>
+        <span><small>{tier.label} · {tier.title}</small><strong>{activeTierTopic?.title ?? `Browse all ${tierTopicCount} topics`}</strong></span>
         <b aria-hidden="true">Menu</b>
       </button>
 
       {isLessonMenuOpen ? (
         <button
-          aria-label="Close load balancing lesson menu"
+          aria-label={`Close ${tier.label} lesson menu`}
           className="routing-course-backdrop"
           onClick={() => setIsLessonMenuOpen(false)}
           type="button"
@@ -8812,12 +8824,12 @@ function LoadBalancingCourseShell({
 
       <aside
         className={`routing-course-sidebar${isLessonMenuOpen ? " is-open" : ""}`}
-        id="load-balancing-course-index"
+        id="distributed-tier-course-index"
       >
         <button
-          aria-controls="load-balancing-lesson-list"
+          aria-controls="distributed-tier-lesson-list"
           aria-expanded={!isSidebarCollapsed}
-          aria-label={isSidebarCollapsed ? "Show load balancing lesson index" : "Hide load balancing lesson index"}
+          aria-label={isSidebarCollapsed ? `Show ${tier.label} lesson index` : `Hide ${tier.label} lesson index`}
           className="routing-course-sidebar-toggle"
           data-tooltip={isSidebarCollapsed ? "Show lesson index" : "Hide lesson index"}
           onClick={toggleSidebar}
@@ -8828,19 +8840,82 @@ function LoadBalancingCourseShell({
 
         <header className="routing-course-sidebar-head">
           <button
-            aria-label="Close load balancing lesson menu"
+            aria-label={`Close ${tier.label} lesson menu`}
             className="routing-course-sidebar-close"
             onClick={() => setIsLessonMenuOpen(false)}
             type="button"
           >
             <span aria-hidden="true">×</span>
           </button>
-          <p>Distributed Concepts · Learning Path</p>
-          <h2>Load Balancing</h2>
+          <p>{tier.label} · Distributed Concepts</p>
+          <h2>{tier.title}</h2>
+          <span>{tierTopicCount} topics · unified index</span>
         </header>
 
-        <nav className="routing-course-lessons" id="load-balancing-lesson-list" aria-label="Load balancing lessons">
-          {loadBalancingCheckpoints.map((checkpoint, index) => {
+        <nav className="routing-course-lessons" id="distributed-tier-lesson-list" aria-label={`${tier.label} lesson index`}>
+          {tier.groups.map((group, groupIndex) => {
+            const groupStartIndex = tier.groups
+              .slice(0, groupIndex)
+              .reduce((count, previousGroup) => count + previousGroup.topics.length, 0);
+
+            return (
+              <section className="distributed-tier-index-group" key={group.title}>
+                <header className="distributed-tier-index-group-head">
+                  <span>{String(groupIndex + 1).padStart(2, "0")}</span>
+                  <strong>{group.title}</strong>
+                </header>
+
+                <div className="distributed-tier-index-topics">
+                  {group.topics.map((topic, topicIndex) => {
+                    const topicNumber = groupStartIndex + topicIndex + 1;
+                    const isActive = isTopicActive(topic);
+                    const topicBody = (
+                      <>
+                        <span className="distributed-tier-topic-code" aria-hidden="true">
+                          {String(topicNumber).padStart(2, "0")}
+                        </span>
+                        <span className="distributed-tier-topic-copy">
+                          <strong>{topic.title}</strong>
+                          {topic.detail ? <small>{topic.detail}</small> : null}
+                        </span>
+                        <b>{isActive ? "Current" : topic.href ? "Open" : "Locked"}</b>
+                      </>
+                    );
+
+                    return topic.href ? (
+                      <a
+                        aria-current={isActive ? "page" : undefined}
+                        className={`distributed-tier-topic ${isActive ? "is-active" : "is-available"}`}
+                        href={topic.href}
+                        key={topic.title}
+                        onClick={() => setIsLessonMenuOpen(false)}
+                      >
+                        {topicBody}
+                      </a>
+                    ) : (
+                      <span
+                        aria-disabled="true"
+                        className="distributed-tier-topic is-locked"
+                        key={topic.title}
+                      >
+                        {topicBody}
+                      </span>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
+
+          {activePath.startsWith(LOAD_BALANCING_PATH) ? (
+            <section className="distributed-tier-expanded-path" aria-label="Load balancing checkpoints">
+              <header className="distributed-tier-expanded-head">
+                <span aria-hidden="true">LB</span>
+                <div><small>Active topic</small><strong>Load Balancing checkpoints</strong></div>
+                <b>{loadBalancingCheckpoints.length}</b>
+              </header>
+
+              {loadBalancingCheckpoints.map((checkpoint, index) => {
             const phase = loadBalancingPhases[checkpoint.phase - 1];
             const isRoutingCheckpoint = checkpoint.href === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
             const isActive = checkpoint.href === activePath || (
@@ -8877,7 +8952,7 @@ function LoadBalancingCourseShell({
                   </span>
                 )}
 
-                {isRoutingCheckpoint ? (
+                {isRoutingCheckpoint && isActive ? (
                   <div className="routing-course-sublessons" aria-label="Routing algorithm sub-lessons">
                     {routingAlgorithmLessons.map((lesson, lessonIndex) => {
                       const isSublessonActive = lesson.href === activePath;
@@ -8913,12 +8988,14 @@ function LoadBalancingCourseShell({
                 ) : null}
               </div>
             );
-          })}
+              })}
+            </section>
+          ) : null}
         </nav>
 
         <footer className="routing-course-sidebar-foot">
           <span aria-hidden="true">Path</span>
-          <p>Follow the checkpoints in order. New lessons unlock inside this same index.</p>
+          <p>Every lesson in {tier.label} stays in one index. Active topics reveal their deeper checkpoints here.</p>
         </footer>
       </aside>
 
@@ -9015,7 +9092,7 @@ function RoutingAlgorithmsArticle({
     .map((line) => line.slice(3));
 
   return (
-    <LoadBalancingCourseShell activePath={activePath}>
+    <DistributedTierCourseShell activePath={activePath} tierIndex={0}>
       <article className="distributed-scaling-article routing-algorithm-article">
         <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
           <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
@@ -9054,7 +9131,7 @@ function RoutingAlgorithmsArticle({
           <RoutingAlgorithmLessonNavigation currentPath={activePath} />
         </footer>
       </article>
-    </LoadBalancingCourseShell>
+    </DistributedTierCourseShell>
   );
 }
 
@@ -9252,7 +9329,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       </header>
 
       <main
-        className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page" : ""}${isLoadBalancingCourseArticlePage ? " routing-course-page" : ""}`}
+        className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page routing-course-page" : ""}`}
         id="main-content"
       >
         {!accessGranted ? (
