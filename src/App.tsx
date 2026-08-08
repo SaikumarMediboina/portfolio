@@ -7706,56 +7706,95 @@ function DistributedConceptsHub() {
         </div>
       </section>
 
-      <div className="distributed-tier-list">
-        {distributedCurriculum.map((tier) => (
-          <section className="distributed-tier" key={tier.label}>
-            <header className="distributed-tier-head">
-              <span>{tier.label}</span>
-              <div>
-                <h2>{tier.title}</h2>
-                <p>{tier.description}</p>
-              </div>
-            </header>
+      <div className="distributed-roadmap" aria-label="Distributed systems learning roadmap">
+        {distributedCurriculum.map((tier, tierIndex) => {
+          const tierTopicCount = tier.groups.reduce((count, group) => count + group.topics.length, 0);
 
-            <div className="distributed-group-grid">
-              {tier.groups.map((group) => (
-                <article className="distributed-group-card" key={group.title}>
-                  <div className="distributed-group-head">
-                    <h3>{group.title}</h3>
-                    <span>{group.topics.length} {group.topics.length === 1 ? "topic" : "topics"}</span>
-                  </div>
-                  <div className="distributed-topic-list">
-                    {group.topics.map((topic) =>
-                      topic.href ? (
-                        <a className="distributed-topic is-available" href={topic.href} key={topic.title}>
-                          <span>
-                            <strong>{topic.title}</strong>
-                            {topic.detail ? <small>{topic.detail}</small> : null}
-                          </span>
-                          <em>Unlocked <b aria-hidden="true">→</b></em>
-                        </a>
-                      ) : (
-                        <button
-                          aria-label={`${topic.title}, locked`}
-                          className="distributed-topic is-locked"
-                          disabled
-                          key={topic.title}
-                          type="button"
-                        >
-                          <span>
-                            <strong>{topic.title}</strong>
-                            {topic.detail ? <small>{topic.detail}</small> : null}
-                          </span>
-                          <em><b aria-hidden="true">🔒</b> Locked</em>
-                        </button>
-                      ),
-                    )}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
+          return (
+            <section
+              className={`roadmap-stage roadmap-stage-${tierIndex + 1}`}
+              key={tier.label}
+            >
+              <header className="roadmap-stage-head">
+                <span className="roadmap-stage-number" aria-hidden="true">
+                  {String(tierIndex + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <p className="eyebrow">{tier.label} roadmap</p>
+                  <h2>{tier.title}</h2>
+                  <p>{tier.description}</p>
+                </div>
+                <span className="roadmap-stage-count">
+                  {tierTopicCount} {tierTopicCount === 1 ? "topic" : "topics"}
+                </span>
+              </header>
+
+              <div className="roadmap-route">
+                {tier.groups.map((group, groupIndex) => (
+                  <article
+                    className={`roadmap-milestone ${groupIndex % 2 === 0 ? "is-left" : "is-right"}`}
+                    key={group.title}
+                  >
+                    <div className="roadmap-station" aria-hidden="true">
+                      <span>{String(groupIndex + 1).padStart(2, "0")}</span>
+                    </div>
+
+                    <div className="roadmap-milestone-content">
+                      <header className="roadmap-milestone-head">
+                        <p>Checkpoint {tierIndex + 1}.{groupIndex + 1}</p>
+                        <h3>{group.title}</h3>
+                      </header>
+
+                      <ol className="roadmap-topic-trail">
+                        {group.topics.map((topic, topicIndex) => (
+                          <li key={topic.title}>
+                            {topic.href ? (
+                              <a className="roadmap-topic is-available" href={topic.href}>
+                                <span className="roadmap-topic-number" aria-hidden="true">
+                                  {String(topicIndex + 1).padStart(2, "0")}
+                                </span>
+                                <span className="roadmap-topic-copy">
+                                  <strong>{topic.title}</strong>
+                                  {topic.detail ? <small>{topic.detail}</small> : null}
+                                </span>
+                                <span className="roadmap-topic-status">Read <b aria-hidden="true">→</b></span>
+                              </a>
+                            ) : (
+                              <button
+                                aria-label={`${topic.title}, locked`}
+                                className="roadmap-topic is-locked"
+                                disabled
+                                type="button"
+                              >
+                                <span className="roadmap-topic-number" aria-hidden="true">
+                                  {String(topicIndex + 1).padStart(2, "0")}
+                                </span>
+                                <span className="roadmap-topic-copy">
+                                  <strong>{topic.title}</strong>
+                                  {topic.detail ? <small>{topic.detail}</small> : null}
+                                </span>
+                                <span className="roadmap-topic-status">Locked</span>
+                              </button>
+                            )}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <footer className="roadmap-stage-finish">
+                <span aria-hidden="true" />
+                <strong>
+                  {tierIndex === distributedCurriculum.length - 1
+                    ? "Roadmap complete"
+                    : `Continue to ${distributedCurriculum[tierIndex + 1].label}`}
+                </strong>
+              </footer>
+            </section>
+          );
+        })}
       </div>
     </div>
   );
