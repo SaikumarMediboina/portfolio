@@ -7697,10 +7697,60 @@ const distributedOverviewStages = [
   },
 ] as const;
 
+type RoadmapViewerSelection = {
+  detail: string;
+  group: string;
+  href?: string;
+  status: "Available" | "Checkpoint" | "Coming soon";
+  title: string;
+};
+
 function DistributedRoadmapOverview() {
   const [activeTierIndex, setActiveTierIndex] = useState<number | null>(null);
+  const [roadmapZoom, setRoadmapZoom] = useState(1);
+  const [selectedRoadmapNode, setSelectedRoadmapNode] = useState<RoadmapViewerSelection | null>(null);
+  const [isRoadmapSidebarOpen, setIsRoadmapSidebarOpen] = useState(false);
   const activeTier = activeTierIndex === null ? null : distributedCurriculum[activeTierIndex];
   const activeOverview = activeTierIndex === null ? null : distributedOverviewStages[activeTierIndex];
+
+  useEffect(() => {
+    if (activeTierIndex === null) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveTierIndex(null);
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeTierIndex]);
+
+  const openRoadmapViewer = (tierIndex: number) => {
+    setActiveTierIndex(tierIndex);
+    setRoadmapZoom(1);
+    setSelectedRoadmapNode(null);
+    setIsRoadmapSidebarOpen(false);
+  };
+
+  const selectRoadmapNode = (selection: RoadmapViewerSelection) => {
+    setSelectedRoadmapNode(selection);
+    setIsRoadmapSidebarOpen(true);
+  };
+
+  const closeRoadmapViewer = () => {
+    setActiveTierIndex(null);
+    setSelectedRoadmapNode(null);
+    setIsRoadmapSidebarOpen(false);
+  };
 
   return (
     <section className="roadmap-overview" aria-labelledby="roadmap-overview-title">
@@ -7714,80 +7764,201 @@ function DistributedRoadmapOverview() {
       </header>
 
       {activeTier && activeOverview && activeTierIndex !== null ? (
-        <div className={`roadmap-detail-view roadmap-detail-${activeTierIndex + 1}`}>
-          <header className="roadmap-detail-head">
-            <button type="button" onClick={() => setActiveTierIndex(null)}>
-              <span aria-hidden="true">←</span> All paths
-            </button>
-            <div>
-              <p>{activeTier.label} visual map</p>
+        <div
+          aria-label={`${activeOverview.title} interactive roadmap viewer`}
+          aria-modal="true"
+          className={`roadmap-viewer roadmap-viewer-${activeTierIndex + 1}`}
+          role="dialog"
+        >
+          <aside className={`roadmap-viewer-sidebar${isRoadmapSidebarOpen ? " is-open" : ""}`}>
+            <header className="roadmap-viewer-sidebar-head">
+              <button type="button" onClick={closeRoadmapViewer}>
+                <span aria-hidden="true">←</span> Pathfinder
+              </button>
+              <button
+                aria-label="Close roadmap details"
+                className="roadmap-viewer-sidebar-close"
+                onClick={() => setIsRoadmapSidebarOpen(false)}
+                type="button"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="roadmap-viewer-intro">
+              <p>{activeTier.label} roadmap</p>
               <h3>{activeOverview.title}</h3>
-              <small>{activeOverview.description}</small>
+              <span>{activeOverview.description}</span>
             </div>
-            <strong>
-              {activeTier.groups.reduce((count, group) => count + group.topics.length, 0)} topics
-            </strong>
-          </header>
 
-          <p className="roadmap-detail-hint">
-            <span aria-hidden="true">↔</span> Swipe or scroll sideways to explore every checkpoint.
-          </p>
+            <div className="roadmap-viewer-progress">
+              <span>
+                <strong>{activeTier.groups.length}</strong>
+                Checkpoints
+              </span>
+              <span>
+                <strong>{activeTier.groups.reduce((count, group) => count + group.topics.length, 0)}</strong>
+                Topics
+              </span>
+              <span>
+                <strong>{activeTier.groups.flatMap((group) => group.topics).filter((topic) => topic.href).length}</strong>
+                Ready
+              </span>
+            </div>
 
-          <div
-            aria-label={`${activeOverview.title} detailed learning diagram`}
-            className="roadmap-detail-canvas"
-            role="region"
-            tabIndex={0}
-          >
-            <div className="roadmap-detail-track">
-              <div className="roadmap-detail-origin">
-                <small>Start here</small>
+            <section className={`roadmap-viewer-selection${selectedRoadmapNode ? " has-selection" : ""}`}>
+              {selectedRoadmapNode ? (
+                <>
+                  <p>{selectedRoadmapNode.group}</p>
+                  <h4>{selectedRoadmapNode.title}</h4>
+                  <span>{selectedRoadmapNode.detail}</span>
+                  <small className={`status-${selectedRoadmapNode.status.toLowerCase().replace(/\s+/g, "-")}`}>
+                    {selectedRoadmapNode.status}
+                  </small>
+                  {selectedRoadmapNode.href ? (
+                    <a href={selectedRoadmapNode.href}>Open lesson <b aria-hidden="true">→</b></a>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <p>Explore the map</p>
+                  <h4>Select any checkpoint or topic</h4>
+                  <span>Its description, availability, and lesson link will appear here.</span>
+                </>
+              )}
+            </section>
+
+            <div className="roadmap-viewer-focus">
+              <p>What this path covers</p>
+              <div>{activeOverview.focus.map((item) => <span key={item}>{item}</span>)}</div>
+            </div>
+          </aside>
+
+          {isRoadmapSidebarOpen ? (
+            <button
+              aria-label="Close roadmap details"
+              className="roadmap-viewer-backdrop"
+              onClick={() => setIsRoadmapSidebarOpen(false)}
+              type="button"
+            />
+          ) : null}
+
+          <main className="roadmap-viewer-main">
+            <nav className="roadmap-viewer-toolbar" aria-label="Roadmap viewer controls">
+              <button
+                className="roadmap-viewer-details-trigger"
+                onClick={() => setIsRoadmapSidebarOpen(true)}
+                type="button"
+              >
+                <span aria-hidden="true">☰</span> Details
+              </button>
+
+              <div className="roadmap-viewer-toolbar-title">
+                <small>{activeTier.label}</small>
                 <strong>{activeOverview.title}</strong>
               </div>
 
-              {activeTier.groups.map((group, groupIndex) => (
-                <section className="roadmap-detail-group" key={group.title}>
-                  <header>
-                    <span aria-hidden="true">{String(groupIndex + 1).padStart(2, "0")}</span>
-                    <div>
-                      <small>Checkpoint {activeTierIndex + 1}.{groupIndex + 1}</small>
-                      <h4>{group.title}</h4>
-                    </div>
-                  </header>
+              <div className="roadmap-viewer-controls">
+                <button
+                  aria-label="Zoom out"
+                  onClick={() => setRoadmapZoom((value) => Math.max(.55, Number((value - .1).toFixed(2))))}
+                  type="button"
+                >−</button>
+                <output aria-label="Current zoom">{Math.round(roadmapZoom * 100)}%</output>
+                <button
+                  aria-label="Zoom in"
+                  onClick={() => setRoadmapZoom((value) => Math.min(1.4, Number((value + .1).toFixed(2))))}
+                  type="button"
+                >+</button>
+                <button
+                  aria-label="Fit roadmap to view"
+                  className="roadmap-viewer-fit"
+                  onClick={() => setRoadmapZoom(Math.max(.55, Math.min(.9, 4.4 / activeTier.groups.length)))}
+                  type="button"
+                >Fit</button>
+                <button aria-label="Close roadmap viewer" onClick={closeRoadmapViewer} type="button">×</button>
+              </div>
+            </nav>
 
-                  <ol>
-                    {group.topics.map((topic, topicIndex) => (
-                      <li key={topic.title}>
-                        {topic.href ? (
-                          <a className="roadmap-detail-topic is-available" href={topic.href}>
-                            <span aria-hidden="true">{String(topicIndex + 1).padStart(2, "0")}</span>
-                            <strong>{topic.title}</strong>
-                            <small>Open lesson →</small>
-                          </a>
-                        ) : (
-                          <button
-                            aria-label={`${topic.title}, locked`}
-                            className="roadmap-detail-topic is-locked"
-                            disabled
-                            type="button"
-                          >
-                            <span aria-hidden="true">{String(topicIndex + 1).padStart(2, "0")}</span>
-                            <strong>{topic.title}</strong>
-                            <small>Locked</small>
-                          </button>
-                        )}
-                      </li>
-                    ))}
-                  </ol>
-                </section>
-              ))}
+            <div
+              aria-label={`${activeOverview.title} node map. Swipe or scroll to pan.`}
+              className="roadmap-viewer-canvas"
+              role="region"
+              tabIndex={0}
+            >
+              <div
+                className="roadmap-viewer-flow"
+                style={{ transform: `scale(${roadmapZoom})`, transformOrigin: "top left" }}
+              >
+                <button
+                  className="roadmap-viewer-origin"
+                  onClick={() => selectRoadmapNode({
+                    detail: activeOverview.description,
+                    group: activeTier.label,
+                    status: "Checkpoint",
+                    title: activeOverview.title,
+                  })}
+                  type="button"
+                >
+                  <small>Start here</small>
+                  <strong>{activeOverview.title}</strong>
+                </button>
 
-              <div className="roadmap-detail-finish">
-                <span aria-hidden="true">✓</span>
-                <strong>{activeTierIndex === distributedCurriculum.length - 1 ? "Path complete" : "Next tier"}</strong>
+                <div
+                  className="roadmap-viewer-branches"
+                  style={{ gridTemplateColumns: `repeat(${activeTier.groups.length}, minmax(14rem, 16rem))` }}
+                >
+                  {activeTier.groups.map((group, groupIndex) => (
+                    <section className="roadmap-viewer-branch" key={group.title}>
+                      <button
+                        className="roadmap-viewer-group-node"
+                        onClick={() => selectRoadmapNode({
+                          detail: `${group.topics.length} ${group.topics.length === 1 ? "topic" : "topics"} in this checkpoint. Select a topic node to see its lesson status.`,
+                          group: `${activeTier.label} · Checkpoint ${groupIndex + 1}`,
+                          status: "Checkpoint",
+                          title: group.title,
+                        })}
+                        type="button"
+                      >
+                        <span aria-hidden="true">{String(groupIndex + 1).padStart(2, "0")}</span>
+                        <small>Checkpoint {activeTierIndex + 1}.{groupIndex + 1}</small>
+                        <strong>{group.title}</strong>
+                      </button>
+
+                      <ol>
+                        {group.topics.map((topic, topicIndex) => (
+                          <li key={topic.title}>
+                            <button
+                              aria-label={`${topic.title}, ${topic.href ? "available" : "coming soon"}`}
+                              className={`roadmap-viewer-topic-node ${topic.href ? "is-available" : "is-locked"}`}
+                              onClick={() => selectRoadmapNode({
+                                detail: topic.detail ?? `A focused lesson in ${group.title}.`,
+                                group: group.title,
+                                href: topic.href,
+                                status: topic.href ? "Available" : "Coming soon",
+                                title: topic.title,
+                              })}
+                              type="button"
+                            >
+                              <span aria-hidden="true">{String(topicIndex + 1).padStart(2, "0")}</span>
+                              <strong>{topic.title}</strong>
+                              <small>{topic.href ? "Select to open" : "Locked"}</small>
+                            </button>
+                          </li>
+                        ))}
+                      </ol>
+                    </section>
+                  ))}
+                </div>
+              </div>
+
+              <div className="roadmap-viewer-legend" aria-label="Roadmap legend">
+                <span><i className="is-ready" /> Available lesson</span>
+                <span><i /> Coming soon</span>
+                <b>Swipe / scroll to pan</b>
               </div>
             </div>
-          </div>
+          </main>
         </div>
       ) : (
         <>
@@ -7807,7 +7978,7 @@ function DistributedRoadmapOverview() {
                     <div className="roadmap-path-node-wrap" key={tier.label} role="listitem">
                       <button
                         className={`roadmap-path-node path-node-${tierIndex + 1}`}
-                        onClick={() => setActiveTierIndex(tierIndex)}
+                        onClick={() => openRoadmapViewer(tierIndex)}
                         type="button"
                       >
                         <span aria-hidden="true">{String(tierIndex + 1).padStart(2, "0")}</span>
