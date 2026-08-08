@@ -25805,6 +25805,7 @@ html[data-header-visibility="hidden"] .article-site-header {
 
 .distributed-code-block {
   --diagram-accent: #ff7a59;
+  --copy-code-accent: #ff9c78;
   min-width: 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--diagram-accent) 58%, #273142);
@@ -25833,10 +25834,10 @@ html[data-header-visibility="hidden"] .article-site-header {
 
 .distributed-code-block button {
   padding: .28rem .5rem;
-  border: 1px solid color-mix(in srgb, var(--diagram-accent) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--copy-code-accent) 58%, transparent);
   border-radius: 8px;
   background: transparent;
-  color: var(--diagram-accent);
+  color: var(--copy-code-accent);
   cursor: pointer;
   font: inherit;
 }

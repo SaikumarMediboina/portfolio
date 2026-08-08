@@ -1,4 +1,4 @@
-# Load Balancer Basics — Explained Simply
+# Load Balancer Basics
 
 ## The One-Line Idea
 

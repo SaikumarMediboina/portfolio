@@ -8142,7 +8142,7 @@ function LoadBalancingHub() {
 
         <a className="load-balancing-start" href={LOAD_BALANCER_BASICS_PATH}>
           <span aria-hidden="true">01</span>
-          <span><small>Begin with the unlocked checkpoint</small><strong>Load Balancer Basics — Explained Simply</strong></span>
+          <span><small>Begin with the unlocked checkpoint</small><strong>Load Balancer Basics</strong></span>
           <b aria-hidden="true">→</b>
         </a>
       </section>
@@ -8248,7 +8248,7 @@ function DistributedCodeBlock({ code, label, tone }: { code: string; label: stri
 
   return (
     <div className={`distributed-code-block ${tone}`}>
-      <div><span>{label}</span><button type="button" onClick={copyCode}>{copied ? "Copied" : "Copy"}</button></div>
+      <div><span>{label}</span><button type="button" onClick={copyCode}>{copied ? "Copied" : "Copy code"}</button></div>
       <pre><code>{code}</code></pre>
     </div>
   );
@@ -8260,6 +8260,7 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
   const codeTones = ["is-coral", "is-blue", "is-sage", "is-gold"];
   let blockId = 0;
   let codeIndex = 0;
+  let headingIndex = 0;
   let cursor = 0;
 
   const isTableSeparator = (value: string) =>
@@ -8322,9 +8323,10 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
     if (line.startsWith("## ")) {
       const heading = line.slice(3);
       const match = heading.match(/^(\d+)\.\s*(.*)$/);
+      headingIndex += 1;
       blocks.push(
         <section className="distributed-article-heading" id={getDistributedHeadingId(heading)} key={`distributed-h2-${blockId++}`}>
-          <span aria-hidden="true">{match ? match[1].padStart(2, "0") : "•"}</span>
+          <span aria-hidden="true">{(match ? match[1] : String(headingIndex)).padStart(2, "0")}</span>
           <h2>{renderMcpMarkdownInline(match ? match[2] : heading, `distributed-h2-${blockId}`)}</h2>
         </section>,
       );
@@ -8518,7 +8520,7 @@ function LoadBalancerBasicsArticle() {
           <strong>Basics</strong>
         </nav>
         <p className="eyebrow">Checkpoint 01 of 10 · Foundations · Unlocked</p>
-        <h1>Load Balancer Basics — Explained Simply</h1>
+        <h1>Load Balancer Basics</h1>
         <p>
           A beginner-friendly mental model for traffic distribution, health checks, horizontal
           scaling, availability, failure handling, and the limits of a load balancer.
