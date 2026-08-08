@@ -8899,6 +8899,7 @@ function DistributedTierCourseShell({
       <button
         aria-controls="distributed-tier-course-index"
         aria-expanded={isLessonMenuOpen}
+        aria-label={`Open ${tier.label} lesson menu`}
         className="routing-course-mobile-trigger"
         onClick={() => setIsLessonMenuOpen(true)}
         type="button"

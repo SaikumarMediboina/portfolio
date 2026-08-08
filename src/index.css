@@ -26649,7 +26649,38 @@ a.load-balancer-lesson-link:focus-visible {
   }
 
   .routing-course-mobile-trigger {
-    top: .5rem;
+    top: max(.5rem, env(safe-area-inset-top, 0px));
+    justify-self: start;
+    grid-template-columns: 1fr;
+    gap: 0;
+    width: 3.15rem;
+    height: 3.15rem;
+    min-height: 3.15rem;
+    padding: 0;
+    overflow: hidden;
+    border-color: color-mix(in srgb, var(--accent) 38%, var(--panel-border));
+    border-radius: 50%;
+    background: var(--panel-strong);
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 18%, transparent);
+    text-align: center;
+    touch-action: manipulation;
+  }
+
+  .routing-course-mobile-trigger > span:first-child {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    font-size: 0;
+  }
+
+  .routing-course-mobile-trigger > span:first-child::before {
+    content: "☰";
+    font: 700 1.25rem/1 "DM Sans", Arial, sans-serif;
+  }
+
+  .routing-course-mobile-trigger > span:nth-child(2),
+  .routing-course-mobile-trigger > b {
+    display: none;
   }
 
   .routing-course-sidebar {
