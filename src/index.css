@@ -25606,12 +25606,70 @@ a.load-balancer-lesson-link:focus-visible {
   width: 100%;
   max-width: 1600px;
   margin-inline: auto;
+  transition: grid-template-columns .24s ease, gap .24s ease;
 }
 
 .routing-course-mobile-trigger,
 .routing-course-backdrop,
 .routing-course-sidebar-close {
   display: none;
+}
+
+.routing-course-sidebar-toggle {
+  position: absolute;
+  top: 1.05rem;
+  right: -1.05rem;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 1px solid color-mix(in srgb, #4f9cf9 48%, #758194);
+  border-radius: 50%;
+  background: #f7f9fc;
+  box-shadow: 0 7px 18px rgba(7, 12, 20, .25);
+  color: #263243;
+  cursor: pointer;
+  font: 900 1.4rem/1 "Outfit", sans-serif;
+}
+
+.routing-course-sidebar-toggle span {
+  transform: translateY(-1px);
+  transition: transform .18s ease;
+}
+
+.routing-course-sidebar-toggle::after {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + .55rem);
+  width: max-content;
+  max-width: 10rem;
+  padding: .42rem .55rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow-soft);
+  color: var(--ink-strong);
+  content: attr(data-tooltip);
+  font: 800 .65rem/1.2 "IBM Plex Mono", monospace;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-.25rem, -50%);
+  transition: opacity .16s ease, transform .16s ease;
+  white-space: nowrap;
+}
+
+.routing-course-sidebar-toggle:hover,
+.routing-course-sidebar-toggle:focus-visible {
+  border-color: #4f9cf9;
+  outline: 3px solid color-mix(in srgb, #4f9cf9 24%, transparent);
+  outline-offset: 2px;
+}
+
+.routing-course-sidebar-toggle:hover::after,
+.routing-course-sidebar-toggle:focus-visible::after {
+  opacity: 1;
+  transform: translate(0, -50%);
 }
 
 .routing-course-sidebar {
@@ -25621,7 +25679,7 @@ a.load-balancer-lesson-link:focus-visible {
   flex-direction: column;
   height: calc(100dvh - 2rem);
   max-height: calc(100dvh - 2rem);
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid #4b5261;
   border-radius: 14px;
   background:
@@ -25811,6 +25869,7 @@ a.load-balancer-lesson-link:focus-visible {
   width: min(100%, 1120px);
   margin-inline: auto;
   gap: clamp(1.5rem, 3vw, 2.6rem);
+  transition: width .24s ease, max-width .24s ease;
 }
 
 .routing-algorithm-article > .distributed-article-hero {
@@ -25880,6 +25939,37 @@ a.load-balancer-lesson-link:focus-visible {
   .guide-page.routing-course-page {
     padding-top: 2rem;
   }
+
+  .routing-course-shell.is-sidebar-collapsed {
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+    gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .routing-course-shell.is-sidebar-collapsed .routing-course-sidebar {
+    height: 3.3rem;
+    max-height: 3.3rem;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .routing-course-shell.is-sidebar-collapsed :is(
+    .routing-course-sidebar-head,
+    .routing-course-lessons,
+    .routing-course-sidebar-foot
+  ) {
+    display: none;
+  }
+
+  .routing-course-shell.is-sidebar-collapsed .routing-course-sidebar-toggle {
+    top: .55rem;
+    right: auto;
+    left: .35rem;
+  }
+
+  .routing-course-shell.is-sidebar-collapsed .routing-algorithm-article {
+    width: min(100%, 1380px);
+  }
 }
 
 @media (max-width: 1180px) {
@@ -25889,6 +25979,10 @@ a.load-balancer-lesson-link:focus-visible {
 
   .routing-course-shell {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .routing-course-sidebar-toggle {
+    display: none;
   }
 
   .routing-course-mobile-trigger {

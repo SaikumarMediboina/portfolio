@@ -8815,6 +8815,17 @@ function RoutingAlgorithmsArticle({
   title,
 }: RoutingAlgorithmsArticleProps) {
   const [isLessonMenuOpen, setIsLessonMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    try {
+      return window.localStorage.getItem("routing-course-sidebar-collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
   const articleHeadings = markdown
     .replace(/\r\n/g, "\n")
     .split("\n")
@@ -8837,8 +8848,22 @@ function RoutingAlgorithmsArticle({
     };
   }, [isLessonMenuOpen]);
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((isCollapsed) => {
+      const nextValue = !isCollapsed;
+
+      try {
+        window.localStorage.setItem("routing-course-sidebar-collapsed", String(nextValue));
+      } catch {
+        // The layout still works when browser storage is unavailable.
+      }
+
+      return nextValue;
+    });
+  };
+
   return (
-    <div className="routing-course-shell">
+    <div className={`routing-course-shell${isSidebarCollapsed ? " is-sidebar-collapsed" : ""}`}>
       <button
         aria-controls="routing-algorithm-lessons"
         aria-expanded={isLessonMenuOpen}
@@ -8864,6 +8889,18 @@ function RoutingAlgorithmsArticle({
         className={`routing-course-sidebar${isLessonMenuOpen ? " is-open" : ""}`}
         id="routing-algorithm-lessons"
       >
+        <button
+          aria-controls="routing-algorithm-lesson-list"
+          aria-expanded={!isSidebarCollapsed}
+          aria-label={isSidebarCollapsed ? "Show routing algorithm index" : "Hide routing algorithm index"}
+          className="routing-course-sidebar-toggle"
+          data-tooltip={isSidebarCollapsed ? "Show lesson index" : "Hide lesson index"}
+          onClick={toggleSidebar}
+          type="button"
+        >
+          <span aria-hidden="true">{isSidebarCollapsed ? "›" : "‹"}</span>
+        </button>
+
         <header className="routing-course-sidebar-head">
           <button
             aria-label="Close algorithm lesson menu"
@@ -8877,7 +8914,7 @@ function RoutingAlgorithmsArticle({
           <h2>Routing Algorithms</h2>
         </header>
 
-        <nav className="routing-course-lessons" aria-label="Routing algorithm lessons">
+        <nav className="routing-course-lessons" id="routing-algorithm-lesson-list" aria-label="Routing algorithm lessons">
           {routingAlgorithmLessons.map((lesson, index) => {
             const isActive = lesson.href === activePath;
             const lessonBody = (
