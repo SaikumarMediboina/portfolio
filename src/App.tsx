@@ -8728,11 +8728,14 @@ function LoadBalancingSidebarSubtopics({
   activePath: string;
   onNavigate: () => void;
 }) {
+  const [isRoutingAlgorithmsExpanded, setIsRoutingAlgorithmsExpanded] = useState(() =>
+    activePath.startsWith(LOAD_BALANCER_ROUTING_ALGORITHMS_PATH),
+  );
+
   return (
     <div className="distributed-tier-subtopics">
       <div className="distributed-tier-subtopics-inner">
         {loadBalancingCheckpoints.map((checkpoint, checkpointIndex) => {
-          const phase = loadBalancingPhases[checkpoint.phase - 1];
           const isRoutingCheckpoint = checkpoint.href === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
           const isCheckpointActive = checkpoint.href === activePath || (
             isRoutingCheckpoint && activePath.startsWith(`${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/`)
@@ -8743,19 +8746,29 @@ function LoadBalancingSidebarSubtopics({
                 {String(checkpointIndex + 1).padStart(2, "0")}
               </span>
               <span className="distributed-tier-subtopic-copy">
-                <small>Phase {phase.id}</small>
                 <strong>{checkpoint.title}</strong>
               </span>
-              <b>{isCheckpointActive ? "Current" : checkpoint.href ? "Open" : "Locked"}</b>
+              <b className={isRoutingCheckpoint ? "is-chevron" : ""}>
+                {isRoutingCheckpoint ? <span aria-hidden="true">⌄</span> : isCheckpointActive ? "Current" : checkpoint.href ? "Open" : "Locked"}
+              </b>
             </>
           );
 
           return (
             <div
-              className={`distributed-tier-subtopic-entry${isRoutingCheckpoint ? " has-algorithms" : ""}${isCheckpointActive ? " is-active" : ""}`}
+              className={`distributed-tier-subtopic-entry${isRoutingCheckpoint ? " has-algorithms" : ""}${isCheckpointActive ? " is-active" : ""}${isRoutingCheckpoint && isRoutingAlgorithmsExpanded ? " is-expanded" : ""}`}
               key={checkpoint.title}
             >
-              {checkpoint.href ? (
+              {isRoutingCheckpoint ? (
+                <button
+                  aria-expanded={isRoutingAlgorithmsExpanded}
+                  className={`distributed-tier-subtopic ${isCheckpointActive ? "is-active" : "is-available"}`}
+                  onClick={() => setIsRoutingAlgorithmsExpanded((isExpanded) => !isExpanded)}
+                  type="button"
+                >
+                  {checkpointBody}
+                </button>
+              ) : checkpoint.href ? (
                 <a
                   aria-current={isCheckpointActive ? "page" : undefined}
                   className={`distributed-tier-subtopic ${isCheckpointActive ? "is-active" : "is-available"}`}
@@ -8831,7 +8844,11 @@ function DistributedTierCourseShell({
   const activeTierTopic = tier.groups
     .flatMap((group) => group.topics)
     .find(isTopicActive);
+  const activeGroupIndex = tier.groups.findIndex((group) => group.topics.some(isTopicActive));
   const [isLessonMenuOpen, setIsLessonMenuOpen] = useState(false);
+  const [expandedGroupIndex, setExpandedGroupIndex] = useState<number | null>(() =>
+    activeGroupIndex >= 0 ? activeGroupIndex : 0,
+  );
   const [expandedTopicPath, setExpandedTopicPath] = useState<string | null>(() =>
     activePath.startsWith(LOAD_BALANCING_PATH) ? LOAD_BALANCING_PATH : null,
   );
@@ -8935,15 +8952,23 @@ function DistributedTierCourseShell({
             const groupStartIndex = tier.groups
               .slice(0, groupIndex)
               .reduce((count, previousGroup) => count + previousGroup.topics.length, 0);
+            const isGroupExpanded = expandedGroupIndex === groupIndex;
 
             return (
-              <section className="distributed-tier-index-group" key={group.title}>
-                <header className="distributed-tier-index-group-head">
+              <section className={`distributed-tier-index-group${isGroupExpanded ? " is-expanded" : ""}`} key={group.title}>
+                <button
+                  aria-expanded={isGroupExpanded}
+                  className="distributed-tier-index-group-head"
+                  onClick={() => setExpandedGroupIndex((currentIndex) => currentIndex === groupIndex ? null : groupIndex)}
+                  type="button"
+                >
                   <span>{String(groupIndex + 1).padStart(2, "0")}</span>
                   <strong>{group.title}</strong>
-                </header>
+                  <i aria-hidden="true">⌄</i>
+                </button>
 
                 <div className="distributed-tier-index-topics">
+                  <div className="distributed-tier-index-topics-inner">
                   {group.topics.map((topic, topicIndex) => {
                     const topicNumber = groupStartIndex + topicIndex + 1;
                     const isActive = isTopicActive(topic);
@@ -8956,9 +8981,10 @@ function DistributedTierCourseShell({
                         </span>
                         <span className="distributed-tier-topic-copy">
                           <strong>{topic.title}</strong>
-                          {topic.detail ? <small>{topic.detail}</small> : null}
                         </span>
-                        <b>{isActive ? "Current" : topic.href ? "Open" : "Locked"}</b>
+                        <b className={hasSubtopics ? "is-chevron" : ""}>
+                          {hasSubtopics ? <span aria-hidden="true">⌄</span> : isActive ? "Reading" : topic.href ? "Open" : "Locked"}
+                        </b>
                       </>
                     );
 
@@ -8967,8 +8993,18 @@ function DistributedTierCourseShell({
                         className={`distributed-tier-topic-entry${hasSubtopics ? " has-subtopics" : ""}${isActive ? " is-active" : ""}${isExpanded ? " is-expanded" : ""}`}
                         key={topic.title}
                       >
-                        <div className="distributed-tier-topic-row">
-                          {topic.href ? (
+                        {hasSubtopics ? (
+                          <button
+                            aria-expanded={isExpanded}
+                            className={`distributed-tier-topic ${isActive ? "is-active" : "is-available"}`}
+                            onClick={() => setExpandedTopicPath((currentPath) =>
+                              currentPath === topic.href ? null : topic.href ?? null,
+                            )}
+                            type="button"
+                          >
+                            {topicBody}
+                          </button>
+                        ) : topic.href ? (
                             <a
                               aria-current={isActive ? "page" : undefined}
                               className={`distributed-tier-topic ${isActive ? "is-active" : "is-available"}`}
@@ -8981,22 +9017,7 @@ function DistributedTierCourseShell({
                             <span aria-disabled="true" className="distributed-tier-topic is-locked">
                               {topicBody}
                             </span>
-                          )}
-
-                          {hasSubtopics ? (
-                            <button
-                              aria-expanded={isExpanded}
-                              aria-label={`${isExpanded ? "Collapse" : "Expand"} ${topic.title} lessons`}
-                              className="distributed-tier-topic-toggle"
-                              onClick={() => setExpandedTopicPath((currentPath) =>
-                                currentPath === topic.href ? null : topic.href ?? null,
-                              )}
-                              type="button"
-                            >
-                              <span aria-hidden="true">⌄</span>
-                            </button>
-                          ) : null}
-                        </div>
+                        )}
 
                         {hasSubtopics ? (
                           <LoadBalancingSidebarSubtopics
@@ -9007,6 +9028,7 @@ function DistributedTierCourseShell({
                       </div>
                     );
                   })}
+                  </div>
                 </div>
               </section>
             );
