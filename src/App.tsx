@@ -17,6 +17,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
+import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7474,6 +7475,8 @@ function getStoredLearnAccess() {
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
 const VERTICAL_HORIZONTAL_SCALING_PATH =
   `${DISTRIBUTED_CONCEPTS_PATH}/vertical-vs-horizontal-scaling`;
+const LOAD_BALANCING_PATH = `${DISTRIBUTED_CONCEPTS_PATH}/load-balancing`;
+const LOAD_BALANCER_BASICS_PATH = `${LOAD_BALANCING_PATH}/basics`;
 
 type DistributedTopic = {
   detail?: string;
@@ -7507,7 +7510,11 @@ const distributedCurriculum: DistributedCurriculumTier[] = [
             detail: "Scale up, scale out, state, failure domains, autoscaling, and trade-offs.",
             href: VERTICAL_HORIZONTAL_SCALING_PATH,
           },
-          { title: "Load balancing", detail: "L4 vs L7, round robin, least connections, and consistent hashing." },
+          {
+            title: "Load balancing",
+            detail: "L4 vs L7, round robin, least connections, and consistent hashing.",
+            href: LOAD_BALANCING_PATH,
+          },
           { title: "Caching", detail: "Cache-aside, write-through/back/around, LRU, and LFU." },
           { title: "CDN basics" },
         ],
@@ -7698,6 +7705,10 @@ function DistributedRoadmapOverview() {
   const [activeTierIndex, setActiveTierIndex] = useState<number | null>(null);
   const activeTier = activeTierIndex === null ? null : distributedCurriculum[activeTierIndex];
   const activeOverview = activeTierIndex === null ? null : distributedOverviewStages[activeTierIndex];
+  const overviewTopics = distributedCurriculum.flatMap((tier) =>
+    tier.groups.flatMap((group) => group.topics),
+  );
+  const unlockedOverviewTopics = overviewTopics.filter((topic) => topic.href).length;
 
   return (
     <section className="roadmap-overview" aria-labelledby="roadmap-overview-title">
@@ -7707,7 +7718,7 @@ function DistributedRoadmapOverview() {
           <h2 id="roadmap-overview-title">See the full journey before you begin.</h2>
           <p>Move from essential foundations to production judgment, then finish with advanced mental models.</p>
         </div>
-        <span>1 of 53 lessons unlocked</span>
+        <span>{unlockedOverviewTopics} of {overviewTopics.length} lessons unlocked</span>
       </header>
 
       {activeTier && activeOverview && activeTierIndex !== null ? (
@@ -7980,6 +7991,165 @@ function DistributedConceptsHub() {
   );
 }
 
+type LoadBalancingCheckpoint = {
+  detail: string;
+  href?: string;
+  phase: 1 | 2 | 3 | 4;
+  title: string;
+};
+
+const loadBalancingPhases = [
+  { id: 1, title: "Foundations" },
+  { id: 2, title: "Routing intelligence" },
+  { id: 3, title: "Reliability & state" },
+  { id: 4, title: "Production engineering" },
+] as const;
+
+const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
+  {
+    detail: "Why traffic needs a coordinator and where the load balancer sits.",
+    href: LOAD_BALANCER_BASICS_PATH,
+    phase: 1,
+    title: "Basics",
+  },
+  {
+    detail: "Where routing happens: L4, L7, hardware, software, and cloud-managed layers.",
+    phase: 1,
+    title: "Types — Where to route?",
+  },
+  {
+    detail: "Round robin, least connections, weighted routing, IP hash, and trade-offs.",
+    phase: 2,
+    title: "Routing Algorithms — Which server?",
+  },
+  {
+    detail: "Stable request-to-server mapping with fewer remaps as capacity changes.",
+    phase: 2,
+    title: "Consistent Hashing — Deep Dive",
+  },
+  {
+    detail: "Active and passive checks, thresholds, draining, recovery, and false positives.",
+    phase: 3,
+    title: "Health & Failure Detection",
+  },
+  {
+    detail: "Sticky sessions, shared state, cookies, and keeping application nodes replaceable.",
+    phase: 3,
+    title: "Session & State Handling",
+  },
+  {
+    detail: "Remove the load balancer itself as a single point of failure.",
+    phase: 3,
+    title: "High Availability of the LB",
+  },
+  {
+    detail: "Keep-alive, connection pooling, TLS termination, timeouts, and backpressure.",
+    phase: 4,
+    title: "Connection Management",
+  },
+  {
+    detail: "Overload, stale health, retry amplification, uneven traffic, and cascading failures.",
+    phase: 4,
+    title: "Failure Modes",
+  },
+  {
+    detail: "Turn workload requirements into a defensible production architecture.",
+    phase: 4,
+    title: "Production Design Decisions",
+  },
+];
+
+function LoadBalancingHub() {
+  const availableCheckpoints = loadBalancingCheckpoints.filter((checkpoint) => checkpoint.href).length;
+
+  return (
+    <div className="load-balancing-hub">
+      <section className="distributed-hub-hero load-balancing-hero">
+        <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+          <a href="/learn-with-me">Learn With Me</a>
+          <span aria-hidden="true">/</span>
+          <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+          <span aria-hidden="true">/</span>
+          <strong>Load Balancing</strong>
+        </nav>
+        <p className="eyebrow">Foundations · Scaling & Infra</p>
+        <h1>Load balancing, from the first request to production decisions.</h1>
+        <p>
+          Follow ten connected checkpoints. Start with the beginner-friendly mental model, then
+          build toward routing, reliability, connection handling, and production trade-offs.
+        </p>
+        <div className="load-balancing-stats" aria-label="Load balancing learning path status">
+          <span><strong>{loadBalancingCheckpoints.length}</strong>Checkpoints</span>
+          <span><strong>{loadBalancingPhases.length}</strong>Learning phases</span>
+          <span><strong>{availableCheckpoints}</strong>Available now</span>
+        </div>
+      </section>
+
+      <section className="load-balancing-map" aria-labelledby="load-balancing-map-title">
+        <header className="load-balancing-map-head">
+          <div>
+            <p className="eyebrow">Visual learning path</p>
+            <h2 id="load-balancing-map-title">One route through all ten checkpoints.</h2>
+            <p>Follow the numbered connector line. Available lessons open; upcoming lessons stay visible and locked.</p>
+          </div>
+          <span>{availableCheckpoints} of {loadBalancingCheckpoints.length} unlocked</span>
+        </header>
+
+        <div className="load-balancing-phase-legend" aria-label="Learning phases">
+          {loadBalancingPhases.map((phase) => (
+            <span className={`phase-${phase.id}`} key={phase.id}>
+              <i aria-hidden="true" />
+              Phase {phase.id} · {phase.title}
+            </span>
+          ))}
+        </div>
+
+        <ol className="load-balancing-path">
+          {loadBalancingCheckpoints.map((checkpoint, index) => {
+            const phase = loadBalancingPhases[checkpoint.phase - 1];
+            const checkpointContent = (
+              <>
+                <span className="load-balancing-step-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="load-balancing-step-copy">
+                  <small>Phase {phase.id} · {phase.title}</small>
+                  <strong>{checkpoint.title}</strong>
+                  <p>{checkpoint.detail}</p>
+                </span>
+                <b className="load-balancing-step-status">
+                  {checkpoint.href ? <>Open lesson <i aria-hidden="true">→</i></> : "Locked"}
+                </b>
+              </>
+            );
+
+            return (
+              <li
+                className={`load-balancing-path-step phase-${checkpoint.phase}${checkpoint.href ? " is-available" : " is-locked"}`}
+                key={checkpoint.title}
+              >
+                {checkpoint.href ? (
+                  <a href={checkpoint.href}>{checkpointContent}</a>
+                ) : (
+                  <button aria-label={`${checkpoint.title}, locked`} disabled type="button">
+                    {checkpointContent}
+                  </button>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+
+        <a className="load-balancing-start" href={LOAD_BALANCER_BASICS_PATH}>
+          <span aria-hidden="true">01</span>
+          <span><small>Begin with the unlocked checkpoint</small><strong>Load Balancer Basics — Explained Simply</strong></span>
+          <b aria-hidden="true">→</b>
+        </a>
+      </section>
+    </div>
+  );
+}
+
 function DistributedScalingVisual() {
   return (
     <section className="scaling-visual" aria-labelledby="scaling-visual-title">
@@ -8084,8 +8254,8 @@ function DistributedCodeBlock({ code, label, tone }: { code: string; label: stri
   );
 }
 
-function DistributedScalingMarkdown() {
-  const lines = verticalHorizontalScalingMarkdown.replace(/\r\n/g, "\n").split("\n");
+function DistributedMarkdown({ markdown }: { markdown: string }) {
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
   const codeTones = ["is-coral", "is-blue", "is-sage", "is-gold"];
   let blockId = 0;
@@ -8130,7 +8300,9 @@ function DistributedScalingMarkdown() {
         ? "Kubernetes HPA · YAML"
         : language === "http"
           ? "HTTP request"
-          : "System diagram";
+          : language === "json"
+            ? "JSON response"
+            : "System diagram";
       blocks.push(
         <DistributedCodeBlock
           code={code.join("\n")}
@@ -8315,12 +8487,64 @@ function DistributedScalingArticle() {
         </div>
       </nav>
 
-      <DistributedScalingMarkdown />
+      <DistributedMarkdown markdown={verticalHorizontalScalingMarkdown} />
 
       <footer className="distributed-article-footer">
         <p className="eyebrow">Continue learning</p>
         <h2>One concept unlocked. The full distributed-systems path stays visible.</h2>
         <a className="button button-primary" href={DISTRIBUTED_CONCEPTS_PATH}>Back to Distributed Concepts</a>
+      </footer>
+    </article>
+  );
+}
+
+function LoadBalancerBasicsArticle() {
+  const articleHeadings = loadBalancerBasicsMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <article className="distributed-scaling-article load-balancer-basics-article">
+      <header className="distributed-article-hero load-balancer-article-hero">
+        <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+          <a href="/learn-with-me">Learn With Me</a>
+          <span aria-hidden="true">/</span>
+          <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+          <span aria-hidden="true">/</span>
+          <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+          <span aria-hidden="true">/</span>
+          <strong>Basics</strong>
+        </nav>
+        <p className="eyebrow">Checkpoint 01 of 10 · Foundations · Unlocked</p>
+        <h1>Load Balancer Basics — Explained Simply</h1>
+        <p>
+          A beginner-friendly mental model for traffic distribution, health checks, horizontal
+          scaling, availability, failure handling, and the limits of a load balancer.
+        </p>
+        <div className="distributed-article-tags" aria-label="Article topics">
+          <span>Traffic distribution</span><span>Health checks</span><span>High availability</span><span>Horizontal scaling</span><span>SPOF</span>
+        </div>
+      </header>
+
+      <nav className="distributed-article-toc" aria-label="Article sections">
+        <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part basics guide</h2></div>
+        <div>
+          {articleHeadings.map((heading) => (
+            <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+              {heading.replace(/\*\*/g, "")}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <DistributedMarkdown markdown={loadBalancerBasicsMarkdown} />
+
+      <footer className="distributed-article-footer load-balancer-article-footer">
+        <p className="eyebrow">Checkpoint 01 complete</p>
+        <h2>Return to the visual path and see what comes next.</h2>
+        <a className="button button-primary" href={LOAD_BALANCING_PATH}>Back to Load Balancing map</a>
       </footer>
     </article>
   );
@@ -8333,7 +8557,13 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     : window.location.pathname.replace(/\/$/, "");
   const isDistributedConceptsPage = learnPathname === DISTRIBUTED_CONCEPTS_PATH;
   const isVerticalHorizontalScalingPage = learnPathname === VERTICAL_HORIZONTAL_SCALING_PATH;
-  const learnBackHref = isVerticalHorizontalScalingPage
+  const isLoadBalancingPage = learnPathname === LOAD_BALANCING_PATH;
+  const isLoadBalancerBasicsPage = learnPathname === LOAD_BALANCER_BASICS_PATH;
+  const isDistributedHubPage = isDistributedConceptsPage || isLoadBalancingPage;
+  const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancerBasicsPage;
+  const learnBackHref = isLoadBalancerBasicsPage
+    ? LOAD_BALANCING_PATH
+    : isLoadBalancingPage || isVerticalHorizontalScalingPage
     ? DISTRIBUTED_CONCEPTS_PATH
     : isDistributedConceptsPage
       ? "/learn-with-me"
@@ -8503,7 +8733,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       </header>
 
       <main
-        className={`guide-page learn-page shell${isDistributedConceptsPage ? " distributed-hub-page" : ""}${isVerticalHorizontalScalingPage ? " distributed-article-page" : ""}`}
+        className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page" : ""}`}
         id="main-content"
       >
         {!accessGranted ? (
@@ -8551,6 +8781,10 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerBasicsPage ? (
+          <LoadBalancerBasicsArticle />
+        ) : isLoadBalancingPage ? (
+          <LoadBalancingHub />
         ) : isVerticalHorizontalScalingPage ? (
           <DistributedScalingArticle />
         ) : isDistributedConceptsPage ? (
