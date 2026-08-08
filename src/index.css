@@ -25777,6 +25777,122 @@ a.load-balancer-lesson-link:focus-visible {
   line-height: 1.45;
 }
 
+.routing-course-topic-group {
+  display: grid;
+  min-width: 0;
+}
+
+.routing-course-topic-group .routing-course-lesson {
+  padding: .8rem .9rem;
+}
+
+.routing-course-topic-group .routing-course-lesson-code {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 9px;
+  font-size: .6rem;
+}
+
+.routing-course-topic-group .routing-course-lesson-copy p {
+  display: none;
+}
+
+.routing-course-topic-group .routing-course-lesson-copy strong {
+  font-size: .84rem;
+}
+
+.routing-course-sublessons {
+  display: grid;
+  gap: .2rem;
+  padding: .45rem .7rem .6rem 3.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(5, 10, 18, .12);
+}
+
+.routing-course-sublesson {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  gap: .5rem;
+  align-items: center;
+  min-width: 0;
+  padding: .48rem .5rem;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.routing-course-sublesson > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .08);
+  color: #b7c2d2;
+  font: 900 .52rem "IBM Plex Mono", monospace;
+}
+
+.routing-course-sublesson > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+}
+
+.routing-course-sublesson small {
+  color: #8f9bae;
+  font: 800 .5rem "IBM Plex Mono", monospace;
+}
+
+.routing-course-sublesson strong {
+  overflow: hidden;
+  color: #dfe6f0;
+  font-size: .72rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.routing-course-sublesson > b {
+  color: #8f9bae;
+  font: 850 .48rem "IBM Plex Mono", monospace;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.routing-course-sublesson.is-active {
+  border-color: rgba(255, 120, 88, .55);
+  background: rgba(255, 120, 88, .12);
+}
+
+.routing-course-sublesson.is-active > span:first-child {
+  background: #ff7858;
+  color: #fff;
+}
+
+.routing-course-sublesson.is-active > b {
+  color: #ffad94;
+}
+
+.routing-course-sublesson.is-available {
+  transition: border-color .18s ease, background .18s ease;
+}
+
+.routing-course-sublesson.is-available:hover,
+.routing-course-sublesson.is-available:focus-visible {
+  border-color: rgba(79, 156, 249, .55);
+  background: rgba(79, 156, 249, .1);
+  outline: 0;
+}
+
+.routing-course-sublesson.is-available > b {
+  color: #8fc4ff;
+}
+
+.routing-course-sublesson.is-locked {
+  filter: saturate(.4);
+  opacity: .48;
+}
+
 .routing-course-lesson > b {
   grid-column: 2;
   color: #9ba7ba;

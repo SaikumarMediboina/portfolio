@@ -8583,8 +8583,9 @@ function LoadBalancerBasicsArticle() {
     .map((line) => line.slice(3));
 
   return (
-    <article className="distributed-scaling-article load-balancer-basics-article">
-      <header className="distributed-article-hero load-balancer-article-hero">
+    <LoadBalancingCourseShell activePath={LOAD_BALANCER_BASICS_PATH}>
+    <article className="distributed-scaling-article load-balancer-basics-article routing-algorithm-article">
+      <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
         <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
           <a href="/learn-with-me">Learn With Me</a>
           <span aria-hidden="true">/</span>
@@ -8624,6 +8625,7 @@ function LoadBalancerBasicsArticle() {
         <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_BASICS_PATH} />
       </footer>
     </article>
+    </LoadBalancingCourseShell>
   );
 }
 
@@ -8642,8 +8644,9 @@ function LoadBalancerTypesArticle() {
     .map((line) => line.slice(3));
 
   return (
-    <article className="distributed-scaling-article load-balancer-types-article">
-      <header className="distributed-article-hero load-balancer-article-hero">
+    <LoadBalancingCourseShell activePath={LOAD_BALANCER_TYPES_PATH}>
+    <article className="distributed-scaling-article load-balancer-types-article routing-algorithm-article">
+      <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
         <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
           <a href="/learn-with-me">Learn With Me</a>
           <span aria-hidden="true">/</span>
@@ -8698,6 +8701,7 @@ function LoadBalancerTypesArticle() {
         <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_TYPES_PATH} />
       </footer>
     </article>
+    </LoadBalancingCourseShell>
   );
 }
 
@@ -8732,6 +8736,196 @@ const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
     title: "IP Hash",
   },
 ];
+
+function LoadBalancingCourseShell({
+  activePath,
+  children,
+}: {
+  activePath: string;
+  children: ReactNode;
+}) {
+  const [isLessonMenuOpen, setIsLessonMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    try {
+      return window.localStorage.getItem("routing-course-sidebar-collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsLessonMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    document.body.classList.toggle("routing-lesson-menu-open", isLessonMenuOpen);
+
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      document.body.classList.remove("routing-lesson-menu-open");
+    };
+  }, [isLessonMenuOpen]);
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((isCollapsed) => {
+      const nextValue = !isCollapsed;
+
+      try {
+        window.localStorage.setItem("routing-course-sidebar-collapsed", String(nextValue));
+      } catch {
+        // The layout still works when browser storage is unavailable.
+      }
+
+      return nextValue;
+    });
+  };
+
+  return (
+    <div className={`routing-course-shell${isSidebarCollapsed ? " is-sidebar-collapsed" : ""}`}>
+      <button
+        aria-controls="load-balancing-course-index"
+        aria-expanded={isLessonMenuOpen}
+        className="routing-course-mobile-trigger"
+        onClick={() => setIsLessonMenuOpen(true)}
+        type="button"
+      >
+        <span aria-hidden="true">LB</span>
+        <span><small>Load Balancing</small><strong>Browse all 10 topics</strong></span>
+        <b aria-hidden="true">Menu</b>
+      </button>
+
+      {isLessonMenuOpen ? (
+        <button
+          aria-label="Close load balancing lesson menu"
+          className="routing-course-backdrop"
+          onClick={() => setIsLessonMenuOpen(false)}
+          type="button"
+        />
+      ) : null}
+
+      <aside
+        className={`routing-course-sidebar${isLessonMenuOpen ? " is-open" : ""}`}
+        id="load-balancing-course-index"
+      >
+        <button
+          aria-controls="load-balancing-lesson-list"
+          aria-expanded={!isSidebarCollapsed}
+          aria-label={isSidebarCollapsed ? "Show load balancing lesson index" : "Hide load balancing lesson index"}
+          className="routing-course-sidebar-toggle"
+          data-tooltip={isSidebarCollapsed ? "Show lesson index" : "Hide lesson index"}
+          onClick={toggleSidebar}
+          type="button"
+        >
+          <span aria-hidden="true">{isSidebarCollapsed ? "›" : "‹"}</span>
+        </button>
+
+        <header className="routing-course-sidebar-head">
+          <button
+            aria-label="Close load balancing lesson menu"
+            className="routing-course-sidebar-close"
+            onClick={() => setIsLessonMenuOpen(false)}
+            type="button"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+          <p>Distributed Concepts · Learning Path</p>
+          <h2>Load Balancing</h2>
+        </header>
+
+        <nav className="routing-course-lessons" id="load-balancing-lesson-list" aria-label="Load balancing lessons">
+          {loadBalancingCheckpoints.map((checkpoint, index) => {
+            const phase = loadBalancingPhases[checkpoint.phase - 1];
+            const isRoutingCheckpoint = checkpoint.href === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
+            const isActive = checkpoint.href === activePath || (
+              isRoutingCheckpoint && activePath.startsWith(`${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/`)
+            );
+            const lessonBody = (
+              <>
+                <span className="routing-course-lesson-code" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="routing-course-lesson-copy">
+                  <small>Phase {phase.id} · {phase.title}</small>
+                  <strong>{checkpoint.title}</strong>
+                  <p>{checkpoint.detail}</p>
+                </span>
+                <b>{isActive ? "Current" : checkpoint.href ? "Open" : "Locked"}</b>
+              </>
+            );
+
+            return (
+              <div className={`routing-course-topic-group${isActive ? " is-current" : ""}`} key={checkpoint.title}>
+                {checkpoint.href ? (
+                  <a
+                    aria-current={isActive ? "page" : undefined}
+                    className={`routing-course-lesson ${isActive ? "is-active" : "is-available"}`}
+                    href={checkpoint.href}
+                    onClick={() => setIsLessonMenuOpen(false)}
+                  >
+                    {lessonBody}
+                  </a>
+                ) : (
+                  <span aria-disabled="true" className="routing-course-lesson is-locked">
+                    {lessonBody}
+                  </span>
+                )}
+
+                {isRoutingCheckpoint ? (
+                  <div className="routing-course-sublessons" aria-label="Routing algorithm sub-lessons">
+                    {routingAlgorithmLessons.map((lesson, lessonIndex) => {
+                      const isSublessonActive = lesson.href === activePath;
+                      const sublessonBody = (
+                        <>
+                          <span aria-hidden="true">{lesson.code}</span>
+                          <span><small>{String(lessonIndex + 1).padStart(2, "0")}</small><strong>{lesson.title}</strong></span>
+                          <b>{isSublessonActive ? "Reading" : lesson.href ? "Open" : "Locked"}</b>
+                        </>
+                      );
+
+                      return lesson.href ? (
+                        <a
+                          aria-current={isSublessonActive ? "page" : undefined}
+                          className={`routing-course-sublesson ${isSublessonActive ? "is-active" : "is-available"}`}
+                          href={lesson.href}
+                          key={lesson.title}
+                          onClick={() => setIsLessonMenuOpen(false)}
+                        >
+                          {sublessonBody}
+                        </a>
+                      ) : (
+                        <span
+                          aria-disabled="true"
+                          className="routing-course-sublesson is-locked"
+                          key={lesson.title}
+                        >
+                          {sublessonBody}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </nav>
+
+        <footer className="routing-course-sidebar-foot">
+          <span aria-hidden="true">Path</span>
+          <p>Follow the checkpoints in order. New lessons unlock inside this same index.</p>
+        </footer>
+      </aside>
+
+      {children}
+    </div>
+  );
+}
 
 function RoutingAlgorithmLessonNavigation({ currentPath }: { currentPath: string }) {
   const currentIndex = routingAlgorithmLessons.findIndex((lesson) => lesson.href === currentPath);
@@ -8814,149 +9008,14 @@ function RoutingAlgorithmsArticle({
   tags,
   title,
 }: RoutingAlgorithmsArticleProps) {
-  const [isLessonMenuOpen, setIsLessonMenuOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    try {
-      return window.localStorage.getItem("routing-course-sidebar-collapsed") === "true";
-    } catch {
-      return false;
-    }
-  });
   const articleHeadings = markdown
     .replace(/\r\n/g, "\n")
     .split("\n")
     .filter((line) => line.startsWith("## "))
     .map((line) => line.slice(3));
 
-  useEffect(() => {
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsLessonMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", closeOnEscape);
-    document.body.classList.toggle("routing-lesson-menu-open", isLessonMenuOpen);
-
-    return () => {
-      window.removeEventListener("keydown", closeOnEscape);
-      document.body.classList.remove("routing-lesson-menu-open");
-    };
-  }, [isLessonMenuOpen]);
-
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed((isCollapsed) => {
-      const nextValue = !isCollapsed;
-
-      try {
-        window.localStorage.setItem("routing-course-sidebar-collapsed", String(nextValue));
-      } catch {
-        // The layout still works when browser storage is unavailable.
-      }
-
-      return nextValue;
-    });
-  };
-
   return (
-    <div className={`routing-course-shell${isSidebarCollapsed ? " is-sidebar-collapsed" : ""}`}>
-      <button
-        aria-controls="routing-algorithm-lessons"
-        aria-expanded={isLessonMenuOpen}
-        className="routing-course-mobile-trigger"
-        onClick={() => setIsLessonMenuOpen(true)}
-        type="button"
-      >
-        <span aria-hidden="true">03</span>
-        <span><small>Routing Algorithms</small><strong>Browse 4 lessons</strong></span>
-        <b aria-hidden="true">Menu</b>
-      </button>
-
-      {isLessonMenuOpen ? (
-        <button
-          aria-label="Close algorithm lesson menu"
-          className="routing-course-backdrop"
-          onClick={() => setIsLessonMenuOpen(false)}
-          type="button"
-        />
-      ) : null}
-
-      <aside
-        className={`routing-course-sidebar${isLessonMenuOpen ? " is-open" : ""}`}
-        id="routing-algorithm-lessons"
-      >
-        <button
-          aria-controls="routing-algorithm-lesson-list"
-          aria-expanded={!isSidebarCollapsed}
-          aria-label={isSidebarCollapsed ? "Show routing algorithm index" : "Hide routing algorithm index"}
-          className="routing-course-sidebar-toggle"
-          data-tooltip={isSidebarCollapsed ? "Show lesson index" : "Hide lesson index"}
-          onClick={toggleSidebar}
-          type="button"
-        >
-          <span aria-hidden="true">{isSidebarCollapsed ? "›" : "‹"}</span>
-        </button>
-
-        <header className="routing-course-sidebar-head">
-          <button
-            aria-label="Close algorithm lesson menu"
-            className="routing-course-sidebar-close"
-            onClick={() => setIsLessonMenuOpen(false)}
-            type="button"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-          <p>Load Balancing · Checkpoint 03</p>
-          <h2>Routing Algorithms</h2>
-        </header>
-
-        <nav className="routing-course-lessons" id="routing-algorithm-lesson-list" aria-label="Routing algorithm lessons">
-          {routingAlgorithmLessons.map((lesson, index) => {
-            const isActive = lesson.href === activePath;
-            const lessonBody = (
-              <>
-                <span className="routing-course-lesson-code" aria-hidden="true">{lesson.code}</span>
-                <span className="routing-course-lesson-copy">
-                  <small>Lesson {String(index + 1).padStart(2, "0")}</small>
-                  <strong>{lesson.title}</strong>
-                  <p>{lesson.detail}</p>
-                </span>
-                <b>{isActive ? "Reading" : lesson.href ? "Open" : "Locked"}</b>
-              </>
-            );
-
-            return lesson.href ? (
-              <a
-                aria-current={isActive ? "page" : undefined}
-                className={`routing-course-lesson ${isActive ? "is-active" : "is-available"}`}
-                href={lesson.href}
-                key={lesson.title}
-                onClick={() => setIsLessonMenuOpen(false)}
-              >
-                {lessonBody}
-              </a>
-            ) : (
-              <span
-                aria-disabled="true"
-                className="routing-course-lesson is-locked"
-                key={lesson.title}
-              >
-                {lessonBody}
-              </span>
-            );
-          })}
-        </nav>
-
-        <footer className="routing-course-sidebar-foot">
-          <span aria-hidden="true">Tip</span>
-          <p>Start simple. Change the algorithm only when traffic behavior gives you a reason.</p>
-        </footer>
-      </aside>
-
+    <LoadBalancingCourseShell activePath={activePath}>
       <article className="distributed-scaling-article routing-algorithm-article">
         <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
           <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
@@ -8995,7 +9054,7 @@ function RoutingAlgorithmsArticle({
           <RoutingAlgorithmLessonNavigation currentPath={activePath} />
         </footer>
       </article>
-    </div>
+    </LoadBalancingCourseShell>
   );
 }
 
@@ -9012,8 +9071,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerRoutingAlgorithmsPage = learnPathname === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
   const isLoadBalancerWeightedRoundRobinPage = learnPathname === LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
   const isDistributedHubPage = isDistributedConceptsPage || isLoadBalancingPage;
-  const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
+  const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
   const learnBackHref = isLoadBalancerWeightedRoundRobinPage
     ? LOAD_BALANCER_ROUTING_ALGORITHMS_PATH
     : isLoadBalancerRoutingAlgorithmsPage
@@ -9192,7 +9252,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       </header>
 
       <main
-        className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page" : ""}${isRoutingAlgorithmArticlePage ? " routing-course-page" : ""}`}
+        className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page" : ""}${isLoadBalancingCourseArticlePage ? " routing-course-page" : ""}`}
         id="main-content"
       >
         {!accessGranted ? (
