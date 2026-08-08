@@ -106,9 +106,9 @@ Because it understands HTTP, it can also **terminate SSL** — decrypt HTTPS tra
 
 ## 4. One Request on the Wire — Encapsulation
 
-ఇప్పుడు **packet ఎలా wrap అవుతుంది** మరియు **real e-commerce request ఎలా travel అవుతుంది** అనే రెండు ideas ని ఒకే concrete example తో చూద్దాం. User mobile app నుంచి `GET /api/orders` request పంపుతోంది.
+Now let us combine two ideas in one concrete example: **how a request is encapsulated on the wire** and **how it travels through a real e-commerce system**. A user sends `GET /api/orders` from a mobile app.
 
-> **Small accuracy note:** కిందది ఒక simplified request view. Real HTTP request size బట్టి అది multiple TCP segments లేదా IP packets గా split కావచ్చు; కానీ ప్రతి packet కి routing కోసం outer network headers ఉంటాయి.
+> **Small accuracy note:** The diagram below is a simplified request view. Depending on its size, a real HTTP request may be split across multiple TCP segments or IP packets, but each packet still carries the outer network headers required for routing.
 
 ```packet
 +----------------------------------------------------------+
@@ -135,22 +135,22 @@ Because it understands HTTP, it can also **terminate SSL** — decrypt HTTPS tra
 +----------------------------------------------------------+
 ```
 
-**ఇది గమనించు:** IP address మరియు port బయట headers లో ఉంటాయి. కానీ `/api/orders`, host, cookie వంటి HTTP details TLS-encrypted application payload లో ఉంటాయి.
+**Notice the boundary:** The IP address and port are present in the outer headers. HTTP details such as `/api/orders`, the host, and the cookie remain inside the TLS-encrypted application payload.
 
-### Application layer నుంచి request వస్తే IP/Port ఎలా తెలుస్తాయి?
+### If the request starts at the application layer, where do IP and Port come from?
 
-Request wire మీద **కేవలం HTTPగా** ప్రయాణించదు. OS/network stack application data ని TCP segment లో, తర్వాత IP packet లో automatically encapsulate చేస్తుంది; application developer manual గా wrap చేయాల్సిన అవసరం లేదు.
+A request never travels across the wire as **HTTP alone**. The operating system's network stack automatically encapsulates the application data inside a TCP segment and then inside an IP packet; the application developer does not wrap these layers manually.
 
-- **L4 LBకి IP/Port కనిపిస్తాయి** — అవి outer IP/TCP headers లో ఉంటాయి; HTTP payload decrypt చేయాల్సిన అవసరం లేదు.
-- **L7 LBకి కూడా IP/Port కనిపిస్తాయి** — వాటితో పాటు, TLS అక్కడ terminate అయితే, decrypted HTTP path, headers, cookies కూడా చదవగలదు.
+- **The L4 load balancer can see the IP address and port** because they are in the outer IP and TCP headers; it does not need to decrypt the HTTP payload.
+- **The L7 load balancer can also see the IP address and port** and, when TLS terminates there, it can additionally read the decrypted HTTP path, headers, and cookies.
 
-> **Remember:** L4 outer connection information వరకు చూస్తుంది; L7 configured TLS termination తర్వాత inner HTTP request వరకు చూస్తుంది.
+> **Remember:** L4 works with the outer connection information. After configured TLS termination, L7 can also inspect the inner HTTP request.
 
 ---
 
 ## 5. The Same Request Through L4 → L7 — Real E-commerce Flow
 
-ఇప్పుడు అదే `GET /api/orders` request ఒక possible production path లో ఎలా move అవుతుందో చూద్దాం. ఈ exampleలో AWS NLB **TCP pass-through mode** లో ఉంది; ALB లేదా NGINX దగ్గర TLS terminate అవుతుంది.
+Now follow the same `GET /api/orders` request through one possible production path. In this example, the AWS NLB uses **TCP pass-through mode**, and TLS terminates at the ALB or NGINX layer.
 
 ```flow
 +----------------------------------------------------------+
@@ -180,19 +180,19 @@ Request wire మీద **కేవలం HTTPగా** ప్రయాణిం�
 +----------------------------------------------------------+
 ```
 
-ఈ flow లో decision రెండు levels లో జరుగుతుంది:
+The routing decision now happens at two levels:
 
-1. **L4 decision:** IP, port, protocol, connection state ఆధారంగా healthy L7 target ని select చేస్తుంది. Application payload ని చదవదు.
-2. **L7 decision:** TLS terminate చేసి `GET /api/orders` path మరియు request metadata చదివి Order Service కి route చేస్తుంది.
+1. **L4 decision:** It selects a healthy L7 target using the IP address, port, protocol, and connection state. It does not read the application payload.
+2. **L7 decision:** It terminates TLS, reads the `GET /api/orders` path and request metadata, and routes the request to the Order Service.
 
-**Important nuance:** L4 forwardingలో implementation బట్టి outer IP/port headers NAT లేదా proxying వల్ల మారవచ్చు. “Raw forwarding” అంటే application payload inspect లేదా decrypt చేయదు అని అర్థం — packetలో ప్రతి byte literally unchangedగా ఉంటుంది అని కాదు.
+**Important nuance:** During L4 forwarding, NAT or proxying may rewrite the outer IP or port headers depending on the implementation. “Raw forwarding” means that the load balancer does not inspect or decrypt the application payload; it does not guarantee that every byte in the packet remains literally unchanged.
 
 ### Why would a production system use both?
 
 - **L4 at the edge:** very high connection volume, TCP/UDP handling, low routing overhead, and network-level distribution.
 - **L7 behind it:** SSL/TLS termination, path-based routing, header/cookie rules, authentication integrations, and microservice-aware decisions.
 
-ప్రతి systemకి రెండు layers తప్పనిసరి కాదు. Requirements simpleగా ఉంటే L4 లేదా L7 ఒక్కటే సరిపోవచ్చు; large or specialized architecturesలో రెండింటిని layer చేయడం useful.
+Not every system requires both layers. L4 or L7 alone may be enough for simpler requirements, while combining them can be useful in large or specialized architectures.
 
 > **Interview-ready line:** “IP and port are always available in the outer network headers. L7 becomes smarter because it can additionally terminate TLS and inspect the inner HTTP request.”
 
