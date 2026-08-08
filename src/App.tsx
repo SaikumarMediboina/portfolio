@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
+import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7477,6 +7478,7 @@ const VERTICAL_HORIZONTAL_SCALING_PATH =
   `${DISTRIBUTED_CONCEPTS_PATH}/vertical-vs-horizontal-scaling`;
 const LOAD_BALANCING_PATH = `${DISTRIBUTED_CONCEPTS_PATH}/load-balancing`;
 const LOAD_BALANCER_BASICS_PATH = `${LOAD_BALANCING_PATH}/basics`;
+const LOAD_BALANCER_TYPES_PATH = `${LOAD_BALANCING_PATH}/types`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8014,6 +8016,7 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Where routing happens: L4, L7, hardware, software, and cloud-managed layers.",
+    href: LOAD_BALANCER_TYPES_PATH,
     phase: 1,
     title: "Types — Where to route?",
   },
@@ -8058,6 +8061,63 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
     title: "Production Design Decisions",
   },
 ];
+
+function LoadBalancingLessonNavigation({ currentPath }: { currentPath: string }) {
+  const currentIndex = loadBalancingCheckpoints.findIndex(
+    (checkpoint) => checkpoint.href === currentPath,
+  );
+  const previousCheckpoint = currentIndex > 0 ? loadBalancingCheckpoints[currentIndex - 1] : null;
+  const nextCheckpoint = currentIndex >= 0 && currentIndex < loadBalancingCheckpoints.length - 1
+    ? loadBalancingCheckpoints[currentIndex + 1]
+    : null;
+
+  const renderLessonLink = (
+    checkpoint: LoadBalancingCheckpoint | null,
+    direction: "previous" | "next",
+  ) => {
+    const label = direction === "previous" ? "Previous article" : "Next article";
+    const arrow = direction === "previous" ? "←" : "→";
+
+    if (!checkpoint) {
+      return (
+        <span className={`load-balancer-lesson-link is-${direction} is-locked`} aria-disabled="true">
+          <i aria-hidden="true">{arrow}</i>
+          <span><small>{label}</small><strong>Start of learning path</strong></span>
+          <b>None</b>
+        </span>
+      );
+    }
+
+    const content = (
+      <>
+        <i aria-hidden="true">{arrow}</i>
+        <span><small>{label}</small><strong>{checkpoint.title}</strong></span>
+        <b>{checkpoint.href ? "Open" : "Locked"}</b>
+      </>
+    );
+
+    return checkpoint.href ? (
+      <a className={`load-balancer-lesson-link is-${direction}`} href={checkpoint.href}>
+        {content}
+      </a>
+    ) : (
+      <span className={`load-balancer-lesson-link is-${direction} is-locked`} aria-disabled="true">
+        {content}
+      </span>
+    );
+  };
+
+  return (
+    <nav className="load-balancer-lesson-navigation" aria-label="Load Balancing article navigation">
+      {renderLessonLink(previousCheckpoint, "previous")}
+      <a className="load-balancer-lesson-overview" href={LOAD_BALANCING_PATH}>
+        <small>Learning path</small>
+        <strong>All {loadBalancingCheckpoints.length} checkpoints</strong>
+      </a>
+      {renderLessonLink(nextCheckpoint, "next")}
+    </nav>
+  );
+}
 
 function LoadBalancingHub() {
   const availableCheckpoints = loadBalancingCheckpoints.filter((checkpoint) => checkpoint.href).length;
@@ -8545,8 +8605,82 @@ function LoadBalancerBasicsArticle() {
 
       <footer className="distributed-article-footer load-balancer-article-footer">
         <p className="eyebrow">Checkpoint 01 complete</p>
-        <h2>Return to the visual path and see what comes next.</h2>
-        <a className="button button-primary" href={LOAD_BALANCING_PATH}>Back to Load Balancing map</a>
+        <h2>Continue from the basic mental model into L4 and L7 routing.</h2>
+        <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_BASICS_PATH} />
+      </footer>
+    </article>
+  );
+}
+
+const loadBalancerBasicsRecap = [
+  "In Basics, we saw that a load balancer sits between clients and backend servers and distributes incoming requests across healthy targets.",
+  "It prevents one server from taking all the traffic, supports horizontal scaling, and keeps the application available when an instance fails.",
+  "We also learned that health checks remove unhealthy servers from rotation, while retries must be handled carefully for non-idempotent operations.",
+  "Now we can go one level deeper and compare where routing decisions happen: Layer 4 at the transport level and Layer 7 at the application level.",
+] as const;
+
+function LoadBalancerTypesArticle() {
+  const articleHeadings = loadBalancerTypesMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <article className="distributed-scaling-article load-balancer-types-article">
+      <header className="distributed-article-hero load-balancer-article-hero">
+        <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+          <a href="/learn-with-me">Learn With Me</a>
+          <span aria-hidden="true">/</span>
+          <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+          <span aria-hidden="true">/</span>
+          <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+          <span aria-hidden="true">/</span>
+          <strong>Types</strong>
+        </nav>
+        <p className="eyebrow">Checkpoint 02 of 10 · Foundations · Unlocked</p>
+        <h1>Load Balancer Types: L4 vs L7</h1>
+        <p>
+          Continue from the basic traffic-distribution model and learn exactly where Layer 4 and
+          Layer 7 make routing decisions.
+        </p>
+        <div className="distributed-article-tags" aria-label="Article topics">
+          <span>Layer 4</span><span>Layer 7</span><span>TCP & UDP</span><span>HTTP & HTTPS</span><span>SSL termination</span>
+        </div>
+      </header>
+
+      <section className="load-balancer-recap" aria-labelledby="load-balancer-recap-title">
+        <header>
+          <p className="eyebrow">From Basics to Types</p>
+          <h2 id="load-balancer-recap-title">What we covered before moving forward.</h2>
+        </header>
+        <ol>
+          {loadBalancerBasicsRecap.map((sentence, index) => (
+            <li key={sentence}>
+              <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+              <p>{sentence}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <nav className="distributed-article-toc" aria-label="Article sections">
+        <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part Types guide</h2></div>
+        <div>
+          {articleHeadings.map((heading) => (
+            <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+              {heading.replace(/\*\*/g, "")}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <DistributedMarkdown markdown={loadBalancerTypesMarkdown} />
+
+      <footer className="distributed-article-footer load-balancer-article-footer">
+        <p className="eyebrow">Checkpoint 02 complete</p>
+        <h2>L4 and L7 are clear. The routing-algorithms checkpoint comes next.</h2>
+        <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_TYPES_PATH} />
       </footer>
     </article>
   );
@@ -8561,9 +8695,12 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isVerticalHorizontalScalingPage = learnPathname === VERTICAL_HORIZONTAL_SCALING_PATH;
   const isLoadBalancingPage = learnPathname === LOAD_BALANCING_PATH;
   const isLoadBalancerBasicsPage = learnPathname === LOAD_BALANCER_BASICS_PATH;
+  const isLoadBalancerTypesPage = learnPathname === LOAD_BALANCER_TYPES_PATH;
   const isDistributedHubPage = isDistributedConceptsPage || isLoadBalancingPage;
-  const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancerBasicsPage;
-  const learnBackHref = isLoadBalancerBasicsPage
+  const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage;
+  const learnBackHref = isLoadBalancerTypesPage
+    ? LOAD_BALANCER_BASICS_PATH
+    : isLoadBalancerBasicsPage
     ? LOAD_BALANCING_PATH
     : isLoadBalancingPage || isVerticalHorizontalScalingPage
     ? DISTRIBUTED_CONCEPTS_PATH
@@ -8783,6 +8920,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerTypesPage ? (
+          <LoadBalancerTypesArticle />
         ) : isLoadBalancerBasicsPage ? (
           <LoadBalancerBasicsArticle />
         ) : isLoadBalancingPage ? (

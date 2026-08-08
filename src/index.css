@@ -25404,6 +25404,195 @@ html[data-header-visibility="hidden"] .article-site-header {
   transform: translateX(4px);
 }
 
+.load-balancer-recap {
+  display: grid;
+  grid-template-columns: minmax(12rem, .42fr) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 1.6rem);
+  align-items: start;
+  padding: clamp(1.05rem, 3vw, 1.65rem);
+  border: 1px solid color-mix(in srgb, #4f9cf9 38%, var(--panel-border));
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, color-mix(in srgb, #4f9cf9 9%, var(--panel-strong)), color-mix(in srgb, #9b78f6 7%, var(--panel-strong)));
+  box-shadow: var(--shadow-soft);
+}
+
+.load-balancer-recap h2 {
+  margin-top: .35rem;
+  color: var(--ink-strong);
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(1.55rem, 3.4vw, 2.45rem);
+  letter-spacing: -.04em;
+  line-height: 1.08;
+}
+
+.load-balancer-recap ol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .7rem;
+  list-style: none;
+}
+
+.load-balancer-recap li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .65rem;
+  align-items: start;
+  padding: .75rem;
+  border: 1px solid color-mix(in srgb, #4f9cf9 24%, var(--chip-border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--panel-soft) 88%, transparent);
+}
+
+.load-balancer-recap li > span {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f9cf9, #9b78f6);
+  color: #fff;
+  font: 900 .62rem "IBM Plex Mono", monospace;
+}
+
+.load-balancer-recap li p {
+  color: var(--ink-soft);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+}
+
+.load-balancer-lesson-navigation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: .7rem;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+
+.load-balancer-lesson-link,
+.load-balancer-lesson-overview {
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, #4f9cf9 34%, var(--panel-border));
+  border-radius: 15px;
+  background: color-mix(in srgb, #4f9cf9 7%, var(--panel-soft));
+  color: inherit;
+  text-decoration: none;
+}
+
+.load-balancer-lesson-link {
+  display: grid;
+  gap: .22rem .65rem;
+  align-items: center;
+  min-height: 6.4rem;
+  padding: .8rem;
+}
+
+.load-balancer-lesson-link.is-previous {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.load-balancer-lesson-link.is-next {
+  grid-template-columns: minmax(0, 1fr) auto;
+  text-align: right;
+}
+
+.load-balancer-lesson-link > i {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #4f9cf9;
+  color: #fff;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.load-balancer-lesson-link.is-previous > i {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+.load-balancer-lesson-link.is-next > i {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.load-balancer-lesson-link.is-previous > span,
+.load-balancer-lesson-link.is-previous > b {
+  grid-column: 2;
+}
+
+.load-balancer-lesson-link.is-next > span,
+.load-balancer-lesson-link.is-next > b {
+  grid-column: 1;
+}
+
+.load-balancer-lesson-link > span {
+  display: grid;
+  min-width: 0;
+}
+
+.load-balancer-lesson-link small,
+.load-balancer-lesson-overview small {
+  color: var(--ink-soft);
+  font-size: var(--text-micro);
+  font-weight: 850;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.load-balancer-lesson-link strong,
+.load-balancer-lesson-overview strong {
+  margin-top: .15rem;
+  color: var(--ink-strong);
+  font-size: var(--text-sm);
+  line-height: 1.3;
+}
+
+.load-balancer-lesson-link > b {
+  color: #4f9cf9;
+  font-size: var(--text-micro);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+a.load-balancer-lesson-link {
+  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+a.load-balancer-lesson-link:hover,
+a.load-balancer-lesson-link:focus-visible {
+  border-color: #4f9cf9;
+  background: color-mix(in srgb, #4f9cf9 14%, var(--panel-soft));
+  box-shadow: 0 10px 26px color-mix(in srgb, #4f9cf9 18%, transparent);
+  outline: 2px solid color-mix(in srgb, #4f9cf9 42%, transparent);
+  outline-offset: 2px;
+  transform: translateY(-2px);
+}
+
+.load-balancer-lesson-link.is-locked {
+  cursor: not-allowed;
+  filter: saturate(.35);
+  opacity: .48;
+}
+
+.load-balancer-lesson-overview {
+  display: grid;
+  place-content: center;
+  min-width: 10.5rem;
+  padding: .75rem;
+  text-align: center;
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.load-balancer-lesson-overview:hover,
+.load-balancer-lesson-overview:focus-visible {
+  border-color: #9b78f6;
+  background: color-mix(in srgb, #9b78f6 12%, var(--panel-soft));
+  outline: 2px solid color-mix(in srgb, #9b78f6 42%, transparent);
+  outline-offset: 2px;
+}
+
 .scaling-visual,
 .scaling-simulator,
 .distributed-article-toc,
@@ -26135,6 +26324,25 @@ html[data-header-visibility="hidden"] .article-site-header {
   .load-balancing-start > b {
     grid-column: 2;
     justify-self: start;
+  }
+
+  .load-balancer-recap {
+    grid-template-columns: minmax(0, 1fr);
+    padding: .95rem;
+    border-radius: 18px;
+  }
+
+  .load-balancer-recap ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .load-balancer-lesson-navigation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .load-balancer-lesson-overview {
+    min-width: 0;
+    min-height: 4.5rem;
   }
 
   .roadmap-overview-head {
