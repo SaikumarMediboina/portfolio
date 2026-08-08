@@ -8566,12 +8566,6 @@ function DistributedScalingArticle() {
       </nav>
 
       <DistributedMarkdown markdown={verticalHorizontalScalingMarkdown} />
-
-      <footer className="distributed-article-footer">
-        <p className="eyebrow">Continue learning</p>
-        <h2>One concept unlocked. The full distributed-systems path stays visible.</h2>
-        <a className="button button-primary" href={DISTRIBUTED_CONCEPTS_PATH}>Back to Distributed Concepts</a>
-      </footer>
     </article>
     </DistributedTierCourseShell>
   );
@@ -8620,12 +8614,6 @@ function LoadBalancerBasicsArticle() {
       </nav>
 
       <DistributedMarkdown markdown={loadBalancerBasicsMarkdown} />
-
-      <footer className="distributed-article-footer load-balancer-article-footer">
-        <p className="eyebrow">Checkpoint 01 complete</p>
-        <h2>Continue from the basic mental model into L4 and L7 routing.</h2>
-        <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_BASICS_PATH} />
-      </footer>
     </article>
     </DistributedTierCourseShell>
   );
@@ -8696,12 +8684,6 @@ function LoadBalancerTypesArticle() {
       </nav>
 
       <DistributedMarkdown markdown={loadBalancerTypesMarkdown} />
-
-      <footer className="distributed-article-footer load-balancer-article-footer">
-        <p className="eyebrow">Checkpoint 02 complete</p>
-        <h2>L4 and L7 are clear. The routing-algorithms checkpoint comes next.</h2>
-        <LoadBalancingLessonNavigation currentPath={LOAD_BALANCER_TYPES_PATH} />
-      </footer>
     </article>
     </DistributedTierCourseShell>
   );
@@ -9031,11 +9013,6 @@ function DistributedTierCourseShell({
           })}
 
         </nav>
-
-        <footer className="routing-course-sidebar-foot">
-          <span aria-hidden="true">Path</span>
-          <p>Every lesson in {tier.label} stays in one index. Hover or expand a topic to browse its checkpoints.</p>
-        </footer>
       </aside>
 
       {children}
@@ -9107,7 +9084,6 @@ function RoutingAlgorithmLessonNavigation({ currentPath }: { currentPath: string
 
 type RoutingAlgorithmsArticleProps = {
   activePath: string;
-  completionTitle: string;
   description: string;
   lessonNumber: number;
   markdown: string;
@@ -9117,7 +9093,6 @@ type RoutingAlgorithmsArticleProps = {
 
 function RoutingAlgorithmsArticle({
   activePath,
-  completionTitle,
   description,
   lessonNumber,
   markdown,
@@ -9163,12 +9138,6 @@ function RoutingAlgorithmsArticle({
         </nav>
 
         <DistributedMarkdown markdown={markdown} />
-
-        <footer className="distributed-article-footer load-balancer-article-footer">
-          <p className="eyebrow">Checkpoint 03 · Lesson {String(lessonNumber).padStart(2, "0")} complete</p>
-          <h2>{completionTitle}</h2>
-          <RoutingAlgorithmLessonNavigation currentPath={activePath} />
-        </footer>
       </article>
     </DistributedTierCourseShell>
   );
@@ -9419,7 +9388,6 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
         ) : isLoadBalancerWeightedRoundRobinPage ? (
           <RoutingAlgorithmsArticle
             activePath={LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH}
-            completionTitle="Capacity-aware routing is clear. Least Connections is the next algorithm to compare."
             description="See how configured weights match traffic share to unequal server capacity, how smooth scheduling prevents bursts, and where static weights stop reflecting real load."
             lessonNumber={2}
             markdown={loadBalancerWeightedRoundRobinMarkdown}
@@ -9429,7 +9397,6 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
         ) : isLoadBalancerRoutingAlgorithmsPage ? (
           <RoutingAlgorithmsArticle
             activePath={LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}
-            completionTitle="Round Robin is clear. Weighted Round Robin is the next capacity-aware step."
             description="Learn the simplest server-selection algorithm, why health checks matter, and exactly where equal request counts stop meaning equal work."
             lessonNumber={1}
             markdown={loadBalancerRoundRobinMarkdown}

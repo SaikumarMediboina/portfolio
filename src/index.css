@@ -27833,3 +27833,125 @@ a.load-balancer-lesson-link:focus-visible {
     letter-spacing: 0.08em;
   }
 }
+
+/* Distributed lessons use a compact, documentation-first reading scale. */
+.distributed-article-page .distributed-scaling-article {
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
+.distributed-article-page .distributed-scaling-article :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
+.distributed-article-page .distributed-article-hero h1 {
+  max-width: 24ch;
+  font-size: clamp(2.15rem, 2.8vw, 3.35rem);
+  font-weight: 700;
+  letter-spacing: -.038em;
+  line-height: 1.08;
+}
+
+.distributed-article-page .distributed-article-hero > p:not(.eyebrow) {
+  max-width: 72ch;
+  margin-top: .85rem;
+  font-size: clamp(.98rem, 1.15vw, 1.05rem);
+  line-height: 1.68;
+}
+
+.distributed-article-page .routing-algorithm-article {
+  gap: clamp(1.15rem, 2.2vw, 1.8rem);
+}
+
+.distributed-article-page .routing-algorithm-article .distributed-article-heading {
+  margin-top: clamp(1.35rem, 2.6vw, 2.25rem);
+  padding-top: clamp(1.1rem, 1.8vw, 1.45rem);
+}
+
+.distributed-article-page .distributed-article-heading {
+  gap: .68rem;
+}
+
+.distributed-article-page .distributed-article-heading > span {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 10px;
+  font-size: .62rem;
+}
+
+.distributed-article-page .distributed-article-heading h2 {
+  font-size: clamp(1.5rem, 2.05vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+}
+
+.distributed-article-page .distributed-article-subheading {
+  font-size: clamp(1.1rem, 1.35vw, 1.28rem);
+  font-weight: 700;
+  letter-spacing: -.012em;
+  line-height: 1.35;
+}
+
+.distributed-article-page :is(
+  .distributed-article-paragraph,
+  .distributed-article-list,
+  .distributed-article-numbered-list,
+  .distributed-article-quote
+) {
+  max-width: 78ch;
+  font-size: clamp(.98rem, 1.05vw, 1.03rem);
+}
+
+.distributed-article-page .distributed-article-paragraph {
+  line-height: 1.72;
+}
+
+.distributed-article-page :is(.distributed-article-list, .distributed-article-numbered-list) {
+  gap: .45rem;
+  line-height: 1.62;
+}
+
+.distributed-article-page .distributed-article-quote {
+  line-height: 1.58;
+}
+
+.distributed-article-page :is(
+  .scaling-visual-head h2,
+  .scaling-simulator h2,
+  .distributed-article-toc h2,
+  .load-balancer-recap h2
+) {
+  font-size: clamp(1.35rem, 1.85vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+}
+
+.distributed-article-page .distributed-table-wrap table {
+  font-size: .92rem;
+}
+
+.distributed-article-page .distributed-article-footer,
+.routing-course-sidebar-foot {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .distributed-article-page .distributed-article-hero h1 {
+    font-size: clamp(1.9rem, 8.3vw, 2.55rem);
+    line-height: 1.1;
+  }
+
+  .distributed-article-page .distributed-article-heading h2 {
+    font-size: clamp(1.42rem, 6vw, 1.78rem);
+  }
+
+  .distributed-article-page :is(
+    .distributed-article-paragraph,
+    .distributed-article-list,
+    .distributed-article-numbered-list,
+    .distributed-article-quote
+  ) {
+    font-size: .98rem;
+  }
+}
