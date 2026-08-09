@@ -2544,11 +2544,21 @@ function BlogTagList({ limit = 3, post }: { limit?: number; post: BlogPost }) {
   const visibleTags = isExpanded ? tags : tags.slice(0, limit);
   const hiddenTagCount = Math.max(tags.length - visibleTags.length, 0);
 
+  const hasCategoryTag = tags.some((t) => t.toLowerCase() === post.category.toLowerCase());
+
   return (
     <div className="blog-tag-list" aria-label={`${post.title} tags`}>
-      {visibleTags.map((tag) => (
-        <span key={`${post.slug}-${tag}`}>{tag}</span>
-      ))}
+      {visibleTags.map((tag, index) => {
+        const isPrimary = tag.toLowerCase() === post.category.toLowerCase() || (!hasCategoryTag && index === 0);
+        return (
+          <span
+            key={`${post.slug}-${tag}`}
+            className={isPrimary ? "blog-tag-primary" : "blog-tag-neutral"}
+          >
+            {tag}
+          </span>
+        );
+      })}
       {hiddenTagCount || isExpanded ? (
         <button
           aria-expanded={isExpanded}
@@ -2568,13 +2578,22 @@ function BlogTagList({ limit = 3, post }: { limit?: number; post: BlogPost }) {
   );
 }
 
-function BlogMetaLine({ accessLabel, post }: { accessLabel?: string; post: BlogPost }) {
+function BlogMetaLine({ isLocked, post }: { isLocked: boolean; post: BlogPost }) {
   return (
     <div className="blog-meta">
-      <span>{post.category}</span>
-      <span>{post.publishedAt}</span>
-      <span>{getEstimatedReadTimeLabel(post)}</span>
-      {accessLabel ? <span>{accessLabel}</span> : null}
+      <span className="blog-meta-category">{post.category}</span>
+      <span className="blog-meta-dot">·</span>
+      <span className="blog-meta-date">{post.publishedAt}</span>
+      <span className="blog-meta-dot">·</span>
+      <span className="blog-meta-readtime">{getEstimatedReadTimeLabel(post)}</span>
+      {isLocked ? (
+        <>
+          <span className="blog-meta-dot">·</span>
+          <span className="blog-meta-lock">
+            <BlogLockIcon /> Members only
+          </span>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -5784,26 +5803,47 @@ function SavePostButton({
   post,
   subscriberUser,
 }: SavePostButtonProps) {
+  const tooltipText = isBusy
+    ? "Updating..."
+    : !subscriberUser
+    ? "Sign in to save"
+    : isSaved
+    ? "Saved! Click to remove"
+    : "Save post";
+
+  const iconMarkup = (
+    <span className="save-post-icon-wrapper" aria-hidden="true">
+      <ReaderMenuGlyph type="bookmark" />
+    </span>
+  );
+
   if (!subscriberUser) {
     return (
-      <a className="save-post-button" href={getSignInHref(post.slug)} target="_blank" rel="opener">
-        Sign in to save
+      <a
+        className="save-post-button is-icon-only"
+        href={getSignInHref(post.slug)}
+        target="_blank"
+        rel="opener"
+        data-tooltip={tooltipText}
+        aria-label="Sign in to save this post"
+      >
+        {iconMarkup}
       </a>
     );
   }
 
   return (
     <button
-      className={`save-post-button${isSaved ? " is-saved" : ""}`}
+      className={`save-post-button is-icon-only${isSaved ? " is-saved" : ""}`}
       type="button"
       aria-busy={isBusy}
       aria-label={`${isSaved ? "Remove" : "Save"} ${post.title}`}
       aria-pressed={isSaved}
       disabled={isBusy}
       onClick={() => onToggle(post)}
+      data-tooltip={tooltipText}
     >
-      <ReaderMenuGlyph type="bookmark" />
-      {isBusy && !isSaved ? "Updating..." : isSaved ? "Saved" : "Save post"}
+      {iconMarkup}
     </button>
   );
 }
@@ -6322,7 +6362,7 @@ function BlogIndexSection({
                 {featuredBlogIsLocked ? "Locked Article" : "Featured Article"}
               </p>
               <BlogMetaLine
-                accessLabel={featuredBlogIsLocked ? "Members only" : "Unlocked"}
+                isLocked={featuredBlogIsLocked}
                 post={featuredBlog}
               />
               <h3>
@@ -6402,7 +6442,7 @@ function BlogIndexSection({
                 >
                   <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
                   <div className="blog-list-copy">
-                    <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
+                    <BlogMetaLine isLocked={isLocked} post={post} />
                     <h3>
                       {isLocked ? (
                         <span>{post.title}</span>
@@ -11369,7 +11409,7 @@ function BlogArticlePage({
             <div className="standalone-blog-hero">
               <p className="eyebrow">Unlocked Article</p>
               <h1>{post.title}</h1>
-              <BlogMetaLine accessLabel="Reader view" post={post} />
+              <BlogMetaLine isLocked={false} post={post} />
               <p>{post.summary}</p>
               <BlogTagList limit={6} post={post} />
               <div className="blog-action-row">

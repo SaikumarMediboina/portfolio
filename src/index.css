@@ -28324,3 +28324,260 @@ a.distributed-tier-subtopic {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Premium Blog Card Redesign & Chat Support Fix
+   ========================================================================= */
+
+/* 1. Metadata row styling */
+.blog-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem !important;
+  margin-bottom: 0.6rem;
+}
+
+.blog-meta span.blog-meta-category {
+  color: var(--accent) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.blog-meta span.blog-meta-dot {
+  color: var(--ink-subtle) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.8rem !important;
+  font-weight: normal !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  opacity: 0.7;
+}
+
+.blog-meta span.blog-meta-date,
+.blog-meta span.blog-meta-readtime {
+  color: var(--ink-muted) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.76rem !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.blog-meta span.blog-meta-lock {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.28rem !important;
+  color: var(--accent) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.76rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.blog-meta span.blog-meta-lock svg {
+  width: 0.78rem;
+  height: 0.78rem;
+  fill: currentColor;
+}
+
+/* 2. Tag list: category/primary tag gets accent color, other tags get neutral outline */
+.blog-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.blog-tag-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.85rem !important;
+  padding: 0.3rem 0.65rem !important;
+  border-radius: 999px !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: var(--text-xs) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  transition: all 0.16s ease;
+}
+
+.blog-tag-list span.blog-tag-primary {
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--chip-border)) !important;
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+}
+
+.blog-tag-list span.blog-tag-neutral {
+  border: 1px solid var(--chip-border) !important;
+  background: transparent !important;
+  color: var(--ink-soft) !important;
+}
+
+.blog-tag-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.85rem !important;
+  padding: 0.3rem 0.65rem !important;
+  border: 1px solid var(--chip-border) !important;
+  border-radius: 999px !important;
+  background: var(--soft-button-bg) !important;
+  color: var(--ink-soft) !important;
+  cursor: pointer;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: var(--text-xs) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.blog-tag-toggle:hover {
+  background: var(--soft-button-bg-hover) !important;
+  color: var(--ink-strong) !important;
+}
+
+/* 3. Action row CTA hierarchy */
+.blog-featured-link,
+.blog-list-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.58rem 1.25rem !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: 10px !important;
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: var(--text-sm) !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: all 0.2s ease !important;
+  white-space: nowrap;
+}
+
+.blog-featured-link:hover,
+.blog-list-link:hover {
+  background: color-mix(in srgb, var(--accent) 85%, #000000) !important;
+  border-color: color-mix(in srgb, var(--accent) 85%, #000000) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(240, 100, 59, 0.2) !important;
+}
+
+/* Save button: icon-only ghost/outline style with data-tooltip */
+.save-post-button.is-icon-only {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  padding: 0 !important;
+  border: 1px solid var(--chip-border) !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: var(--ink-soft) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.save-post-button.is-icon-only:hover {
+  background: var(--soft-button-bg) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+.save-post-button.is-icon-only.is-saved {
+  border-color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+}
+
+/* Save button tooltip positioning and styling */
+.save-post-button.is-icon-only::after {
+  position: absolute !important;
+  bottom: calc(100% + 0.45rem) !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(4px) !important;
+  content: attr(data-tooltip) !important;
+  padding: 0.35rem 0.55rem !important;
+  border-radius: 6px !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.16s ease, transform 0.16s ease !important;
+  z-index: 10 !important;
+  box-shadow: var(--shadow-soft) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.save-post-button.is-icon-only:hover::after {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+/* 4. Hover lift and box-shadow */
+.blog-featured,
+.blog-list-item {
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background-color 0.22s ease !important;
+}
+
+.blog-featured:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(240, 100, 59, 0.45) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08), var(--shadow-soft) !important;
+}
+
+.blog-list-item:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(240, 100, 59, 0.45) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), var(--shadow-soft) !important;
+  background: var(--panel-strong) !important;
+}
+
+/* 5. Align index number with card baseline */
+.blog-list-item {
+  align-items: start !important;
+}
+
+.blog-list-number {
+  margin-top: 0.2rem !important;
+}
+
+/* 6. Chat support z-index & positioning overlap fix */
+.site-assistant {
+  z-index: 85 !important;
+}
+
+@media (max-width: 720px) {
+  .site-assistant {
+    bottom: clamp(0.75rem, 2vw, 1.2rem) !important;
+    right: clamp(0.75rem, 2vw, 1.2rem) !important;
+  }
+
+  /* Safe area at the bottom of standard page sections to prevent overlapping with the chat launcher */
+  .blog-section,
+  .saved-posts-page,
+  .dashboard-page,
+  .guide-page {
+    padding-bottom: 5.5rem !important;
+  }
+}
