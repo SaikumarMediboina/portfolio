@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Patrick+Hand&family=Caveat:wght@400;700&display=swap');
-
 :root {
   color-scheme: light;
   --bg: #f9f1e8;
@@ -28605,25 +28603,4 @@ a.distributed-tier-subtopic {
   .guide-page {
     padding-bottom: 5.5rem !important;
   }
-}
-
-/* ==========================================================================
-   Handwriting Font Override for Article Code Blocks
-   ========================================================================== */
-
-.distributed-code-block pre,
-.distributed-code-block code,
-.blog-code-block,
-.blog-code-block code,
-.mcp-code-block pre,
-.mcp-code-block code {
-  font-family: "Patrick Hand", "Architects Daughter", "Caveat", cursive !important;
-  font-size: 1.05rem !important; /* Handwriting fonts render slightly smaller, scale up for perfect readability */
-  font-weight: 500 !important;
-  letter-spacing: 0.01em !important;
-  line-height: 1.55 !important;
-}
-
-.blog-code-block {
-  font-size: 1.1rem !important;
 }
