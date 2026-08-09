@@ -25644,11 +25644,11 @@ a.load-balancer-lesson-link:focus-visible {
   width: max-content;
   max-width: 10rem;
   padding: .42rem .55rem;
-  border: 1px solid var(--panel-border);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  background: var(--panel-strong);
+  background: #000000;
   box-shadow: var(--shadow-soft);
-  color: var(--ink-strong);
+  color: #ffffff;
   content: attr(data-tooltip);
   font: 800 .65rem/1.2 "IBM Plex Mono", monospace;
   opacity: 0;

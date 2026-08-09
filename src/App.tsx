@@ -83,31 +83,11 @@ function useScrollHeaderVisibility(syncDocument = false) {
   );
 
   useEffect(() => {
-    const revealDistance = 220;
-    let previousScrollY = window.scrollY;
-    let upwardDistance = 0;
     let frameId = 0;
 
     const updateVisibility = () => {
       const currentScrollY = window.scrollY;
-      const distance = currentScrollY - previousScrollY;
-
-      if (currentScrollY <= 24) {
-        upwardDistance = 0;
-        setIsVisible(true);
-      } else if (distance < 0) {
-        upwardDistance += Math.abs(distance);
-
-        if (upwardDistance >= revealDistance) {
-          upwardDistance = 0;
-          setIsVisible(true);
-        }
-      } else if (distance > 4) {
-        upwardDistance = 0;
-        setIsVisible(false);
-      }
-
-      previousScrollY = currentScrollY;
+      setIsVisible(currentScrollY <= 24);
       frameId = 0;
     };
 
