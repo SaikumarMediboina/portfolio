@@ -28477,6 +28477,15 @@ a.distributed-tier-subtopic {
   color: #ffffff !important;
 }
 
+/* Keep the primary blog CTA label visible against the coral fill in light mode. */
+:root:not([data-theme="dark"]) .blog-index .blog-action-row .blog-featured-link,
+:root:not([data-theme="dark"]) .blog-index .blog-list-actions .blog-list-link {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 1px rgba(86, 24, 13, 0.28);
+}
+
 .blog-featured-link:hover,
 .blog-list-link:hover {
   background: color-mix(in srgb, var(--accent) 85%, #000000) !important;
