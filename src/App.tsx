@@ -8826,17 +8826,36 @@ function DistributedTierCourseShell({
         </button>
 
         <header className="routing-course-sidebar-head">
-          <button
-            aria-label={`Close ${tier.label} lesson menu`}
-            className="routing-course-sidebar-close"
-            onClick={() => setIsLessonMenuOpen(false)}
-            type="button"
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-          <p>{tier.label} · Distributed Concepts</p>
+          <div className="routing-course-sidebar-top-actions">
+            <div className="routing-course-sidebar-left-actions">
+              <a href="/learn-with-me/distributed-concepts" className="sidebar-action-btn sidebar-back-btn">
+                ← Back
+              </a>
+              <a href="/" className="sidebar-action-btn sidebar-home-btn">
+                🏠 Home
+              </a>
+            </div>
+            {!isSidebarCollapsed && (
+              <button
+                aria-label={`Hide ${tier.label} lesson index`}
+                className="routing-course-sidebar-header-collapse"
+                onClick={toggleSidebar}
+                type="button"
+              >
+                ‹
+              </button>
+            )}
+            <button
+              aria-label={`Close ${tier.label} lesson menu`}
+              className="routing-course-sidebar-close"
+              onClick={() => setIsLessonMenuOpen(false)}
+              type="button"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <p>{tier.label.toUpperCase()} · DISTRIBUTED CONCEPTS</p>
           <h2>{tier.title}</h2>
-          <span>{tierTopicCount} topics · unified index</span>
         </header>
 
         <nav className="routing-course-lessons" id="distributed-tier-lesson-list" aria-label={`${tier.label} lesson index`}>
@@ -9219,42 +9238,44 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Learn with me</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
+      {!isDistributedArticlePage ? (
+        <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
+          <div className="shell article-header-shell">
+            <a className="brand" href="/">
+              <span className="brand-mark">SK</span>
+              <span className="brand-copy">
+                <strong>{profile.name}</strong>
+                <span>Learn with me</span>
+              </span>
             </a>
-            <PageBackButton fallbackHref={learnBackHref} label="Back" />
-            {accessGranted ? (
+
+            <div className="article-header-actions">
+              <a className="button button-secondary" href="/">
+                Home
+              </a>
+              <PageBackButton fallbackHref={learnBackHref} label="Back" />
+              {accessGranted ? (
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  onClick={handleLearnAccessLogout}
+                >
+                  Logout
+                </button>
+              ) : null}
               <button
-                className="button button-secondary"
+                className="theme-toggle"
                 type="button"
-                onClick={handleLearnAccessLogout}
+                aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+                aria-pressed={theme === "dark"}
+                onClick={onThemeToggle}
               >
-                Logout
+                <ThemeToggleIcon theme={theme} />
               </button>
-            ) : null}
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      ) : null}
 
       <main
         className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page routing-course-page" : ""}`}

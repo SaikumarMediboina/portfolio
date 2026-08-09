@@ -104,7 +104,7 @@
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -25708,6 +25708,69 @@ a.load-balancer-lesson-link:focus-visible {
 .routing-course-sidebar-head {
   padding: 1.45rem 1.25rem 1.3rem;
   border-bottom: 1px solid var(--course-sidebar-line);
+}
+
+.routing-course-sidebar-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.15rem;
+}
+
+.routing-course-sidebar-left-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sidebar-action-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.68rem;
+  border: 1px solid var(--course-sidebar-border);
+  border-radius: 8px;
+  background: var(--course-sidebar-tile);
+  color: var(--course-sidebar-text);
+  text-decoration: none;
+  font: 800 0.68rem/1.2 "IBM Plex Mono", monospace;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.sidebar-action-btn:hover {
+  background: var(--course-sidebar-line);
+  border-color: var(--course-sidebar-blue);
+  color: var(--course-sidebar-strong);
+}
+
+.routing-course-sidebar-header-collapse {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 1px solid var(--course-sidebar-border);
+  border-radius: 50%;
+  background: var(--course-sidebar-tile);
+  color: var(--course-sidebar-text);
+  cursor: pointer;
+  font: 900 1.25rem/1 "Outfit", sans-serif;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.routing-course-sidebar-header-collapse:hover {
+  background: var(--course-sidebar-line);
+  border-color: var(--course-sidebar-blue);
+  color: var(--course-sidebar-strong);
+}
+
+/* Hide absolute toggle hanging on the border when the sidebar is NOT collapsed on desktop */
+.routing-course-shell:not(.is-sidebar-collapsed) .routing-course-sidebar-toggle {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .routing-course-sidebar-header-collapse {
+    display: none !important;
+  }
 }
 
 .routing-course-sidebar-head > p {
