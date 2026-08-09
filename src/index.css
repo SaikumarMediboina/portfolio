@@ -25689,6 +25689,7 @@ a.load-balancer-lesson-link:focus-visible {
   --course-sidebar-scrollbar: #c7b4a4;
   position: sticky;
   top: 1rem;
+  z-index: 10;
   display: flex;
   flex-direction: column;
   height: calc(100dvh - 2rem);
