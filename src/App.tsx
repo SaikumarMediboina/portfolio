@@ -8827,24 +8827,24 @@ function DistributedTierCourseShell({
 
         <header className="routing-course-sidebar-head">
           <div className="routing-course-sidebar-top-actions">
-            <div className="routing-course-sidebar-left-actions">
-              <a href="/learn-with-me/distributed-concepts" className="sidebar-action-btn sidebar-back-btn">
-                ← Back
-              </a>
+            <a href="/learn-with-me/distributed-concepts" className="sidebar-action-btn sidebar-back-btn">
+              ← Back
+            </a>
+            <div className="routing-course-sidebar-right-actions">
               <a href="/" className="sidebar-action-btn sidebar-home-btn">
-                🏠 Home
+                Home
               </a>
+              {!isSidebarCollapsed && (
+                <button
+                  aria-label={`Hide ${tier.label} lesson index`}
+                  className="routing-course-sidebar-header-collapse"
+                  onClick={toggleSidebar}
+                  type="button"
+                >
+                  ‹
+                </button>
+              )}
             </div>
-            {!isSidebarCollapsed && (
-              <button
-                aria-label={`Hide ${tier.label} lesson index`}
-                className="routing-course-sidebar-header-collapse"
-                onClick={toggleSidebar}
-                type="button"
-              >
-                ‹
-              </button>
-            )}
             <button
               aria-label={`Close ${tier.label} lesson menu`}
               className="routing-course-sidebar-close"
