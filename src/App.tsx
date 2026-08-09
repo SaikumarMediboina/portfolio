@@ -6317,6 +6317,10 @@ function BlogIndexSection({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: BlogIndexSectionProps) {
+  const orderedBlogPosts = [featuredBlog, ...remainingBlogPosts].filter(
+    (post): post is BlogPost => Boolean(post),
+  );
+
   return (
     <section className="section shell blog-section" id="blogs">
       <SectionHeading
@@ -6349,86 +6353,9 @@ function BlogIndexSection({
       </div>
 
       <div className="blog-index">
-        {featuredBlog ? (
-          <article
-            className={`blog-featured${featuredBlogIsLocked ? " is-locked" : ""}`}
-            id={getBlogAnchorId(featuredBlog.slug)}
-          >
-            <div className="blog-featured-copy">
-              <p className="eyebrow">
-                {featuredBlogIsLocked ? "Locked Article" : "Featured Article"}
-              </p>
-              <BlogMetaLine
-                status={featuredBlogIsLocked ? "Locked" : "Unlocked"}
-                post={featuredBlog}
-              />
-              <h3>
-                {featuredBlogIsLocked ? (
-                  <span>{featuredBlog.title}</span>
-                ) : (
-                  <a
-                    href={getBlogArticleHref(featuredBlog.slug)}
-                    target="_blank"
-                    rel="opener"
-                    onClick={() => onTrackBlogOpen(featuredBlog, "featured_title")}
-                  >
-                    {featuredBlog.title}
-                  </a>
-                )}
-              </h3>
-              <p>{getBlogCardSummary(featuredBlog)}</p>
-              <BlogTagList post={featuredBlog} />
-              {featuredBlogIsLocked ? <BlogLockNote /> : null}
-              {featuredBlogIsLocked ? (
-                <a
-                  className="blog-featured-link"
-                  href={getSignInHref(featuredBlog.slug)}
-                  target="_blank"
-                  rel="opener"
-                >
-                  Sign in to unlock
-                </a>
-              ) : (
-                <div className="blog-action-row">
-                  <a
-                    className="blog-featured-link"
-                    href={getBlogArticleHref(featuredBlog.slug)}
-                    target="_blank"
-                    rel="opener"
-                    aria-label={`Open ${featuredBlog.title} as a standalone article in a new tab`}
-                    onClick={() => onTrackBlogOpen(featuredBlog, "featured_cta")}
-                  >
-                    Read full post
-                  </a>
-                  <SavePostButton
-                    isBusy={savedPostsBusySlug === featuredBlog.slug}
-                    isSaved={isPostSaved(featuredBlog.slug)}
-                    post={featuredBlog}
-                    subscriberUser={subscriberUser}
-                    onToggle={onToggleSavedPost}
-                  />
-                </div>
-              )}
-            </div>
-
-            <aside className="blog-featured-aside" aria-label="Featured article metrics">
-              <p className="impact-label">Key metrics</p>
-              <div className="blog-stat-grid">
-                {featuredBlog.stats.map((stat) => (
-                  <AnimatedStat key={`${featuredBlog.slug}-${stat.label}`} value={stat.value} label={stat.label} />
-                ))}
-              </div>
-            </aside>
-          </article>
-        ) : (
-          <div className="blog-empty">
-            <p>No articles are available for this category yet.</p>
-          </div>
-        )}
-
-        {remainingBlogPosts.length > 0 ? (
-          <div className="blog-list" aria-label="Latest blog articles">
-            {remainingBlogPosts.map((post, index) => {
+        {orderedBlogPosts.length > 0 ? (
+          <div className="blog-list" aria-label="Latest blog articles" style={{ gridTemplateColumns: "1fr" }}>
+            {orderedBlogPosts.map((post, index) => {
               const isLocked = !canReadBlogPost(post, subscriberUser);
 
               return (
@@ -6437,7 +6364,7 @@ function BlogIndexSection({
                   id={getBlogAnchorId(post.slug)}
                   key={post.slug}
                 >
-                  <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
+                  <span className="blog-list-number">{String(index + 1).padStart(2, "0")}</span>
                   <div className="blog-list-copy">
                     <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
                     <h3>
@@ -6492,7 +6419,11 @@ function BlogIndexSection({
               );
             })}
           </div>
-        ) : null}
+        ) : (
+          <div className="blog-empty">
+            <p>No articles are available for this category yet.</p>
+          </div>
+        )}
       </div>
     </section>
   );
