@@ -28447,7 +28447,6 @@ a.distributed-tier-subtopic {
   border: 1px solid var(--accent) !important;
   border-radius: 10px !important;
   background: var(--accent) !important;
-  color: #ffffff !important;
   font-family: "DM Sans", sans-serif !important;
   font-size: var(--text-sm) !important;
   font-weight: 800 !important;
@@ -28456,6 +28455,16 @@ a.distributed-tier-subtopic {
   cursor: pointer;
   transition: all 0.2s ease !important;
   white-space: nowrap;
+}
+
+/* Force text color to be white, overriding global themed accent color rules */
+:root :is(.blog-featured-link, .blog-list-link),
+:root:not([data-theme="dark"]) :is(.blog-featured-link, .blog-list-link),
+:root[data-theme="dark"] :is(.blog-featured-link, .blog-list-link),
+:root :is(.blog-featured-link, .blog-list-link):hover,
+:root:not([data-theme="dark"]) :is(.blog-featured-link, .blog-list-link):hover,
+:root[data-theme="dark"] :is(.blog-featured-link, .blog-list-link):hover {
+  color: #ffffff !important;
 }
 
 .blog-featured-link:hover,
