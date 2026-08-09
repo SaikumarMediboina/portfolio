@@ -28575,9 +28575,10 @@ a.distributed-tier-subtopic {
   background: var(--panel-strong) !important;
 }
 
-/* 5. Align index number with card baseline */
+/* 5. Align index number with card baseline and prevent tooltip clipping */
 .blog-list-item {
   align-items: start !important;
+  overflow: visible !important;
 }
 
 .blog-list-number {
