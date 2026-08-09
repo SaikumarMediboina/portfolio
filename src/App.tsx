@@ -8639,9 +8639,11 @@ function LoadBalancingSidebarSubtopics({
               <span className="distributed-tier-subtopic-copy">
                 <strong>{checkpoint.title}</strong>
               </span>
-              <b className={isRoutingCheckpoint ? "is-chevron" : ""}>
-                {isRoutingCheckpoint ? <span aria-hidden="true">⌄</span> : isCheckpointActive ? "Current" : checkpoint.href ? "Open" : "Locked"}
-              </b>
+              {isRoutingCheckpoint ? (
+                <b className="is-chevron">
+                  <span aria-hidden="true">⌄</span>
+                </b>
+              ) : null}
             </>
           );
 
@@ -8683,7 +8685,6 @@ function LoadBalancingSidebarSubtopics({
                         <>
                           <span aria-hidden="true">{String(lessonIndex + 1).padStart(2, "0")}</span>
                           <span><strong>{lesson.title}</strong></span>
-                          <b>{isLessonActive ? "Reading" : lesson.href ? "Open" : "Locked"}</b>
                         </>
                       );
 
@@ -8893,9 +8894,11 @@ function DistributedTierCourseShell({
                         <span className="distributed-tier-topic-copy">
                           <strong>{topic.title}</strong>
                         </span>
-                        <b className={hasSubtopics ? "is-chevron" : ""}>
-                          {hasSubtopics ? <span aria-hidden="true">⌄</span> : isActive ? "Reading" : topic.href ? "Open" : "Locked"}
-                        </b>
+                        {hasSubtopics ? (
+                          <b className="is-chevron">
+                            <span aria-hidden="true">⌄</span>
+                          </b>
+                        ) : null}
                       </>
                     );
 

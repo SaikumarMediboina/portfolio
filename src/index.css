@@ -25774,6 +25774,12 @@ a.load-balancer-lesson-link:focus-visible {
   }
 }
 
+.routing-course-sidebar .distributed-tier-index-group-head > span,
+.routing-course-sidebar .distributed-tier-topic-code,
+.routing-course-sidebar .distributed-tier-subtopic-code {
+  color: var(--course-sidebar-strong) !important;
+}
+
 .routing-course-sidebar-head > p {
   color: var(--course-sidebar-muted);
   font: 800 .62rem "IBM Plex Mono", monospace;
