@@ -2703,7 +2703,7 @@ function RelatedPosts({ currentPost, subscriberUser, onTrackBlogOpen }: RelatedP
               className={`related-post-card${isRelatedPostLocked ? " is-locked" : ""}`}
               key={post.slug}
             >
-              <BlogMetaLine accessLabel={isRelatedPostLocked ? "Locked" : "Open"} post={post} />
+              <BlogMetaLine isLocked={isRelatedPostLocked} post={post} />
               <h3>{post.title}</h3>
               <p>{getBlogCardSummary(post)}</p>
               <div className="related-post-tags">
@@ -7110,7 +7110,7 @@ function HomePage({
                     key={post.slug}
                   >
                     <div className="home-writing-row-copy">
-                      <BlogMetaLine accessLabel={isLocked ? "Members only" : "Unlocked"} post={post} />
+                      <BlogMetaLine isLocked={isLocked} post={post} />
                       <h3>{post.title}</h3>
                       <p>{getBlogCardSummary(post)}</p>
                     </div>
@@ -11372,7 +11372,7 @@ function BlogArticlePage({
               </span>
               <h1>{post.title}</h1>
             </div>
-            <BlogMetaLine accessLabel="Members only" post={post} />
+            <BlogMetaLine isLocked={true} post={post} />
             <p>{post.summary}</p>
             <BlogTagList limit={6} post={post} />
             <BlogLockNote />
