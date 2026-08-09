@@ -2578,22 +2578,19 @@ function BlogTagList({ limit = 3, post }: { limit?: number; post: BlogPost }) {
   );
 }
 
-function BlogMetaLine({ isLocked, post }: { isLocked: boolean; post: BlogPost }) {
+function BlogMetaLine({ status, post }: { status: "Locked" | "Unlocked"; post: BlogPost }) {
   return (
     <div className="blog-meta">
-      <span className="blog-meta-category">{post.category}</span>
-      <span className="blog-meta-dot">·</span>
-      <span className="blog-meta-date">{post.publishedAt}</span>
-      <span className="blog-meta-dot">·</span>
-      <span className="blog-meta-readtime">{getEstimatedReadTimeLabel(post)}</span>
-      {isLocked ? (
-        <>
-          <span className="blog-meta-dot">·</span>
-          <span className="blog-meta-lock">
-            <BlogLockIcon /> Members only
-          </span>
-        </>
-      ) : null}
+      <span>{post.category}</span>
+      <span>{post.publishedAt}</span>
+      <span>{getEstimatedReadTimeLabel(post)}</span>
+      {status === "Locked" ? (
+        <span className="blog-meta-lock">
+          <BlogLockIcon /> Members only
+        </span>
+      ) : (
+        <span className="blog-meta-unlocked">Unlocked</span>
+      )}
     </div>
   );
 }
@@ -2703,7 +2700,7 @@ function RelatedPosts({ currentPost, subscriberUser, onTrackBlogOpen }: RelatedP
               className={`related-post-card${isRelatedPostLocked ? " is-locked" : ""}`}
               key={post.slug}
             >
-              <BlogMetaLine isLocked={isRelatedPostLocked} post={post} />
+              <BlogMetaLine status={isRelatedPostLocked ? "Locked" : "Unlocked"} post={post} />
               <h3>{post.title}</h3>
               <p>{getBlogCardSummary(post)}</p>
               <div className="related-post-tags">
@@ -6362,7 +6359,7 @@ function BlogIndexSection({
                 {featuredBlogIsLocked ? "Locked Article" : "Featured Article"}
               </p>
               <BlogMetaLine
-                isLocked={featuredBlogIsLocked}
+                status={featuredBlogIsLocked ? "Locked" : "Unlocked"}
                 post={featuredBlog}
               />
               <h3>
@@ -6442,7 +6439,7 @@ function BlogIndexSection({
                 >
                   <span className="blog-list-number">{String(index + 2).padStart(2, "0")}</span>
                   <div className="blog-list-copy">
-                    <BlogMetaLine isLocked={isLocked} post={post} />
+                    <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
                     <h3>
                       {isLocked ? (
                         <span>{post.title}</span>
@@ -7110,7 +7107,7 @@ function HomePage({
                     key={post.slug}
                   >
                     <div className="home-writing-row-copy">
-                      <BlogMetaLine isLocked={isLocked} post={post} />
+                      <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
                       <h3>{post.title}</h3>
                       <p>{getBlogCardSummary(post)}</p>
                     </div>
@@ -11372,7 +11369,7 @@ function BlogArticlePage({
               </span>
               <h1>{post.title}</h1>
             </div>
-            <BlogMetaLine isLocked={true} post={post} />
+            <BlogMetaLine status="Locked" post={post} />
             <p>{post.summary}</p>
             <BlogTagList limit={6} post={post} />
             <BlogLockNote />
@@ -11409,7 +11406,7 @@ function BlogArticlePage({
             <div className="standalone-blog-hero">
               <p className="eyebrow">Unlocked Article</p>
               <h1>{post.title}</h1>
-              <BlogMetaLine isLocked={false} post={post} />
+              <BlogMetaLine status="Unlocked" post={post} />
               <p>{post.summary}</p>
               <BlogTagList limit={6} post={post} />
               <div className="blog-action-row">

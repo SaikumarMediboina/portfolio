@@ -28334,47 +28334,41 @@ a.distributed-tier-subtopic {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  line-height: 1.25rem !important; /* Declare a clear line-height for alignment */
   gap: 0.35rem 0.6rem !important;
   margin-bottom: 0.6rem;
 }
 
-.blog-meta span.blog-meta-category {
-  color: var(--accent) !important;
+/* Style the remaining spans (date, read-time, status) with a lighter font-weight (500) and muted/secondary text color */
+.blog-meta span:not(:first-child) {
   font-family: "DM Sans", sans-serif !important;
-  font-size: 0.82rem !important;
-  font-weight: 700 !important;
+  font-size: var(--text-xs) !important;
+  font-weight: 500 !important;
   text-transform: none !important;
   letter-spacing: normal !important;
+  color: var(--ink-soft) !important;
 }
 
-.blog-meta span.blog-meta-dot {
-  color: var(--ink-subtle) !important;
-  font-family: "DM Sans", sans-serif !important;
-  font-size: 0.8rem !important;
-  font-weight: normal !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
-  opacity: 0.7;
+/* Insert a middle-dot separator between them */
+.blog-meta span:not(:first-child)::before {
+  content: "·" !important;
+  margin-right: 0.4em !important;
+  opacity: 0.5 !important;
 }
 
-.blog-meta span.blog-meta-date,
-.blog-meta span.blog-meta-readtime {
-  color: var(--ink-muted) !important;
-  font-family: "DM Sans", sans-serif !important;
-  font-size: 0.76rem !important;
-  font-weight: 400 !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
+/* Hide the Unlocked span by default */
+.blog-meta span.blog-meta-unlocked {
+  display: none !important;
 }
 
+/* Style the lock icon + label variant when locked */
 .blog-meta span.blog-meta-lock {
   display: inline-flex !important;
   align-items: center !important;
   gap: 0.28rem !important;
   color: var(--accent) !important;
   font-family: "DM Sans", sans-serif !important;
-  font-size: 0.76rem !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   text-transform: none !important;
   letter-spacing: normal !important;
 }
@@ -28559,7 +28553,7 @@ a.distributed-tier-subtopic {
 }
 
 .blog-list-number {
-  margin-top: 0.2rem !important;
+  margin-top: 1.25rem !important; /* equal to the .blog-meta line's line-height */
 }
 
 /* 6. Chat support z-index & positioning overlap fix */
