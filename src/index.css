@@ -28457,13 +28457,23 @@ a.distributed-tier-subtopic {
   white-space: nowrap;
 }
 
-/* Force text color to be white, overriding global themed accent color rules */
-:root :is(.blog-featured-link, .blog-list-link),
-:root:not([data-theme="dark"]) :is(.blog-featured-link, .blog-list-link),
-:root[data-theme="dark"] :is(.blog-featured-link, .blog-list-link),
-:root :is(.blog-featured-link, .blog-list-link):hover,
-:root:not([data-theme="dark"]) :is(.blog-featured-link, .blog-list-link):hover,
-:root[data-theme="dark"] :is(.blog-featured-link, .blog-list-link):hover {
+/* Force text color to be white, overriding global themed accent color rules with high specificity */
+:root:not([data-theme="dark"]) .blog-action-row .blog-featured-link,
+:root:not([data-theme="dark"]) .blog-list-actions .blog-list-link,
+:root[data-theme="dark"] .blog-action-row .blog-featured-link,
+:root[data-theme="dark"] .blog-list-actions .blog-list-link,
+:root:not([data-theme="dark"]) .blog-featured-copy .blog-featured-link,
+:root:not([data-theme="dark"]) .blog-list-copy .blog-list-link,
+:root[data-theme="dark"] .blog-featured-copy .blog-featured-link,
+:root[data-theme="dark"] .blog-list-copy .blog-list-link,
+:root:not([data-theme="dark"]) .blog-action-row .blog-featured-link:hover,
+:root:not([data-theme="dark"]) .blog-list-actions .blog-list-link:hover,
+:root[data-theme="dark"] .blog-action-row .blog-featured-link:hover,
+:root[data-theme="dark"] .blog-list-actions .blog-list-link:hover,
+:root:not([data-theme="dark"]) .blog-featured-copy .blog-featured-link:hover,
+:root:not([data-theme="dark"]) .blog-list-copy .blog-list-link:hover,
+:root[data-theme="dark"] .blog-featured-copy .blog-featured-link:hover,
+:root[data-theme="dark"] .blog-list-copy .blog-list-link:hover {
   color: #ffffff !important;
 }
 
