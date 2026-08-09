@@ -28575,3 +28575,125 @@ a.distributed-tier-subtopic {
     padding-bottom: 5.5rem !important;
   }
 }
+
+/* ==========================================================================
+   Simplified Homepage Layout & Teaser Pill Redesign
+   ========================================================================== */
+
+/* 1. Hero layout simplified to single-column with generous whitespace */
+.home-hero {
+  grid-template-columns: 1fr !important;
+  max-width: 100% !important;
+  justify-content: start !important;
+}
+
+.home-hero-copy {
+  max-width: 48rem !important; /* Premium readable text limit */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+/* 2. Hero actions: only two primary buttons, "Read engineering notes" removed */
+.home-hero-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  margin-top: 1.8rem !important;
+}
+
+/* 3. Premium Rotating Teaser Pill Badge */
+.home-hero-teaser-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  padding: 0.35rem 0.85rem !important;
+  margin-bottom: 1.8rem !important;
+  border: 1px solid rgba(240, 100, 59, 0.25) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: var(--ink) !important;
+  font-family: "DM Sans", sans-serif !important;
+  font-size: 0.76rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.home-hero-teaser-pill:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(240, 100, 59, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+.teaser-pill-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 1.25rem !important;
+  padding: 0 0.5rem !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #d94a38, #f06748) !important;
+  color: #ffffff !important;
+  font-family: "IBM Plex Mono", monospace !important;
+  font-size: 0.62rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1 !important;
+}
+
+.teaser-pill-text {
+  color: var(--ink-muted) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 22rem !important;
+}
+
+.teaser-pill-text strong {
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+}
+
+.teaser-pill-arrow {
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+  font-family: "Outfit", sans-serif !important;
+  transition: transform 0.2s ease !important;
+}
+
+.home-hero-teaser-pill:hover .teaser-pill-arrow {
+  transform: translateX(2px) !important;
+}
+
+@media (max-width: 480px) {
+  .teaser-pill-text {
+    max-width: 11rem !important;
+  }
+}
+
+/* 4. AI Radar Showcase Section below the fold */
+.home-radar-section {
+  padding-top: 3.5rem !important;
+  padding-bottom: 3.5rem !important;
+}
+
+.home-radar-showcase {
+  display: flex !important;
+  justify-content: center !important;
+  width: 100% !important;
+  margin-top: 2rem !important;
+}
+
+.home-radar-showcase .home-radar-board {
+  width: 100% !important;
+  max-width: 48rem !important; /* Perfect standard width for the card below the fold */
+}
+
+/* Make sure the rotating board inside the showcase works perfectly */
+.home-radar-showcase .home-radar-briefing-card {
+  margin: 0 auto !important;
+}

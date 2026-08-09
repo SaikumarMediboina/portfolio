@@ -6791,7 +6791,8 @@ function HomePage({
     .filter((post): post is BlogPost => Boolean(post))
     .slice(0, 3);
   const highlightedArticle = featuredBlog;
-  const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
+  const latestUpdate = getRecentSiteUpdates(siteUpdates)
+    .find((update) => !update.href.includes("/blog/") && !update.href.includes("/blogs/"));
   const homeRadarPreviewSignals = (homeRadarSignals.length ? homeRadarSignals : aiRadarSignals).slice(
     0,
     5,
@@ -6865,6 +6866,11 @@ function HomePage({
     <>
       <motion.section className="home-hero shell" id="top" {...sectionAnimationProps}>
         <div className="home-hero-copy">
+          <a className="home-hero-teaser-pill" href="/ai-radar">
+            <span className="teaser-pill-badge">Live AI Radar</span>
+            <span className="teaser-pill-text">Latest: {homeRadarActiveSignal.title}</span>
+            <span className="teaser-pill-arrow">→</span>
+          </a>
           <h1 className="home-hero-greeting">Hey, Sai here.</h1>
           <div className="home-hero-credentials" aria-label="Professional and education credentials">
             <p className="eyebrow home-hero-role">Software Application Engineer @ Oracle</p>
@@ -6883,125 +6889,19 @@ function HomePage({
             <a className="button button-secondary" href="/work-with-me">
               Work with me
             </a>
-            <a className="home-text-link" href="/blogs">
-              Read engineering notes
-            </a>
           </div>
 
           <div className="home-trust-strip" aria-label="Core strengths">
             <a href="/active-builds">Active builds</a>
             <a href="/learn-with-me">Learn with me</a>
+            <a href="/blogs">Engineering notes</a>
           </div>
         </div>
-
-        <aside
-          className="home-radar-board"
-          aria-label="AI Radar live preview"
-          style={getAiRadarVisualStyle(homeRadarActiveSignal)}
-        >
-          <article className="home-radar-briefing-card">
-            <div className="home-radar-briefing-top">
-              <span className="home-radar-live-pill">
-                <span aria-hidden="true" />
-                {homeRadarStatus === "live" ? "Live Radar" : "Curated Radar"}
-              </span>
-              <a href="/ai-radar">Open radar</a>
-            </div>
-
-            <div className="home-radar-briefing-body" aria-live="polite">
-              <div className="home-radar-briefing-art" aria-hidden="true">
-                {homeRadarActiveSignal.imageUrl ? (
-                  <img
-                    src={homeRadarActiveSignal.imageUrl}
-                    alt=""
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <AiRadarSourceMark className="is-large" source={homeRadarActiveSignal.source} />
-                )}
-              </div>
-
-              <div className="home-radar-briefing-copy">
-                <div className="home-radar-briefing-meta">
-                  <span>
-                    {String((homeRadarActiveIndex % homeRadarPreviewSignals.length) + 1).padStart(
-                      2,
-                      "0",
-                    )}
-                    /{String(homeRadarPreviewSignals.length).padStart(2, "0")}
-                  </span>
-                  <AiRadarSourceBadge source={homeRadarActiveSignal.source} />
-                  <span>{homeRadarActiveSignal.category}</span>
-                </div>
-                <h2>{homeRadarActiveSignal.title}</h2>
-                <p>{homeRadarActiveSignal.summary || homeRadarActiveSignal.whyItMatters}</p>
-                <div className="home-radar-briefing-actions">
-                  <AiRadarFreshness
-                    className="home-radar-feed-freshness"
-                    publishedAt={homeRadarActiveSignal.publishedAt}
-                  />
-                  <a
-                    href={homeRadarActiveSignal.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() =>
-                      trackAnalyticsEvent("ai_radar_open", {
-                        category: homeRadarActiveSignal.category,
-                        source: "home_rotating_card",
-                        title: homeRadarActiveSignal.title,
-                      })
-                    }
-                  >
-                    Read signal
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="home-radar-briefing-controls" aria-label="Top AI Radar stories">
-              {homeRadarPreviewSignals.map((signal, index) => (
-                <button
-                  className={
-                    index === homeRadarActiveIndex % homeRadarPreviewSignals.length
-                      ? "is-active"
-                      : ""
-                  }
-                  key={`${signal.source}-${signal.href}`}
-                  type="button"
-                  aria-label={`Show AI Radar story ${index + 1}`}
-                  onClick={() => setHomeRadarActiveIndex(index)}
-                />
-              ))}
-            </div>
-          </article>
-        </aside>
       </motion.section>
-
-      {highlightedArticle ? (
-        <motion.section className="home-section shell home-mcp-banner" {...sectionAnimationProps}>
-          <a
-            className="home-mcp-banner-card"
-            href={getBlogArticleHref(highlightedArticle.slug)}
-            onClick={() => onTrackBlogOpen(highlightedArticle, "home_featured_banner")}
-          >
-            <div className="home-mcp-banner-mark" aria-hidden="true">AI</div>
-            <div className="home-mcp-banner-copy">
-              <p className="eyebrow">Featured article · {highlightedArticle.category}</p>
-              <h2>{highlightedArticle.title}</h2>
-              <p>{highlightedArticle.summary}</p>
-              <div className="home-mcp-banner-tags" aria-label="Article topics">
-                {highlightedArticle.tags.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}
-              </div>
-            </div>
-            <span className="home-mcp-banner-cta">Read article <b aria-hidden="true">→</b></span>
-          </a>
-        </motion.section>
-      ) : null}
 
       <motion.section className="home-section shell home-lanes" id="about" {...sectionAnimationProps}>
         <div className="home-section-heading">
-          <p className="eyebrow">Start Fast</p>
+          <p className="eyebrow">Explore</p>
           <h2>Get value in the first five minutes.</h2>
           <p>
             Pick a lane based on what you need: proof of work, backend notes, AI updates, or a quick
@@ -7026,7 +6926,7 @@ function HomePage({
 
       <motion.section className="home-section shell home-proof" {...sectionAnimationProps}>
         <div className="home-proof-copy">
-          <p className="eyebrow">Current Signal</p>
+          <p className="eyebrow">By the numbers</p>
           <h2>Backend work with measurable outcomes.</h2>
           <p>Performance, search quality, and reliability.</p>
         </div>
@@ -7073,6 +6973,98 @@ function HomePage({
           <h3>{latestUpdate?.title ?? "Fresh updates are coming"}</h3>
           <p>{latestUpdate?.summary ?? "New engineering notes and site updates will appear here."}</p>
           <a href={latestUpdate?.href ?? "/whats-new"}>Open what's new</a>
+        </div>
+      </motion.section>
+
+      <motion.section className="home-section shell home-radar-section" {...sectionAnimationProps}>
+        <div className="home-section-heading">
+          <p className="eyebrow">AI Radar</p>
+          <h2>Live signals worth tracking today.</h2>
+          <p>Real-time insights on AI models, tools, and developer workflows.</p>
+        </div>
+        <div className="home-radar-showcase">
+          <aside
+            className="home-radar-board"
+            aria-label="AI Radar live preview"
+            style={getAiRadarVisualStyle(homeRadarActiveSignal)}
+          >
+            <article className="home-radar-briefing-card">
+              <div className="home-radar-briefing-top">
+                <span className="home-radar-live-pill">
+                  <span aria-hidden="true" />
+                  {homeRadarStatus === "live" ? "Live Radar" : "Curated Radar"}
+                </span>
+                <a href="/ai-radar">Open radar</a>
+              </div>
+
+              <div className="home-radar-briefing-body" aria-live="polite">
+                <div className="home-radar-briefing-art" aria-hidden="true">
+                  {homeRadarActiveSignal.imageUrl ? (
+                    <img
+                      src={homeRadarActiveSignal.imageUrl}
+                      alt=""
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <AiRadarSourceMark className="is-large" source={homeRadarActiveSignal.source} />
+                  )}
+                </div>
+
+                <div className="home-radar-briefing-copy">
+                  <div className="home-radar-briefing-meta">
+                    <span>
+                      {String((homeRadarActiveIndex % homeRadarPreviewSignals.length) + 1).padStart(
+                        2,
+                        "0",
+                      )}
+                      /{String(homeRadarPreviewSignals.length).padStart(2, "0")}
+                    </span>
+                    <AiRadarSourceBadge source={homeRadarActiveSignal.source} />
+                    <span>{homeRadarActiveSignal.category}</span>
+                  </div>
+                  <h2>{homeRadarActiveSignal.title}</h2>
+                  <p>{homeRadarActiveSignal.summary || homeRadarActiveSignal.whyItMatters}</p>
+                  <div className="home-radar-briefing-actions">
+                    <AiRadarFreshness
+                      className="home-radar-feed-freshness"
+                      publishedAt={homeRadarActiveSignal.publishedAt}
+                    />
+                    <a
+                      href={homeRadarActiveSignal.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() =>
+                        trackAnalyticsEvent("ai_radar_open", {
+                          category: homeRadarActiveSignal.category,
+                          source: "home_rotating_card",
+                          title: homeRadarActiveSignal.title,
+                        })
+                      }
+                    >
+                      Read signal
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="home-radar-briefing-controls" aria-label="Top AI Radar stories">
+                {homeRadarPreviewSignals.map((signal, index) => (
+                  <button
+                    className={
+                      index === homeRadarActiveIndex % homeRadarPreviewSignals.length
+                        ? "is-active"
+                        : ""
+                    }
+                    key={`${signal.source}-${signal.href}`}
+                    type="button"
+                    aria-label={`Show AI Radar story ${index + 1}`}
+                    onClick={() => setHomeRadarActiveIndex(index)}
+                  />
+                ))}
+              </div>
+            </article>
+          </aside>
         </div>
       </motion.section>
 
