@@ -9162,7 +9162,6 @@ function RoutingAlgorithmsArticle({
         </nav>
 
         <DistributedMarkdown markdown={markdown} />
-        {showNavigation && <RoutingAlgorithmLessonNavigation currentPath={activePath} />}
       </article>
     </DistributedTierCourseShell>
   );
