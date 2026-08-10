@@ -7474,7 +7474,7 @@ const LOAD_BALANCER_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS
 const LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/weighted-least-connections`;
 const LOAD_BALANCER_IP_HASH_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/ip-hash`;
 const LOAD_BALANCER_CONSISTENT_HASHING_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/consistent-hashing`;
-const LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH = `${LOAD_BALANCING_PATH}/consistent-hashing-deep-dive`;
+const LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/consistent-hashing-deep-dive`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8017,7 +8017,6 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Stable request-to-server mapping with fewer remaps as capacity changes.",
-    href: LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH,
     phase: 2,
     title: "Consistent Hashing — Deep Dive",
   },
@@ -8673,6 +8672,11 @@ const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
     href: LOAD_BALANCER_CONSISTENT_HASHING_PATH,
     title: "Consistent Hashing",
   },
+  {
+    detail: "Go deeper into implementation, replication, virtual nodes, and rendezvous hashing.",
+    href: LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH,
+    title: "Consistent Hashing — Deep Dive",
+  },
 ];
 
 function LoadBalancingSidebarSubtopics({
@@ -9104,6 +9108,7 @@ type RoutingAlgorithmsArticleProps = {
   markdown: string;
   tags: readonly string[];
   title: string;
+  showNavigation?: boolean;
 };
 
 function RoutingAlgorithmsArticle({
@@ -9113,6 +9118,7 @@ function RoutingAlgorithmsArticle({
   markdown,
   tags,
   title,
+  showNavigation = true,
 }: RoutingAlgorithmsArticleProps) {
   const articleHeadings = markdown
     .replace(/\r\n/g, "\n")
@@ -9153,59 +9159,12 @@ function RoutingAlgorithmsArticle({
         </nav>
 
         <DistributedMarkdown markdown={markdown} />
-        <RoutingAlgorithmLessonNavigation currentPath={activePath} />
+        {showNavigation && <RoutingAlgorithmLessonNavigation currentPath={activePath} />}
       </article>
     </DistributedTierCourseShell>
   );
 }
 
-function LoadBalancerConsistentHashingDeepDiveArticle() {
-  const articleHeadings = loadBalancerConsistentHashingDeepDiveMarkdown
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .filter((line) => line.startsWith("## "))
-    .map((line) => line.slice(3));
-
-  return (
-    <DistributedTierCourseShell activePath={LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH} tierIndex={0}>
-      <article className="distributed-scaling-article routing-algorithm-article">
-        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
-          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
-            <a href="/learn-with-me">Learn With Me</a>
-            <span aria-hidden="true">/</span>
-            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
-            <span aria-hidden="true">/</span>
-            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
-            <span aria-hidden="true">/</span>
-            <strong>Consistent Hashing — Deep Dive</strong>
-          </nav>
-          <p className="eyebrow">Checkpoint 04 of 10 · Ring Mechanics · Unlocked</p>
-          <h1>Consistent Hashing Deep Dive — Every Scenario, Explained with Visuals</h1>
-          <p>
-            Go deeper into consistent hashing mechanics: implementation details, binary searches, virtual nodes, weighted tokens, replication, hotspots, and rendezvous hashing.
-          </p>
-          <div className="distributed-article-tags" aria-label="Article topics">
-            <span>Hash Ring</span><span>Virtual Nodes</span><span>Data Replication</span><span>Hotspot Mitigation</span><span>Rendezvous Hashing</span>
-          </div>
-        </header>
-
-        <nav className="distributed-article-toc" aria-label="Article sections">
-          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part deep dive guide</h2></div>
-          <div>
-            {articleHeadings.map((heading) => (
-              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
-                {heading.replace(/\*\*/g, "")}
-              </a>
-            ))}
-          </div>
-        </nav>
-
-        <DistributedMarkdown markdown={loadBalancerConsistentHashingDeepDiveMarkdown} />
-        <RoutingAlgorithmLessonNavigation currentPath={LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH} />
-      </article>
-    </DistributedTierCourseShell>
-  );
-}
 
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
@@ -9224,8 +9183,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerIpHashPage = learnPathname === LOAD_BALANCER_IP_HASH_PATH;
   const isLoadBalancerConsistentHashingPage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_PATH;
   const isLoadBalancerConsistentHashingDeepDivePage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH;
-  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage;
+  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage || isLoadBalancerConsistentHashingDeepDivePage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9474,7 +9433,15 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
             </form>
           </section>
         ) : isLoadBalancerConsistentHashingDeepDivePage ? (
-          <LoadBalancerConsistentHashingDeepDiveArticle />
+          <RoutingAlgorithmsArticle
+            activePath={LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH}
+            description="Go deeper into consistent hashing mechanics: implementation details, binary searches, virtual nodes, weighted tokens, replication, hotspots, and rendezvous hashing."
+            lessonNumber={7}
+            markdown={loadBalancerConsistentHashingDeepDiveMarkdown}
+            tags={["Hash Ring", "Virtual Nodes", "Data Replication", "Hotspot Mitigation", "Rendezvous Hashing"]}
+            title="Consistent Hashing — Deep Dive"
+            showNavigation={false}
+          />
         ) : isLoadBalancerConsistentHashingPage ? (
           <RoutingAlgorithmsArticle
             activePath={LOAD_BALANCER_CONSISTENT_HASHING_PATH}
