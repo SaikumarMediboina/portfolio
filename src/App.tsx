@@ -8243,7 +8243,7 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
       const match = line.match(/^!\[(.*?)\]\((.*?)\)$/);
       if (match) {
         const alt = match[1];
-        const src = match[2].replace(/^\./, "");
+        const src = markdownImageAssets[match[2]] ?? match[2].replace(/^\./, "");
         blocks.push(
           <div className="distributed-article-image-wrap" key={`distributed-img-${blockId++}`}>
             <img src={src} alt={alt} className="distributed-article-img" />
