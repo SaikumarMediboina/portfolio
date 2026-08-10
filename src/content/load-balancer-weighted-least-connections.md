@@ -17,9 +17,9 @@ It combines two ideas you've already seen separately: **Weighted Round Robin's**
 Suppose you have three servers with very different hardware:
 
 ```
-Server A → 4 CPU cores
-Server B → 16 CPU cores
-Server C → 8 CPU cores
+Server A -> 4 CPU cores
+Server B -> 16 CPU cores
+Server C -> 8 CPU cores
 ```
 
 Now check their current active connections:
@@ -36,14 +36,14 @@ Plain Least Connections looks only at the raw numbers and picks **Server A** (20
 
 ```overload
  Small server keeps "looking free" (low connection count)
-                           ↓
+                           |
                    Keeps getting picked
-                           ↓
+                           |
              CPU / Memory maxes out first
-                           ↓
+                           |
         Slow responses & timeouts on small server
-                           ↓
-       While powerful 16-core server sits idle 💤
+                           |
+       While powerful 16-core server sits idle *
 ```
 
 This is the same class of problem Weighted Round Robin solved for turn-based routing — except here it needs solving for connection-based routing.
@@ -52,15 +52,15 @@ This is the same class of problem Weighted Round Robin solved for turn-based rou
 
 ## 3. How It Fits in the Architecture
 
-Same overall flow as before: `Client → Load Balancer → Servers`. The only change is what the LB computes before picking a server.
+Same overall flow as before: `Client --> Servers via Load Balancer`. The only change is what the LB computes before picking a server.
 
 **Step-by-step:**
 
 1. Each server is assigned a **weight**, usually based on capacity (CPU, RAM, benchmarked throughput). Example:
    ```
-   Server A → weight 1  (4 cores)
-   Server B → weight 4  (16 cores)
-   Server C → weight 2  (8 cores)
+   Server A -> weight 1  (4 cores)
+   Server B -> weight 4  (16 cores)
+   Server C -> weight 2  (8 cores)
    ```
 2. LB tracks active connections per server, same as plain Least Connections:
    ```
@@ -71,13 +71,13 @@ Same overall flow as before: `Client → Load Balancer → Servers`. The only ch
 3. For each server, LB computes a **load ratio**:
 
 ```ratios
- ┌────────────────────────────────────────────────────────┐
- │   LB Load Ratio Formula: active_connections / weight   │
- ├────────────────────────────────────────────────────────┤
- │  Server A ──> 20 conns / weight 1  =  20.00            │
- │  Server B ──> 25 conns / weight 4  =   6.25  ★ Target  │
- │  Server C ──> 30 conns / weight 2  =  15.00            │
- └────────────────────────────────────────────────────────┘
+ +--------------------------------------------------------+
+ |   LB Load Ratio Formula: active_connections / weight   |
+ +--------------------------------------------------------+
+ |  Server A --> 20 conns / weight 1  =  20.00            |
+ |  Server B --> 25 conns / weight 4  =   6.25  * Target  |
+ |  Server C --> 30 conns / weight 2  =  15.00            |
+ +--------------------------------------------------------+
 ```
 
 4. LB picks the server with the **lowest ratio** — here, Server B, despite having the highest raw connection count. It genuinely has the most spare capacity relative to its size.
@@ -88,10 +88,10 @@ Same overall flow as before: `Client → Load Balancer → Servers`. The only ch
 
 ```
 Without Weighting (Plain Least Connections):
-A = 20 conns, B = 25 conns, C = 30 conns ──> Picks Server A (weakest!)
+A = 20 conns, B = 25 conns, C = 30 conns --> Picks Server A (weakest!)
 
 With Weighting (Weighted Least Connections):
-A = 20.00, B = 6.25, C = 15.00           ──> Picks Server B (strongest!)
+A = 20.00, B = 6.25, C = 15.00           --> Picks Server B (strongest!)
 ```
 
 ---
@@ -100,32 +100,32 @@ A = 20.00, B = 6.25, C = 15.00           ──> Picks Server B (strongest!)
 
 ```weighted-diagram
                       [ USER REQUEST ]
-                             │
-                             ▼
-               ┌───────────────────────────┐
-               │          CLIENT           │
-               └───────────────────────────┘
-                             │
-                             ▼
-               ┌───────────────────────────┐
-               │       LOAD BALANCER       │
-               │  A ──> 20 conns / wt 1 = 20.00 │
-               │  B ──> 25 conns / wt 4 =  6.25 ★ │ <-- Lowest ratio
-               │  C ──> 30 conns / wt 2 = 15.00 │
-               └───────────────────────────┘
-                  /          │          \
-                 /           │           \
+                             |
+                             v
+               +---------------------------+
+               |          CLIENT           |
+               +---------------------------+
+                             |
+                             v
+               +---------------------------+
+               |       LOAD BALANCER       |
+               |  A --> 20 conns / wt 1 = 20.00 |
+               |  B --> 25 conns / wt 4 =  6.25 * | <-- Lowest ratio
+               |  C --> 30 conns / wt 2 = 15.00 |
+               +---------------------------+
+                  /          |          \
+                 /           |           \
                 v            v            v
-         ┌──────────┐  ┌──────────┐  ┌──────────┐
-         │ Server A │  │ Server B │  │ Server C │
-         │ (4 cores)│  │(16 cores)│  │ (8 cores)│
-         └──────────┘  └──────────┘  └──────────┘
-                             │
-                             │ 200 OK (Response)
-                             ▼
+         +----------+  +----------+  +----------+
+         | Server A |  | Server B |  | Server C |
+         | (4 cores)|  |(16 cores)|  | (8 cores)|
+         +----------+  +----------+  +----------+
+                             |
+                             | 200 OK (Response)
+                             v
                        LOAD BALANCER
-                             │
-                             ▼
+                             |
+                             v
                           CLIENT
 ```
 
@@ -137,20 +137,20 @@ Same shopping app, but now the backend fleet is mixed hardware — common after 
 
 1. **Setup:**
    ```
-   Server A → weight 1 (old, small instance) → 20 active conns
-   Server B → weight 4 (new, large instance) → 25 active conns
-   Server C → weight 2 (mid-size instance)   → 30 active conns
+   Server A -> weight 1 (old, small instance) -> 20 active conns
+   Server B -> weight 4 (new, large instance) -> 25 active conns
+   Server C -> weight 2 (mid-size instance)   -> 30 active conns
    ```
-2. **User opens the app** → `GET /api/home` reaches the LB.
+2. **User opens the app** -> `GET /api/home` reaches the LB.
 3. **LB computes ratios:** A = 20.0, B = 6.25, C = 15.0.
 4. **LB picks Server B** — it's carrying more absolute connections than A or C, but relative to its size it has the most breathing room.
 5. **Server B processes the request**, count goes 25 → 26, response returns via the LB to the client.
 6. **If Server B were to fail health checks mid-request**, the same failover behavior from the Least Connections article applies: LB marks it unhealthy, removes it from the pool, and (for idempotent requests) retries on the next-best ratio among A and C. Non-idempotent requests (like payments) still rely on idempotency keys rather than blind retries.
 
 ```health-failover
- Server A: (weight 1) ──> [ Healthy ] ──> Load Ratio: 20.00
- Server B: (weight 4) ──> [ CRASHED ] ──> REMOVE FROM POOL ✗
- Server C: (weight 2) ──> [ Healthy ] ──> Load Ratio: 15.00 ✓ Selected
+ Server A: (weight 1) --> [ Healthy ] --> Load Ratio: 20.00
+ Server B: (weight 4) --> [ CRASHED ] --> REMOVE FROM POOL *
+ Server C: (weight 2) --> [ Healthy ] --> Load Ratio: 15.00 * Selected
 ```
 
 ---
