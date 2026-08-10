@@ -168,9 +168,9 @@ More virtual nodes means more arcs on the ring for that server, so statistically
 
 This is where Consistent Hashing goes from "load balancing trick" to "the backbone of distributed databases." In systems like DynamoDB and Cassandra, data isn't stored on just one server — it's replicated across multiple servers for fault tolerance. Consistent Hashing decides *which* servers.
 
-**Rule: for a replication factor of N, walk clockwise from the key's position and pick the first N *distinct physical servers* you encounter.**
+**Rule:** For a replication factor of N, walk clockwise from the key's position and pick the first N **distinct physical servers** you encounter.
 
-![Ring diagram showing Key K at position 25 with four servers A, B, C, D on the ring. With replication factor 3, Key K is stored on Server B (primary, position 40), Server C (secondary, position 65), and Server D (tertiary, position 90) — the first three distinct servers found walking clockwise.](./assets/ring-replication.png)
+![Ring diagram showing Key K at position 25 with four servers A, B, C, D on the ring. With replication factor 3, Key K is stored on Server B (primary, position 40), Server C (secondary, position 65), and Server D (tertiary, position 90) — the first three distinct servers found walking clockwise.](./assets/ring-replication.svg)
 
 ```
 Servers on ring: A (15), B (40), C (65), D (90)

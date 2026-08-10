@@ -30,7 +30,7 @@ import consistentHashingRingSvg from "./assets/consistent-hashing-ring.svg";
 import ringServerAddedSvg from "./assets/ring-server-added.svg";
 import ringServerDownSvg from "./assets/ring-server-down.svg";
 import ringVirtualNodesSvg from "./assets/ring-virtual-nodes.svg";
-import ringReplicationPng from "./assets/ring-replication.png";
+import ringReplicationSvg from "./assets/ring-replication.svg";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7452,12 +7452,14 @@ const markdownImageAssets: Record<string, string> = {
   "./assets/ring-server-added.svg": ringServerAddedSvg,
   "./assets/ring-server-down.svg": ringServerDownSvg,
   "./assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
-  "./assets/ring-replication.png": ringReplicationPng,
+  "./assets/ring-replication.svg": ringReplicationSvg,
+  "./assets/ring-replication.png": ringReplicationSvg,
   "/assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
   "/assets/ring-server-added.svg": ringServerAddedSvg,
   "/assets/ring-server-down.svg": ringServerDownSvg,
   "/assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
-  "/assets/ring-replication.png": ringReplicationPng,
+  "/assets/ring-replication.svg": ringReplicationSvg,
+  "/assets/ring-replication.png": ringReplicationSvg,
 };
 
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
