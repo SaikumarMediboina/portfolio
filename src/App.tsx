@@ -25,10 +25,12 @@ import loadBalancerLeastConnectionsMarkdown from "./content/load-balancer-least-
 import loadBalancerWeightedLeastConnectionsMarkdown from "./content/load-balancer-weighted-least-connections.md?raw";
 import loadBalancerIpHashMarkdown from "./content/load-balancer-ip-hash.md?raw";
 import loadBalancerConsistentHashingMarkdown from "./content/load-balancer-consistent-hashing.md?raw";
+import loadBalancerConsistentHashingDeepDiveMarkdown from "./content/load-balancer-consistent-hashing-deep-dive.md?raw";
 import consistentHashingRingSvg from "./assets/consistent-hashing-ring.svg";
 import ringServerAddedSvg from "./assets/ring-server-added.svg";
 import ringServerDownSvg from "./assets/ring-server-down.svg";
 import ringVirtualNodesSvg from "./assets/ring-virtual-nodes.svg";
+import ringReplicationPng from "./assets/ring-replication.png";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7450,10 +7452,12 @@ const markdownImageAssets: Record<string, string> = {
   "./assets/ring-server-added.svg": ringServerAddedSvg,
   "./assets/ring-server-down.svg": ringServerDownSvg,
   "./assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
+  "./assets/ring-replication.png": ringReplicationPng,
   "/assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
   "/assets/ring-server-added.svg": ringServerAddedSvg,
   "/assets/ring-server-down.svg": ringServerDownSvg,
   "/assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
+  "/assets/ring-replication.png": ringReplicationPng,
 };
 
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
@@ -7468,6 +7472,7 @@ const LOAD_BALANCER_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS
 const LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/weighted-least-connections`;
 const LOAD_BALANCER_IP_HASH_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/ip-hash`;
 const LOAD_BALANCER_CONSISTENT_HASHING_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/consistent-hashing`;
+const LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH = `${LOAD_BALANCING_PATH}/consistent-hashing-deep-dive`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8010,6 +8015,7 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Stable request-to-server mapping with fewer remaps as capacity changes.",
+    href: LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH,
     phase: 2,
     title: "Consistent Hashing — Deep Dive",
   },
@@ -9012,16 +9018,33 @@ function DistributedTierCourseShell({
 }
 
 function RoutingAlgorithmLessonNavigation({ currentPath }: { currentPath: string }) {
+  const isDeepDive = currentPath === LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH;
   const currentIndex = routingAlgorithmLessons.findIndex((lesson) => lesson.href === currentPath);
-  const previousLesson: RoutingAlgorithmLesson | null = currentIndex > 0
+
+  const previousLesson: RoutingAlgorithmLesson | null = isDeepDive
+    ? {
+        detail: "Place clients and servers on a ring to limit reshuffling when pool scales.",
+        href: LOAD_BALANCER_CONSISTENT_HASHING_PATH,
+        title: "Consistent Hashing",
+      }
+    : currentIndex > 0
     ? routingAlgorithmLessons[currentIndex - 1]
     : {
         detail: "Understand where Layer 4 and Layer 7 routing decisions happen.",
         href: LOAD_BALANCER_TYPES_PATH,
         title: "Load Balancer Types: L4 vs L7",
       };
-  const nextLesson = currentIndex >= 0 && currentIndex < routingAlgorithmLessons.length - 1
+
+  const nextLesson = isDeepDive
+    ? null
+    : currentIndex >= 0 && currentIndex < routingAlgorithmLessons.length - 1
     ? routingAlgorithmLessons[currentIndex + 1]
+    : currentIndex === routingAlgorithmLessons.length - 1
+    ? {
+        detail: "Stable request-to-server mapping with fewer remaps as capacity changes.",
+        href: LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH,
+        title: "Consistent Hashing — Deep Dive",
+      }
     : null;
 
   const renderLessonLink = (
@@ -9128,6 +9151,55 @@ function RoutingAlgorithmsArticle({
         </nav>
 
         <DistributedMarkdown markdown={markdown} />
+        <RoutingAlgorithmLessonNavigation currentPath={activePath} />
+      </article>
+    </DistributedTierCourseShell>
+  );
+}
+
+function LoadBalancerConsistentHashingDeepDiveArticle() {
+  const articleHeadings = loadBalancerConsistentHashingDeepDiveMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <DistributedTierCourseShell activePath={LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH} tierIndex={0}>
+      <article className="distributed-scaling-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+            <span aria-hidden="true">/</span>
+            <strong>Consistent Hashing — Deep Dive</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 04 of 10 · Ring Mechanics · Unlocked</p>
+          <h1>Consistent Hashing Deep Dive — Every Scenario, Explained with Visuals</h1>
+          <p>
+            Go deeper into consistent hashing mechanics: implementation details, binary searches, virtual nodes, weighted tokens, replication, hotspots, and rendezvous hashing.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Hash Ring</span><span>Virtual Nodes</span><span>Data Replication</span><span>Hotspot Mitigation</span><span>Rendezvous Hashing</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part deep dive guide</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={loadBalancerConsistentHashingDeepDiveMarkdown} />
+        <RoutingAlgorithmLessonNavigation currentPath={LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH} />
       </article>
     </DistributedTierCourseShell>
   );
@@ -9149,8 +9221,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerWeightedLeastConnectionsPage = learnPathname === LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH;
   const isLoadBalancerIpHashPage = learnPathname === LOAD_BALANCER_IP_HASH_PATH;
   const isLoadBalancerConsistentHashingPage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_PATH;
+  const isLoadBalancerConsistentHashingDeepDivePage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9160,7 +9233,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage]);
 
-  const learnBackHref = isLoadBalancerConsistentHashingPage
+  const learnBackHref = isLoadBalancerConsistentHashingDeepDivePage
+    ? LOAD_BALANCER_CONSISTENT_HASHING_PATH
+    : isLoadBalancerConsistentHashingPage
     ? LOAD_BALANCER_IP_HASH_PATH
     : isLoadBalancerIpHashPage
     ? LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH
@@ -9396,6 +9471,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerConsistentHashingDeepDivePage ? (
+          <LoadBalancerConsistentHashingDeepDiveArticle />
         ) : isLoadBalancerConsistentHashingPage ? (
           <RoutingAlgorithmsArticle
             activePath={LOAD_BALANCER_CONSISTENT_HASHING_PATH}
