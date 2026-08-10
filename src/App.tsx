@@ -25,6 +25,10 @@ import loadBalancerLeastConnectionsMarkdown from "./content/load-balancer-least-
 import loadBalancerWeightedLeastConnectionsMarkdown from "./content/load-balancer-weighted-least-connections.md?raw";
 import loadBalancerIpHashMarkdown from "./content/load-balancer-ip-hash.md?raw";
 import loadBalancerConsistentHashingMarkdown from "./content/load-balancer-consistent-hashing.md?raw";
+import consistentHashingRingSvg from "./assets/consistent-hashing-ring.svg";
+import ringServerAddedSvg from "./assets/ring-server-added.svg";
+import ringServerDownSvg from "./assets/ring-server-down.svg";
+import ringVirtualNodesSvg from "./assets/ring-virtual-nodes.svg";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7441,6 +7445,17 @@ function getStoredLearnAccess() {
   }
 }
 
+const markdownImageAssets: Record<string, string> = {
+  "./assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
+  "./assets/ring-server-added.svg": ringServerAddedSvg,
+  "./assets/ring-server-down.svg": ringServerDownSvg,
+  "./assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
+  "/assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
+  "/assets/ring-server-added.svg": ringServerAddedSvg,
+  "/assets/ring-server-down.svg": ringServerDownSvg,
+  "/assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
+};
+
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
 const VERTICAL_HORIZONTAL_SCALING_PATH =
   `${DISTRIBUTED_CONCEPTS_PATH}/vertical-vs-horizontal-scaling`;
@@ -7452,7 +7467,7 @@ const LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH = `${LOAD_BALANCER_ROUTING_ALGORIT
 const LOAD_BALANCER_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/least-connections`;
 const LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/weighted-least-connections`;
 const LOAD_BALANCER_IP_HASH_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/ip-hash`;
-const LOAD_BALANCER_CONSISTENT_HASHING_PATH = `${LOAD_BALANCING_PATH}/consistent-hashing`;
+const LOAD_BALANCER_CONSISTENT_HASHING_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/consistent-hashing`;
 
 type DistributedTopic = {
   detail?: string;
@@ -7995,7 +8010,6 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Stable request-to-server mapping with fewer remaps as capacity changes.",
-    href: LOAD_BALANCER_CONSISTENT_HASHING_PATH,
     phase: 2,
     title: "Consistent Hashing — Deep Dive",
   },
@@ -8614,55 +8628,6 @@ function LoadBalancerTypesArticle() {
     </DistributedTierCourseShell>
   );
 }
-
-function LoadBalancerConsistentHashingArticle() {
-  const articleHeadings = loadBalancerConsistentHashingMarkdown
-    .replace(/\r\n/g, "\n")
-    .split("\n")
-    .filter((line) => line.startsWith("## "))
-    .map((line) => line.slice(3));
-
-  return (
-    <DistributedTierCourseShell activePath={LOAD_BALANCER_CONSISTENT_HASHING_PATH} tierIndex={0}>
-      <article className="distributed-scaling-article load-balancer-consistent-hashing-article routing-algorithm-article">
-        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
-          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
-            <a href="/learn-with-me">Learn With Me</a>
-            <span aria-hidden="true">/</span>
-            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
-            <span aria-hidden="true">/</span>
-            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
-            <span aria-hidden="true">/</span>
-            <strong>Consistent Hashing</strong>
-          </nav>
-          <p className="eyebrow">Checkpoint 04 of 10 · Deep Dive · Unlocked</p>
-          <h1>Consistent Hashing</h1>
-          <p>
-            Learn how consistent hashing rings and virtual nodes achieve stable request-to-server mapping, 
-            limiting reshuffling blast radius to a fraction of users when nodes scale.
-          </p>
-          <div className="distributed-article-tags" aria-label="Article topics">
-            <span>Hash ring</span><span>Virtual nodes</span><span>Modulo hashing</span><span>Stable mapping</span><span>Cache locality</span>
-          </div>
-        </header>
-
-        <nav className="distributed-article-toc" aria-label="Article sections">
-          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part deep dive</h2></div>
-          <div>
-            {articleHeadings.map((heading) => (
-              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
-                {heading.replace(/\*\*/g, "")}
-              </a>
-            ))}
-          </div>
-        </nav>
-
-        <DistributedMarkdown markdown={loadBalancerConsistentHashingMarkdown} />
-      </article>
-    </DistributedTierCourseShell>
-  );
-}
-
 type RoutingAlgorithmLesson = {
   detail: string;
   href?: string;
@@ -8694,6 +8659,11 @@ const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
     detail: "Use a client identifier to keep routing stable across requests.",
     href: LOAD_BALANCER_IP_HASH_PATH,
     title: "IP Hash",
+  },
+  {
+    detail: "Place clients and servers on a ring to limit reshuffling when pool scales.",
+    href: LOAD_BALANCER_CONSISTENT_HASHING_PATH,
+    title: "Consistent Hashing",
   },
 ];
 
@@ -9179,8 +9149,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerWeightedLeastConnectionsPage = learnPathname === LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH;
   const isLoadBalancerIpHashPage = learnPathname === LOAD_BALANCER_IP_HASH_PATH;
   const isLoadBalancerConsistentHashingPage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_PATH;
-  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingPage;
+  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9426,6 +9396,15 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerConsistentHashingPage ? (
+          <RoutingAlgorithmsArticle
+            activePath={LOAD_BALANCER_CONSISTENT_HASHING_PATH}
+            description="Examine Consistent Hashing: how placing clients and servers on a hash ring minimizes the blast radius of server scaling events, and how virtual nodes prevent hot spots."
+            lessonNumber={6}
+            markdown={loadBalancerConsistentHashingMarkdown}
+            tags={["Hash ring", "Virtual nodes", "Modulo hashing", "Stable mapping", "Cache stability"]}
+            title="Consistent Hashing"
+          />
         ) : isLoadBalancerIpHashPage ? (
           <RoutingAlgorithmsArticle
             activePath={LOAD_BALANCER_IP_HASH_PATH}
@@ -9471,8 +9450,6 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
             tags={["Server rotation", "Health checks", "Uneven workloads", "Weighted routing"]}
             title="Round Robin Load Balancing"
           />
-        ) : isLoadBalancerConsistentHashingPage ? (
-          <LoadBalancerConsistentHashingArticle />
         ) : isLoadBalancerTypesPage ? (
           <LoadBalancerTypesArticle />
         ) : isLoadBalancerBasicsPage ? (

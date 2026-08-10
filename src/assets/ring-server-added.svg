@@ -1,0 +1,63 @@
+<svg width="680" height="640" viewBox="0 0 680 640" xmlns="http://www.w3.org/2000/svg">
+<rect width="680" height="640" fill="#1a1a1a"/>
+<defs>
+<marker id="arrow-p" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<marker id="arrow-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#EF9F27" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<circle cx="340" cy="260" r="190" fill="none" stroke="#888780" stroke-width="1.5" opacity="0.5"/>
+<circle cx="340" cy="70" r="3" fill="#c2c0b6"/>
+<text x="340" y="52" text-anchor="middle" font-family="monospace" font-size="14" fill="#c2c0b6">0 / 100</text>
+
+<path d="M 505 180 A 190 190 0 0 1 340 70" fill="none" stroke="#7F77DD" stroke-width="3" marker-end="url(#arrow-p)"/>
+<text x="470" y="130" font-family="monospace" font-size="13" fill="#AFA9EC">clockwise</text>
+
+<!-- Server A: position 15 -->
+<circle cx="494" cy="148" r="9" fill="#1D9E75" stroke="#9FE1CB" stroke-width="1"/>
+<line x1="494" y1="148" x2="560" y2="100" stroke="#5f5e5a" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text x="566" y="96" font-family="monospace" font-size="14" font-weight="bold" fill="#c2c0b6">Server A</text>
+<text x="566" y="112" font-family="monospace" font-size="12" fill="#888780">position 15</text>
+
+<!-- NEW Server D: position 45 -->
+<circle cx="399" cy="441" r="10" fill="none" stroke="#FAC775" stroke-width="2.5"/>
+<circle cx="399" cy="441" r="4" fill="#EF9F27"/>
+<line x1="399" y1="441" x2="440" y2="510" stroke="#5f5e5a" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text x="440" y="530" text-anchor="middle" font-family="monospace" font-size="14" font-weight="bold" fill="#F2A623">Server D (new)</text>
+<text x="440" y="546" text-anchor="middle" font-family="monospace" font-size="12" fill="#BA7517">position 45</text>
+
+<!-- Server B: position 55 -->
+<circle cx="281" cy="441" r="9" fill="#1D9E75" stroke="#9FE1CB" stroke-width="1"/>
+<line x1="281" y1="441" x2="230" y2="500" stroke="#5f5e5a" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text x="150" y="520" text-anchor="middle" font-family="monospace" font-size="14" font-weight="bold" fill="#c2c0b6">Server B</text>
+<text x="150" y="536" text-anchor="middle" font-family="monospace" font-size="12" fill="#888780">position 55</text>
+
+<!-- Server C: position 80 -->
+<circle cx="159" cy="201" r="9" fill="#1D9E75" stroke="#9FE1CB" stroke-width="1"/>
+<line x1="159" y1="201" x2="90" y2="160" stroke="#5f5e5a" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text x="90" y="140" text-anchor="middle" font-family="monospace" font-size="14" font-weight="bold" fill="#c2c0b6">Server C</text>
+<text x="90" y="156" text-anchor="middle" font-family="monospace" font-size="12" fill="#888780">position 80</text>
+
+<!-- Client X: position 40 -->
+<circle cx="452" cy="414" r="9" fill="#BA7517" stroke="#FAC775" stroke-width="1"/>
+<line x1="452" y1="414" x2="540" y2="450" stroke="#5f5e5a" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text x="546" y="446" font-family="monospace" font-size="14" font-weight="bold" fill="#c2c0b6">Client X</text>
+<text x="546" y="462" font-family="monospace" font-size="12" fill="#888780">position 40</text>
+
+<!-- OLD path (faded): client used to reach Server B -->
+<path d="M 452 414 A 190 190 0 0 1 281 441" fill="none" stroke="#5f5e5a" stroke-width="1.5" stroke-dasharray="2 6" opacity="0.5"/>
+<text x="330" y="480" font-family="monospace" font-size="11" fill="#5f5e5a">old path (before D)</text>
+
+<!-- NEW path: client now reaches Server D first -->
+<path d="M 452 414 A 190 190 0 0 1 399 441" fill="none" stroke="#EF9F27" stroke-width="2.5" marker-end="url(#arrow-a)"/>
+
+<!-- highlight the reshuffled arc -->
+<path d="M 452 414 A 190 190 0 0 1 399 441" fill="none" stroke="#FAC775" stroke-width="8" opacity="0.15"/>
+
+<rect x="60" y="560" width="560" height="60" rx="8" fill="#2C2C2A" stroke="#5f5e5a" stroke-width="0.5"/>
+<text x="340" y="583" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#F2A623">Only clients between position 16 and 45 move to Server D.</text>
+<text x="340" y="602" text-anchor="middle" font-family="monospace" font-size="13" fill="#c2c0b6">Everyone else (46-99, 0-15) is completely unaffected.</text>
+</svg>
