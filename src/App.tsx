@@ -23,6 +23,7 @@ import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
 import loadBalancerWeightedRoundRobinMarkdown from "./content/load-balancer-weighted-round-robin.md?raw";
 import loadBalancerLeastConnectionsMarkdown from "./content/load-balancer-least-connections.md?raw";
 import loadBalancerWeightedLeastConnectionsMarkdown from "./content/load-balancer-weighted-least-connections.md?raw";
+import loadBalancerIpHashMarkdown from "./content/load-balancer-ip-hash.md?raw";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7449,6 +7450,7 @@ const LOAD_BALANCER_ROUTING_ALGORITHMS_PATH = `${LOAD_BALANCING_PATH}/routing-al
 const LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/weighted-round-robin`;
 const LOAD_BALANCER_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/least-connections`;
 const LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/weighted-least-connections`;
+const LOAD_BALANCER_IP_HASH_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/ip-hash`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8266,6 +8268,18 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
               ? "Weighted Selection Flow"
             : language === "health-failover"
               ? "Failover Health Checks"
+            : language === "state-split"
+              ? "Session Disruption"
+            : language === "cache-miss"
+              ? "Cache Invalidation"
+            : language === "hash-calc"
+              ? "IP Hashing Calculation"
+            : language === "hash-flow"
+              ? "Hash-based Routing Flow"
+            : language === "cdn-flow"
+              ? "CDN Segment Streaming"
+            : language === "reshuffle"
+              ? "Divisor Shift Reshuffling"
               : "System diagram";
       blocks.push(
         <DistributedCodeBlock
@@ -8606,6 +8620,7 @@ const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
   },
   {
     detail: "Use a client identifier to keep routing stable across requests.",
+    href: LOAD_BALANCER_IP_HASH_PATH,
     title: "IP Hash",
   },
 ];
@@ -9090,7 +9105,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerWeightedRoundRobinPage = learnPathname === LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH;
   const isLoadBalancerLeastConnectionsPage = learnPathname === LOAD_BALANCER_LEAST_CONNECTIONS_PATH;
   const isLoadBalancerWeightedLeastConnectionsPage = learnPathname === LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH;
-  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage;
+  const isLoadBalancerIpHashPage = learnPathname === LOAD_BALANCER_IP_HASH_PATH;
+  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage;
   const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
@@ -9101,7 +9117,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage]);
 
-  const learnBackHref = isLoadBalancerWeightedLeastConnectionsPage
+  const learnBackHref = isLoadBalancerIpHashPage
+    ? LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH
+    : isLoadBalancerWeightedLeastConnectionsPage
     ? LOAD_BALANCER_LEAST_CONNECTIONS_PATH
     : isLoadBalancerLeastConnectionsPage
     ? LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH
@@ -9333,6 +9351,15 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerIpHashPage ? (
+          <RoutingAlgorithmsArticle
+            activePath={LOAD_BALANCER_IP_HASH_PATH}
+            description="Examine IP Hash load balancing: how mapping client identities to servers ensures session stickiness and cache locality, and why basic modulo hashing fails when server pools scale."
+            lessonNumber={5}
+            markdown={loadBalancerIpHashMarkdown}
+            tags={["Session stickiness", "Cache locality", "Modulo hashing", "Limitations", "Reshuffling"]}
+            title="IP Hash"
+          />
         ) : isLoadBalancerWeightedLeastConnectionsPage ? (
           <RoutingAlgorithmsArticle
             activePath={LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH}
