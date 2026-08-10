@@ -15,7 +15,7 @@
 <text x="340" y="52" text-anchor="middle" font-family="monospace" font-size="14" fill="#c2c0b6">0 / 100</text>
 
 <path d="M 340 70 A 190 190 0 0 1 505 180" fill="none" stroke="#7F77DD" stroke-width="3" marker-end="url(#arrow)"/>
-<text x="470" y="130" font-family="monospace" font-size="13" fill="#AFA9EC">clockwise</text>
+
 
 <!-- Server A: position 15 -> angle 54deg -->
 <circle cx="494" cy="148" r="9" fill="#1D9E75" stroke="#9FE1CB" stroke-width="1"/>
