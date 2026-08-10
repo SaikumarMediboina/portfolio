@@ -21,6 +21,7 @@ import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
 import loadBalancerWeightedRoundRobinMarkdown from "./content/load-balancer-weighted-round-robin.md?raw";
+import loadBalancerLeastConnectionsMarkdown from "./content/load-balancer-least-connections.md?raw";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7445,6 +7446,7 @@ const LOAD_BALANCER_BASICS_PATH = `${LOAD_BALANCING_PATH}/basics`;
 const LOAD_BALANCER_TYPES_PATH = `${LOAD_BALANCING_PATH}/types`;
 const LOAD_BALANCER_ROUTING_ALGORITHMS_PATH = `${LOAD_BALANCING_PATH}/routing-algorithms`;
 const LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/weighted-round-robin`;
+const LOAD_BALANCER_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/least-connections`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8240,9 +8242,21 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
             ? "JSON response"
             : language === "packet"
               ? "Packet encapsulation"
-              : language === "flow"
-                ? "L4 → L7 request flow"
-                : "System diagram";
+            : language === "flow"
+              ? "L4 → L7 request flow"
+            : language === "cascade"
+              ? "Failure Cascade"
+            : language === "topology"
+              ? "Request Routing"
+            : language === "connections"
+              ? "Connection Tracker"
+            : language === "decision"
+              ? "Routing Decision"
+            : language === "routing-flow"
+              ? "Routing Flow"
+            : language === "health"
+              ? "Health Status"
+              : "System diagram";
       blocks.push(
         <DistributedCodeBlock
           code={code.join("\n")}
@@ -8572,6 +8586,7 @@ const routingAlgorithmLessons: ReadonlyArray<RoutingAlgorithmLesson> = [
   },
   {
     detail: "Choose the server with the fewest active connections.",
+    href: LOAD_BALANCER_LEAST_CONNECTIONS_PATH,
     title: "Least Connections",
   },
   {
@@ -9058,7 +9073,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerTypesPage = learnPathname === LOAD_BALANCER_TYPES_PATH;
   const isLoadBalancerRoutingAlgorithmsPage = learnPathname === LOAD_BALANCER_ROUTING_ALGORITHMS_PATH;
   const isLoadBalancerWeightedRoundRobinPage = learnPathname === LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH;
-  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage;
+  const isLoadBalancerLeastConnectionsPage = learnPathname === LOAD_BALANCER_LEAST_CONNECTIONS_PATH;
+  const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage;
   const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
@@ -9069,7 +9085,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage]);
 
-  const learnBackHref = isLoadBalancerWeightedRoundRobinPage
+  const learnBackHref = isLoadBalancerLeastConnectionsPage
+    ? LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH
+    : isLoadBalancerWeightedRoundRobinPage
     ? LOAD_BALANCER_ROUTING_ALGORITHMS_PATH
     : isLoadBalancerRoutingAlgorithmsPage
     ? LOAD_BALANCER_TYPES_PATH
@@ -9297,6 +9315,15 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerLeastConnectionsPage ? (
+          <RoutingAlgorithmsArticle
+            activePath={LOAD_BALANCER_LEAST_CONNECTIONS_PATH}
+            description="Explore the Least Connections algorithm: how tracking active connections prevents overload on uneven tasks, how it compares to Round Robin, and its key architectural limits."
+            lessonNumber={3}
+            markdown={loadBalancerLeastConnectionsMarkdown}
+            tags={["Active connections", "Server selection", "Uneven workloads", "Failover", "Limitations"]}
+            title="Least Connections"
+          />
         ) : isLoadBalancerWeightedRoundRobinPage ? (
           <RoutingAlgorithmsArticle
             activePath={LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH}
