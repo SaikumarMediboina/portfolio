@@ -27137,6 +27137,38 @@ a.load-balancer-lesson-link:focus-visible {
   text-wrap: pretty;
 }
 
+.distributed-article-image-wrap {
+  margin: 1.8rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  background: var(--panel-soft);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 1.8rem;
+  overflow: hidden;
+}
+
+.distributed-article-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+.distributed-image-caption {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-style: italic;
+  text-align: center;
+  max-width: 90%;
+  opacity: 0.8;
+}
+
 .distributed-article-paragraph strong,
 .distributed-article-quote strong,
 .distributed-article-list strong,

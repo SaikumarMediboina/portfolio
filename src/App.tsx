@@ -24,6 +24,7 @@ import loadBalancerWeightedRoundRobinMarkdown from "./content/load-balancer-weig
 import loadBalancerLeastConnectionsMarkdown from "./content/load-balancer-least-connections.md?raw";
 import loadBalancerWeightedLeastConnectionsMarkdown from "./content/load-balancer-weighted-least-connections.md?raw";
 import loadBalancerIpHashMarkdown from "./content/load-balancer-ip-hash.md?raw";
+import loadBalancerConsistentHashingMarkdown from "./content/load-balancer-consistent-hashing.md?raw";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7451,6 +7452,7 @@ const LOAD_BALANCER_WEIGHTED_ROUND_ROBIN_PATH = `${LOAD_BALANCER_ROUTING_ALGORIT
 const LOAD_BALANCER_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/least-connections`;
 const LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/weighted-least-connections`;
 const LOAD_BALANCER_IP_HASH_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/ip-hash`;
+const LOAD_BALANCER_CONSISTENT_HASHING_PATH = `${LOAD_BALANCING_PATH}/consistent-hashing`;
 
 type DistributedTopic = {
   detail?: string;
@@ -7993,6 +7995,7 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Stable request-to-server mapping with fewer remaps as capacity changes.",
+    href: LOAD_BALANCER_CONSISTENT_HASHING_PATH,
     phase: 2,
     title: "Consistent Hashing — Deep Dive",
   },
@@ -8211,6 +8214,7 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
     value.startsWith("| ") ||
     value.startsWith("- ") ||
     value.startsWith("* ") ||
+    value.startsWith("![") ||
     /^\d+\.\s+/.test(value);
 
   while (cursor < lines.length) {
@@ -8219,6 +8223,22 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
     if (!line || line === "---") {
       cursor += 1;
       continue;
+    }
+
+    if (line.startsWith("![") && line.endsWith(")")) {
+      const match = line.match(/^!\[(.*?)\]\((.*?)\)$/);
+      if (match) {
+        const alt = match[1];
+        const src = match[2].replace(/^\./, "");
+        blocks.push(
+          <div className="distributed-article-image-wrap" key={`distributed-img-${blockId++}`}>
+            <img src={src} alt={alt} className="distributed-article-img" />
+            <p className="distributed-image-caption">{alt}</p>
+          </div>,
+        );
+        cursor += 1;
+        continue;
+      }
     }
 
     if (line.startsWith("```")) {
@@ -8280,6 +8300,10 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
               ? "CDN Segment Streaming"
             : language === "reshuffle"
               ? "Divisor Shift Reshuffling"
+            : language === "distribution"
+              ? "Load Distribution"
+            : language === "vnodes"
+              ? "Virtual Nodes Mapping"
               : "System diagram";
       blocks.push(
         <DistributedCodeBlock
@@ -8587,6 +8611,54 @@ function LoadBalancerTypesArticle() {
 
       <DistributedMarkdown markdown={loadBalancerTypesMarkdown} />
     </article>
+    </DistributedTierCourseShell>
+  );
+}
+
+function LoadBalancerConsistentHashingArticle() {
+  const articleHeadings = loadBalancerConsistentHashingMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <DistributedTierCourseShell activePath={LOAD_BALANCER_CONSISTENT_HASHING_PATH} tierIndex={0}>
+      <article className="distributed-scaling-article load-balancer-consistent-hashing-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+            <span aria-hidden="true">/</span>
+            <strong>Consistent Hashing</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 04 of 10 · Deep Dive · Unlocked</p>
+          <h1>Consistent Hashing</h1>
+          <p>
+            Learn how consistent hashing rings and virtual nodes achieve stable request-to-server mapping, 
+            limiting reshuffling blast radius to a fraction of users when nodes scale.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Hash ring</span><span>Virtual nodes</span><span>Modulo hashing</span><span>Stable mapping</span><span>Cache locality</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part deep dive</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={loadBalancerConsistentHashingMarkdown} />
+      </article>
     </DistributedTierCourseShell>
   );
 }
@@ -9106,8 +9178,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerLeastConnectionsPage = learnPathname === LOAD_BALANCER_LEAST_CONNECTIONS_PATH;
   const isLoadBalancerWeightedLeastConnectionsPage = learnPathname === LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH;
   const isLoadBalancerIpHashPage = learnPathname === LOAD_BALANCER_IP_HASH_PATH;
+  const isLoadBalancerConsistentHashingPage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingPage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9117,7 +9190,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage]);
 
-  const learnBackHref = isLoadBalancerIpHashPage
+  const learnBackHref = isLoadBalancerConsistentHashingPage
+    ? LOAD_BALANCER_IP_HASH_PATH
+    : isLoadBalancerIpHashPage
     ? LOAD_BALANCER_WEIGHTED_LEAST_CONNECTIONS_PATH
     : isLoadBalancerWeightedLeastConnectionsPage
     ? LOAD_BALANCER_LEAST_CONNECTIONS_PATH
@@ -9396,6 +9471,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
             tags={["Server rotation", "Health checks", "Uneven workloads", "Weighted routing"]}
             title="Round Robin Load Balancing"
           />
+        ) : isLoadBalancerConsistentHashingPage ? (
+          <LoadBalancerConsistentHashingArticle />
         ) : isLoadBalancerTypesPage ? (
           <LoadBalancerTypesArticle />
         ) : isLoadBalancerBasicsPage ? (
