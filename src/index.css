@@ -26140,8 +26140,8 @@ a.load-balancer-lesson-link:focus-visible {
 
 .distributed-tier-algorithm {
   display: grid;
-  grid-template-columns: 1.65rem minmax(0, 1fr) auto;
-  gap: .45rem;
+  grid-template-columns: 1.1rem minmax(0, 1fr) auto;
+  gap: .35rem;
   align-items: center;
   min-width: 0;
   padding: .42rem .45rem;
@@ -26152,15 +26152,13 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .distributed-tier-algorithm > span:first-child {
-  display: grid;
-  place-items: center;
-  width: 1.65rem;
-  height: 1.65rem;
-  border: 1px solid color-mix(in srgb, var(--course-sidebar-muted) 28%, transparent);
-  border-radius: 7px;
-  background: var(--course-sidebar-tile);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 1.1rem;
+  height: 1.1rem;
   color: var(--course-sidebar-muted);
-  font: 900 .47rem/1 "IBM Plex Mono", monospace;
+  font: 800 .58rem/1 "IBM Plex Mono", monospace;
 }
 
 .distributed-tier-algorithm > span:nth-child(2) {
@@ -26188,8 +26186,9 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .distributed-tier-algorithm.is-active > span:first-child {
-  background: #ff7858;
-  color: #fff;
+  background: transparent;
+  color: #ff7858;
+  font-weight: 900;
 }
 
 .routing-course-shell > .distributed-tier-article {
