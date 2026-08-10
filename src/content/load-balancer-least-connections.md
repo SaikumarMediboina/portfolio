@@ -23,21 +23,16 @@ As traffic grows — 100 users, then 800, then 1,300 — the server crosses its 
 
 ```cascade
  Requests pile up in queue
-           |
-           v
+           ↓
  Response time increases
-           |
-           v
+           ↓
  Requests start timing out
-           |
-           v
+           ↓
  Users retry (adding MORE load)
-           |
-           v
+           ↓
  Server overloads further
-           |
-           v
- Server crashes --> FULL OUTAGE *
+           ↓
+ Server crashes ──> FULL OUTAGE 💥
 ```
 
 A single machine has physical limits — CPU, memory, network I/O. Users can't be made to wait for hardware. The fix is **horizontal scaling**: run the app on multiple servers. But that raises a new question — *which server should handle each incoming request?* That's where a Load Balancer with a selection algorithm comes in.
@@ -47,9 +42,9 @@ A single machine has physical limits — CPU, memory, network I/O. Users can't b
 ## 3. Where It Fits in the Architecture
 
 ```topology
- Client --> [ Load Balancer ] --+--> Server A
-                                +--> Server B
-                                +--> Server C
+ Client ──> [ Load Balancer ] ──┬──> Server A
+                                ├──> Server B
+                                └──> Server C
 ```
 
 The client never talks to backend servers directly — it only knows one address (e.g. `api.shop.com`). Behind that address sits the LB.
@@ -60,13 +55,13 @@ The client never talks to backend servers directly — it only knows one address
 2. LB maintains a live count of active connections per backend server:
 
 ```connections
- +-------------------------------+
- |   Load Balancer Connections   |
- +-------------------------------+
- |  Server A --> 120 active      |
- |  Server B -->  45 active  *   |  <-- Target (Minimum)
- |  Server C -->  80 active      |
- +-------------------------------+
+ ┌───────────────────────────────┐
+ │   Load Balancer Connections   │
+ ├───────────────────────────────┤
+ │  Server A ──> 120 active      │
+ │  Server B ──>  45 active  ★   │  <-- Target (Minimum)
+ │  Server C ──>  80 active      │
+ └───────────────────────────────┘
 ```
 
 3. LB picks the server with the **minimum** count — here, Server B.
@@ -85,9 +80,9 @@ Least Connections checks actual load first:
 ```decision
  Active Connection Count:
  A = 200, B = 20, C = 30
-           |
-           v
- [ Choose Minimum: B ] --> Route to Server B
+           │
+           ▼
+ [ Choose Minimum: B ] ──> Route to Server B
 ```
 
 This makes it noticeably better for workloads with **uneven request durations** (some requests take 50ms, others take 10 seconds) — common in systems using WebSockets, streaming, or long-lived DB proxy connections.
@@ -98,31 +93,31 @@ This makes it noticeably better for workloads with **uneven request durations** 
 
 ```routing-flow
                       [ USER REQUEST ]
-                             |
-                             v
-               +---------------------------+
-               |          CLIENT           |
-               +---------------------------+
-                             |
-                             v
-               +---------------------------+
-               |       LOAD BALANCER       |
-               |   A = 90 active conns     |
-               |   B = 25 active conns  *  |  <-- Least connections
-               |   C = 60 active conns     |
-               +---------------------------+
-                  /          |          \
-                 /           |           \
+                             │
+                             ▼
+               ┌───────────────────────────┐
+               │          CLIENT           │
+               └───────────────────────────┘
+                             │
+                             ▼
+               ┌───────────────────────────┐
+               │       LOAD BALANCER       │
+               │   A = 90 active conns     │
+               │   B = 25 active conns  ★  │  <-- Least connections
+               │   C = 60 active conns     │
+               └───────────────────────────┘
+                  /          │          \
+                 /           │           \
                 v            v            v
-         +----------+  +----------+  +----------+
-         | Server A |  | Server B |  | Server C |
-         +----------+  +----------+  +----------+
-                             |
-                             | 200 OK (Response)
-                             v
+         ┌──────────┐  ┌──────────┐  ┌──────────┐
+         │ Server A │  │ Server B │  │ Server C │
+         └──────────┘  └──────────┘  └──────────┘
+                             │
+                             │ 200 OK (Response)
+                             ▼
                        LOAD BALANCER
-                             |
-                             v
+                             │
+                             ▼
                           CLIENT
 ```
 
@@ -145,9 +140,9 @@ The client has no idea which server handled it — that abstraction is the whole
 Production LBs run periodic **health checks** (e.g. `GET /health` every few seconds). If Server B stops responding:
 
 ```health
- Server A:  [ Healthy ]   -->  Route *
- Server B:  [ CRASHED ]   -->  REMOVE FROM POOL *
- Server C:  [ Healthy ]   -->  Route *
+ Server A:  [ Healthy ]   ──>  Route ✓
+ Server B:  [ CRASHED ]   ──>  REMOVE FROM POOL ✗
+ Server C:  [ Healthy ]   ──>  Route ✓
 ```
 
 New requests go only to A or C. For the request that was already in flight to B, whether the LB retries it on another server **depends on the request type**:
