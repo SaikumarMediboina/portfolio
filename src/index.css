@@ -27223,7 +27223,7 @@ a.load-balancer-lesson-link:focus-visible {
   overflow-x: auto;
   padding: 1rem;
   color: #edf5ff;
-  font: .82rem/1.65 "IBM Plex Mono", monospace;
+  font: .92rem/1.6 "Yomogi", "IBM Plex Mono", monospace;
   scrollbar-color: var(--diagram-accent) #111722;
   -webkit-overflow-scrolling: touch;
 }
@@ -27781,7 +27781,7 @@ a.load-balancer-lesson-link:focus-visible {
 
   .distributed-code-block pre {
     padding: .85rem;
-    font-size: .72rem;
+    font-size: .8rem;
   }
 
   .distributed-table-wrap table {
