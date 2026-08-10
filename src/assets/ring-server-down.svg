@@ -22,7 +22,7 @@
 <text x="566" y="96" font-family="monospace" font-size="14" font-weight="bold" fill="#c2c0b6">Server A</text>
 <text x="566" y="112" font-family="monospace" font-size="12" fill="#888780">position 15</text>
 
-<!-- Server B: position 55 -- DOWN (crossed out) -->
+<!-- Server B: position 55, down and crossed out -->
 <circle cx="281" cy="441" r="9" fill="#2C2C2A" stroke="#E24B4A" stroke-width="2"/>
 <line x1="275" y1="435" x2="287" y2="447" stroke="#E24B4A" stroke-width="2"/>
 <line x1="287" y1="435" x2="275" y2="447" stroke="#E24B4A" stroke-width="2"/>
