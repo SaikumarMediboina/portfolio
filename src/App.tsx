@@ -8290,12 +8290,8 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
       if (match) {
         const alt = match[1];
         const src = markdownImageAssets[match[2]] ?? match[2].replace(/^\./, "");
-        const isPencilBoard = /(?:active-vs-passive-health-check|liveness-readiness-slow-alive|health-state-machine|sticky-problem-without|sticky-cookie-mechanism|sticky-tradeoff-and-fix)\.png$/i.test(match[2]);
         blocks.push(
-          <div
-            className={`distributed-article-image-wrap${isPencilBoard ? " is-pencil-board" : ""}`}
-            key={`distributed-img-${blockId++}`}
-          >
+          <div className="distributed-article-image-wrap" key={`distributed-img-${blockId++}`}>
             <img src={src} alt={alt} className="distributed-article-img" />
             <p className="distributed-image-caption">{alt}</p>
           </div>,
