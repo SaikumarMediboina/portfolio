@@ -9058,7 +9058,120 @@ function DistributedTierCourseShell({
       </aside>
 
       {children}
+      <QuickMapRightSidebar />
     </div>
+  );
+}
+
+function QuickMapRightSidebar() {
+  const [headings, setHeadings] = useState<{ id: string; text: string }[]>([]);
+  const [activeId, setActiveId] = useState<string>("");
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    const updateHeadings = () => {
+      const h2Elements = Array.from(
+        document.querySelectorAll<HTMLElement>("article.distributed-scaling-article h2"),
+      );
+
+      const items = h2Elements
+        .map((el) => {
+          let id = el.id;
+          const rawText = el.textContent || "";
+          if (!id && rawText) {
+            id = getDistributedHeadingId(rawText);
+            el.id = id;
+          }
+          const cleanText = rawText.replace(/\*\*/g, "").trim();
+          return { id, text: cleanText };
+        })
+        .filter((item) => item.id && item.text.length > 0);
+
+      setHeadings(items);
+    };
+
+    const timer = setTimeout(updateHeadings, 150);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (headings.length === 0) return;
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 140;
+
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const item = headings[i];
+        const el = document.getElementById(item.id);
+        if (el && el.offsetTop <= scrollPosition) {
+          setActiveId(item.id);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [headings]);
+
+  if (headings.length === 0) return null;
+
+  return (
+    <aside className={`quick-map-right-sidebar ${isCollapsed ? "is-collapsed" : "is-expanded"}`} aria-label="On this page">
+      <div className="quick-map-card">
+        <header className="quick-map-head">
+          {!isCollapsed && (
+            <div className="quick-map-title-wrap">
+              <span className="quick-map-eyebrow">On This Page</span>
+            </div>
+          )}
+          <button
+            type="button"
+            className="quick-map-toggle-btn"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title={isCollapsed ? "Expand Quick Map" : "Collapse Quick Map"}
+            aria-label={isCollapsed ? "Expand Quick Map" : "Collapse Quick Map"}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
+            </svg>
+            {isCollapsed && <span className="quick-map-collapsed-label">Map</span>}
+          </button>
+        </header>
+
+        {!isCollapsed && (
+          <nav className="quick-map-list">
+            {headings.map((item) => {
+              const isActive = activeId === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className={`quick-map-item ${isActive ? "is-active" : ""}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const el = document.getElementById(item.id);
+                    if (el) {
+                      const top = el.getBoundingClientRect().top + window.scrollY - 100;
+                      window.scrollTo({ top, behavior: "smooth" });
+                      window.history.pushState(null, "", `#${item.id}`);
+                    }
+                  }}
+                >
+                  {item.text}
+                </a>
+              );
+            })}
+          </nav>
+        )}
+      </div>
+    </aside>
   );
 }
 
