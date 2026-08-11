@@ -27166,6 +27166,27 @@ a.load-balancer-lesson-link:focus-visible {
   opacity: 0.8;
 }
 
+/* Pencil diagrams use a stable paper-white board in both themes. */
+.distributed-article-image-wrap.is-pencil-board {
+  gap: .55rem;
+  padding: clamp(.35rem, .9vw, .6rem);
+  border-color: #d9d9d4;
+  border-radius: 10px;
+  background: #f8f8f6;
+  box-shadow: 0 12px 30px rgba(31, 35, 38, .1);
+}
+
+.distributed-article-image-wrap.is-pencil-board .distributed-article-img {
+  width: 100%;
+  border-radius: 5px;
+  background: #ffffff;
+  filter: none;
+}
+
+.distributed-article-image-wrap.is-pencil-board .distributed-image-caption {
+  color: #625f59;
+}
+
 .distributed-article-paragraph strong,
 .distributed-article-quote strong,
 .distributed-article-list strong,
