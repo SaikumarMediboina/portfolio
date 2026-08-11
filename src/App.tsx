@@ -34,12 +34,18 @@ import ringVirtualNodesSvg from "./assets/ring-virtual-nodes.svg";
 import ringReplicationSvg from "./assets/ring-replication.svg";
 import loadBalancerHealthFailureDetectionMarkdown from "./content/load-balancer-health-failure-detection.md?raw";
 import loadBalancerStickySessionsMarkdown from "./content/load-balancer-sticky-sessions.md?raw";
+import loadBalancerConnectionManagementMarkdown from "./content/load-balancer-connection-management.md?raw";
 import activeVsPassiveHealthCheckPng from "./assets/active-vs-passive-health-check.png";
 import livenessReadinessSlowAlivePng from "./assets/liveness-readiness-slow-alive.png";
 import healthStateMachinePng from "./assets/health-state-machine.png";
 import stickyProblemWithoutPng from "./assets/sticky-problem-without.png";
 import stickyCookieMechanismPng from "./assets/sticky-cookie-mechanism.png";
 import stickyTradeoffAndFixPng from "./assets/sticky-tradeoff-and-fix.png";
+import connectionDrainingLifecyclePng from "./assets/connection-draining-lifecycle.png";
+import keepaliveVsWebsocketPng from "./assets/keepalive-vs-websocket.png";
+import websocketCrashReconnectPng from "./assets/websocket-crash-reconnect.png";
+import tcpConnectionPinnedBackendPng from "./assets/tcp-connection-pinned-backend.png";
+import keepaliveConnectionPoolingBackendPng from "./assets/keepalive-connection-pooling-backend.png";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7475,6 +7481,11 @@ const markdownImageAssets: Record<string, string> = {
   "./assets/sticky-cookie-mechanism.svg": stickyCookieMechanismPng,
   "./assets/sticky-tradeoff-and-fix.png": stickyTradeoffAndFixPng,
   "./assets/sticky-tradeoff-and-fix.svg": stickyTradeoffAndFixPng,
+  "./assets/connection-draining-lifecycle.png": connectionDrainingLifecyclePng,
+  "./assets/keepalive-vs-websocket.png": keepaliveVsWebsocketPng,
+  "./assets/websocket-crash-reconnect.png": websocketCrashReconnectPng,
+  "./assets/tcp-connection-pinned-backend.png": tcpConnectionPinnedBackendPng,
+  "./assets/keepalive-connection-pooling-backend.png": keepaliveConnectionPoolingBackendPng,
   "/assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
   "/assets/ring-server-added.svg": ringServerAddedSvg,
   "/assets/ring-server-down.svg": ringServerDownSvg,
@@ -7493,6 +7504,11 @@ const markdownImageAssets: Record<string, string> = {
   "/assets/sticky-cookie-mechanism.svg": stickyCookieMechanismPng,
   "/assets/sticky-tradeoff-and-fix.png": stickyTradeoffAndFixPng,
   "/assets/sticky-tradeoff-and-fix.svg": stickyTradeoffAndFixPng,
+  "/assets/connection-draining-lifecycle.png": connectionDrainingLifecyclePng,
+  "/assets/keepalive-vs-websocket.png": keepaliveVsWebsocketPng,
+  "/assets/websocket-crash-reconnect.png": websocketCrashReconnectPng,
+  "/assets/tcp-connection-pinned-backend.png": tcpConnectionPinnedBackendPng,
+  "/assets/keepalive-connection-pooling-backend.png": keepaliveConnectionPoolingBackendPng,
 };
 
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
@@ -7511,6 +7527,7 @@ const LOAD_BALANCER_ROUTING_ALGORITHMS_COMPARISON_PATH = `${LOAD_BALANCER_ROUTIN
 const LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH = `${LOAD_BALANCING_PATH}/consistent-hashing-deep-dive`;
 const LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH = `${LOAD_BALANCING_PATH}/health-checks`;
 const LOAD_BALANCER_STICKY_SESSIONS_PATH = `${LOAD_BALANCING_PATH}/sticky-sessions`;
+const LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH = `${LOAD_BALANCING_PATH}/connection-management`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8076,6 +8093,7 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Keep-alive, connection pooling, TLS termination, timeouts, and backpressure.",
+    href: LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH,
     phase: 4,
     title: "Connection Management",
   },
@@ -9470,6 +9488,53 @@ function LoadBalancerStickySessionsArticle() {
   );
 }
 
+function LoadBalancerConnectionManagementArticle() {
+  const articleHeadings = loadBalancerConnectionManagementMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <DistributedTierCourseShell activePath={LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH} tierIndex={0}>
+      <article className="distributed-scaling-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+            <span aria-hidden="true">/</span>
+            <strong>Connection Management</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 08 of 10 · Production Engineering · Unlocked</p>
+          <h1>Connection Management in Load Balancers</h1>
+          <p>
+            Learn how load balancers own a connection from arrival to shutdown through draining, keep-alive, pooling, timeouts, and persistent protocol handling.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Connection Draining</span><span>Keep-Alive</span><span>Connection Pooling</span><span>WebSockets</span><span>Timeouts</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part Connection guide</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={loadBalancerConnectionManagementMarkdown} />
+      </article>
+    </DistributedTierCourseShell>
+  );
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
   const learnPathname = typeof window === "undefined"
@@ -9490,8 +9555,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerRoutingAlgorithmsComparisonPage = learnPathname === LOAD_BALANCER_ROUTING_ALGORITHMS_COMPARISON_PATH;
   const isLoadBalancerHealthFailureDetectionPage = learnPathname === LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH;
   const isLoadBalancerStickySessionsPage = learnPathname === LOAD_BALANCER_STICKY_SESSIONS_PATH;
+  const isLoadBalancerConnectionManagementPage = learnPathname === LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage || isLoadBalancerRoutingAlgorithmsComparisonPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9501,7 +9567,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage]);
 
-  const learnBackHref = isLoadBalancerStickySessionsPage
+  const learnBackHref = isLoadBalancerConnectionManagementPage
+    ? LOAD_BALANCER_STICKY_SESSIONS_PATH
+    : isLoadBalancerStickySessionsPage
     ? LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH
     : isLoadBalancerHealthFailureDetectionPage
     ? LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH
@@ -9745,6 +9813,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerConnectionManagementPage ? (
+          <LoadBalancerConnectionManagementArticle />
         ) : isLoadBalancerStickySessionsPage ? (
           <LoadBalancerStickySessionsArticle />
         ) : isLoadBalancerHealthFailureDetectionPage ? (
