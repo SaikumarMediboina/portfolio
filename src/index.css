@@ -27143,10 +27143,10 @@ a.load-balancer-lesson-link:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.7rem;
-  background: var(--panel-soft);
-  border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  padding: 1.8rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   overflow: hidden;
 }
 
