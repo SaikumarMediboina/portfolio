@@ -34,12 +34,12 @@ import ringVirtualNodesSvg from "./assets/ring-virtual-nodes.svg";
 import ringReplicationSvg from "./assets/ring-replication.svg";
 import loadBalancerHealthFailureDetectionMarkdown from "./content/load-balancer-health-failure-detection.md?raw";
 import loadBalancerStickySessionsMarkdown from "./content/load-balancer-sticky-sessions.md?raw";
-import activeVsPassiveHealthCheckSvg from "./assets/active-vs-passive-health-check.svg";
-import livenessReadinessSlowAliveSvg from "./assets/liveness-readiness-slow-alive.svg";
-import healthStateMachineSvg from "./assets/health-state-machine.svg";
-import stickyProblemWithoutSvg from "./assets/sticky-problem-without.svg";
-import stickyCookieMechanismSvg from "./assets/sticky-cookie-mechanism.svg";
-import stickyTradeoffAndFixSvg from "./assets/sticky-tradeoff-and-fix.svg";
+import activeVsPassiveHealthCheckPng from "./assets/active-vs-passive-health-check.png";
+import livenessReadinessSlowAlivePng from "./assets/liveness-readiness-slow-alive.png";
+import healthStateMachinePng from "./assets/health-state-machine.png";
+import stickyProblemWithoutPng from "./assets/sticky-problem-without.png";
+import stickyCookieMechanismPng from "./assets/sticky-cookie-mechanism.png";
+import stickyTradeoffAndFixPng from "./assets/sticky-tradeoff-and-fix.png";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7463,36 +7463,36 @@ const markdownImageAssets: Record<string, string> = {
   "./assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
   "./assets/ring-replication.svg": ringReplicationSvg,
   "./assets/ring-replication.png": ringReplicationSvg,
-  "./assets/active-vs-passive-health-check.png": activeVsPassiveHealthCheckSvg,
-  "./assets/active-vs-passive-health-check.svg": activeVsPassiveHealthCheckSvg,
-  "./assets/liveness-readiness-slow-alive.png": livenessReadinessSlowAliveSvg,
-  "./assets/liveness-readiness-slow-alive.svg": livenessReadinessSlowAliveSvg,
-  "./assets/health-state-machine.png": healthStateMachineSvg,
-  "./assets/health-state-machine.svg": healthStateMachineSvg,
-  "./assets/sticky-problem-without.png": stickyProblemWithoutSvg,
-  "./assets/sticky-problem-without.svg": stickyProblemWithoutSvg,
-  "./assets/sticky-cookie-mechanism.png": stickyCookieMechanismSvg,
-  "./assets/sticky-cookie-mechanism.svg": stickyCookieMechanismSvg,
-  "./assets/sticky-tradeoff-and-fix.png": stickyTradeoffAndFixSvg,
-  "./assets/sticky-tradeoff-and-fix.svg": stickyTradeoffAndFixSvg,
+  "./assets/active-vs-passive-health-check.png": activeVsPassiveHealthCheckPng,
+  "./assets/active-vs-passive-health-check.svg": activeVsPassiveHealthCheckPng,
+  "./assets/liveness-readiness-slow-alive.png": livenessReadinessSlowAlivePng,
+  "./assets/liveness-readiness-slow-alive.svg": livenessReadinessSlowAlivePng,
+  "./assets/health-state-machine.png": healthStateMachinePng,
+  "./assets/health-state-machine.svg": healthStateMachinePng,
+  "./assets/sticky-problem-without.png": stickyProblemWithoutPng,
+  "./assets/sticky-problem-without.svg": stickyProblemWithoutPng,
+  "./assets/sticky-cookie-mechanism.png": stickyCookieMechanismPng,
+  "./assets/sticky-cookie-mechanism.svg": stickyCookieMechanismPng,
+  "./assets/sticky-tradeoff-and-fix.png": stickyTradeoffAndFixPng,
+  "./assets/sticky-tradeoff-and-fix.svg": stickyTradeoffAndFixPng,
   "/assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
   "/assets/ring-server-added.svg": ringServerAddedSvg,
   "/assets/ring-server-down.svg": ringServerDownSvg,
   "/assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
   "/assets/ring-replication.svg": ringReplicationSvg,
   "/assets/ring-replication.png": ringReplicationSvg,
-  "/assets/active-vs-passive-health-check.png": activeVsPassiveHealthCheckSvg,
-  "/assets/active-vs-passive-health-check.svg": activeVsPassiveHealthCheckSvg,
-  "/assets/liveness-readiness-slow-alive.png": livenessReadinessSlowAliveSvg,
-  "/assets/liveness-readiness-slow-alive.svg": livenessReadinessSlowAliveSvg,
-  "/assets/health-state-machine.png": healthStateMachineSvg,
-  "/assets/health-state-machine.svg": healthStateMachineSvg,
-  "/assets/sticky-problem-without.png": stickyProblemWithoutSvg,
-  "/assets/sticky-problem-without.svg": stickyProblemWithoutSvg,
-  "/assets/sticky-cookie-mechanism.png": stickyCookieMechanismSvg,
-  "/assets/sticky-cookie-mechanism.svg": stickyCookieMechanismSvg,
-  "/assets/sticky-tradeoff-and-fix.png": stickyTradeoffAndFixSvg,
-  "/assets/sticky-tradeoff-and-fix.svg": stickyTradeoffAndFixSvg,
+  "/assets/active-vs-passive-health-check.png": activeVsPassiveHealthCheckPng,
+  "/assets/active-vs-passive-health-check.svg": activeVsPassiveHealthCheckPng,
+  "/assets/liveness-readiness-slow-alive.png": livenessReadinessSlowAlivePng,
+  "/assets/liveness-readiness-slow-alive.svg": livenessReadinessSlowAlivePng,
+  "/assets/health-state-machine.png": healthStateMachinePng,
+  "/assets/health-state-machine.svg": healthStateMachinePng,
+  "/assets/sticky-problem-without.png": stickyProblemWithoutPng,
+  "/assets/sticky-problem-without.svg": stickyProblemWithoutPng,
+  "/assets/sticky-cookie-mechanism.png": stickyCookieMechanismPng,
+  "/assets/sticky-cookie-mechanism.svg": stickyCookieMechanismPng,
+  "/assets/sticky-tradeoff-and-fix.png": stickyTradeoffAndFixPng,
+  "/assets/sticky-tradeoff-and-fix.svg": stickyTradeoffAndFixPng,
 };
 
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";

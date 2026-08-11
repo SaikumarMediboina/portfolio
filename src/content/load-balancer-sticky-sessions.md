@@ -21,7 +21,7 @@ This isn't a routing-algorithm bug. It's a mismatch: the algorithm assumes state
 
 ## The Problem in Action
 
-![The problem without sticky sessions](./assets/sticky-problem-without.svg)
+![The problem without sticky sessions](./assets/sticky-problem-without.png)
 
 ---
 
@@ -39,7 +39,7 @@ So affinity is a short-circuit: it only kicks in once a client has been "claimed
 
 ## How Cookie-Based Affinity Works
 
-![How cookie-based sticky sessions work](./assets/sticky-cookie-mechanism.svg)
+![How cookie-based sticky sessions work](./assets/sticky-cookie-mechanism.png)
 
 There are two common ways to implement this:
 
@@ -64,7 +64,7 @@ Consider the same checkout service — 3 servers, a user shopping on the site:
 
 ## The Trade-Off, and the Modern Fix
 
-![Sticky session trade-off and the centralized store fix](./assets/sticky-tradeoff-and-fix.svg)
+![Sticky session trade-off and the centralized store fix](./assets/sticky-tradeoff-and-fix.png)
 
 Sticky sessions solve the immediate problem, but they introduce two real costs:
 

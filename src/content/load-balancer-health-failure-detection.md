@@ -53,7 +53,7 @@ There are two complementary ways the health checker gathers signal: **active** c
 
 ## Active vs. Passive Health Checks
 
-![Active vs passive health check comparison](./assets/active-vs-passive-health-check.svg)
+![Active vs passive health check comparison](./assets/active-vs-passive-health-check.png)
 
 **Active health checks** are synthetic probes — the load balancer hits a dedicated endpoint like `GET /health` on every server on a fixed schedule (say, every 5 seconds), regardless of whether any real user traffic is flowing. If a server misses enough consecutive pings, it gets flagged.
 
@@ -65,7 +65,7 @@ Most production systems (AWS ALB, NGINX, Envoy, Kubernetes) run both together: a
 
 ## Liveness vs. Readiness, and the Slow-But-Alive Trap
 
-![Liveness vs readiness and the slow-but-alive problem](./assets/liveness-readiness-slow-alive.svg)
+![Liveness vs readiness and the slow-but-alive problem](./assets/liveness-readiness-slow-alive.png)
 
 This is the distinction that trips up a lot of engineers the first time they design this system: **"is the process running" is a different question from "is this server fit to serve traffic."**
 
@@ -94,7 +94,7 @@ Consider an e-commerce checkout service running on 4 servers behind a load balan
 
 ## The Full State Machine
 
-![Node health state machine with removal and recovery thresholds](./assets/health-state-machine.svg)
+![Node health state machine with removal and recovery thresholds](./assets/health-state-machine.png)
 
 Note the two thresholds doing the real work here, both deliberately **asymmetric**:
 

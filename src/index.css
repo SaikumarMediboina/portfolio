@@ -27153,9 +27153,7 @@ a.load-balancer-lesson-link:focus-visible {
 .distributed-article-img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
   display: block;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
 }
 
 .distributed-image-caption {
