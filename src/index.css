@@ -28634,66 +28634,66 @@ a.distributed-tier-subtopic {
   }
 }
 
-/* Quick Map Right Sidebar ("On This Page" Table of Contents widget) */
+/* Quick Map Right Sidebar ("On This Page" docked right sidebar) */
 .quick-map-right-sidebar {
   position: fixed;
-  top: 100px;
-  right: calc(max(1rem, (100vw - 1220px) / 2 + 1rem));
-  z-index: 90;
-  width: 240px;
+  top: 105px;
+  right: 0;
+  z-index: 95;
+  width: 250px;
   max-height: calc(100vh - 140px);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (max-width: 1440px) {
-  .quick-map-right-sidebar {
-    right: 1.2rem;
-    width: 220px;
-  }
-}
-
-@media (max-width: 1180px) {
-  .quick-map-right-sidebar {
-    right: 1rem;
-    top: 90px;
-    width: 200px;
-  }
-}
-
-@media (max-width: 992px) {
-  .quick-map-right-sidebar {
-    position: fixed;
-    top: auto;
-    bottom: 5.5rem;
-    right: 1.25rem;
-    width: auto;
-  }
-  .quick-map-right-sidebar.is-expanded {
-    width: 260px;
-  }
+.quick-map-right-sidebar.is-expanded {
+  transform: translateX(0);
 }
 
 .quick-map-right-sidebar.is-collapsed {
-  width: auto;
+  transform: translateX(calc(100% - 1px));
+}
+
+/* Edge toggle button docked on the left border of the right sidebar */
+.quick-map-edge-toggle {
+  position: absolute;
+  left: -34px;
+  top: 12px;
+  width: 34px;
+  height: 36px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.08);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.quick-map-edge-toggle:hover {
+  background: var(--panel-soft);
+  color: var(--accent);
 }
 
 .quick-map-card {
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  padding: 0.75rem 0.9rem;
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  box-shadow: -6px 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-}
-
-.quick-map-right-sidebar.is-collapsed .quick-map-card {
-  padding: 0.45rem 0.75rem;
-  border-radius: 999px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  max-height: calc(100vh - 150px);
 }
 
 .quick-map-head {
@@ -28701,40 +28701,36 @@ a.distributed-tier-subtopic {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .quick-map-eyebrow {
   font-family: var(--font-mono, monospace);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 750;
   letter-spacing: 0.08em;
   color: var(--ink-soft);
   text-transform: uppercase;
 }
 
-.quick-map-toggle-btn {
+.quick-map-header-collapse {
   background: transparent;
   border: none;
   color: var(--ink-soft);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.4rem;
-  border-radius: 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.quick-map-toggle-btn:hover {
+.quick-map-header-collapse:hover {
   background: var(--panel-soft);
   color: var(--accent);
-}
-
-.quick-map-collapsed-label {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--ink-strong);
 }
 
 .quick-map-list {
@@ -28771,4 +28767,13 @@ a.distributed-tier-subtopic {
   font-weight: 700;
   border-left-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* Prevent article content from overlapping with the right sidebar on desktop screens */
+@media (min-width: 1280px) {
+  body.quick-map-open .distributed-hub-page,
+  body.quick-map-open .distributed-article-page {
+    padding-right: 250px !important;
+    transition: padding-right 0.28s ease;
+  }
 }

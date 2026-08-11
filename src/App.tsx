@@ -9115,61 +9115,73 @@ function QuickMapRightSidebar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [headings]);
 
+  useEffect(() => {
+    if (headings.length > 0 && !isCollapsed) {
+      document.body.classList.add("quick-map-open");
+    } else {
+      document.body.classList.remove("quick-map-open");
+    }
+    return () => {
+      document.body.classList.remove("quick-map-open");
+    };
+  }, [headings.length, isCollapsed]);
+
   if (headings.length === 0) return null;
 
   return (
-    <aside className={`quick-map-right-sidebar ${isCollapsed ? "is-collapsed" : "is-expanded"}`} aria-label="On this page">
+    <aside
+      className={`quick-map-right-sidebar ${isCollapsed ? "is-collapsed" : "is-expanded"}`}
+      aria-label="On this page navigation"
+    >
+      <button
+        type="button"
+        className="quick-map-edge-toggle"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        title={isCollapsed ? "Show On This Page index" : "Hide On This Page index"}
+        aria-label={isCollapsed ? "Show On This Page index" : "Hide On This Page index"}
+      >
+        <span aria-hidden="true">{isCollapsed ? "‹" : "›"}</span>
+      </button>
+
       <div className="quick-map-card">
         <header className="quick-map-head">
-          {!isCollapsed && (
-            <div className="quick-map-title-wrap">
-              <span className="quick-map-eyebrow">On This Page</span>
-            </div>
-          )}
+          <div className="quick-map-title-wrap">
+            <span className="quick-map-eyebrow">On This Page</span>
+          </div>
           <button
             type="button"
-            className="quick-map-toggle-btn"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? "Expand Quick Map" : "Collapse Quick Map"}
-            aria-label={isCollapsed ? "Expand Quick Map" : "Collapse Quick Map"}
+            className="quick-map-header-collapse"
+            onClick={() => setIsCollapsed(true)}
+            title="Hide On This Page index"
+            aria-label="Hide On This Page index"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6" />
-              <line x1="8" y1="12" x2="21" y2="12" />
-              <line x1="8" y1="18" x2="21" y2="18" />
-              <line x1="3" y1="6" x2="3.01" y2="6" />
-              <line x1="3" y1="12" x2="3.01" y2="12" />
-              <line x1="3" y1="18" x2="3.01" y2="18" />
-            </svg>
-            {isCollapsed && <span className="quick-map-collapsed-label">Map</span>}
+            ›
           </button>
         </header>
 
-        {!isCollapsed && (
-          <nav className="quick-map-list">
-            {headings.map((item) => {
-              const isActive = activeId === item.id;
-              return (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  className={`quick-map-item ${isActive ? "is-active" : ""}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const el = document.getElementById(item.id);
-                    if (el) {
-                      const top = el.getBoundingClientRect().top + window.scrollY - 100;
-                      window.scrollTo({ top, behavior: "smooth" });
-                      window.history.pushState(null, "", `#${item.id}`);
-                    }
-                  }}
-                >
-                  {item.text}
-                </a>
-              );
-            })}
-          </nav>
-        )}
+        <nav className="quick-map-list">
+          {headings.map((item) => {
+            const isActive = activeId === item.id;
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className={`quick-map-item ${isActive ? "is-active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById(item.id);
+                  if (el) {
+                    const top = el.getBoundingClientRect().top + window.scrollY - 100;
+                    window.scrollTo({ top, behavior: "smooth" });
+                    window.history.pushState(null, "", `#${item.id}`);
+                  }
+                }}
+              >
+                {item.text}
+              </a>
+            );
+          })}
+        </nav>
       </div>
     </aside>
   );
