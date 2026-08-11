@@ -32,6 +32,10 @@ import ringServerAddedSvg from "./assets/ring-server-added.svg";
 import ringServerDownSvg from "./assets/ring-server-down.svg";
 import ringVirtualNodesSvg from "./assets/ring-virtual-nodes.svg";
 import ringReplicationSvg from "./assets/ring-replication.svg";
+import loadBalancerHealthFailureDetectionMarkdown from "./content/load-balancer-health-failure-detection.md?raw";
+import activeVsPassiveHealthCheckPng from "./assets/active-vs-passive-health-check.png";
+import livenessReadinessSlowAlivePng from "./assets/liveness-readiness-slow-alive.png";
+import healthStateMachinePng from "./assets/health-state-machine.png";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7455,12 +7459,18 @@ const markdownImageAssets: Record<string, string> = {
   "./assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
   "./assets/ring-replication.svg": ringReplicationSvg,
   "./assets/ring-replication.png": ringReplicationSvg,
+  "./assets/active-vs-passive-health-check.png": activeVsPassiveHealthCheckPng,
+  "./assets/liveness-readiness-slow-alive.png": livenessReadinessSlowAlivePng,
+  "./assets/health-state-machine.png": healthStateMachinePng,
   "/assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
   "/assets/ring-server-added.svg": ringServerAddedSvg,
   "/assets/ring-server-down.svg": ringServerDownSvg,
   "/assets/ring-virtual-nodes.svg": ringVirtualNodesSvg,
   "/assets/ring-replication.svg": ringReplicationSvg,
   "/assets/ring-replication.png": ringReplicationSvg,
+  "/assets/active-vs-passive-health-check.png": activeVsPassiveHealthCheckPng,
+  "/assets/liveness-readiness-slow-alive.png": livenessReadinessSlowAlivePng,
+  "/assets/health-state-machine.png": healthStateMachinePng,
 };
 
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
@@ -7477,6 +7487,7 @@ const LOAD_BALANCER_IP_HASH_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/ip-
 const LOAD_BALANCER_CONSISTENT_HASHING_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/consistent-hashing`;
 const LOAD_BALANCER_ROUTING_ALGORITHMS_COMPARISON_PATH = `${LOAD_BALANCER_ROUTING_ALGORITHMS_PATH}/comparison-summary`;
 const LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH = `${LOAD_BALANCING_PATH}/consistent-hashing-deep-dive`;
+const LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH = `${LOAD_BALANCING_PATH}/health-checks`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8025,6 +8036,7 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Active and passive checks, thresholds, draining, recovery, and false positives.",
+    href: LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH,
     phase: 3,
     title: "Health & Failure Detection",
   },
@@ -9215,6 +9227,53 @@ function LoadBalancerConsistentHashingDeepDiveArticle() {
   );
 }
 
+function LoadBalancerHealthFailureDetectionArticle() {
+  const articleHeadings = loadBalancerHealthFailureDetectionMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <DistributedTierCourseShell activePath={LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH} tierIndex={0}>
+      <article className="distributed-scaling-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+            <span aria-hidden="true">/</span>
+            <strong>Health & Failure Detection</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 05 of 10 · Health Checks · Unlocked</p>
+          <h1>Health & Failure Detection in Load Balancing</h1>
+          <p>
+            A complete guide to active and passive health checks, liveness vs readiness probes, state transitions, thresholds, and slow-start recovery.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Active Probes</span><span>Passive Observation</span><span>Liveness & Readiness</span><span>State Machine</span><span>Slow Start</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part Health guide</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={loadBalancerHealthFailureDetectionMarkdown} />
+      </article>
+    </DistributedTierCourseShell>
+  );
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
   const learnPathname = typeof window === "undefined"
@@ -9233,8 +9292,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerConsistentHashingPage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_PATH;
   const isLoadBalancerConsistentHashingDeepDivePage = learnPathname === LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH;
   const isLoadBalancerRoutingAlgorithmsComparisonPage = learnPathname === LOAD_BALANCER_ROUTING_ALGORITHMS_COMPARISON_PATH;
+  const isLoadBalancerHealthFailureDetectionPage = learnPathname === LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage || isLoadBalancerRoutingAlgorithmsComparisonPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9244,7 +9304,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage]);
 
-  const learnBackHref = isLoadBalancerConsistentHashingDeepDivePage
+  const learnBackHref = isLoadBalancerHealthFailureDetectionPage
+    ? LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH
+    : isLoadBalancerConsistentHashingDeepDivePage
     ? LOAD_BALANCER_ROUTING_ALGORITHMS_COMPARISON_PATH
     : isLoadBalancerRoutingAlgorithmsComparisonPage
     ? LOAD_BALANCER_CONSISTENT_HASHING_PATH
@@ -9484,6 +9546,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerHealthFailureDetectionPage ? (
+          <LoadBalancerHealthFailureDetectionArticle />
         ) : isLoadBalancerConsistentHashingDeepDivePage ? (
           <LoadBalancerConsistentHashingDeepDiveArticle />
         ) : isLoadBalancerRoutingAlgorithmsComparisonPage ? (
