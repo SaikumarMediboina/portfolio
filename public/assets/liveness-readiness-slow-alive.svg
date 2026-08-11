@@ -1,5 +1,36 @@
 <svg width="800" height="550" viewBox="0 0 800 550" xmlns="http://www.w3.org/2000/svg">
-  <rect width="800" height="550" rx="16" fill="#1a1a1a"/>
+  <style>
+    .bg-rect { fill: #ffffff; }
+    .text-main { font-family: monospace; font-size: 13px; fill: #252529; }
+    .text-title-accent { font-family: monospace; font-size: 20px; font-weight: bold; fill: #7F77DD; }
+    .text-title-accent-amber { font-family: monospace; font-size: 18px; font-weight: bold; fill: #EF9F27; }
+    .text-box-label { font-family: monospace; font-size: 14px; font-weight: bold; fill: #ffffff; }
+    .text-box-label-dark { font-family: monospace; font-size: 14px; font-weight: bold; fill: #252529; }
+    .text-secondary { font-family: monospace; font-size: 11px; fill: #5f5e5a; }
+    .text-green-tag { font-family: monospace; font-size: 12px; font-weight: bold; fill: #1D9E75; }
+    .text-red-tag { font-family: monospace; font-size: 12px; font-weight: bold; fill: #E15A5A; }
+    .box-server { fill: #252529; stroke: #5f5e5a; stroke-width: 1.5; }
+    .box-liveness { fill: #effaf6; stroke: #1D9E75; stroke-width: 1.5; }
+    .box-readiness { fill: #fef8f0; stroke: #EF9F27; stroke-width: 1.5; }
+    .box-probe-item { fill: #f9f9fb; stroke: #1D9E75; stroke-width: 1.5; }
+    .box-probe-item-red { fill: #fdf5f5; stroke: #E15A5A; stroke-width: 1.5; }
+    .line-flow-green { stroke: #1D9E75; stroke-width: 1.5; fill: none; }
+    .line-flow-red { stroke: #E15A5A; stroke-width: 1.5; fill: none; }
+    .line-divider { stroke: #e5e5e7; stroke-width: 1; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg-rect { fill: #1a1a1a; }
+      .text-main { fill: #c2c0b6; }
+      .text-secondary { fill: #888780; }
+      .box-liveness { fill: #1b2e26; }
+      .box-readiness { fill: #3a2312; }
+      .box-probe-item { fill: #1c2120; }
+      .box-probe-item-red { fill: #291c1c; }
+      .line-divider { stroke: #333333; }
+    }
+  </style>
+
+  <rect width="800" height="550" class="bg-rect"/>
 
   <defs>
     <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -11,43 +42,43 @@
   </defs>
 
   <!-- Title -->
-  <text x="400" y="45" text-anchor="middle" font-family="monospace" font-size="20" font-weight="bold" fill="#7F77DD">livenessVsReadiness</text>
+  <text x="400" y="45" text-anchor="middle" class="text-title-accent">livenessVsReadiness</text>
 
   <!-- Server Box -->
-  <rect x="330" y="80" width="140" height="40" rx="8" fill="#252529" stroke="#c2c0b6" stroke-width="1.5"/>
-  <text x="400" y="105" text-anchor="middle" font-family="monospace" font-size="14" font-weight="bold" fill="#ffffff">serverX</text>
+  <rect x="330" y="80" width="140" height="40" rx="8" class="box-server"/>
+  <text x="400" y="105" text-anchor="middle" class="text-box-label">serverX</text>
 
   <!-- Split paths -->
-  <path d="M330 100 L190 150" fill="none" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arrow-green)"/>
-  <path d="M470 100 L610 150" fill="none" stroke="#E15A5A" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+  <path d="M330 100 L190 150" fill="none" class="line-flow-green" marker-end="url(#arrow-green)"/>
+  <path d="M470 100 L610 150" fill="none" class="line-flow-red" marker-end="url(#arrow-red)"/>
 
   <!-- Left: Liveness -->
-  <rect x="50" y="160" width="320" height="130" rx="10" fill="#1b2e26" stroke="#1D9E75" stroke-width="1.5"/>
+  <rect x="50" y="160" width="320" height="130" rx="10" class="box-liveness"/>
   <text x="70" y="195" font-family="monospace" font-size="16" font-weight="bold" fill="#1D9E75">livenessProbe</text>
-  <text x="70" y="225" font-family="monospace" font-size="13" fill="#c2c0b6">"isTheProcessStillRunning?"</text>
-  <text x="70" y="255" font-family="monospace" font-size="13" fill="#9FE1CB">✓ alive → restartOnlyIfThisFails</text>
+  <text x="70" y="225" class="text-main">"isTheProcessStillRunning?"</text>
+  <text x="70" y="255" class="text-green-tag">✓ alive → restartOnlyIfThisFails</text>
 
   <!-- Right: Readiness -->
-  <rect x="430" y="160" width="320" height="130" rx="10" fill="#3a2312" stroke="#EF9F27" stroke-width="1.5"/>
+  <rect x="430" y="160" width="320" height="130" rx="10" class="box-readiness"/>
   <text x="450" y="195" font-family="monospace" font-size="16" font-weight="bold" fill="#EF9F27">readinessProbe</text>
-  <text x="450" y="225" font-family="monospace" font-size="13" fill="#c2c0b6">"canItActuallyServeTrafficWell?"</text>
-  <text x="450" y="255" font-family="monospace" font-size="13" fill="#FFA3A3">✗ notReady → pullFromLbRotation</text>
+  <text x="450" y="225" class="text-main">"canItActuallyServeTrafficWell?"</text>
+  <text x="450" y="255" class="text-red-tag">✗ notReady → pullFromLbRotation</text>
 
   <!-- Divider line -->
-  <line x1="50" y1="310" x2="750" y2="310" stroke="#333333" stroke-width="1"/>
+  <line x1="50" y1="310" x2="750" y2="310" class="line-divider"/>
 
   <!-- Slow-But-Alive Problem section -->
-  <text x="400" y="340" text-anchor="middle" font-family="monospace" font-size="18" font-weight="bold" fill="#EF9F27">slowButAliveProblem</text>
+  <text x="400" y="340" text-anchor="middle" class="text-title-accent-amber">slowButAliveProblem</text>
 
   <!-- Path 1: GET /health (Liveness) -->
-  <rect x="50" y="370" width="700" height="50" rx="8" fill="#1c2120" stroke="#1D9E75" stroke-width="1.5"/>
+  <rect x="50" y="370" width="700" height="50" rx="8" class="box-probe-item"/>
   <text x="70" y="400" font-family="monospace" font-size="13" font-weight="bold" fill="#1D9E75">getHealth →</text>
-  <text x="180" y="400" font-family="monospace" font-size="13" fill="#c2c0b6">respondsIn5ms → passesLiveness ✓</text>
-  <text x="480" y="400" font-family="monospace" font-size="11" fill="#888780">(tiny handler that just checks process is up)</text>
+  <text x="180" y="400" class="text-main">respondsIn5ms → passesLiveness ✓</text>
+  <text x="480" y="400" class="text-secondary">(tiny handler that just checks process is up)</text>
 
   <!-- Path 2: GET /orders (Readiness/Real traffic) -->
-  <rect x="50" y="440" width="700" height="50" rx="8" fill="#291c1c" stroke="#E15A5A" stroke-width="1.5"/>
+  <rect x="50" y="440" width="700" height="50" rx="8" class="box-probe-item-red"/>
   <text x="70" y="470" font-family="monospace" font-size="13" font-weight="bold" fill="#E15A5A">getOrders →</text>
-  <text x="180" y="470" font-family="monospace" font-size="13" fill="#c2c0b6">takes8000ms → dbPoolExhausted ✗</text>
-  <text x="480" y="470" font-family="monospace" font-size="11" fill="#E15A5A">(server is technically alive but requests timeout for users)</text>
+  <text x="180" y="470" class="text-main">takes8000ms → dbPoolExhausted ✗</text>
+  <text x="480" y="470" class="text-red-tag" font-weight="normal">(server is technically alive but requests timeout for users)</text>
 </svg>
