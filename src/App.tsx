@@ -7511,6 +7511,14 @@ const markdownImageAssets: Record<string, string> = {
   "/assets/keepalive-connection-pooling-backend.png": keepaliveConnectionPoolingBackendPng,
 };
 
+const whiteCanvasDiagramFiles = new Set([
+  "connection-draining-lifecycle.png",
+  "keepalive-vs-websocket.png",
+  "websocket-crash-reconnect.png",
+  "tcp-connection-pinned-backend.png",
+  "keepalive-connection-pooling-backend.png",
+]);
+
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
 const VERTICAL_HORIZONTAL_SCALING_PATH =
   `${DISTRIBUTED_CONCEPTS_PATH}/vertical-vs-horizontal-scaling`;
@@ -8308,9 +8316,20 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
       if (match) {
         const alt = match[1];
         const src = markdownImageAssets[match[2]] ?? match[2].replace(/^\./, "");
+        const imageFileName = match[2].split("/").pop() ?? "";
+        const needsWhiteCanvas = whiteCanvasDiagramFiles.has(imageFileName);
         blocks.push(
-          <div className="distributed-article-image-wrap" key={`distributed-img-${blockId++}`}>
-            <img src={src} alt={alt} className="distributed-article-img" />
+          <div
+            className={`distributed-article-image-wrap${needsWhiteCanvas ? " is-white-canvas" : ""}`}
+            key={`distributed-img-${blockId++}`}
+          >
+            {needsWhiteCanvas ? (
+              <span className="distributed-article-white-canvas">
+                <img src={src} alt={alt} className="distributed-article-img" />
+              </span>
+            ) : (
+              <img src={src} alt={alt} className="distributed-article-img" />
+            )}
             <p className="distributed-image-caption">{alt}</p>
           </div>,
         );

@@ -27156,6 +27156,29 @@ a.load-balancer-lesson-link:focus-visible {
   display: block;
 }
 
+.distributed-article-white-canvas {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  background: #fff;
+  line-height: 0;
+  isolation: isolate;
+}
+
+.distributed-article-white-canvas .distributed-article-img {
+  background: #fff;
+}
+
+.distributed-article-white-canvas::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  box-shadow: inset 0 0 0 2px #fff;
+  content: "";
+  pointer-events: none;
+}
+
 .distributed-image-caption {
   margin: 0;
   color: var(--ink-soft);
