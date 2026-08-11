@@ -8,14 +8,31 @@ It's like walking into a bank where you were helped by counter #3 — if you com
 
 ## The Problem Without It
 
-Every algorithm we've covered so far — Round Robin, Least Connections, IP Hash, Consistent Hashing — optimizes for one thing: **spreading requests evenly (or predictably) across servers.** That's exactly right when every request is independent and stateless.
+Every algorithm we've covered so far — Round Robin, Least Connections, IP Hash, and Consistent Hashing — helps the load balancer decide which backend server should handle a request.
 
-But a lot of real applications aren't stateless. Think about a login session, a shopping cart, or a multi-step checkout flow — if the server keeps that state **in its own local memory** (not in a shared database), then it matters *which* server handles each request from that user:
+Round Robin and Least Connections primarily focus on distributing traffic efficiently, while IP Hash and Consistent Hashing provide more predictable routing and can naturally create affinity by mapping the same key to the same server.
 
-- Request 1 hits Server A, logs the user in, creates a session object in A's memory.
-- Request 2 — with plain Round Robin — might land on Server B, which has never seen this user. No session found. The user gets logged out or their cart is empty.
+For a completely stateless application, that's usually enough. Each request can be handled independently by any healthy server.
 
-This isn't a routing-algorithm bug. It's a mismatch: the algorithm assumes statelessness, but the application is stateful. Sticky Sessions (a.k.a. Session Affinity) is the load balancer feature that fixes this — by remembering "this user belongs to this server" and routing all of their subsequent requests there, overriding whatever the underlying algorithm would have picked.
+But many real-world applications aren't completely stateless.
+
+Consider a login session, shopping cart, or multi-step checkout flow. If the application stores that state in a server's local memory rather than in a shared store, then which server handles the next request matters.
+
+For example:
+
+- **Request 1 → Server A:** The user logs in. Server A creates and stores the session in its local memory.
+- **Request 2 → Server B:** The load balancer sends the next request to Server B. But Server B has never seen this session.
+- **Result:** The session isn't found. The user may appear logged out, lose their cart, or be unable to continue the checkout flow.
+
+The load-balancing algorithm isn't necessarily broken. The problem is a mismatch between the application's state model and the routing strategy.
+
+This is where Sticky Sessions (Session Affinity) come in.
+
+Sticky Sessions explicitly maintain an association between a user's session and a specific backend server. Once a session is associated with Server A, subsequent requests from that session are routed back to Server A, commonly using a cookie-based affinity mechanism.
+
+Consistent Hashing provides stable key-to-server mapping. Sticky Sessions provide explicit session-to-server affinity.
+
+Both can result in repeated requests reaching the same server, but they achieve that behavior for different reasons and through different mechanisms.
 
 ---
 
