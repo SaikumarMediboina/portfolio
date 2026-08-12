@@ -29,9 +29,22 @@
           "value": "no-store"
         }
       ]
+    },
+    {
+      "source": "/sweety-akka-bday",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/sweety-akka-bday",
+      "destination": "/sweety-akka-bday.html"
+    },
     {
       "source": "/blog/:slug",
       "destination": "/index.html"

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a0b2e">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<title>Sweety Akka Bday</title>
+<script>
+  const BIRTHDAY_PAGE_EXPIRES_AT = Date.parse('2026-08-13T11:02:22Z');
+
+  if (Date.now() >= BIRTHDAY_PAGE_EXPIRES_AT) {
+    document.documentElement.style.display = 'none';
+    window.location.replace('/');
+  }
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 40%, #4a1942 70%, #16081f 100%);
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+
+  /* Twinkling background stars */
+  .stars {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle 2.5s infinite ease-in-out;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+
+  .card {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 215, 150, 0.25);
+    border-radius: 28px;
+    padding: 50px 40px;
+    max-width: 480px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(255, 180, 100, 0.08);
+  }
+
+  .cake {
+    font-size: 60px;
+    margin-bottom: 10px;
+    display: inline-block;
+    animation: bounce 2s infinite ease-in-out;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-10px) rotate(3deg); }
+  }
+
+  h1 {
+    font-size: 2.1rem;
+    background: linear-gradient(90deg, #ffd580, #ff9ec4, #b98cff, #ffd580);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shine 4s linear infinite;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  @keyframes shine {
+    to { background-position: 300% center; }
+  }
+
+  .subtitle {
+    color: #e8d9ff;
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .message {
+    color: #cfc2e8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 18px 0 28px;
+  }
+
+  .btn {
+    background: linear-gradient(135deg, #ff8fb1, #b98cff);
+    border: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(185, 140, 255, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    letter-spacing: 0.3px;
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+  .btn:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 12px 30px rgba(185, 140, 255, 0.55);
+  }
+  .btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .hint {
+    margin-top: 14px;
+    font-size: 0.78rem;
+    color: rgba(232, 217, 255, 0.5);
+  }
+
+  /* Balloons */
+  .balloon {
+    position: fixed;
+    bottom: -120px;
+    width: 46px;
+    height: 58px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    z-index: 5;
+    pointer-events: none;
+    animation: rise 4.5s ease-in forwards;
+  }
+  .balloon::after {
+    content: '';
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    width: 1px;
+    height: 22px;
+    background: rgba(255,255,255,0.4);
+    transform: translateX(-50%);
+  }
+  .balloon::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 6px;
+    height: 8px;
+    background: inherit;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform: translateX(-50%);
+  }
+  @keyframes rise {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+    50% { transform: translateY(-55vh) translateX(20px) rotate(8deg); }
+    100% { transform: translateY(-115vh) translateX(-15px) rotate(-6deg); opacity: 0.9; }
+  }
+
+  /* Sparkles */
+  .sparkle {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 6;
+    pointer-events: none;
+    background: radial-gradient(circle, #fff, transparent 70%);
+    border-radius: 50%;
+    animation: sparkle-burst 900ms ease-out forwards;
+  }
+  @keyframes sparkle-burst {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+  }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    top: -20px;
+    width: 9px;
+    height: 14px;
+    z-index: 5;
+    pointer-events: none;
+    animation: confetti-fall 3.2s linear forwards;
+    opacity: 0.95;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(540deg); }
+  }
+
+  @media (max-width: 520px) {
+    .card {
+      width: 100%;
+      padding: 38px 22px;
+      border-radius: 24px;
+    }
+
+    .cake { font-size: 52px; }
+    h1 { font-size: clamp(1.72rem, 8vw, 2.05rem); }
+    .message { margin: 16px 0 24px; }
+    .btn { width: 100%; padding-inline: 18px; }
+  }
+
+  @media (max-height: 560px) and (orientation: landscape) {
+    body { align-items: flex-start; }
+    .card { padding-block: 24px; }
+    .cake { font-size: 42px; margin-bottom: 4px; }
+    .message { margin: 10px 0 16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star, .cake, h1, .balloon, .sparkle, .confetti {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="card">
+  <div class="cake">🎂</div>
+  <h1>Happy Birthday Sweety Akka!</h1>
+  <div class="message">
+    Enjoy your day! 🎉
+  </div>
+  <button class="btn" id="celebrateBtn">🎈 Click to celebrate!</button>
+  <div class="hint">tap it more than once 😉</div>
+</div>
+
+<script>
+const btn = document.getElementById('celebrateBtn');
+const starsContainer = document.getElementById('stars');
+const expiresIn = BIRTHDAY_PAGE_EXPIRES_AT - Date.now();
+
+window.setTimeout(() => window.location.replace('/'), Math.max(0, expiresIn));
+
+// Background stars
+for (let i = 0; i < 60; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.left = Math.random() * 100 + '%';
+  s.style.top = Math.random() * 100 + '%';
+  s.style.animationDelay = (Math.random() * 2.5) + 's';
+  starsContainer.appendChild(s);
+}
+
+const balloonColors = ['#ff8fb1', '#b98cff', '#ffd580', '#7ee8c7', '#8ec5ff', '#ff6b6b'];
+const confettiColors = ['#ffd580', '#ff8fb1', '#b98cff', '#7ee8c7', '#8ec5ff'];
+
+function launchBalloons(count) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const b = document.createElement('div');
+      b.className = 'balloon';
+      const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+      b.style.background = `radial-gradient(circle at 35% 30%, ${lighten(color)}, ${color})`;
+      b.style.left = Math.random() * 90 + 'vw';
+      b.style.animationDuration = (4 + Math.random() * 2) + 's';
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 6500);
+    }, i * 120);
+  }
+}
+
+function lighten(hex) {
+  return hex; // simple, keeps gradient pleasant without extra math
+}
+
+function launchConfetti(count) {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      c.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4200);
+    }, i * 25);
+  }
+}
+
+function launchSparkles(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const sp = document.createElement('div');
+    sp.className = 'sparkle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random() * 90;
+    sp.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    sp.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    sp.style.left = x + 'px';
+    sp.style.top = y + 'px';
+    const size = 5 + Math.random() * 8;
+    sp.style.width = size + 'px';
+    sp.style.height = size + 'px';
+    document.body.appendChild(sp);
+    setTimeout(() => sp.remove(), 950);
+  }
+}
+
+btn.addEventListener('click', (e) => {
+  launchBalloons(10);
+  launchConfetti(45);
+  launchSparkles(e.clientX, e.clientY, 22);
+
+  // little button pulse feedback
+  btn.style.transform = 'scale(0.94)';
+  setTimeout(() => { btn.style.transform = ''; }, 150);
+});
+
+// sparkle trail wherever they tap/click anywhere on screen
+document.body.addEventListener('click', (e) => {
+  if (e.target !== btn) {
+    launchSparkles(e.clientX, e.clientY, 10);
+  }
+});
+</script>
+
+</body>
+</html>
