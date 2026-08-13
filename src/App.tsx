@@ -7658,7 +7658,7 @@ const distributedCurriculum: DistributedCurriculumTier[] = [
           {
             title: "Caching",
             detail: "Cache-aside, write-through/back/around, LRU, and LFU.",
-            href: CACHING_BASICS_PATH,
+            href: CACHING_PATH,
           },
           { title: "CDN basics" },
         ],
@@ -9142,7 +9142,7 @@ function DistributedTierCourseShell({
     activePath.startsWith(LOAD_BALANCING_PATH)
       ? LOAD_BALANCING_PATH
       : activePath.startsWith(CACHING_PATH)
-      ? CACHING_BASICS_PATH
+      ? CACHING_PATH
       : null,
   );
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -9285,7 +9285,7 @@ function DistributedTierCourseShell({
                   {group.topics.map((topic, topicIndex) => {
                     const topicNumber = groupStartIndex + topicIndex + 1;
                     const isActive = isTopicActive(topic);
-                    const hasSubtopics = topic.href === LOAD_BALANCING_PATH;
+                    const hasSubtopics = topic.href === LOAD_BALANCING_PATH || topic.href === CACHING_PATH;
                     const isExpanded = hasSubtopics && expandedTopicPath === topic.href;
                     const topicBody = (
                       <>
@@ -9339,7 +9339,7 @@ function DistributedTierCourseShell({
                             activePath={activePath}
                             onNavigate={() => setIsLessonMenuOpen(false)}
                           />
-                        ) : topic.href === CACHING_BASICS_PATH ? (
+                        ) : topic.href === CACHING_PATH ? (
                           <CachingSidebarSubtopics
                             activePath={activePath}
                             onNavigate={() => setIsLessonMenuOpen(false)}
@@ -9934,6 +9934,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerStickySessionsPage = learnPathname === LOAD_BALANCER_STICKY_SESSIONS_PATH;
   const isLoadBalancerConnectionManagementPage = learnPathname === LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH;
   const isLoadBalancerFailureModesPage = learnPathname === LOAD_BALANCER_FAILURE_MODES_PATH;
+  const isCachingPage = learnPathname === CACHING_PATH;
   const isCachingBasicsPage = learnPathname === CACHING_BASICS_PATH || learnPathname === CACHING_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage || isLoadBalancerRoutingAlgorithmsComparisonPage;
   const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage || isLoadBalancerFailureModesPage || isCachingBasicsPage;
@@ -9943,10 +9944,10 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   useEffect(() => {
     if (isLoadBalancingPage) {
       window.location.replace(LOAD_BALANCER_BASICS_PATH);
-    } else if (learnPathname === CACHING_PATH) {
+    } else if (isCachingPage) {
       window.location.replace(CACHING_BASICS_PATH);
     }
-  }, [isLoadBalancingPage, learnPathname]);
+  }, [isLoadBalancingPage, isCachingPage]);
 
   const learnBackHref = isCachingBasicsPage
     ? LOAD_BALANCER_FAILURE_MODES_PATH
