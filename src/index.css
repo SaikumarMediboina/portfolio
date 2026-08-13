@@ -27137,7 +27137,8 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .distributed-article-image-wrap {
-  margin: 1.8rem 0;
+  margin: 2rem auto;
+  max-width: 780px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -27151,9 +27152,11 @@ a.load-balancer-lesson-link:focus-visible {
 }
 
 .distributed-article-img {
+  width: 100%;
   max-width: 100%;
   height: auto;
   display: block;
+  image-rendering: auto;
 }
 
 .distributed-article-white-canvas {
@@ -28053,20 +28056,21 @@ a.load-balancer-lesson-link:focus-visible {
   .distributed-article-quote
 ) {
   max-width: 78ch;
-  font-size: clamp(.98rem, 1.05vw, 1.03rem);
+  font-size: clamp(1.08rem, 1.3vw, 1.2rem);
+  line-height: 1.75;
 }
 
 .distributed-article-page .distributed-article-paragraph {
-  line-height: 1.72;
+  line-height: 1.75;
 }
 
 .distributed-article-page :is(.distributed-article-list, .distributed-article-numbered-list) {
-  gap: .45rem;
-  line-height: 1.62;
+  gap: .5rem;
+  line-height: 1.75;
 }
 
 .distributed-article-page .distributed-article-quote {
-  line-height: 1.58;
+  line-height: 1.75;
 }
 
 .distributed-article-page :is(
