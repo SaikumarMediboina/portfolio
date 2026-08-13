@@ -35,6 +35,7 @@ import ringReplicationSvg from "./assets/ring-replication.svg";
 import loadBalancerHealthFailureDetectionMarkdown from "./content/load-balancer-health-failure-detection.md?raw";
 import loadBalancerStickySessionsMarkdown from "./content/load-balancer-sticky-sessions.md?raw";
 import loadBalancerConnectionManagementMarkdown from "./content/load-balancer-connection-management.md?raw";
+import loadBalancerFailureModesMarkdown from "./content/load-balancer-failure-modes.md?raw";
 import activeVsPassiveHealthCheckPng from "./assets/active-vs-passive-health-check.png";
 import livenessReadinessSlowAlivePng from "./assets/liveness-readiness-slow-alive.png";
 import healthStateMachinePng from "./assets/health-state-machine.png";
@@ -46,6 +47,24 @@ import keepaliveVsWebsocketPng from "./assets/keepalive-vs-websocket.png";
 import websocketCrashReconnectPng from "./assets/websocket-crash-reconnect.png";
 import tcpConnectionPinnedBackendPng from "./assets/tcp-connection-pinned-backend.png";
 import keepaliveConnectionPoolingBackendPng from "./assets/keepalive-connection-pooling-backend.png";
+import backendServerFailurePng from "./assets/backend-server-failure.png";
+import loadBalancerFailurePng from "./assets/load-balancer-failure.png";
+import networkFailurePng from "./assets/network-failure.png";
+import networkPartitionPng from "./assets/network-partition.png";
+import loadBalancerOverloadPng from "./assets/load-balancer-overload.png";
+import backendOverloadPng from "./assets/backend-overload.png";
+import cascadingFailurePng from "./assets/cascading-failure.png";
+import healthCheckFalsePositivePng from "./assets/health-check-false-positive.png";
+import healthCheckFalseNegativePng from "./assets/health-check-false-negative.png";
+import flappingServerSlowStartPng from "./assets/flapping-server-slow-start.png";
+import dnsFailureStaleDnsPng from "./assets/dns-failure-stale-dns.png";
+import connectionFailurePng from "./assets/connection-failure.png";
+import connectionDrainingFailurePng from "./assets/connection-draining-failure.png";
+import sessionStateFailurePng from "./assets/session-state-failure.png";
+import configurationFailurePng from "./assets/configuration-failure.png";
+import tlsCertificateFailurePng from "./assets/tls-certificate-failure.png";
+import availabilityZoneFailurePng from "./assets/availability-zone-failure.png";
+import regionFailureGlobalFailoverPng from "./assets/region-failure-global-failover.png";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7486,6 +7505,13 @@ const markdownImageAssets: Record<string, string> = {
   "./assets/websocket-crash-reconnect.png": websocketCrashReconnectPng,
   "./assets/tcp-connection-pinned-backend.png": tcpConnectionPinnedBackendPng,
   "./assets/keepalive-connection-pooling-backend.png": keepaliveConnectionPoolingBackendPng,
+  "./assets/backend-server-failure.png": backendServerFailurePng,
+  "./assets/load-balancer-failure.png": loadBalancerFailurePng,
+  "./assets/network-failure.png": networkFailurePng,
+  "./assets/network-partition.png": networkPartitionPng,
+  "./assets/load-balancer-overload.png": loadBalancerOverloadPng,
+  "./assets/backend-overload.png": backendOverloadPng,
+  "./assets/cascading-failure.png": cascadingFailurePng,
   "/assets/consistent-hashing-ring.svg": consistentHashingRingSvg,
   "/assets/ring-server-added.svg": ringServerAddedSvg,
   "/assets/ring-server-down.svg": ringServerDownSvg,
@@ -7509,6 +7535,13 @@ const markdownImageAssets: Record<string, string> = {
   "/assets/websocket-crash-reconnect.png": websocketCrashReconnectPng,
   "/assets/tcp-connection-pinned-backend.png": tcpConnectionPinnedBackendPng,
   "/assets/keepalive-connection-pooling-backend.png": keepaliveConnectionPoolingBackendPng,
+  "/assets/backend-server-failure.png": backendServerFailurePng,
+  "/assets/load-balancer-failure.png": loadBalancerFailurePng,
+  "/assets/network-failure.png": networkFailurePng,
+  "/assets/network-partition.png": networkPartitionPng,
+  "/assets/load-balancer-overload.png": loadBalancerOverloadPng,
+  "/assets/backend-overload.png": backendOverloadPng,
+  "/assets/cascading-failure.png": cascadingFailurePng,
 };
 
 const whiteCanvasDiagramFiles = new Set([
@@ -7517,6 +7550,13 @@ const whiteCanvasDiagramFiles = new Set([
   "websocket-crash-reconnect.png",
   "tcp-connection-pinned-backend.png",
   "keepalive-connection-pooling-backend.png",
+  "backend-server-failure.png",
+  "load-balancer-failure.png",
+  "network-failure.png",
+  "network-partition.png",
+  "load-balancer-overload.png",
+  "backend-overload.png",
+  "cascading-failure.png",
 ]);
 
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
@@ -7536,6 +7576,7 @@ const LOAD_BALANCER_CONSISTENT_HASHING_DEEP_DIVE_PATH = `${LOAD_BALANCING_PATH}/
 const LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH = `${LOAD_BALANCING_PATH}/health-checks`;
 const LOAD_BALANCER_STICKY_SESSIONS_PATH = `${LOAD_BALANCING_PATH}/sticky-sessions`;
 const LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH = `${LOAD_BALANCING_PATH}/connection-management`;
+const LOAD_BALANCER_FAILURE_MODES_PATH = `${LOAD_BALANCING_PATH}/failure-modes`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8107,6 +8148,7 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
   {
     detail: "Overload, stale health, retry amplification, uneven traffic, and cascading failures.",
+    href: LOAD_BALANCER_FAILURE_MODES_PATH,
     phase: 4,
     title: "Failure Modes",
   },
@@ -9554,6 +9596,53 @@ function LoadBalancerConnectionManagementArticle() {
   );
 }
 
+function LoadBalancerFailureModesArticle() {
+  const articleHeadings = loadBalancerFailureModesMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <DistributedTierCourseShell activePath={LOAD_BALANCER_FAILURE_MODES_PATH} tierIndex={0}>
+      <article className="distributed-scaling-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={LOAD_BALANCING_PATH}>Load Balancing</a>
+            <span aria-hidden="true">/</span>
+            <strong>Failure Modes</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 09 of 10 · Production Engineering · Unlocked</p>
+          <h1>Failure Modes in Load Balancing</h1>
+          <p>
+            Understand how servers, load balancers, networks, health checks, DNS, state, and entire regions fail — and how resilient production systems keep traffic flowing.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Redundancy</span><span>Failure Domains</span><span>Cascading Failure</span><span>Health Checks</span><span>Multi-AZ & Multi-Region</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part Failure Modes guide</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={loadBalancerFailureModesMarkdown} />
+      </article>
+    </DistributedTierCourseShell>
+  );
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
   const learnPathname = typeof window === "undefined"
@@ -9575,8 +9664,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerHealthFailureDetectionPage = learnPathname === LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH;
   const isLoadBalancerStickySessionsPage = learnPathname === LOAD_BALANCER_STICKY_SESSIONS_PATH;
   const isLoadBalancerConnectionManagementPage = learnPathname === LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH;
+  const isLoadBalancerFailureModesPage = learnPathname === LOAD_BALANCER_FAILURE_MODES_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage || isLoadBalancerRoutingAlgorithmsComparisonPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage || isLoadBalancerFailureModesPage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9586,7 +9676,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage]);
 
-  const learnBackHref = isLoadBalancerConnectionManagementPage
+  const learnBackHref = isLoadBalancerFailureModesPage
+    ? LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH
+    : isLoadBalancerConnectionManagementPage
     ? LOAD_BALANCER_STICKY_SESSIONS_PATH
     : isLoadBalancerStickySessionsPage
     ? LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH
@@ -9832,6 +9924,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isLoadBalancerFailureModesPage ? (
+          <LoadBalancerFailureModesArticle />
         ) : isLoadBalancerConnectionManagementPage ? (
           <LoadBalancerConnectionManagementArticle />
         ) : isLoadBalancerStickySessionsPage ? (
