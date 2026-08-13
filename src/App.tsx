@@ -8203,6 +8203,124 @@ const loadBalancingCheckpoints: LoadBalancingCheckpoint[] = [
   },
 ];
 
+type CachingCheckpoint = {
+  detail: string;
+  href?: string;
+  phase: number;
+  title: string;
+};
+
+const cachingCheckpoints: CachingCheckpoint[] = [
+  {
+    detail: "What caching is, why it's faster, and where it sits in architecture.",
+    href: CACHING_BASICS_PATH,
+    phase: 1,
+    title: "01 Basics",
+  },
+  {
+    detail: "Cache-Aside, Write-Through, Write-Back, and Write-Around.",
+    phase: 1,
+    title: "02 Caching Strategies — How to Write?",
+  },
+  {
+    detail: "LRU, LFU, and memory eviction mechanics.",
+    phase: 2,
+    title: "03 Eviction Policies — What to Remove?",
+  },
+  {
+    detail: "Choosing TTL values and expiry mechanics.",
+    phase: 2,
+    title: "04 TTL & Expiry — Deep Dive",
+  },
+  {
+    detail: "Keeping cache and DB in sync — the hard problem.",
+    phase: 2,
+    title: "05 Cache Invalidation",
+  },
+  {
+    detail: "Cache Stampede / Thundering Herd, Cache Penetration.",
+    phase: 3,
+    title: "06 Failure Modes — Part 1",
+  },
+  {
+    detail: "Cache Avalanche, Hot Key Problem.",
+    phase: 3,
+    title: "07 Failure Modes — Part 2",
+  },
+  {
+    detail: "In-process cache vs Redis/Memcached — trade-offs.",
+    phase: 3,
+    title: "08 Local vs Distributed Cache",
+  },
+  {
+    detail: "Redis replication, persistence basics, failover.",
+    phase: 4,
+    title: "09 High Availability of Cache",
+  },
+  {
+    detail: "Choosing strategy + eviction + TTL together for a real system.",
+    phase: 4,
+    title: "10 Production Design Decisions",
+  },
+];
+
+function CachingLessonNavigation({ currentPath }: { currentPath: string }) {
+  const currentIndex = cachingCheckpoints.findIndex(
+    (checkpoint) => checkpoint.href === currentPath,
+  );
+  const previousCheckpoint = currentIndex > 0 ? cachingCheckpoints[currentIndex - 1] : null;
+  const nextCheckpoint = currentIndex >= 0 && currentIndex < cachingCheckpoints.length - 1
+    ? cachingCheckpoints[currentIndex + 1]
+    : null;
+
+  const renderLessonLink = (
+    checkpoint: CachingCheckpoint | null,
+    direction: "previous" | "next",
+  ) => {
+    const label = direction === "previous" ? "Previous article" : "Next article";
+    const arrow = direction === "previous" ? "←" : "→";
+
+    if (!checkpoint) {
+      return (
+        <span className={`load-balancer-lesson-link is-${direction} is-locked`} aria-disabled="true">
+          <i aria-hidden="true">{arrow}</i>
+          <span><small>{label}</small><strong>Start of learning path</strong></span>
+          <b>None</b>
+        </span>
+      );
+    }
+
+    const content = (
+      <>
+        <i aria-hidden="true">{arrow}</i>
+        <span><small>{label}</small><strong>{checkpoint.title}</strong></span>
+        <b>{checkpoint.href ? "Open" : "Locked"}</b>
+      </>
+    );
+
+    return checkpoint.href ? (
+      <a className={`load-balancer-lesson-link is-${direction}`} href={checkpoint.href}>
+        {content}
+      </a>
+    ) : (
+      <span className={`load-balancer-lesson-link is-${direction} is-locked`} aria-disabled="true">
+        {content}
+      </span>
+    );
+  };
+
+  return (
+    <nav className="load-balancer-lesson-navigation" aria-label="Caching article navigation">
+      {renderLessonLink(previousCheckpoint, "previous")}
+      <a className="load-balancer-lesson-overview" href={CACHING_BASICS_PATH}>
+        <small>Learning path</small>
+        <strong>All {cachingCheckpoints.length} checkpoints</strong>
+      </a>
+      {renderLessonLink(nextCheckpoint, "next")}
+    </nav>
+  );
+}
+
 function LoadBalancingLessonNavigation({ currentPath }: { currentPath: string }) {
   const currentIndex = loadBalancingCheckpoints.findIndex(
     (checkpoint) => checkpoint.href === currentPath,
@@ -8948,6 +9066,56 @@ function LoadBalancingSidebarSubtopics({
   );
 }
 
+function CachingSidebarSubtopics({
+  activePath,
+  onNavigate,
+}: {
+  activePath: string;
+  onNavigate: () => void;
+}) {
+  return (
+    <div className="distributed-tier-subtopics">
+      <div className="distributed-tier-subtopics-inner">
+        {cachingCheckpoints.map((checkpoint, checkpointIndex) => {
+          const isCheckpointActive = checkpoint.href === activePath;
+          const checkpointBody = (
+            <>
+              <span className="distributed-tier-subtopic-code" aria-hidden="true">
+                {String(checkpointIndex + 1).padStart(2, "0")}
+              </span>
+              <span className="distributed-tier-subtopic-copy">
+                <strong>{checkpoint.title}</strong>
+              </span>
+            </>
+          );
+
+          return (
+            <div
+              className={`distributed-tier-subtopic-entry${isCheckpointActive ? " is-active" : ""}`}
+              key={checkpoint.title}
+            >
+              {checkpoint.href ? (
+                <a
+                  aria-current={isCheckpointActive ? "page" : undefined}
+                  className={`distributed-tier-subtopic ${isCheckpointActive ? "is-active" : "is-available"}`}
+                  href={checkpoint.href}
+                  onClick={onNavigate}
+                >
+                  {checkpointBody}
+                </a>
+              ) : (
+                <span aria-disabled="true" className="distributed-tier-subtopic is-locked">
+                  {checkpointBody}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function DistributedTierCourseShell({
   activePath,
   children,
@@ -8971,7 +9139,11 @@ function DistributedTierCourseShell({
     activeGroupIndex >= 0 ? activeGroupIndex : 0,
   );
   const [expandedTopicPath, setExpandedTopicPath] = useState<string | null>(() =>
-    activePath.startsWith(LOAD_BALANCING_PATH) ? LOAD_BALANCING_PATH : null,
+    activePath.startsWith(LOAD_BALANCING_PATH)
+      ? LOAD_BALANCING_PATH
+      : activePath.startsWith(CACHING_PATH)
+      ? CACHING_BASICS_PATH
+      : null,
   );
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window === "undefined") {
@@ -9162,8 +9334,13 @@ function DistributedTierCourseShell({
                             </span>
                         )}
 
-                        {hasSubtopics ? (
+                        {topic.href === LOAD_BALANCING_PATH ? (
                           <LoadBalancingSidebarSubtopics
+                            activePath={activePath}
+                            onNavigate={() => setIsLessonMenuOpen(false)}
+                          />
+                        ) : topic.href === CACHING_BASICS_PATH ? (
+                          <CachingSidebarSubtopics
                             activePath={activePath}
                             onNavigate={() => setIsLessonMenuOpen(false)}
                           />
@@ -9729,6 +9906,7 @@ function CachingBasicsArticle() {
         </nav>
 
         <DistributedMarkdown markdown={cachingBasicsMarkdown} />
+        <CachingLessonNavigation currentPath={CACHING_BASICS_PATH} />
       </article>
     </DistributedTierCourseShell>
   );
