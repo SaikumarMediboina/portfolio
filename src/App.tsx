@@ -37,6 +37,7 @@ import loadBalancerStickySessionsMarkdown from "./content/load-balancer-sticky-s
 import loadBalancerConnectionManagementMarkdown from "./content/load-balancer-connection-management.md?raw";
 import loadBalancerFailureModesMarkdown from "./content/load-balancer-failure-modes.md?raw";
 import cachingBasicsMarkdown from "./content/caching-basics.md?raw";
+import cachingStrategiesMarkdown from "./content/caching-strategies.md?raw";
 import activeVsPassiveHealthCheckPng from "./assets/active-vs-passive-health-check.png";
 import livenessReadinessSlowAlivePng from "./assets/liveness-readiness-slow-alive.png";
 import healthStateMachinePng from "./assets/health-state-machine.png";
@@ -7617,6 +7618,7 @@ const LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH = `${LOAD_BALANCING_PATH}/connect
 const LOAD_BALANCER_FAILURE_MODES_PATH = `${LOAD_BALANCING_PATH}/failure-modes`;
 const CACHING_PATH = `${DISTRIBUTED_CONCEPTS_PATH}/caching`;
 const CACHING_BASICS_PATH = `${CACHING_PATH}/basics`;
+const CACHING_STRATEGIES_PATH = `${CACHING_PATH}/strategies`;
 
 type DistributedTopic = {
   detail?: string;
@@ -8219,6 +8221,7 @@ const cachingCheckpoints: CachingCheckpoint[] = [
   },
   {
     detail: "Cache-Aside, Write-Through, Write-Back, and Write-Around.",
+    href: CACHING_STRATEGIES_PATH,
     phase: 1,
     title: "Caching Strategies — How to Write?",
   },
@@ -9911,6 +9914,53 @@ function CachingBasicsArticle() {
   );
 }
 
+function CachingStrategiesArticle() {
+  const articleHeadings = cachingStrategiesMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <DistributedTierCourseShell activePath={CACHING_STRATEGIES_PATH} tierIndex={0}>
+      <article className="distributed-scaling-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={CACHING_PATH}>Caching</a>
+            <span aria-hidden="true">/</span>
+            <strong>Strategies</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 02 of 10 · Read & Write Paths · Unlocked</p>
+          <h1>Caching Strategies: Choosing the Right Read and Write Path</h1>
+          <p>
+            Understand Cache-Aside, Read-Through, Write-Through, Write-Behind, and Write-Around — when to use each, how they fail, and why the write path decides your correctness story.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Cache-Aside</span><span>Write-Through</span><span>Write-Behind</span><span>Write-Around</span><span>Read-Through</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part Caching Strategies guide</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={cachingStrategiesMarkdown} />
+      </article>
+    </DistributedTierCourseShell>
+  );
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
   const learnPathname = typeof window === "undefined"
@@ -9935,8 +9985,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerFailureModesPage = learnPathname === LOAD_BALANCER_FAILURE_MODES_PATH;
   const isCachingPage = learnPathname === CACHING_PATH;
   const isCachingBasicsPage = learnPathname === CACHING_BASICS_PATH || learnPathname === CACHING_PATH;
+  const isCachingStrategiesPage = learnPathname === CACHING_STRATEGIES_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage || isLoadBalancerRoutingAlgorithmsComparisonPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage || isLoadBalancerFailureModesPage || isCachingBasicsPage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage || isLoadBalancerFailureModesPage || isCachingBasicsPage || isCachingStrategiesPage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
@@ -9948,7 +9999,9 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
     }
   }, [isLoadBalancingPage, isCachingPage]);
 
-  const learnBackHref = isCachingBasicsPage
+  const learnBackHref = isCachingStrategiesPage
+    ? CACHING_BASICS_PATH
+    : isCachingBasicsPage
     ? LOAD_BALANCER_FAILURE_MODES_PATH
     : isLoadBalancerFailureModesPage
     ? LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH
@@ -10198,6 +10251,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isCachingStrategiesPage ? (
+          <CachingStrategiesArticle />
         ) : isCachingBasicsPage ? (
           <CachingBasicsArticle />
         ) : isLoadBalancerFailureModesPage ? (
