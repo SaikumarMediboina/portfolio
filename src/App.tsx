@@ -36,6 +36,7 @@ import loadBalancerHealthFailureDetectionMarkdown from "./content/load-balancer-
 import loadBalancerStickySessionsMarkdown from "./content/load-balancer-sticky-sessions.md?raw";
 import loadBalancerConnectionManagementMarkdown from "./content/load-balancer-connection-management.md?raw";
 import loadBalancerFailureModesMarkdown from "./content/load-balancer-failure-modes.md?raw";
+import cachingBasicsMarkdown from "./content/caching-basics.md?raw";
 import activeVsPassiveHealthCheckPng from "./assets/active-vs-passive-health-check.png";
 import livenessReadinessSlowAlivePng from "./assets/liveness-readiness-slow-alive.png";
 import healthStateMachinePng from "./assets/health-state-machine.png";
@@ -65,6 +66,18 @@ import configurationFailurePng from "./assets/configuration-failure.png";
 import tlsCertificateFailurePng from "./assets/tls-certificate-failure.png";
 import availabilityZoneFailurePng from "./assets/availability-zone-failure.png";
 import regionFailureGlobalFailoverPng from "./assets/region-failure-global-failover.png";
+import whatIsCachingPng from "./assets/what-is-caching.png";
+import whyCacheProblemAtScalePng from "./assets/why-cache-problem-at-scale.png";
+import whereDoesCacheSitPng from "./assets/where-does-cache-sit.png";
+import cacheAsidePatternPng from "./assets/cache-aside-pattern.png";
+import whyIsCacheFasterPng from "./assets/why-is-cache-faster.png";
+import cacheTemporaryCopyNotSourceOfTruthPng from "./assets/cache-temporary-copy-not-source-of-truth.png";
+import ttlAndExpiryPng from "./assets/ttl-and-expiry.png";
+import cacheStampedePng from "./assets/cache-stampede.png";
+import readWriteAndInvalidationPng from "./assets/read-write-and-invalidation.png";
+import benefitsOfCachingPng from "./assets/benefits-of-caching.png";
+import cachingTradeoffsPng from "./assets/caching-tradeoffs.png";
+import whenToCachePng from "./assets/when-to-cache.png";
 import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
@@ -7542,6 +7555,19 @@ const markdownImageAssets: Record<string, string> = {
   "/assets/load-balancer-overload.png": loadBalancerOverloadPng,
   "/assets/backend-overload.png": backendOverloadPng,
   "/assets/cascading-failure.png": cascadingFailurePng,
+  "/assets/region-failure-global-failover.png": regionFailureGlobalFailoverPng,
+  "/assets/what-is-caching.png": whatIsCachingPng,
+  "/assets/why-cache-problem-at-scale.png": whyCacheProblemAtScalePng,
+  "/assets/where-does-cache-sit.png": whereDoesCacheSitPng,
+  "/assets/cache-aside-pattern.png": cacheAsidePatternPng,
+  "/assets/why-is-cache-faster.png": whyIsCacheFasterPng,
+  "/assets/cache-temporary-copy-not-source-of-truth.png": cacheTemporaryCopyNotSourceOfTruthPng,
+  "/assets/ttl-and-expiry.png": ttlAndExpiryPng,
+  "/assets/cache-stampede.png": cacheStampedePng,
+  "/assets/read-write-and-invalidation.png": readWriteAndInvalidationPng,
+  "/assets/benefits-of-caching.png": benefitsOfCachingPng,
+  "/assets/caching-tradeoffs.png": cachingTradeoffsPng,
+  "/assets/when-to-cache.png": whenToCachePng,
 };
 
 const whiteCanvasDiagramFiles = new Set([
@@ -7557,6 +7583,18 @@ const whiteCanvasDiagramFiles = new Set([
   "load-balancer-overload.png",
   "backend-overload.png",
   "cascading-failure.png",
+  "what-is-caching.png",
+  "why-cache-problem-at-scale.png",
+  "where-does-cache-sit.png",
+  "cache-aside-pattern.png",
+  "why-is-cache-faster.png",
+  "cache-temporary-copy-not-source-of-truth.png",
+  "ttl-and-expiry.png",
+  "cache-stampede.png",
+  "read-write-and-invalidation.png",
+  "benefits-of-caching.png",
+  "caching-tradeoffs.png",
+  "when-to-cache.png",
 ]);
 
 const DISTRIBUTED_CONCEPTS_PATH = "/learn-with-me/distributed-concepts";
@@ -7577,6 +7615,8 @@ const LOAD_BALANCER_HEALTH_FAILURE_DETECTION_PATH = `${LOAD_BALANCING_PATH}/heal
 const LOAD_BALANCER_STICKY_SESSIONS_PATH = `${LOAD_BALANCING_PATH}/sticky-sessions`;
 const LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH = `${LOAD_BALANCING_PATH}/connection-management`;
 const LOAD_BALANCER_FAILURE_MODES_PATH = `${LOAD_BALANCING_PATH}/failure-modes`;
+const CACHING_PATH = `${DISTRIBUTED_CONCEPTS_PATH}/caching`;
+const CACHING_BASICS_PATH = `${CACHING_PATH}/basics`;
 
 type DistributedTopic = {
   detail?: string;
@@ -7615,7 +7655,11 @@ const distributedCurriculum: DistributedCurriculumTier[] = [
             detail: "L4 vs L7, round robin, least connections, and consistent hashing.",
             href: LOAD_BALANCING_PATH,
           },
-          { title: "Caching", detail: "Cache-aside, write-through/back/around, LRU, and LFU." },
+          {
+            title: "Caching",
+            detail: "Cache-aside, write-through/back/around, LRU, and LFU.",
+            href: CACHING_BASICS_PATH,
+          },
           { title: "CDN basics" },
         ],
       },
@@ -9643,6 +9687,53 @@ function LoadBalancerFailureModesArticle() {
   );
 }
 
+function CachingBasicsArticle() {
+  const articleHeadings = cachingBasicsMarkdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.startsWith("## "))
+    .map((line) => line.slice(3));
+
+  return (
+    <DistributedTierCourseShell activePath={CACHING_BASICS_PATH} tierIndex={0}>
+      <article className="distributed-scaling-article routing-algorithm-article">
+        <header className="distributed-article-hero load-balancer-article-hero routing-algorithm-hero">
+          <nav className="learn-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/learn-with-me">Learn With Me</a>
+            <span aria-hidden="true">/</span>
+            <a href={DISTRIBUTED_CONCEPTS_PATH}>Distributed Concepts</a>
+            <span aria-hidden="true">/</span>
+            <a href={CACHING_PATH}>Caching</a>
+            <span aria-hidden="true">/</span>
+            <strong>Basics</strong>
+          </nav>
+          <p className="eyebrow">Checkpoint 01 of 10 · Caching Fundamentals · Unlocked</p>
+          <h1>Caching Basics: What It Is, Why It’s Faster, and Where It Sits</h1>
+          <p>
+            Understand why a cache is not just a faster database, where caching sits across the stack, and how refusing to repeat expensive work protects production systems.
+          </p>
+          <div className="distributed-article-tags" aria-label="Article topics">
+            <span>Cache-Aside</span><span>TTL & Expiry</span><span>Cache Miss</span><span>Cache Stampede</span><span>Multi-Level Caching</span>
+          </div>
+        </header>
+
+        <nav className="distributed-article-toc" aria-label="Article sections">
+          <div><p className="eyebrow">Quick jump</p><h2>{articleHeadings.length}-part Caching guide</h2></div>
+          <div>
+            {articleHeadings.map((heading) => (
+              <a href={`#${getDistributedHeadingId(heading)}`} key={heading}>
+                {heading.replace(/\*\*/g, "")}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <DistributedMarkdown markdown={cachingBasicsMarkdown} />
+      </article>
+    </DistributedTierCourseShell>
+  );
+}
+
 function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isScrolled = useScrolled();
   const learnPathname = typeof window === "undefined"
@@ -9665,18 +9756,23 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
   const isLoadBalancerStickySessionsPage = learnPathname === LOAD_BALANCER_STICKY_SESSIONS_PATH;
   const isLoadBalancerConnectionManagementPage = learnPathname === LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH;
   const isLoadBalancerFailureModesPage = learnPathname === LOAD_BALANCER_FAILURE_MODES_PATH;
+  const isCachingBasicsPage = learnPathname === CACHING_BASICS_PATH || learnPathname === CACHING_PATH;
   const isRoutingAlgorithmArticlePage = isLoadBalancerRoutingAlgorithmsPage || isLoadBalancerWeightedRoundRobinPage || isLoadBalancerLeastConnectionsPage || isLoadBalancerWeightedLeastConnectionsPage || isLoadBalancerIpHashPage || isLoadBalancerConsistentHashingPage || isLoadBalancerRoutingAlgorithmsComparisonPage;
-  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage || isLoadBalancerFailureModesPage;
+  const isLoadBalancingCourseArticlePage = isLoadBalancingPage || isLoadBalancerBasicsPage || isLoadBalancerTypesPage || isRoutingAlgorithmArticlePage || isLoadBalancerConsistentHashingDeepDivePage || isLoadBalancerHealthFailureDetectionPage || isLoadBalancerStickySessionsPage || isLoadBalancerConnectionManagementPage || isLoadBalancerFailureModesPage || isCachingBasicsPage;
   const isDistributedHubPage = isDistributedConceptsPage;
   const isDistributedArticlePage = isVerticalHorizontalScalingPage || isLoadBalancingCourseArticlePage;
 
   useEffect(() => {
     if (isLoadBalancingPage) {
       window.location.replace(LOAD_BALANCER_BASICS_PATH);
+    } else if (learnPathname === CACHING_PATH) {
+      window.location.replace(CACHING_BASICS_PATH);
     }
-  }, [isLoadBalancingPage]);
+  }, [isLoadBalancingPage, learnPathname]);
 
-  const learnBackHref = isLoadBalancerFailureModesPage
+  const learnBackHref = isCachingBasicsPage
+    ? LOAD_BALANCER_FAILURE_MODES_PATH
+    : isLoadBalancerFailureModesPage
     ? LOAD_BALANCER_CONNECTION_MANAGEMENT_PATH
     : isLoadBalancerConnectionManagementPage
     ? LOAD_BALANCER_STICKY_SESSIONS_PATH
@@ -9924,6 +10020,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
               ) : null}
             </form>
           </section>
+        ) : isCachingBasicsPage ? (
+          <CachingBasicsArticle />
         ) : isLoadBalancerFailureModesPage ? (
           <LoadBalancerFailureModesArticle />
         ) : isLoadBalancerConnectionManagementPage ? (
