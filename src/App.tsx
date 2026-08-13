@@ -8215,52 +8215,52 @@ const cachingCheckpoints: CachingCheckpoint[] = [
     detail: "What caching is, why it's faster, and where it sits in architecture.",
     href: CACHING_BASICS_PATH,
     phase: 1,
-    title: "01 Basics",
+    title: "Basics",
   },
   {
     detail: "Cache-Aside, Write-Through, Write-Back, and Write-Around.",
     phase: 1,
-    title: "02 Caching Strategies — How to Write?",
+    title: "Caching Strategies — How to Write?",
   },
   {
     detail: "LRU, LFU, and memory eviction mechanics.",
     phase: 2,
-    title: "03 Eviction Policies — What to Remove?",
+    title: "Eviction Policies — What to Remove?",
   },
   {
     detail: "Choosing TTL values and expiry mechanics.",
     phase: 2,
-    title: "04 TTL & Expiry — Deep Dive",
+    title: "TTL & Expiry — Deep Dive",
   },
   {
     detail: "Keeping cache and DB in sync — the hard problem.",
     phase: 2,
-    title: "05 Cache Invalidation",
+    title: "Cache Invalidation",
   },
   {
     detail: "Cache Stampede / Thundering Herd, Cache Penetration.",
     phase: 3,
-    title: "06 Failure Modes — Part 1",
+    title: "Failure Modes — Part 1",
   },
   {
     detail: "Cache Avalanche, Hot Key Problem.",
     phase: 3,
-    title: "07 Failure Modes — Part 2",
+    title: "Failure Modes — Part 2",
   },
   {
     detail: "In-process cache vs Redis/Memcached — trade-offs.",
     phase: 3,
-    title: "08 Local vs Distributed Cache",
+    title: "Local vs Distributed Cache",
   },
   {
     detail: "Redis replication, persistence basics, failover.",
     phase: 4,
-    title: "09 High Availability of Cache",
+    title: "High Availability of Cache",
   },
   {
     detail: "Choosing strategy + eviction + TTL together for a real system.",
     phase: 4,
-    title: "10 Production Design Decisions",
+    title: "Production Design Decisions",
   },
 ];
 
@@ -9906,7 +9906,6 @@ function CachingBasicsArticle() {
         </nav>
 
         <DistributedMarkdown markdown={cachingBasicsMarkdown} />
-        <CachingLessonNavigation currentPath={CACHING_BASICS_PATH} />
       </article>
     </DistributedTierCourseShell>
   );
