@@ -712,7 +712,24 @@
 
 .expense-category-detail-table th:nth-last-child(2),
 .expense-category-detail-table td:nth-last-child(2) {
+  text-align: right;
+}
+
+.expense-category-detail-table th:nth-last-child(3),
+.expense-category-detail-table td:nth-last-child(3) {
   text-align: left;
+}
+
+.expense-category-detail-table .expense-row-action button {
+  min-height: 36px;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel-border) 34%, transparent);
+}
+
+.expense-category-detail-table .expense-row-action button:disabled {
+  cursor: wait;
+  opacity: 0.62;
 }
 
 .expense-form {

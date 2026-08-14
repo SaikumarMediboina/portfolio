@@ -294,6 +294,7 @@ export default function ExpenseTrackerPage({
   const [expenseDialog, setExpenseDialog] = useState<ExpenseDialog>(null);
   const [budgetInputs, setBudgetInputs] = useState<Record<string, string>>({});
   const [editingExpense, setEditingExpense] = useState<ExpenseEntry | null>(null);
+  const [editReturnDialog, setEditReturnDialog] = useState<"recent" | null>("recent");
   const [editAmount, setEditAmount] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editCategoryId, setEditCategoryId] = useState("");
@@ -413,7 +414,9 @@ export default function ExpenseTrackerPage({
       totals.set(entry.categoryName, (totals.get(entry.categoryName) ?? 0) + entry.amountPaise);
     });
 
-    return [...totals].sort((left, right) => right[1] - left[1]);
+    return [...totals]
+      .filter(([, value]) => value > 0)
+      .sort((left, right) => right[1] - left[1]);
   }, [chartEntries]);
   const averageExpensePaise = visibleEntries.length
     ? Math.round(totalPaise / visibleEntries.length)
@@ -555,6 +558,15 @@ export default function ExpenseTrackerPage({
     };
   }, [selectedCategoryEntries.length]);
 
+  useEffect(() => {
+    if (
+      selectedCategoryName &&
+      !breakdown.some(([categoryName]) => categoryName === selectedCategoryName)
+    ) {
+      setSelectedCategoryName("");
+    }
+  }, [breakdown, selectedCategoryName]);
+
   const addExpense = async (event: FormEvent) => {
     event.preventDefault();
     const amountPaise = parseRupees(amount);
@@ -666,7 +678,7 @@ export default function ExpenseTrackerPage({
     }
   };
 
-  const startEditingExpense = (entry: ExpenseEntry) => {
+  const startEditingExpense = (entry: ExpenseEntry, returnDialog: "recent" | null = "recent") => {
     const category = liveData.categories.find(
       (item) => item.id === entry.categoryId || item.name === entry.categoryName,
     );
@@ -680,6 +692,7 @@ export default function ExpenseTrackerPage({
     setEditCategoryId(category?.id ?? liveData.categories[0]?.id ?? "");
     setEditPaidByUid(payer?.id ?? liveData.members[0]?.id ?? "");
     setEditExpenseDate(entry.expenseDate);
+    setEditReturnDialog(returnDialog);
     setError("");
     setFeedback("");
     setExpenseDialog("edit");
@@ -727,7 +740,7 @@ export default function ExpenseTrackerPage({
 
     if (saved) {
       setEditingExpense(null);
-      setExpenseDialog("recent");
+      setExpenseDialog(editReturnDialog);
     }
   };
 
@@ -740,11 +753,19 @@ export default function ExpenseTrackerPage({
       return;
     }
 
-    await runAction(
+    const deleted = await runAction(
       `delete-${entry.id}`,
       () => deleteExpenseEntry(workspace, entry.id),
       isSharedWorkspace ? "Expense deleted for both users." : "Expense deleted.",
     );
+
+    if (
+      deleted &&
+      selectedCategoryName === entry.categoryName &&
+      selectedCategoryEntries.length === 1
+    ) {
+      setSelectedCategoryName("");
+    }
   };
 
   const createInvite = async () => {
@@ -1728,6 +1749,7 @@ export default function ExpenseTrackerPage({
                           <th>Date</th>
                           <th>Paid by</th>
                           <th>Amount</th>
+                          <th aria-label="Actions" />
                         </tr>
                       </thead>
                       <tbody>
@@ -1745,6 +1767,23 @@ export default function ExpenseTrackerPage({
                             <td data-label="Paid by">{entry.paidByName}</td>
                             <td data-label="Amount">
                               <strong>{money(entry.amountPaise)}</strong>
+                            </td>
+                            <td className="expense-row-action" data-label="Actions">
+                              <button
+                                aria-label={`Edit ${entry.description}`}
+                                onClick={() => startEditingExpense(entry, null)}
+                                type="button"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                aria-label={`Delete ${entry.description}`}
+                                disabled={busyAction === `delete-${entry.id}`}
+                                onClick={() => void deleteEntry(entry)}
+                                type="button"
+                              >
+                                {busyAction === `delete-${entry.id}` ? "Deleting…" : "Delete"}
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -1838,7 +1877,7 @@ export default function ExpenseTrackerPage({
             className="expense-modal-overlay"
             onClick={(event) => {
               if (event.target === event.currentTarget) {
-                setExpenseDialog("recent");
+                setExpenseDialog(editReturnDialog);
               }
             }}
             role="dialog"
@@ -1853,7 +1892,7 @@ export default function ExpenseTrackerPage({
                 <button
                   aria-label="Cancel editing expense"
                   className="expense-modal-close"
-                  onClick={() => setExpenseDialog("recent")}
+                  onClick={() => setExpenseDialog(editReturnDialog)}
                   type="button"
                 >
                   <span aria-hidden="true">×</span>
