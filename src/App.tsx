@@ -1328,6 +1328,9 @@ const PUBLIC_BLOG_SLUGS = new Set([
   "save-tokens-claude-chatgpt-simple-guide",
   "backend-throughput-database-cache-async-optimization",
   "what-you-can-build-with-mcp-expense-tracker",
+  "batch-screening-latency-97-percent",
+  "opensearch-to-oracle-text-migration",
+  "ai-relevance-semantic-search-llm-workflows",
 ]);
 const LOCKED_BLOG_CAPTION = "Members-only. Sign in to unlock.";
 
