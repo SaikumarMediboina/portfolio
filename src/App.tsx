@@ -306,6 +306,18 @@ type SiteUpdate = {
 const siteUpdates: SiteUpdate[] = [
   {
     category: "Featured article",
+    date: "2026-08-19",
+    href: "/blog/where-ai-fails-in-software-engineering",
+    title: "Where AI fails in software engineering — new featured article",
+    summary:
+      "A documented look at six real incidents where AI coding tools caused production damage, and what engineering teams can learn from the pattern.",
+    details: [
+      "Covers Replit's database deletion and fake test fabrication, Cursor and Claude Code production mishaps, Amazon's AI-linked outages, Anthropic's own regression, and two major security vulnerabilities.",
+      "The article identifies the common pattern across all incidents and lists the practices that consistently prevent them.",
+    ],
+  },
+  {
+    category: "Featured article",
     date: "2026-08-06",
     href: "/blog/save-tokens-claude-chatgpt-simple-guide",
     title: "Simple token-saving guide published",
@@ -1310,9 +1322,10 @@ const AI_RADAR_SAVE_ID_PREFIX = "ai-radar:";
 const ALL_BLOG_CATEGORIES = "All";
 const ALL_AI_RADAR_CATEGORIES = "All signals";
 const ALL_SAVED_POSTS_TAG = "All";
-const PUBLIC_BLOG_SLUG = "save-tokens-claude-chatgpt-simple-guide";
+const PUBLIC_BLOG_SLUG = "where-ai-fails-in-software-engineering";
 const PUBLIC_BLOG_SLUGS = new Set([
   PUBLIC_BLOG_SLUG,
+  "save-tokens-claude-chatgpt-simple-guide",
   "backend-throughput-database-cache-async-optimization",
   "what-you-can-build-with-mcp-expense-tracker",
 ]);
