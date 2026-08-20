@@ -6045,6 +6045,10 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
     return <TokenSavingGuideArticle />;
   }
 
+  if (post.slug === AI_FAILS_TIMELINE_SLUG) {
+    return <AiFailsTimelineArticle />;
+  }
+
   return (
     <>
       <div className="blog-stat-grid">
