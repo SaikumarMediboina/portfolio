@@ -28812,9 +28812,9 @@ a.distributed-tier-subtopic {
 }
 
 .ai-fails-timeline {
-  --aft-violet: #9b6ef3;
-  --aft-violet-dim: rgba(155, 110, 243, 0.28);
-  --aft-violet-glow: rgba(155, 110, 243, 0.16);
+  --aft-violet: var(--accent);
+  --aft-violet-dim: color-mix(in srgb, var(--accent) 34%, transparent);
+  --aft-violet-glow: color-mix(in srgb, var(--accent) 16%, transparent);
   --aft-amber: #e3a44e;
   --aft-red: #e36262;
   --aft-green: #7fd99a;
@@ -28829,9 +28829,9 @@ a.distributed-tier-subtopic {
 }
 
 :root[data-theme="dark"] .ai-fails-timeline {
-  --aft-violet: #a77df8;
-  --aft-violet-dim: rgba(167, 125, 248, 0.35);
-  --aft-violet-glow: rgba(167, 125, 248, 0.2);
+  --aft-violet: var(--accent);
+  --aft-violet-dim: color-mix(in srgb, var(--accent) 40%, transparent);
+  --aft-violet-glow: color-mix(in srgb, var(--accent) 20%, transparent);
   --aft-red: #e36262;
   --aft-amber: #e3a44e;
   --aft-card: #211d2b;
@@ -28840,9 +28840,9 @@ a.distributed-tier-subtopic {
 }
 
 :root:not([data-theme="dark"]) .ai-fails-timeline {
-  --aft-violet: #7c42df;
-  --aft-violet-dim: rgba(124, 66, 223, 0.24);
-  --aft-violet-glow: rgba(124, 66, 223, 0.14);
+  --aft-violet: var(--accent);
+  --aft-violet-dim: color-mix(in srgb, var(--accent) 32%, transparent);
+  --aft-violet-glow: color-mix(in srgb, var(--accent) 14%, transparent);
   --aft-red: #d44343;
   --aft-amber: #c47c1f;
   --aft-card: #ffffff;

@@ -5749,7 +5749,7 @@ function AiFailsTimelineArticle() {
       </div>
 
       <div className="ai-fails-pattern">
-        <div className="ai-fails-pattern-title">// the pattern, across every single one</div>
+        <div className="ai-fails-pattern-title">The common pattern across every incident</div>
         <div className="ai-fails-flow-step">
           Agent given <strong>more access</strong> than its safety checks could handle
         </div>
