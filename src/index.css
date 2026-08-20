@@ -28834,6 +28834,9 @@ a.distributed-tier-subtopic {
   --aft-violet-glow: rgba(167, 125, 248, 0.2);
   --aft-red: #e36262;
   --aft-amber: #e3a44e;
+  --aft-card: #211d2b;
+  --aft-raised: #191620;
+  --aft-border: #352f43;
 }
 
 :root:not([data-theme="dark"]) .ai-fails-timeline {
@@ -28842,6 +28845,9 @@ a.distributed-tier-subtopic {
   --aft-violet-glow: rgba(124, 66, 223, 0.14);
   --aft-red: #d44343;
   --aft-amber: #c47c1f;
+  --aft-card: #ffffff;
+  --aft-raised: #f7f4fb;
+  --aft-border: #ded7e9;
 }
 
 .ai-fails-hero {
@@ -28996,8 +29002,8 @@ a.distributed-tier-subtopic {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--bg-elevated);
-  border: 2px solid var(--line);
+  background: var(--aft-card);
+  border: 2px solid var(--aft-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29033,8 +29039,8 @@ a.distributed-tier-subtopic {
 
 /* cards */
 .ai-fails-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--line);
+  background: var(--aft-card);
+  border: 1px solid var(--aft-border);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
@@ -29105,7 +29111,7 @@ a.distributed-tier-subtopic {
 
 .ai-fails-card-body-inner {
   padding: 0 18px 18px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--aft-border);
 }
 
 .ai-fails-card-body-inner p {
@@ -29122,7 +29128,7 @@ a.distributed-tier-subtopic {
 .ai-fails-why {
   margin-top: 14px;
   padding: 10px 12px;
-  background: var(--panel-soft);
+  background: var(--aft-raised);
   border-left: 2px solid var(--aft-violet);
   border-radius: 0 6px 6px 0;
   font-size: 13px;
@@ -29143,8 +29149,8 @@ a.distributed-tier-subtopic {
 /* pattern section */
 .ai-fails-pattern {
   margin: 50px 0;
-  background: var(--bg-elevated);
-  border: 1px solid var(--line);
+  background: var(--aft-raised);
+  border: 1px solid var(--aft-border);
   border-radius: 14px;
   padding: 28px 24px;
 }
@@ -29158,8 +29164,8 @@ a.distributed-tier-subtopic {
 }
 
 .ai-fails-flow-step {
-  background: var(--panel-soft);
-  border: 1px solid var(--line);
+  background: var(--aft-card);
+  border: 1px solid var(--aft-border);
   border-radius: 10px;
   padding: 13px 15px;
   font-size: 13.5px;
@@ -29190,8 +29196,8 @@ a.distributed-tier-subtopic {
   display: flex;
   gap: 12px;
   padding: 14px 16px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--line);
+  background: var(--aft-card);
+  border: 1px solid var(--aft-border);
   border-radius: 10px;
 }
 
@@ -29244,6 +29250,10 @@ a.distributed-tier-subtopic {
 }
 
 @media (max-width: 600px) {
+  .ai-fails-timeline {
+    padding-inline: 16px;
+  }
+
   .ai-fails-hero {
     padding: 50px 0 30px;
   }
@@ -29253,4 +29263,21 @@ a.distributed-tier-subtopic {
   .ai-fails-entry {
     padding-left: 48px;
   }
+
+  .ai-fails-pattern {
+    margin-block: 38px;
+    padding: 22px 18px;
+  }
+}
+
+/* Locked list cards place the CTA directly under the article row, not inside
+   the usual action wrapper. Keep that label legible over the accent fill. */
+:root:not([data-theme="dark"]) .blog-index .blog-list-item.is-locked > .blog-list-link,
+:root[data-theme="dark"] .blog-index .blog-list-item.is-locked > .blog-list-link,
+:root:not([data-theme="dark"]) .blog-index .blog-list-item.is-locked > .blog-list-link:hover,
+:root[data-theme="dark"] .blog-index .blog-list-item.is-locked > .blog-list-link:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 1px rgba(56, 18, 12, 0.25);
 }

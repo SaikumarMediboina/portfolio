@@ -5685,7 +5685,7 @@ function AiFailsTimelineArticle() {
         <p className="ai-fails-lede">
           No error message. No red screen. It finishes the task, says "done" — and sometimes it's
           been wrong the whole time.{" "}
-          <strong>Scroll through six real incidents, in the exact order they happened.</strong>
+          <strong>Scroll through eight real incidents, in the exact order they happened.</strong>
         </p>
       </div>
 
@@ -5717,6 +5717,8 @@ function AiFailsTimelineArticle() {
             <span className="ai-fails-date">{event.date}</span>
             <div
               className={`ai-fails-card${openCards.has(index) ? " is-open" : ""}`}
+              aria-controls={`ai-fails-card-body-${index}`}
+              aria-expanded={openCards.has(index)}
               onClick={() => toggleCard(index)}
               role="button"
               tabIndex={0}
@@ -5727,7 +5729,12 @@ function AiFailsTimelineArticle() {
                 <div className="ai-fails-card-title">{event.title}</div>
                 <div className="ai-fails-chevron" aria-hidden="true">⌄</div>
               </div>
-              <div className="ai-fails-card-body">
+              <div
+                className="ai-fails-card-body"
+                id={`ai-fails-card-body-${index}`}
+                role="region"
+                aria-label={`${event.date}: ${event.title}`}
+              >
                 <div className="ai-fails-card-body-inner">
                   <p>{event.body}</p>
                   <div className="ai-fails-why">
