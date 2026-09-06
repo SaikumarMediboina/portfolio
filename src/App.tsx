@@ -5848,11 +5848,6 @@ function AstraExplainerArticle() {
         </p>
       </header>
 
-      <div className="astra-source-banner">
-        <span>Source-backed reader</span>
-        <p>Benchmark figures are labelled by harness; vendor claims and independent signals are kept separate.</p>
-      </div>
-
       <section className="astra-section" aria-labelledby="astra-claim">
         <h2 id="astra-claim"><span>01</span>The claim was big. The definition is still fuzzy.</h2>
         <p>

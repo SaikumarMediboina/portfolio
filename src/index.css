@@ -28840,19 +28840,6 @@ a.distributed-tier-subtopic {
   color: var(--astra-accent);
 }
 
-.astra-source-banner {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.8rem 1rem;
-  align-items: start;
-  margin: 0 0 2rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--astra-border);
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--astra-accent-soft), var(--panel-strong));
-}
-
-.astra-source-banner > span,
 .astra-card-kicker {
   font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
   font-size: 0.68rem;
@@ -28860,13 +28847,6 @@ a.distributed-tier-subtopic {
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--astra-accent);
-}
-
-.astra-source-banner p {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.88rem;
-  line-height: 1.5;
 }
 
 .astra-section {
@@ -29235,7 +29215,6 @@ a.distributed-tier-subtopic {
     padding-inline: 1rem;
   }
 
-  .astra-source-banner,
   .astra-harness-head {
     grid-template-columns: 1fr;
     display: grid;
