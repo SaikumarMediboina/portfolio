@@ -646,6 +646,12 @@ dt {
     border-color 0.2s ease;
 }
 
+/* Theme switching is retired: keep the layout light and hide every legacy
+   header control across desktop and mobile routes. */
+.theme-toggle {
+  display: none !important;
+}
+
 .reader-menu-trigger:hover,
 .theme-toggle:hover {
   transform: translateY(-1px);

@@ -2217,19 +2217,9 @@ function returnToPortfolioBlog(slug?: string) {
 }
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") {
-    return "light";
-  }
-
-  try {
-    const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-    if (savedTheme === "light" || savedTheme === "dark") {
-      return savedTheme;
-    }
-  } catch {
-    // Fall back to light when browser storage is unavailable.
-  }
-
+  // The portfolio now has a single, consistent light appearance.
+  // Ignore legacy saved dark-mode preferences so visitors are never
+  // left on a theme they can no longer change from the interface.
   return "light";
 }
 
@@ -7541,7 +7531,7 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
       items: [
         { detail: "Left-side reader menu for fast movement.", href: "/", name: "Reader menu" },
         { detail: "Compact header with More menu.", href: "/", name: "Main navigation" },
-        { detail: "Light and dark Redwood-inspired themes.", href: "/", name: "Theme toggle" },
+        { detail: "A warm, focused Redwood-inspired visual system.", href: "/", name: "Visual design" },
         { detail: "Content, analytics, and site signals.", href: "/dashboard", name: "Dashboard" },
         { detail: "Ask about the site or tech concepts.", href: "/", name: "Sai's Bot" },
         { detail: "Every subpage keeps Home and Back.", href: "/", name: "Home and Back flow" },
@@ -14779,11 +14769,9 @@ function App() {
         authBusy={subscriptionBusy}
         authError={subscriptionError}
         authReady={authReady}
-        theme={theme}
         user={subscriberUser}
         onSignIn={handleGoogleSignIn}
         onSignOut={handleSignOut}
-        onThemeToggle={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
       />
     );
   }

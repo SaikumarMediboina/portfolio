@@ -31,8 +31,6 @@ type ExpenseTrackerPageProps = {
   authReady: boolean;
   onSignIn: () => Promise<void>;
   onSignOut: () => Promise<void>;
-  onThemeToggle: () => void;
-  theme: "light" | "dark";
   user: User | null;
 };
 
@@ -268,8 +266,6 @@ export default function ExpenseTrackerPage({
   authReady,
   onSignIn,
   onSignOut,
-  onThemeToggle,
-  theme,
   user,
 }: ExpenseTrackerPageProps) {
   const inviteToken = useMemo(getInviteToken, []);
@@ -1413,14 +1409,6 @@ export default function ExpenseTrackerPage({
             </div>
           </div>
           <div className="expense-topbar-actions">
-            <button
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              className="expense-icon-button"
-              onClick={onThemeToggle}
-              type="button"
-            >
-              {theme === "light" ? "☾" : "☀"}
-            </button>
             <button
               className="expense-button expense-button-secondary"
               disabled={authBusy}
