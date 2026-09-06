@@ -44,6 +44,41 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "gpt-6-astra-agi-era-claim",
+    title: "GPT-6 Astra and the \"AGI Era\" Claim — What Actually Changed?",
+    category: "AI and Engineering",
+    publishedAt: "September 2026",
+    summary:
+      "GPT-6 Astra is a meaningful capability jump, but its loudest benchmark score depends on the harness around it. A practical look at the numbers, the costs, the cyber-risk threshold, and why an AGI claim remains unsettled.",
+    tags: ["GPT-6 Astra", "AGI", "AI Benchmarks", "ARC-AGI-3", "AI Safety", "AI Engineering"],
+    stats: [
+      { label: "ARC-AGI-3 headline", value: "99.9%" },
+      { label: "Standard harness", value: "62.7%" },
+      { label: "Independent index", value: "61" },
+    ],
+    takeaways: [
+      "The 99.9% ARC-AGI-3 result measures GPT-6 Astra together with OpenAI's provider-adapter harness, not the raw model in isolation.",
+      "On ARC Prize's standard harness, the same model scored 62.7%, making the evaluation setup part of the result rather than a footnote.",
+      "A powerful model can be a real advance without settling the question of whether AGI has arrived.",
+    ],
+    sections: [
+      {
+        heading: "The claim needs the full context",
+        paragraphs: [
+          "OpenAI introduced GPT-6 Astra alongside an 'AGI era' statement. The strongest practical reading is not that an agreed AGI finish line has been crossed, but that frontier agents are taking on longer and more consequential work.",
+          "The benchmark and safety details matter because a capability headline only describes the full system when the harness, cost, evaluation conditions, and access controls are included.",
+        ],
+      },
+      {
+        heading: "A benchmark score is a system score",
+        paragraphs: [
+          "ARC Prize reports Astra at 99.9% on its provider-adapter harness and 62.7% on the standard harness. Both results are useful, but they answer different questions about the model and its surrounding tools.",
+          "Independent measurement from Artificial Analysis places Astra at 61 on its Intelligence Index and lists pricing of $10 per million input tokens and $50 per million output tokens.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "where-ai-fails-in-software-engineering",
     title: "Where AI Fails in Software Engineering — And Why the Human in the Loop Still Matters",
     category: "AI and Engineering",

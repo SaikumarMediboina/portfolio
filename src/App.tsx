@@ -305,6 +305,18 @@ type SiteUpdate = {
 
 const siteUpdates: SiteUpdate[] = [
   {
+    category: "New article",
+    date: "2026-09-06",
+    href: "/blog/gpt-6-astra-agi-era-claim",
+    title: "GPT-6 Astra: what the AGI headline leaves out",
+    summary:
+      "A source-backed look at ARC-AGI-3 harnesses, independent scoring, pricing, and why a capability leap is not the same as a settled AGI claim.",
+    details: [
+      "Compares the 99.9% provider-adapter result with the 62.7% standard-harness result reported by ARC Prize.",
+      "Separates vendor claims, independently measured signals, deployment cost, and cyber-risk implications.",
+    ],
+  },
+  {
     category: "Featured article",
     date: "2026-08-19",
     href: "/blog/where-ai-fails-in-software-engineering",
@@ -1322,9 +1334,10 @@ const AI_RADAR_SAVE_ID_PREFIX = "ai-radar:";
 const ALL_BLOG_CATEGORIES = "All";
 const ALL_AI_RADAR_CATEGORIES = "All signals";
 const ALL_SAVED_POSTS_TAG = "All";
-const PUBLIC_BLOG_SLUG = "where-ai-fails-in-software-engineering";
+const PUBLIC_BLOG_SLUG = "gpt-6-astra-agi-era-claim";
 const PUBLIC_BLOG_SLUGS = new Set([
   PUBLIC_BLOG_SLUG,
+  "where-ai-fails-in-software-engineering",
   "save-tokens-claude-chatgpt-simple-guide",
   "backend-throughput-database-cache-async-optimization",
   "what-you-can-build-with-mcp-expense-tracker",
@@ -5227,6 +5240,7 @@ type BlogArticleBodyProps = {
 const MCP_EXPENSE_TRACKER_SLUG = "what-you-can-build-with-mcp-expense-tracker";
 const TOKEN_SAVING_GUIDE_SLUG = "save-tokens-claude-chatgpt-simple-guide";
 const AI_FAILS_TIMELINE_SLUG = "where-ai-fails-in-software-engineering";
+const GPT_6_ASTRA_SLUG = "gpt-6-astra-agi-era-claim";
 
 const mcpConversationSteps = [
   {
@@ -5790,6 +5804,185 @@ function AiFailsTimelineArticle() {
   );
 }
 
+const astraHarnesses = {
+  provider: {
+    label: "Provider adapter",
+    score: "99.9%",
+    detail: "Preserves opaque reasoning state and compacts long conversations between requests.",
+  },
+  standard: {
+    label: "Standard harness",
+    score: "62.7%",
+    detail: "Lets the model carry forward notes it chooses to keep in the ARC-AGI-3 environment.",
+  },
+} as const;
+
+const astraQuestions = [
+  {
+    title: "Does 99.9% prove that AGI has arrived?",
+    body: "No single benchmark can do that. ARC Prize reports the 99.9% result for Astra with OpenAI's provider-adapter harness, while the standard harness result is 62.7%. Both are important, but they measure different system setups.",
+  },
+  {
+    title: "Why does the harness matter so much?",
+    body: "A model is only one part of an agent. Memory, tool loops, context compaction, and task orchestration can materially change what the complete system achieves. Reporting the model without the harness hides that engineering work.",
+  },
+  {
+    title: "Is Astra still a meaningful upgrade?",
+    body: "Yes. OpenAI reports material gains in long-context and computer-use work, while the rollout's cybersecurity restrictions are a signal that the model can perform more consequential tasks. The article separates that capability progress from a settled AGI conclusion.",
+  },
+];
+
+function AstraExplainerArticle() {
+  const [harness, setHarness] = useState<keyof typeof astraHarnesses>("provider");
+  const [openQuestion, setOpenQuestion] = useState<number | null>(0);
+  const activeHarness = astraHarnesses[harness];
+
+  return (
+    <div className="astra-explainer">
+      <header className="ai-fails-hero astra-hero">
+        <p className="ai-fails-eyebrow">Explained · September 2026</p>
+        <h1>GPT-6 Astra and the <span>“AGI era”</span> claim — what actually changed?</h1>
+        <p className="ai-fails-lede">
+          GPT-6 Astra is a real capability jump. But the headline number needs context:{" "}
+          <strong>the benchmark harness, the price of the setup, independent measurement, and the risk of giving a stronger agent more power.</strong>
+        </p>
+      </header>
+
+      <div className="astra-source-banner">
+        <span>Source-backed reader</span>
+        <p>Benchmark figures are labelled by harness; vendor claims and independent signals are kept separate.</p>
+      </div>
+
+      <section className="astra-section" aria-labelledby="astra-claim">
+        <h2 id="astra-claim"><span>01</span>The claim was big. The definition is still fuzzy.</h2>
+        <p>
+          At Astra's launch, OpenAI President Greg Brockman described the moment as the beginning of an “AGI era.”
+          That is a meaningful signal of ambition, not a universally accepted certification. There is still no agreed test that declares a model generally intelligent in the human sense.
+        </p>
+        <blockquote className="astra-quote">
+          The useful question is not “did a company say AGI?” It is: <strong>what can this system reliably do, under which conditions, at what cost, and with which safeguards?</strong>
+        </blockquote>
+      </section>
+
+      <section className="astra-section" aria-labelledby="astra-benchmark">
+        <h2 id="astra-benchmark"><span>02</span>The number that made headlines</h2>
+        <p>
+          ARC-AGI-3 is designed to test adaptive problem solving on unfamiliar interactive tasks. Astra's 99.9% result is impressive, but it is a result for a complete agent setup — not simply a raw-model score.
+        </p>
+        <div className="astra-bar-set" aria-label="ARC-AGI-3 harness results">
+          <div className="astra-bar-row">
+            <div><strong>Provider adapter harness</strong><span>99.9%</span></div>
+            <div className="astra-bar-track"><i className="is-accent" style={{ width: "99.9%" }} /></div>
+            <small>Opaque reasoning state can persist across requests.</small>
+          </div>
+          <div className="astra-bar-row">
+            <div><strong>Standard harness</strong><span>62.7%</span></div>
+            <div className="astra-bar-track"><i style={{ width: "62.7%" }} /></div>
+            <small>Same model family; a more transparent evaluation setup.</small>
+          </div>
+        </div>
+      </section>
+
+      <section className="astra-section" aria-labelledby="astra-toggle-title">
+        <h2 id="astra-toggle-title"><span>03</span>Change the harness. Watch the result change.</h2>
+        <div className="astra-harness-card">
+          <div className="astra-harness-head">
+            <div>
+              <p className="astra-card-kicker">ARC-AGI-3 result</p>
+              <h3>{activeHarness.label}</h3>
+            </div>
+            <div className="astra-harness-switch" role="group" aria-label="Select benchmark harness">
+              {(Object.keys(astraHarnesses) as Array<keyof typeof astraHarnesses>).map((key) => (
+                <button
+                  className={harness === key ? "is-active" : ""}
+                  key={key}
+                  onClick={() => setHarness(key)}
+                  type="button"
+                >
+                  {key === "provider" ? "Provider adapter" : "Standard"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <strong className="astra-harness-score">{activeHarness.score}</strong>
+          <p>{activeHarness.detail}</p>
+          <div className="astra-harness-note">
+            The model did not change. The surrounding agent system did. That is why benchmark setup belongs in the headline, not in the footnotes.
+          </div>
+        </div>
+      </section>
+
+      <section className="astra-section" aria-labelledby="astra-independent">
+        <h2 id="astra-independent"><span>04</span>Independent scoreboards tell a quieter story.</h2>
+        <p>
+          Artificial Analysis currently places Astra at <strong>61</strong> on its Intelligence Index. That does not erase the ARC result; it gives a second, independent view across a broader evaluation mix.
+        </p>
+        <div className="astra-score-grid">
+          <article><span>GPT-6 Astra</span><strong>61</strong><small>Artificial Analysis Intelligence Index</small></article>
+          <article><span>GPT-5.6 Sol</span><strong>61</strong><small>Same index score in the current comparison</small></article>
+          <article className="is-cost"><span>Astra API pricing</span><strong>$10 / $50</strong><small>Per million input / output tokens</small></article>
+        </div>
+        <p>
+          This is where a simple “AGI arrived” headline loses useful engineering context. A benchmark can show a breakthrough in one setting while broader evaluations, cost, and operational constraints show a more mixed picture.
+        </p>
+      </section>
+
+      <section className="astra-section" aria-labelledby="astra-capability">
+        <h2 id="astra-capability"><span>05</span>Where Astra is genuinely more capable</h2>
+        <div className="astra-signal-grid">
+          <article><b>Computer use</b><span>Longer, multi-step agent work is a central launch focus.</span></article>
+          <article><b>Long context</b><span>OpenAI reports strong retrieval performance through very large document contexts.</span></article>
+          <article><b>Security capability</b><span>Advanced cyber functionality is being restricted to vetted access.</span></article>
+        </div>
+        <p>
+          The security point matters most. Better computer use means a model can do more useful work inside real systems. It also means a mistake, a malicious instruction, or excessive permissions can carry a larger blast radius.
+        </p>
+      </section>
+
+      <section className="astra-section" aria-labelledby="astra-questions">
+        <h2 id="astra-questions"><span>06</span>Three questions worth keeping open</h2>
+        <div className="astra-question-list">
+          {astraQuestions.map((question, index) => {
+            const isOpen = openQuestion === index;
+            return (
+              <article className={isOpen ? "is-open" : ""} key={question.title}>
+                <button
+                  aria-controls={"astra-question-" + index}
+                  aria-expanded={isOpen}
+                  onClick={() => setOpenQuestion(isOpen ? null : index)}
+                  type="button"
+                >
+                  <span>0{index + 1}</span><strong>{question.title}</strong><i aria-hidden="true">⌄</i>
+                </button>
+                <div id={"astra-question-" + index} role="region">
+                  <p>{question.body}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="astra-verdict" aria-labelledby="astra-verdict-title">
+        <p className="astra-card-kicker">The simple takeaway</p>
+        <h2 id="astra-verdict-title">Capability is real. The AGI conclusion is still a debate.</h2>
+        <p>
+          Astra is faster and more capable in important ways, especially for long-running agent work. But a 99.9% benchmark result achieved with a specific harness is not the same thing as a settled claim of general human-level intelligence.
+        </p>
+        <strong>For engineers, the practical question is not the label. It is whether the system is reliable, measurable, affordable, and safe enough for the job you want it to do.</strong>
+      </section>
+
+      <footer className="astra-footer">
+        <span>Sources</span>
+        <a href="https://openai.com/index/gpt-6-astra/" rel="noreferrer" target="_blank">OpenAI GPT-6 Astra</a>
+        <a href="https://arcprize.org/results/openai-gpt-6-astra" rel="noreferrer" target="_blank">ARC Prize results</a>
+        <a href="https://artificialanalysis.ai/models/gpt-6-astra/" rel="noreferrer" target="_blank">Artificial Analysis</a>
+        <a href="https://www.axios.com/2026/09/03/openai-astra-gpt-6-agi-brockman" rel="noreferrer" target="_blank">Axios launch briefing</a>
+      </footer>
+    </div>
+  );
+}
+
 function TokenSavingGuideArticle() {
   const lines = tokenSavingGuideMarkdown.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
@@ -6037,6 +6230,10 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
 
   if (post.slug === AI_FAILS_TIMELINE_SLUG) {
     return <AiFailsTimelineArticle />;
+  }
+
+  if (post.slug === GPT_6_ASTRA_SLUG) {
+    return <AstraExplainerArticle />;
   }
 
   return (
@@ -12579,7 +12776,8 @@ function BlogArticlePage({
             className={`standalone-blog${
               post.slug === MCP_EXPENSE_TRACKER_SLUG ? " mcp-fundamentals-page" : ""
             }${post.slug === TOKEN_SAVING_GUIDE_SLUG ? " token-saving-guide-page" : ""
-            }${post.slug === AI_FAILS_TIMELINE_SLUG ? " ai-fails-timeline-page" : ""}`}
+            }${post.slug === AI_FAILS_TIMELINE_SLUG ? " ai-fails-timeline-page" : ""
+            }${post.slug === GPT_6_ASTRA_SLUG ? " astra-explainer-page" : ""}`}
             ref={articleRef}
           >
             <div className="standalone-blog-hero">
@@ -12599,7 +12797,7 @@ function BlogArticlePage({
               </div>
             </div>
 
-            {post.slug !== MCP_EXPENSE_TRACKER_SLUG && post.slug !== AI_FAILS_TIMELINE_SLUG ? <BlogArchitectureDiagram post={post} /> : null}
+            {post.slug !== MCP_EXPENSE_TRACKER_SLUG && post.slug !== AI_FAILS_TIMELINE_SLUG && post.slug !== GPT_6_ASTRA_SLUG ? <BlogArchitectureDiagram post={post} /> : null}
             <BlogArticleBody post={post} />
             <RelatedPosts
               currentPost={post}

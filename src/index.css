@@ -28817,6 +28817,445 @@ a.distributed-tier-subtopic {
   display: none;
 }
 
+.astra-explainer-page > .standalone-blog-hero {
+  display: none;
+}
+
+.astra-explainer {
+  --astra-accent: var(--accent);
+  --astra-accent-soft: color-mix(in srgb, var(--accent) 12%, var(--panel-strong));
+  --astra-sage: #60785c;
+  --astra-border: color-mix(in srgb, var(--accent-deep) 18%, transparent);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 2rem;
+  color: var(--ink);
+}
+
+.astra-hero {
+  padding-bottom: 2rem;
+}
+
+.astra-hero h1 span {
+  color: var(--astra-accent);
+}
+
+.astra-source-banner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem 1rem;
+  align-items: start;
+  margin: 0 0 2rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--astra-border);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--astra-accent-soft), var(--panel-strong));
+}
+
+.astra-source-banner > span,
+.astra-card-kicker {
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--astra-accent);
+}
+
+.astra-source-banner p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.astra-section {
+  padding: 1.4rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.astra-section h2,
+.astra-verdict h2 {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin: 0 0 0.9rem;
+  color: var(--ink-strong);
+  font-family: "Space Grotesk", "Outfit", "DM Sans", sans-serif;
+  font-size: clamp(1.2rem, 3.8vw, 1.48rem);
+  line-height: 1.25;
+}
+
+.astra-section h2 > span {
+  display: inline-grid;
+  width: 1.85rem;
+  height: 1.85rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--astra-border);
+  border-radius: 7px;
+  background: var(--astra-accent-soft);
+  color: var(--astra-accent);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+}
+
+.astra-section > p,
+.astra-harness-card > p,
+.astra-verdict > p {
+  margin: 0 0 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.72;
+}
+
+.astra-section strong,
+.astra-verdict > strong {
+  color: var(--ink-strong);
+}
+
+.astra-quote {
+  margin: 1.15rem 0 0;
+  padding: 1rem 1.1rem;
+  border-left: 3px solid var(--astra-accent);
+  border-radius: 0 12px 12px 0;
+  background: var(--panel-soft);
+  color: var(--ink);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.astra-bar-set {
+  display: grid;
+  gap: 1rem;
+  margin: 1.15rem 0 0.2rem;
+}
+
+.astra-bar-row {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.astra-bar-row > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.55rem;
+  color: var(--ink-strong);
+  font-size: 0.88rem;
+}
+
+.astra-bar-row > div:first-child span {
+  color: var(--astra-accent);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-weight: 700;
+}
+
+.astra-bar-track {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink-soft) 18%, transparent);
+}
+
+.astra-bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--astra-sage);
+}
+
+.astra-bar-track i.is-accent {
+  background: linear-gradient(90deg, var(--accent-deep), var(--astra-accent));
+}
+
+.astra-bar-row small {
+  display: block;
+  margin-top: 0.48rem;
+  color: var(--ink-soft);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.astra-harness-card,
+.astra-verdict {
+  padding: 1.25rem;
+  border: 1px solid var(--astra-border);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 15rem),
+    var(--panel-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.astra-harness-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.astra-harness-head h3 {
+  margin: 0.35rem 0 0;
+  color: var(--ink-strong);
+  font-family: "Space Grotesk", "Outfit", "DM Sans", sans-serif;
+  font-size: 1.05rem;
+}
+
+.astra-harness-switch {
+  display: flex;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+}
+
+.astra-harness-switch button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.42rem 0.62rem;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.63rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.astra-harness-switch button.is-active {
+  background: var(--astra-accent);
+  color: #fff;
+}
+
+.astra-harness-score {
+  display: block;
+  margin: 1.5rem 0 0.35rem;
+  color: var(--astra-accent);
+  font-family: "Space Grotesk", "Outfit", "DM Sans", sans-serif;
+  font-size: clamp(2.7rem, 12vw, 4rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.astra-harness-note {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.astra-score-grid,
+.astra-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+  margin: 1.15rem 0;
+}
+
+.astra-score-grid article,
+.astra-signal-grid article {
+  display: flex;
+  flex-direction: column;
+  min-height: 8.8rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.astra-score-grid article > span {
+  color: var(--ink-soft);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+
+.astra-score-grid article > strong {
+  margin: 0.45rem 0 auto;
+  color: var(--astra-accent);
+  font-family: "Space Grotesk", "Outfit", "DM Sans", sans-serif;
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.astra-score-grid article.is-cost > strong {
+  font-size: 1.25rem;
+}
+
+.astra-score-grid small,
+.astra-signal-grid span {
+  margin-top: 0.7rem;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.astra-signal-grid article {
+  min-height: 7.5rem;
+}
+
+.astra-signal-grid b {
+  color: var(--astra-accent);
+  font-family: "Space Grotesk", "Outfit", "DM Sans", sans-serif;
+  font-size: 0.92rem;
+}
+
+.astra-question-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.astra-question-list article {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  transition: border-color 0.2s ease;
+}
+
+.astra-question-list article.is-open {
+  border-color: var(--astra-border);
+}
+
+.astra-question-list button {
+  display: grid;
+  grid-template-columns: 1.75rem 1fr auto;
+  width: 100%;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink-strong);
+  cursor: pointer;
+  text-align: left;
+}
+
+.astra-question-list button span {
+  color: var(--astra-accent);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.66rem;
+}
+
+.astra-question-list button strong {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.astra-question-list button i {
+  color: var(--ink-soft);
+  font-style: normal;
+  transition: transform 0.2s ease;
+}
+
+.astra-question-list article.is-open button i {
+  color: var(--astra-accent);
+  transform: rotate(180deg);
+}
+
+.astra-question-list article > div {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.astra-question-list article.is-open > div {
+  grid-template-rows: 1fr;
+}
+
+.astra-question-list article > div > p {
+  min-height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0 1rem;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.astra-question-list article.is-open > div > p {
+  padding: 0 1rem 1rem 3.45rem;
+}
+
+.astra-verdict {
+  margin-top: 1.4rem;
+}
+
+.astra-verdict h2 {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.astra-verdict > strong {
+  display: block;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.astra-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.9rem;
+  margin: 2rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-family: "JetBrains Mono", "IBM Plex Mono", monospace;
+  font-size: 0.67rem;
+}
+
+.astra-footer span {
+  color: var(--astra-accent);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.astra-footer a {
+  color: var(--ink-soft);
+  text-decoration-color: color-mix(in srgb, var(--ink-soft) 45%, transparent);
+  text-underline-offset: 0.18rem;
+}
+
+.astra-footer a:hover {
+  color: var(--astra-accent);
+}
+
+@media (max-width: 620px) {
+  .astra-explainer {
+    padding-inline: 1rem;
+  }
+
+  .astra-source-banner,
+  .astra-harness-head {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .astra-harness-switch {
+    width: 100%;
+  }
+
+  .astra-score-grid,
+  .astra-signal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .astra-score-grid article,
+  .astra-signal-grid article {
+    min-height: auto;
+  }
+}
+
 .ai-fails-timeline {
   --aft-violet: var(--accent);
   --aft-violet-dim: color-mix(in srgb, var(--accent) 34%, transparent);
