@@ -102,6 +102,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/solar-energy-tracker",
+      "destination": "/index.html"
+    },
+    {
       "source": "/work-with-me",
       "destination": "/index.html"
     },

@@ -371,6 +371,15 @@ const staticRoutes = [
   }),
   withStructuredData({
     ...baseMetadata,
+    canonicalPath: "/solar-energy-tracker",
+    description:
+      "A read-only home solar energy tracker for bringing together solar generation, grid import, grid export, and total home consumption.",
+    priority: "0.7",
+    title: getSeoTitle("Solar Energy Tracker"),
+    type: "website",
+  }),
+  withStructuredData({
+    ...baseMetadata,
     canonicalPath: "/work-with-me",
     description:
       "Work with Sai Kumar Mediboina on backend performance, search-heavy systems, AI-assisted workflows, and scalable product engineering.",

@@ -83,6 +83,7 @@ import mcpFundamentalsMarkdown from "./content/mcp-fundamentals.md?raw";
 import tokenSavingGuideMarkdown from "./content/save-tokens-ai-tools.md?raw";
 import verticalHorizontalScalingMarkdown from "./content/vertical-horizontal-scaling.md?raw";
 import ExpenseTrackerPage from "./expense/ExpenseTrackerPage";
+import SolarEnergyTrackerPage from "./solar/SolarEnergyTrackerPage";
 import {
   certifications,
   currentFocus,
@@ -237,6 +238,7 @@ const mainNavLinks = [
 ] as const;
 
 const mainMoreNavLinks = [
+  { href: "/solar-energy-tracker", icon: "dashboard" as const, label: "Solar Energy" },
   { href: "/learn-with-me", icon: "spark" as const, label: "Learn With Me" },
   { href: "/whats-new", icon: "news" as const, label: "What's New" },
   { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
@@ -758,6 +760,7 @@ function getSeoMetadata({
   isPortfolioPage,
   isSavedPostsPage,
   isShelfPage,
+  isSolarEnergyTrackerPage,
   isSignInPage,
   isStartPage,
   isWhatsNewPage,
@@ -775,6 +778,7 @@ function getSeoMetadata({
   isPortfolioPage: boolean;
   isSavedPostsPage: boolean;
   isShelfPage: boolean;
+  isSolarEnergyTrackerPage: boolean;
   isSignInPage: boolean;
   isStartPage: boolean;
   isWhatsNewPage: boolean;
@@ -1797,6 +1801,10 @@ function isDashboardPathname() {
 
 function isExpenseTrackerPathname() {
   return window.location.pathname.replace(/\/$/, "") === "/expenses";
+}
+
+function isSolarEnergyTrackerPathname() {
+  return window.location.pathname.replace(/\/$/, "") === "/solar-energy-tracker";
 }
 
 function isLearnPathname() {
@@ -6221,6 +6229,19 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
 
   if (post.slug === TOKEN_SAVING_GUIDE_SLUG) {
     return <TokenSavingGuideArticle />;
+  }
+
+  if (isSolarEnergyTrackerPage) {
+    return {
+      analyticsTitle: "Solar Energy Tracker",
+      canonicalPath: "/solar-energy-tracker",
+      description: "A read-only home solar energy tracker for bringing together solar generation, grid import, grid export, and total home consumption.",
+      imageAlt: "Solar Energy Tracker by Sai Kumar Mediboina",
+      imagePath: DEFAULT_SEO_IMAGE_PATH,
+      structuredData: [getPersonStructuredData(), getWebsiteStructuredData()],
+      title: getSeoTitle("Solar Energy Tracker"),
+      type: "website",
+    };
   }
 
   if (post.slug === AI_FAILS_TIMELINE_SLUG) {
@@ -13990,6 +14011,7 @@ function App() {
   const isShelfPage = isShelfPathname();
   const isDashboardPage = isDashboardPathname();
   const isExpenseTrackerPage = isExpenseTrackerPathname();
+  const isSolarEnergyTrackerPage = isSolarEnergyTrackerPathname();
   const isLearnPage = isLearnPathname();
   const isActiveBuildsPage = isActiveBuildsPathname();
   const activeBuildSlug = getActiveBuildSlugFromPathname();
@@ -14011,6 +14033,7 @@ function App() {
     isPortfolioPage,
     isSavedPostsPage,
     isShelfPage,
+    isSolarEnergyTrackerPage,
     isSignInPage,
     isStartPage,
     isWhatsNewPage,
@@ -14967,6 +14990,10 @@ function App() {
         onSignOut={handleSignOut}
       />
     );
+  }
+
+  if (isSolarEnergyTrackerPage) {
+    return <SolarEnergyTrackerPage />;
   }
 
   if (isLearnPage) {
