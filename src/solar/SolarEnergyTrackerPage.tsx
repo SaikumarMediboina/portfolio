@@ -1,3 +1,4 @@
+import SiteNavigation from "../components/SiteNavigation";
 import "./SolarEnergyTrackerPage.css";
 
 const metrics = [
@@ -11,14 +12,10 @@ const metrics = [
 
 export default function SolarEnergyTrackerPage() {
   return (
+    <>
+    <SiteNavigation minimal />
     <main className="solar-tracker-page">
-      <header className="solar-tracker-header">
-        <a className="solar-tracker-brand" href="/">Sai Kumar Mediboina<span>Personal energy view</span></a>
-        <nav aria-label="Solar tracker navigation">
-          <a href="/">Home</a>
-          <a href="/expenses">Expenses</a>
-        </nav>
-      </header>
+
 
       <section className="solar-tracker-hero" aria-labelledby="solar-tracker-title">
         <div>
@@ -81,5 +78,6 @@ export default function SolarEnergyTrackerPage() {
 
       <p className="solar-tracker-note">The dashboard will flag mismatched time windows and impossible readings—such as export exceeding solar generation—instead of silently calculating a misleading total.</p>
     </main>
+    </>
   );
 }

@@ -10110,15 +10110,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       {!isDistributedArticlePage ? (
       <SiteNavigation>
 <PageBackButton fallbackHref={learnBackHref} label="Back" />
-              {accessGranted ? (
-                <button
-                  className="button button-secondary"
-                  type="button"
-                  onClick={handleLearnAccessLogout}
-                >
-                  Logout
-                </button>
-              ) : null}
+
       </SiteNavigation>
       ) : null}
 
@@ -10126,6 +10118,11 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
         className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page routing-course-page" : ""}`}
         id="main-content"
       >
+        {accessGranted && !isDistributedArticlePage && (
+          <div className="learn-session-actions">
+            <button className="button button-secondary" type="button" onClick={handleLearnAccessLogout}>Logout</button>
+          </div>
+        )}
         {!accessGranted ? (
           <section className="learn-access-panel" aria-labelledby="learn-access-title">
             <div className="learn-access-copy">
@@ -14223,6 +14220,8 @@ function App() {
 
   if (isExpenseTrackerPage) {
     return (
+      <>
+      <SiteNavigation minimal />
       <ExpenseTrackerPage
         authBusy={subscriptionBusy}
         authError={subscriptionError}
@@ -14231,6 +14230,7 @@ function App() {
         onSignIn={handleGoogleSignIn}
         onSignOut={handleSignOut}
       />
+      </>
     );
   }
 
@@ -14339,7 +14339,7 @@ function App() {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <SiteNavigation inlineActions>
+      <SiteNavigation inlineActions minimal={false}>
         <button className="button button-secondary" type="button" onClick={() => setReaderMenuOpen(true)}>Reader tools</button>
 <div ref={profileMenuRef}>
               <ProfileMenu

@@ -16,7 +16,7 @@ export default function ProjectPage({ slug }: { slug: string }) {
   const project = projects.find((item) => item.slug === slug);
   const notes = designNotes[slug];
   const benchmark = slug === "high-volume-batch-processing" ? { before: 125, after: 3, unit: "minutes", label: "5,000-transaction batch duration" } : slug === "real-time-screening-optimization" ? { before: 2000, after: 300, unit: "ms", label: "Reported real-time response latency" } : null;
-  return <><SiteNavigation /><div className="project-page shell">
+  return <><SiteNavigation fallbackHref="/portfolio#work" /><div className="project-page shell">
     <a className="project-skip" href="#project-content">Skip to case study</a>
     <a className="project-return" href="/portfolio#work">← All case studies</a>
     {!project ? <main id="project-content"><h1>Project not found</h1><p>This project link is not available.</p><a href="/portfolio#work">Browse project case studies</a></main> : <main id="project-content">

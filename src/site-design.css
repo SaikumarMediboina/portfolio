@@ -112,3 +112,11 @@ html[data-header-visibility] .unified-header:is(.is-open, :has(:focus-visible), 
   .landing-intro { padding-top: 44px; }
 }
 @media(prefers-reduced-motion: reduce) { .unified-header { transition: none; } }
+
+/* Interior-page navigation: one row with the home wordmark and a back action. */
+.unified-minimal .unified-bar { width: min(1120px, calc(100% - 96px)); min-height: 80px; flex-wrap: nowrap; }
+.unified-back-action { display: flex; align-items: center; }
+.unified-back-action .button { display: inline-flex; min-height: 44px; gap: 10px; padding: 8px 0 8px 16px; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #242421; font: 13px/1.5 Arial,sans-serif; }
+.unified-back-action .button:hover { transform: none; color: #b5422d; background: transparent; box-shadow: none; }
+.learn-session-actions { display: flex; justify-content: flex-end; }
+@media(max-width:760px) { .unified-minimal .unified-bar { width: calc(100% - 40px); min-height: 72px; } }
