@@ -10,7 +10,7 @@ const explore = [
   ["/dashboard", "Dashboard"], ["/start", "Start here"], ["/signin", "Reader account"],
 ];
 
-export default function SiteNavigation({ children }: { children?: ReactNode }) {
+export default function SiteNavigation({ children, inlineActions = false }: { children?: ReactNode; inlineActions?: boolean }) {
   const [open, setOpen] = useState(false);
   const header = useRef<HTMLElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
@@ -44,7 +44,7 @@ export default function SiteNavigation({ children }: { children?: ReactNode }) {
     }
   }}>
     <div className="unified-bar">
-      <a className="unified-brand" href="/">Sai Kumar Mediboina<span aria-hidden="true">.</span></a>
+      <a className="unified-brand" href="/" aria-label="Sai Kumar Mediboina home">SKM<span aria-hidden="true">.</span></a>
       <button ref={toggle} className="unified-toggle" type="button" aria-expanded={open} aria-controls="unified-navigation" onClick={() => setOpen(!open)}>{open ? "Close ×" : "Menu ☰"}</button>
       <nav id="unified-navigation" className="unified-links" aria-label="Main navigation" onClick={(event) => {
         if ((event.target as HTMLElement).closest("a")) setOpen(false);
@@ -52,8 +52,9 @@ export default function SiteNavigation({ children }: { children?: ReactNode }) {
         {primary.map(([href, label]) => <a key={href} href={href} aria-current={path === href ? "page" : undefined}>{label}</a>)}
         <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Résumé ↗</a>
         <details className="unified-explore" ref={details}><summary>Explore</summary><div>{explore.map(([href, label]) => <a key={href} href={href}>{label}</a>)}</div></details>
+        {inlineActions && children && <div className="unified-context unified-inline-actions">{children}</div>}
       </nav>
     </div>
-    {children && <div className="unified-context">{children}</div>}
+    {!inlineActions && children && <div className="unified-context">{children}</div>}
   </header>;
 }

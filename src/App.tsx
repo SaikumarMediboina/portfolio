@@ -14379,7 +14379,7 @@ function App() {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <SiteNavigation>
+      <SiteNavigation inlineActions>
         <button className="button button-secondary" type="button" onClick={() => setReaderMenuOpen(true)}>Reader tools</button>
 <div ref={profileMenuRef}>
               <ProfileMenu
