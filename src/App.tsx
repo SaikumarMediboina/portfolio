@@ -15538,7 +15538,7 @@ function App() {
                     <section><p className="impact-label">02 / My contribution</p><p>{selectedProject.contribution}</p></section>
                   </div>
                   <figure className="case-study-architecture">
-                    <figcaption>03 / Architecture overview <small>Simplified logical flow</small></figcaption>
+                    <figcaption>03 / Architecture overview</figcaption>
                     <ol>{selectedProject.architecture.map((step, index) => (
                       <li key={step}><span>{String(index + 1).padStart(2, "0")}</span><strong>{step}</strong></li>
                     ))}</ol>
