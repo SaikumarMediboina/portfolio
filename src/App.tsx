@@ -18,7 +18,6 @@ import {
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import EngineeringDemo from "./components/EngineeringDemo";
-import ArticleIndex from "./components/ArticleIndex";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
@@ -7503,7 +7502,7 @@ function HomePage({
                 <p><strong>My contribution</strong><br />{project.contribution}</p>
                 <div className="studio-project-outcome"><span>Reported result</span><p>{project.result}</p></div>
                 <ul aria-label="Technology stack">{project.stack.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
-                <a href={`/portfolio?project=${index}#work`}>Explore project <span aria-hidden="true">↗</span></a>
+                <a href={`/portfolio?project=${index}#project-case-study`}>Explore project <span aria-hidden="true">↗</span></a>
               </div>
             </article>
           ))}
@@ -12811,7 +12810,6 @@ function BlogArticlePage({
               </div>
             </div>
 
-            <ArticleIndex articleRef={articleRef} articleKey={post.slug} />
             {post.slug !== MCP_EXPENSE_TRACKER_SLUG && post.slug !== AI_FAILS_TIMELINE_SLUG && post.slug !== GPT_6_ASTRA_SLUG ? <BlogArchitectureDiagram post={post} /> : null}
             <BlogArticleBody post={post} />
             <RelatedPosts
@@ -13952,6 +13950,33 @@ function App() {
     const requested = Number(new URLSearchParams(window.location.search).get("project"));
     return Number.isInteger(requested) && requested >= 0 && requested < projects.length ? requested : 0;
   });
+  useEffect(() => {
+    if (window.location.pathname.replace(/\/$/, "") !== "/portfolio") return;
+    let frame = 0;
+    const syncProjectLink = () => {
+      const value = new URLSearchParams(window.location.search).get("project");
+      if (value === null || !/^\d+$/.test(value)) return;
+      const index = Number(value);
+      if (index >= projects.length) return;
+      setSelectedProjectIndex(index);
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        frame = window.requestAnimationFrame(() => {
+          document.getElementById("project-case-study")?.scrollIntoView({ block: "start", behavior: "auto" });
+        });
+      });
+    };
+    syncProjectLink();
+    window.addEventListener("load", syncProjectLink);
+    window.addEventListener("popstate", syncProjectLink);
+    window.addEventListener("hashchange", syncProjectLink);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("load", syncProjectLink);
+      window.removeEventListener("popstate", syncProjectLink);
+      window.removeEventListener("hashchange", syncProjectLink);
+    };
+  }, []);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isCompactNav, setIsCompactNav] = useState(() =>
@@ -15476,7 +15501,7 @@ function App() {
                   })}
                 </div>
 
-                <article className="project-spotlight" aria-live="polite">
+                <article className="project-spotlight" id="project-case-study" style={{ scrollMarginTop: 96 }} aria-live="polite">
                   <div className="project-spotlight-heading">
                     <p className="eyebrow">Case Study {selectedProjectNumber}</p>
                     <h3>{selectedProject.name}</h3>
