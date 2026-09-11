@@ -20,6 +20,7 @@ import { blogPosts, type BlogPost } from "./data/blogs";
 import ProjectPage from "./components/ProjectPage";
 import PortfolioPage from "./components/PortfolioPage";
 import SiteNavigation from "./components/SiteNavigation";
+import { HeaderAccountContext } from "./components/HeaderAccount";
 import HomeLanding from "./components/HomeLanding";
 import { advanceHeaderScroll } from "./lib/headerScroll";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
@@ -13477,7 +13478,19 @@ function App() {
     }
   };
 
-  const renderWithAssistant = (page: ReactNode) => (
+  const renderWithHeaderAccount = (page: ReactNode) => (
+    <HeaderAccountContext.Provider value={{
+      ready: authReady,
+      signedIn: Boolean(subscriberUser),
+      busy: subscriptionBusy,
+      canSignIn: canUseSubscriptions,
+      error: subscriptionError,
+      onSignIn: handleGoogleSignIn,
+      onSignOut: handleSignOut,
+    }}>{page}</HeaderAccountContext.Provider>
+  );
+
+  const renderWithAssistant = (page: ReactNode) => renderWithHeaderAccount(
     <>
       <AnimatePresence mode="wait">
         <motion.div
@@ -13510,7 +13523,7 @@ function App() {
   );
 
   if (isPortfolioPage) {
-    return <PortfolioPage />;
+    return renderWithHeaderAccount(<PortfolioPage />);
   }
 
   if (currentPathname.startsWith("/projects/")) {
@@ -13600,7 +13613,7 @@ function App() {
   }
 
   if (isExpenseTrackerPage) {
-    return (
+    return renderWithHeaderAccount(
       <>
       <SiteNavigation minimal />
       <ExpenseTrackerPage
@@ -13616,7 +13629,7 @@ function App() {
   }
 
   if (isSolarEnergyTrackerPage) {
-    return <SolarEnergyTrackerPage />;
+    return renderWithHeaderAccount(<SolarEnergyTrackerPage />);
   }
 
   if (isLearnPage) {

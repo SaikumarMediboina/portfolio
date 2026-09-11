@@ -1,3 +1,4 @@
+import HeaderAccount from "./HeaderAccount";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const primary = [
@@ -58,6 +59,7 @@ export default function SiteNavigation({ children, inlineActions = false, minima
   }}>
     <div className="unified-bar">
       <a className="unified-brand" href="/" aria-label="Sai Kumar Mediboina home">SKM<span aria-hidden="true">.</span></a>
+      <HeaderAccount />
       {compact ? <nav className="unified-back-action" aria-label="Back navigation">{children ?? <button className="button button-secondary page-back-button" type="button" onClick={goBack}>Back</button>}</nav> : <>
       <button ref={toggle} className="unified-toggle" type="button" aria-expanded={open} aria-controls="unified-navigation" onClick={() => setOpen(!open)}>{open ? "Close ×" : "Menu ☰"}</button>
       <nav id="unified-navigation" className="unified-links" aria-label="Main navigation" onClick={(event) => {
