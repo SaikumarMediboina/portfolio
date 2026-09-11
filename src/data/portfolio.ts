@@ -138,6 +138,7 @@ export const experience: ExperienceEntry[] = [
 ];
 
 export type Project = {
+  slug: string;
   problem: string;
   contribution: string;
   architecture: string[];
@@ -153,6 +154,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     name: "Matching and Scoring Engine",
+    slug: "matching-and-scoring-engine",
     problem: "Customer and transaction screening had to support interactive requests and nightly batches against very large watchlists.",
     contribution: "Designed secure REST APIs and resilient ingestion for real-time and batch screening.",
     architecture: ["Input","Screening APIs","Watchlist matching","Results"],
@@ -170,6 +172,7 @@ export const projects: Project[] = [
   },
   {
     name: "Core Search Engine Migration",
+    slug: "core-search-engine-migration",
     problem: "Heavy search paths required a simpler architecture with matching closer to stored data.",
     contribution: "Led the backend transition from OpenSearch to Oracle Text and moved core matching toward storage-level computation.",
     architecture: ["Search requests","Backend matching","Oracle Text","Matches"],
@@ -187,6 +190,7 @@ export const projects: Project[] = [
   },
   {
     name: "Advanced Hybrid Scoring Engine",
+    slug: "advanced-hybrid-scoring-engine",
     problem: "Noisy global watchlist records could not be resolved reliably with string equality alone.",
     contribution: "Built a configurable scoring microservice combining AI similarity with exact, fuzzy and deterministic matching rules.",
     architecture: ["Candidate records","AI + rule signals","Combined scoring","Ranked matches"],
@@ -204,6 +208,7 @@ export const projects: Project[] = [
   },
   {
     name: "High-Volume Batch Processing",
+    slug: "high-volume-batch-processing",
     problem: "A 5,000-transaction screening batch took 2 hours 5 minutes, with bottlenecks in database access and processing.",
     contribution: "Removed N+1 access patterns, added targeted indexes and improved parallel processing.",
     architecture: ["Batch input","Aggregated queries","Indexed matching","Batch results"],
@@ -221,6 +226,7 @@ export const projects: Project[] = [
   },
   {
     name: "Real-Time Screening Optimization",
+    slug: "real-time-screening-optimization",
     problem: "A synchronous screening path took roughly 2 seconds and needed better responsiveness under concurrent traffic.",
     contribution: "Parallelized database work using dedicated thread pools and replaced JSON aggregation bottlenecks with incremental result streaming.",
     architecture: ["Request","Parallel DB work","Incremental results","Response"],
@@ -238,6 +244,7 @@ export const projects: Project[] = [
   },
   {
     name: "Narrative Text Extraction Engine",
+    slug: "narrative-text-extraction-engine",
     problem: "Unstructured narrative text needed candidate entities extracted before the main screening stage.",
     contribution: "Built a configurable parser and ranked candidate substrings using match quality, token length and gap penalties.",
     architecture: ["Narrative text","Tokenization","Candidate ranking","Screening input"],

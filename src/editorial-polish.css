@@ -27,6 +27,14 @@
 .button { border-radius: 8px; transition: background-color .18s, border-color .18s; }
 .button-primary { color: #fff; }
 :is(a, button, summary, select, input, textarea):focus-visible { outline: 3px solid var(--focus-accent); outline-offset: 4px; }
+.diagram-full-size { display: inline-flex; align-items: center; min-height: 44px; color: #984530; font: 600 12px/1.5 Arial, sans-serif; }
+@media (max-width: 600px) {
+  .studio-project-copy > a, .home-text-link, .home-trust-strip a { min-height: 44px; display: inline-flex; align-items: center; }
+  .home-studio .home-hero-copy h1 { overflow-wrap: anywhere; }
+  .home-studio .home-lane-grid { grid-template-columns: 1fr; }
+  .home-studio .home-hero-actions { flex-wrap: wrap; }
+  .distributed-markdown pre, .blog-code-block { overflow-x: auto; max-width: 100%; }
+}
 @media (max-width: 600px) {
   .editorial-index ol { columns: 1; }
   :is(.standalone-blog, .distributed-article) .button { min-height: 44px; }

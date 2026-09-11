@@ -33,7 +33,7 @@ function loadTsModule(relativePath) {
 }
 
 const { blogPosts } = loadTsModule("src/data/blogs.ts");
-const { education, profile, skills } = loadTsModule("src/data/portfolio.ts");
+const { education, profile, skills, projects } = loadTsModule("src/data/portfolio.ts");
 
 function escapeHtml(value) {
   return String(value)
@@ -452,7 +452,16 @@ const blogRoutes = blogPosts.map((post) => {
   };
 });
 
-const allRoutes = [...staticRoutes, ...blogRoutes];
+const projectRoutes = projects.map((project) => withStructuredData({
+  ...baseMetadata,
+  canonicalPath: `/projects/${project.slug}`,
+  title: getSeoTitle(project.name),
+  description: project.summary,
+  imageAlt: `${project.name} engineering case study`,
+  type: "website",
+  priority: "0.8",
+}));
+const allRoutes = [...staticRoutes, ...blogRoutes, ...projectRoutes];
 
 function renderSeoBlock(metadata) {
   const canonicalUrl = getAbsoluteSiteUrl(metadata.canonicalPath);

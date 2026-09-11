@@ -17,6 +17,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
+import ProjectPage from "./components/ProjectPage";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
@@ -784,6 +785,21 @@ function getSeoMetadata({
   isWhatsNewPage: boolean;
   standaloneBlog?: BlogPost;
 }): SeoMetadata {
+  const projectPath = typeof window === "undefined" ? "" : window.location.pathname.replace(/\/$/, "");
+  if (projectPath.startsWith("/projects/")) {
+    const project = projects.find((item) => `/projects/${item.slug}` === projectPath);
+    return {
+      analyticsTitle: project ? `Project: ${project.name}` : "Project not found",
+      canonicalPath: projectPath,
+      description: project?.summary ?? "This project is not available.",
+      imageAlt: project ? `${project.name} case study` : "Project not found",
+      imagePath: DEFAULT_SEO_IMAGE_PATH,
+      structuredData: [getPersonStructuredData(), getWebsiteStructuredData()],
+      title: getSeoTitle(project?.name ?? "Project not found"),
+      type: "website",
+      ...(!project ? { noindex: true } : {}),
+    };
+  }
   if (standaloneBlog) {
     const publishedTime = getBlogPublishedIsoDate(standaloneBlog.publishedAt);
 
@@ -7501,7 +7517,7 @@ function HomePage({
                 <p><strong>My contribution</strong><br />{project.contribution}</p>
                 <div className="studio-project-outcome"><span>Reported result</span><p>{project.result}</p></div>
                 <ul aria-label="Technology stack">{project.stack.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
-                <a href={`/portfolio?project=${index}#project-case-study`}>Explore project <span aria-hidden="true">↗</span></a>
+                <a href={`/projects/${project.slug}`}>Explore project <span aria-hidden="true">↗</span></a>
               </div>
             </article>
           ))}
@@ -8981,6 +8997,7 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
               <img src={src} alt={alt} className="distributed-article-img" loading="lazy" decoding="async" />
             )}
             <p className="distributed-image-caption">{alt}</p>
+            <a className="diagram-full-size" href={src} target="_blank" rel="noreferrer">Open full-size diagram ↗</a>
           </div>,
         );
         cursor += 1;
@@ -14926,6 +14943,10 @@ function App() {
     </>
   );
 
+  if (currentPathname.startsWith("/projects/")) {
+    return renderWithAssistant(<ProjectPage slug={currentPathname.slice("/projects/".length)} />);
+  }
+
   if (standaloneBlogSlug) {
     return renderWithAssistant(
       <BlogArticlePage
@@ -15270,6 +15291,7 @@ function App() {
           </nav>
 
           <div className="header-actions">
+            <a className="resume-nav-link" href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Resume ↗</a>
             <button
               className="theme-toggle"
               type="button"
@@ -15507,6 +15529,7 @@ function App() {
                   <div className="project-spotlight-heading">
                     <p className="eyebrow">Case Study {selectedProjectNumber}</p>
                     <h3>{selectedProject.name}</h3>
+                    <a href={`/projects/${selectedProject.slug}`}>Open full case study ↗</a>
                     <p>{selectedProject.summary}</p>
                   </div>
 

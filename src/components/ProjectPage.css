@@ -1,0 +1,34 @@
+.project-page { max-width: 1060px; color: #302a25; font-family: Arial, Helvetica, sans-serif; padding-bottom: 64px; }
+.project-page-nav { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 24px 0; border-bottom: 1px solid #dfd8d0; }
+.project-page-nav > a { font-weight: 700; }
+.project-page-nav nav { display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; }
+.project-page-nav a, .project-page-more a { color: #984530; }
+.project-page-hero { padding: 60px 0 32px; }
+.project-page h1 { font: 600 clamp(30px, 4.5vw, 52px)/1.15 Arial, sans-serif; letter-spacing: -.035em; max-width: 24ch; margin: 20px 0; }
+.project-page h2 { font: 600 23px/1.35 Arial, sans-serif; letter-spacing: -.02em; }
+.project-page p, .project-page li { max-width: 75ch; line-height: 1.8; }
+.project-page-stack { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.project-page-stack li { padding: 4px 10px; font-size: 12px; border: 1px solid #ddd4cb; border-radius: 5px; }
+.project-page-result, .project-page-details, .project-page-contact, .project-page-more { padding: 28px 0; border-top: 1px solid #dfd8d0; }
+.project-page-impact { font-size: 22px; font-weight: 600; }
+.project-page-contact .button { margin: 8px 12px 8px 0; }
+.project-page-more a { display: flex; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid #eee7df; }
+.project-benchmark { margin: 24px 0; padding: 24px; background: #f7f3ee; border-radius: 10px; }
+.project-benchmark figcaption { font-size: 13px; margin-bottom: 20px; }
+.project-benchmark-row { display: grid; grid-template-columns: 55px 1fr 105px; align-items: center; gap: 16px; margin: 16px 0; font-size: 13px; }
+.project-benchmark-row > div { background: #e6ddd4; height: 18px; border-radius: 3px; overflow: hidden; }
+.project-benchmark-row i { display: block; height: 100%; background: #b85b43; min-width: 2px; }
+.project-benchmark-row:last-child i { background: #477563; }
+.project-skip { position: absolute; top: -80px; }
+.project-skip:focus { top: 8px; background: white; padding: 12px; z-index: 100; }
+.header-actions .resume-nav-link { color: #954631; font-size: 13px; font-weight: 600; padding: 10px 6px; white-space: nowrap; }
+@media(max-width: 600px) {
+  .project-page { width: calc(100% - 36px); }
+  .project-page-nav { align-items: start; flex-direction: column; gap: 14px; }
+  .project-page-nav a, .project-page-more a { min-height: 44px; display: inline-flex; align-items: center; }
+  .project-page-hero { padding-top: 28px; }
+  .project-benchmark { padding: 16px; }
+  .project-benchmark-row { grid-template-columns: 42px 1fr 85px; gap: 8px; font-size: 12px; }
+  .project-page .case-study-architecture { padding: 18px; }
+  .header-actions .resume-nav-link { font-size: 12px; }
+}

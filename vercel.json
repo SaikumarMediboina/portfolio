@@ -42,6 +42,10 @@
   ],
   "rewrites": [
     {
+      "source": "/projects/:slug",
+      "destination": "/index.html"
+    },
+    {
       "source": "/sweety-akka-bday",
       "destination": "/sweety-akka-bday.html"
     },
