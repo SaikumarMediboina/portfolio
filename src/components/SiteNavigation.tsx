@@ -61,7 +61,7 @@ export default function SiteNavigation({ children, inlineActions = false, minima
   }}>
     <div className="unified-bar">
       <a className="unified-brand" href="/" aria-label="Sai Kumar Mediboina home">SKM<span aria-hidden="true">.</span></a>
-      <HeaderAccount />
+
       {compact ? <nav className="unified-back-action" aria-label="Back navigation">{children ?? <button className="button button-secondary page-back-button" type="button" onClick={goBack}>Back</button>}</nav> : <>
       <button ref={toggle} className="unified-toggle" type="button" aria-expanded={open} aria-controls="unified-navigation" onClick={() => setOpen(!open)}>{open ? "Close ×" : "Menu ☰"}</button>
       <nav id="unified-navigation" className="unified-links" aria-label="Main navigation" onClick={(event) => {
@@ -70,6 +70,7 @@ export default function SiteNavigation({ children, inlineActions = false, minima
         {primary.map(([href, label]) => <a key={href} href={href} aria-current={path === href ? "page" : undefined}>{label}</a>)}
         <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Résumé ↗</a>
         <details className="unified-explore" ref={details}><summary>Explore</summary><div>{explore.map(([href, label]) => <a key={href} href={href}>{label}</a>)}</div></details>
+        {normalizedPath === "/" && <HeaderAccount />}
         {inlineActions && children && <div className="unified-context unified-inline-actions">{children}</div>}
       </nav>
       </>}

@@ -1,0 +1,31 @@
+.reader-drawer { position: fixed; inset: 0 0 0 auto; margin: 0; padding: 0; width: min(440px,100%); height: 100dvh; max-width: 100%; max-height: 100dvh; border: 0; border-left: 1px solid #deded5; border-radius: 0; background: #fafaf6; color: #242421; box-shadow: -16px 0 64px #24242120; font: 14px/1.6 Arial,Helvetica,sans-serif; overflow-y: auto; overscroll-behavior: contain; }
+.reader-drawer:not([open]) { display: none; }
+.reader-drawer::backdrop { background: #24242166; }
+.reader-drawer *, .reader-drawer *::before, .reader-drawer *::after { box-sizing: border-box; }
+.reader-drawer :is(h2,h3,p) { margin: 0; font-family: inherit; }
+.reader-drawer a { text-decoration: none; color: inherit; }
+.reader-drawer :is(a,button):focus-visible { outline: 2px solid #b5422d; outline-offset: 4px; }
+.reader-drawer-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: 16px 28px; border-bottom: 1px solid #deded5; background: #fafaf6; }
+.reader-drawer .reader-drawer-brand { font-size: 25px; font-weight: 800; letter-spacing: -.06em; }
+.reader-drawer-brand span, .reader-drawer h2 > span { color: #b5422d; }
+.reader-drawer-header button { display: flex; gap: 12px; align-items: center; min-height: 44px; padding: 8px 0 8px 12px; border: 0; border-radius: 0; background: transparent; color: #242421; cursor: pointer; font: 12px/1.5 Arial,sans-serif; }
+.reader-drawer-header button > span { font-size: 22px; color: #b5422d; }
+.reader-drawer-body { padding: 28px 28px max(24px,env(safe-area-inset-bottom)); }
+.reader-drawer .reader-drawer-label { display: block; color: #b5422d; font: 10px/1.6 ui-monospace,Consolas,monospace; letter-spacing: .12em; text-transform: uppercase; }
+.reader-drawer h2 { color: #242421; font-size: 34px; font-weight: 600; line-height: 1.2; letter-spacing: -.045em; margin-top: 12px; }
+.reader-drawer .reader-drawer-intro { margin-top: 12px; font-size: 13px; color: #63635d; overflow-wrap: anywhere; }
+.reader-drawer .reader-drawer-saved { display: flex; justify-content: space-between; gap: 20px; align-items: center; border: 1px solid #deded5; border-left: 3px solid #b5422d; border-radius: 3px; padding: 20px; margin: 24px 0 28px; }
+.reader-drawer-saved strong { display: flex; align-items: center; gap: 20px; font-size: 19px; font-weight: 500; margin-top: 8px; }
+.reader-drawer-saved strong > span { color: #b5422d; font-size: 15px; }
+.reader-drawer-saved small { display: block; margin-top: 6px; font-size: 11px; color: #63635d; }
+.reader-drawer-count { font-size: 34px; letter-spacing: -.04em; }
+.reader-drawer-links + .reader-drawer-links { margin-top: 26px; }
+.reader-drawer-links h3 { color: #63635d; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .1em; padding-bottom: 10px; }
+.reader-drawer-links a { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-top: 1px solid #deded5; }
+.reader-drawer-links strong { display: block; font-size: 15px; font-weight: 500; }
+.reader-drawer-links small { display: block; font-size: 11px; color: #63635d; margin-top: 3px; }
+.reader-drawer-links a > span { color: #b5422d; }
+.reader-drawer a:hover strong, .reader-drawer-footer a:hover { color: #b5422d; }
+.reader-drawer-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 24px; border-top: 1px solid #deded5; padding-top: 12px; }
+.reader-drawer-footer a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-size: 11px; color: #63635d; }
+@media(max-width:480px) { .reader-drawer-header { padding-inline: 20px; } .reader-drawer-body { padding-inline: 20px; } }

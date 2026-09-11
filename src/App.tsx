@@ -23,6 +23,7 @@ import SiteNavigation from "./components/SiteNavigation";
 import { HeaderAccountContext } from "./components/HeaderAccount";
 import HomeLanding from "./components/HomeLanding";
 import DashboardView from "./components/DashboardView";
+import ReaderMenu from "./components/ReaderMenu";
 import { advanceHeaderScroll } from "./lib/headerScroll";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
@@ -6417,88 +6418,6 @@ function SaveAiRadarButton({
   );
 }
 
-type ReaderMenuProps = {
-  isOpen: boolean;
-  isSignedIn: boolean;
-  savedItemCount: number;
-  subscriberName: string;
-  onClose: () => void;
-};
-
-function ReaderMenu({
-  isOpen,
-  isSignedIn,
-  savedItemCount,
-  subscriberName,
-  onClose,
-}: ReaderMenuProps) {
-  const savedPostLabel = `${savedItemCount} ${savedItemCount === 1 ? "saved item" : "saved items"}`;
-  const readerLinks = [
-    { href: "/", icon: "home" as const, label: "Home" },
-    {
-      href: isSignedIn ? "/saved-posts" : getSavedPostsSignInHref(),
-      icon: "bookmark" as const,
-      label: "Saved Posts",
-    },
-    { href: "/learn-with-me", icon: "spark" as const, label: "Learn With Me" },
-    { href: "/whats-new", icon: "news" as const, label: "What's New" },
-    { href: "/shelf", icon: "shelf" as const, label: "Sai's Shelf" },
-    { href: "/work-with-me", icon: "mail" as const, label: "Work With Me" },
-    { href: "/about", icon: "about" as const, label: "About" },
-  ];
-
-  return (
-    <div
-      className={`reader-menu${isOpen ? " is-open" : ""}`}
-      aria-hidden={!isOpen}
-      inert={!isOpen}
-    >
-      <button
-        className="reader-menu-backdrop"
-        type="button"
-        aria-label="Close reader menu"
-        onClick={onClose}
-      />
-      <aside className="reader-menu-panel" aria-label="Reader menu">
-        <div className="reader-menu-heading">
-          <div>
-            <p className="impact-label">Reader Menu</p>
-            <h2>{isSignedIn ? subscriberName : "Browse like a guest, save like a member"}</h2>
-            <span>
-              {isSignedIn
-                ? savedPostLabel
-                : "Sign in once and your favorite posts get their own little VIP shelf."}
-            </span>
-          </div>
-          <button className="reader-menu-close" type="button" onClick={onClose}>
-            Close
-          </button>
-        </div>
-
-        <nav className="reader-menu-nav" aria-label="Reader navigation">
-          {readerLinks.map((link) => (
-            <a
-              href={link.href}
-              key={link.href}
-              onClick={onClose}
-            >
-              <ReaderMenuGlyph type={link.icon} />
-              <span>{link.label}</span>
-            </a>
-          ))}
-        </nav>
-
-        {!isSignedIn ? (
-          <p className="reader-menu-note">
-            Saved Posts is ready, but it needs your sign-in badge first. After that, every useful
-            article you save gets parked neatly for later.
-          </p>
-        ) : null}
-      </aside>
-    </div>
-  );
-}
-
 type SubscriptionAccessCardProps = {
   canUseSubscriptions: boolean;
   isSubscribed: boolean;
@@ -6514,131 +6433,6 @@ type SubscriptionAccessCardProps = {
   onSubscribe: () => void;
   onUnsubscribe: () => void;
 };
-
-type ProfileMenuProps = SubscriptionAccessCardProps & {
-  isOpen: boolean;
-  onToggle: () => void;
-};
-
-function ProfileMenu({
-  canUseSubscriptions,
-  isOpen,
-  isSubscribed,
-  subscriberEmail,
-  subscriberName,
-  subscriberUser,
-  subscriptionBusy,
-  subscriptionError,
-  subscriptionMessage,
-  onGoogleSignIn,
-  onSignOut,
-  onSubscribe,
-  onToggle,
-  onUnsubscribe,
-}: ProfileMenuProps) {
-  const triggerLabel = subscriberUser ? "Open subscriber profile menu" : "Open sign in menu";
-
-  return (
-    <div className={`profile-menu${isOpen ? " is-open" : ""}`}>
-      <button
-        className="profile-menu-trigger"
-        type="button"
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-        aria-label={triggerLabel}
-        onClick={onToggle}
-      >
-        {subscriberUser?.photoURL ? (
-          <img
-            className="nav-account-image"
-            src={subscriberUser.photoURL}
-            alt=""
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <span className="nav-account-fallback" aria-hidden="true">
-            <AccountCircleIcon />
-          </span>
-        )}
-      </button>
-
-      <div className="profile-menu-panel" role="menu" aria-hidden={!isOpen} inert={!isOpen}>
-        <div className="profile-menu-header">
-          <p className="impact-label">{subscriberUser ? "Profile" : "Subscriber Access"}</p>
-          <strong>{subscriberUser ? subscriberName : "Sign in to unlock reader access"}</strong>
-          <span>
-            {subscriberUser
-              ? subscriberEmail
-              : "Manage blog access and portfolio update preferences from one place."}
-          </span>
-        </div>
-
-        {subscriberUser ? (
-          <span className={`subscription-badge${isSubscribed ? " is-active" : ""}`}>
-            {isSubscribed ? "Subscribed" : "Not subscribed"}
-          </span>
-        ) : null}
-
-        {!canUseSubscriptions ? (
-          <p className="status-message is-warning" role="status">
-            Sign-in is configured in code. Add the Firebase environment variables in Vercel to
-            activate it online.
-          </p>
-        ) : null}
-
-        <div className="profile-menu-actions">
-          {subscriberUser ? (
-            <>
-              {isSubscribed ? (
-                <button
-                  className="button button-secondary"
-                  type="button"
-                  disabled={subscriptionBusy}
-                  onClick={onUnsubscribe}
-                >
-                  {subscriptionBusy ? "Updating..." : "Unsubscribe"}
-                </button>
-              ) : (
-                <button
-                  className="button button-primary"
-                  type="button"
-                  disabled={subscriptionBusy}
-                  onClick={onSubscribe}
-                >
-                  {subscriptionBusy ? "Updating..." : "Subscribe"}
-                </button>
-              )}
-              <button
-                className="button button-tertiary"
-                type="button"
-                disabled={subscriptionBusy}
-                onClick={onSignOut}
-              >
-                Sign out
-              </button>
-            </>
-          ) : (
-            <button
-              className="button button-primary"
-              type="button"
-              disabled={subscriptionBusy || !canUseSubscriptions}
-              onClick={onGoogleSignIn}
-            >
-              {subscriptionBusy ? "Opening..." : "Sign in"}
-            </button>
-          )}
-        </div>
-
-        {subscriptionMessage ? (
-          <p className="status-message is-success" role="status">{subscriptionMessage}</p>
-        ) : null}
-        {subscriptionError ? (
-          <p className="status-message is-error" role="alert">{subscriptionError}</p>
-        ) : null}
-      </div>
-    </div>
-  );
-}
 
 function MobileAccountPanel({
   canUseSubscriptions,
@@ -12287,7 +12081,6 @@ function App() {
   const [isCompactNav, setIsCompactNav] = useState(() =>
     typeof window === "undefined" ? false : window.matchMedia("(max-width: 1080px)").matches,
   );
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [readerMenuOpen, setReaderMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("top");
   const [headerDocked, setHeaderDocked] = useState(false);
@@ -12305,7 +12098,6 @@ function App() {
   const [subscriptionError, setSubscriptionError] = useState("");
   const manualSignOutViewRef = useRef<SubscriberViewState | null>(null);
   const moreMenuRef = useRef<HTMLDetailsElement | null>(null);
-  const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   const blogCategories = [
     ALL_BLOG_CATEGORIES,
@@ -12580,36 +12372,6 @@ function App() {
   }, [menuOpen]);
 
   useEffect(() => {
-    if (!profileMenuOpen) {
-      return undefined;
-    }
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        profileMenuRef.current &&
-        event.target instanceof Node &&
-        !profileMenuRef.current.contains(event.target)
-      ) {
-        setProfileMenuOpen(false);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setProfileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [profileMenuOpen]);
-
-  useEffect(() => {
     if (!moreMenuOpen) {
       return undefined;
     }
@@ -12644,22 +12406,6 @@ function App() {
       setMoreMenuOpen(false);
     }
   }, [isCompactNav, menuOpen]);
-
-  useEffect(() => {
-    if (!readerMenuOpen) {
-      return undefined;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setReaderMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [readerMenuOpen]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -12890,7 +12636,6 @@ function App() {
   const closeMenu = () => {
     setMenuOpen(false);
     setMoreMenuOpen(false);
-    setProfileMenuOpen(false);
     setReaderMenuOpen(false);
   };
   const selectBlogCategory = (category: string) => setSelectedBlogCategory(category);
@@ -13232,7 +12977,7 @@ function App() {
       <SiteAssistant
         currentPathname={currentPathname}
         isSubscribed={isSubscribed}
-        isSuppressed={menuOpen || readerMenuOpen || profileMenuOpen}
+        isSuppressed={menuOpen || readerMenuOpen}
         subscriberUser={subscriberUser}
       />
     </>
@@ -13451,28 +13196,7 @@ function App() {
 
       <SiteNavigation inlineActions minimal={false}>
         <button className="button button-secondary" type="button" onClick={() => setReaderMenuOpen(true)}>Reader tools</button>
-<div ref={profileMenuRef}>
-              <ProfileMenu
-                canUseSubscriptions={canUseSubscriptions}
-                isOpen={profileMenuOpen}
-                isSubscribed={isSubscribed}
-                subscriberEmail={subscriberEmail}
-                subscriberInitial={subscriberInitial}
-                subscriberName={subscriberName}
-                subscriberUser={subscriberUser}
-                subscriptionBusy={subscriptionBusy}
-                subscriptionError={subscriptionError}
-                subscriptionMessage={subscriptionMessage}
-                onGoogleSignIn={handleGoogleSignIn}
-                onSignOut={handleSignOut}
-                onSubscribe={handleSubscribe}
-                onToggle={() => {
-                  setProfileMenuOpen((open) => !open);
-                  setMoreMenuOpen(false);
-                }}
-                onUnsubscribe={handleUnsubscribe}
-              />
-            </div>
+
       </SiteNavigation>
 
       <ReaderMenu

@@ -1,4 +1,3 @@
-import HeaderAccount from "./HeaderAccount";
 import { certifications, education, experience, profile, projects, recognitions } from "../data/portfolio";
 import "./PortfolioPage.css";
 
@@ -19,7 +18,6 @@ export default function PortfolioPage() {
         <a href="#work">Work</a><a href="#experience">Experience</a><a href="#contact">Contact</a>
         <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Résumé ↗</a>
       </nav>
-      <HeaderAccount />
     </header>
     <main id="main-content" className="folio-container">
       <section className="folio-intro" id="top" aria-labelledby="folio-name">
