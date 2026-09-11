@@ -804,6 +804,19 @@ function getSeoMetadata({
     };
   }
 
+  if (isSolarEnergyTrackerPage) {
+    return {
+      analyticsTitle: "Solar Energy Tracker",
+      canonicalPath: "/solar-energy-tracker",
+      description: "A read-only home solar energy tracker for bringing together solar generation, grid import, grid export, and total home consumption.",
+      imageAlt: "Solar Energy Tracker by Sai Kumar Mediboina",
+      imagePath: DEFAULT_SEO_IMAGE_PATH,
+      structuredData: [getPersonStructuredData(), getWebsiteStructuredData()],
+      title: getSeoTitle("Solar Energy Tracker"),
+      type: "website",
+    };
+  }
+
   const pageDefaults: SeoMetadata = {
     analyticsTitle: "Home",
     canonicalPath: "/",
@@ -6229,19 +6242,6 @@ function BlogArticleBody({ post }: BlogArticleBodyProps) {
 
   if (post.slug === TOKEN_SAVING_GUIDE_SLUG) {
     return <TokenSavingGuideArticle />;
-  }
-
-  if (isSolarEnergyTrackerPage) {
-    return {
-      analyticsTitle: "Solar Energy Tracker",
-      canonicalPath: "/solar-energy-tracker",
-      description: "A read-only home solar energy tracker for bringing together solar generation, grid import, grid export, and total home consumption.",
-      imageAlt: "Solar Energy Tracker by Sai Kumar Mediboina",
-      imagePath: DEFAULT_SEO_IMAGE_PATH,
-      structuredData: [getPersonStructuredData(), getWebsiteStructuredData()],
-      title: getSeoTitle("Solar Energy Tracker"),
-      type: "website",
-    };
   }
 
   if (post.slug === AI_FAILS_TIMELINE_SLUG) {
