@@ -33,7 +33,10 @@ assert.equal((home.match(/Read article/g) || []).length, 1);
 assert.ok(!home.includes("home-radar") && !home.includes("carousel"));
 assert.ok(home.includes('href="/portfolio#work"'));
 const nav = render("src/components/SiteNavigation.tsx");
-for (const href of ["/portfolio", "/blogs", "/about", "/work-with-me", "/SaiKumarResume.pdf", "/expenses", "/learn-with-me", "/signin"]) assert.ok(nav.includes(`href="${href}"`), href);
+for (const href of ["/portfolio", "/blogs", "/about", "/work-with-me", "/SaiKumarResume.pdf", "/learn-with-me"]) assert.ok(nav.includes(`href="${href}"`), href);
+for (const href of ["/expenses", "/solar-energy-tracker", "/signin"]) assert.ok(!nav.includes(`href="${href}"`), `Removed menu item: ${href}`);
+const exploreMarkup = nav.slice(nav.indexOf('<summary>Explore</summary>'), nav.indexOf('</details>'));
+assert.deepEqual([...exploreMarkup.matchAll(/href="([^"]+)"/g)].map((match) => match[1]), ["/learn-with-me", "/whats-new", "/shelf", "/work-with-me", "/about"]);
 assert.ok(nav.includes('aria-expanded="false"') && nav.includes('aria-controls="unified-navigation"'));
 for (const project of projects) {
   const html = render("src/components/ProjectPage.tsx", { slug: project.slug });

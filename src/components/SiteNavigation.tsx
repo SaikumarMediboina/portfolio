@@ -4,10 +4,11 @@ const primary = [
   ["/portfolio", "Portfolio"], ["/blogs", "Writing"], ["/about", "About"], ["/work-with-me", "Contact"],
 ];
 const explore = [
-  ["/learn-with-me", "Learning"], ["/ai-radar", "AI Radar"], ["/active-builds", "Active builds"],
-  ["/expenses", "Expense tracker"], ["/solar-energy-tracker", "Solar energy"],
-  ["/saved-posts", "Saved articles"], ["/shelf", "Reading shelf"], ["/whats-new", "Updates"],
-  ["/dashboard", "Dashboard"], ["/start", "Start here"], ["/signin", "Reader account"],
+  ["/learn-with-me", "Learn With Me"],
+  ["/whats-new", "What's New"],
+  ["/shelf", "Sai's Shelf"],
+  ["/work-with-me", "Work With Me"],
+  ["/about", "About"],
 ];
 
 export default function SiteNavigation({ children, inlineActions = false }: { children?: ReactNode; inlineActions?: boolean }) {
