@@ -7301,8 +7301,9 @@ function HomePage({
     <div className="home-studio">
       <motion.section className="home-hero shell" id="top" {...sectionAnimationProps}>
         <div className="home-hero-copy">
-          <p className="eyebrow studio-intro">Sai Kumar Mediboina / Software engineer</p>
-          <h1 className="home-hero-greeting">Reliable systems.<br /><span>Thoughtful engineering.</span></h1>
+          <p className="eyebrow studio-intro">Hello, I'm</p>
+          <h1 className="home-hero-greeting">Sai Kumar<br /><span>Mediboina.</span></h1>
+          <p className="studio-intro-tagline">Reliable systems. Thoughtful engineering.</p>
           <div className="home-hero-credentials" aria-label="Professional and education credentials">
             <p className="eyebrow home-hero-role">Software Application Engineer @ Oracle</p>
             <span className="home-hero-credential-divider" aria-hidden="true" />

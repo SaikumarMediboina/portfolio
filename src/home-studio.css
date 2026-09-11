@@ -6,6 +6,7 @@
 .home-studio .home-hero-copy { padding: 0; }
 .home-studio .home-hero-copy h1 { font-family: Arial, Helvetica, sans-serif; font-size: clamp(36px, 4.3vw, 60px); font-weight: 600; line-height: 1.08; letter-spacing: -.045em; max-width: 650px; margin: 24px 0; }
 .home-studio .home-hero-copy h1 span { color: #a74935; }
+.home-studio .home-hero-copy .studio-intro-tagline { margin: 0 0 22px; font: 400 17px/1.6 Arial, Helvetica, sans-serif; color: #645e58; }
 .home-studio .eyebrow { font-size: 10px; letter-spacing: .14em; color: #9e4837; }
 .home-studio .home-hero-credentials { gap: 8px; }
 .home-studio .home-hero-credentials .eyebrow { font-size: 10px; letter-spacing: .025em; }
