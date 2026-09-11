@@ -7298,10 +7298,11 @@ function HomePage({
   }, [homeRadarPreviewSignals.length]);
 
   return (
-    <>
+    <div className="home-studio">
       <motion.section className="home-hero shell" id="top" {...sectionAnimationProps}>
         <div className="home-hero-copy">
-          <h1 className="home-hero-greeting">Hey, Sai here.</h1>
+          <p className="eyebrow studio-intro">Sai Kumar Mediboina / Software engineer</p>
+          <h1 className="home-hero-greeting">Reliable systems.<br /><span>Thoughtful engineering.</span></h1>
           <div className="home-hero-credentials" aria-label="Professional and education credentials">
             <p className="eyebrow home-hero-role">Software Application Engineer @ Oracle</p>
             <span className="home-hero-credential-divider" aria-hidden="true" />
@@ -7478,37 +7479,30 @@ function HomePage({
         </div>
       </motion.section>
 
-      <motion.section className="home-section shell home-work-preview" {...sectionAnimationProps}>
-        <div className="home-work-card">
-          <p className="eyebrow">Featured Build</p>
-          <h2>{projects[0]?.name}</h2>
-          <p>{projects[0]?.summary}</p>
-          <div className="home-stack-row" aria-label="Featured project stack">
-            {projects[0]?.stack.slice(0, 5).map((item) => <span key={item}>{item}</span>)}
-          </div>
-          <a className="button button-primary" href="/portfolio#work">
-            Explore selected work
-          </a>
+      <motion.section className="home-section shell studio-projects" id="featured-work" {...sectionAnimationProps}>
+        <div className="studio-section-title">
+          <div><p className="eyebrow">01 / Selected work</p><h2>Built for real-world complexity.</h2></div>
+          <a href="/portfolio#work">All project case studies <span aria-hidden="true">↗</span></a>
         </div>
-
-        <div className="home-update-card">
-          <div className="home-update-visual" aria-hidden="true">
-            <div className="home-radar-orbit">
-              <span className="home-radar-dot is-one" />
-              <span className="home-radar-dot is-two" />
-              <span className="home-radar-dot is-three" />
-              <strong>AI</strong>
-            </div>
-            <div className="home-update-sources">
-              <span>Official sources</span>
-              <span>Curated notes</span>
-              <span>Safe links</span>
-            </div>
-          </div>
-          <p className="eyebrow">Latest Update</p>
-          <h3>{latestUpdate?.title ?? "Fresh updates are coming"}</h3>
-          <p>{latestUpdate?.summary ?? "New engineering notes and site updates will appear here."}</p>
-          <a href={latestUpdate?.href ?? "/whats-new"}>Open what's new</a>
+        <div className="studio-project-grid">
+          {projects.slice(0, 3).map((project, index) => (
+            <article className="studio-project-card" key={project.name}>
+              <div className="studio-project-visual" aria-hidden="true">
+                <span className="studio-project-number">0{index + 1}</span>
+                <div className="studio-flow">
+                  {(index === 0 ? ["Ingest", "Match", "Screen"] : index === 1 ? ["Search", "Migrate", "Oracle Text"] : ["AI signals", "Rules", "Ranking"]).map((step) => <span key={step}>{step}</span>)}
+                </div>
+                <span className="studio-visual-caption">{["SCREENING AT SCALE", "SEARCH INFRASTRUCTURE", "EXPLAINABLE RELEVANCE"][index]}</span>
+              </div>
+              <div className="studio-project-copy">
+                <h3>{project.name}</h3>
+                <p>{project.summary}</p>
+                <div className="studio-project-outcome"><span>Outcome</span><p>{project.impact}</p></div>
+                <ul aria-label="Technology stack">{project.stack.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
+                <a href={`/portfolio?project=${index}#work`}>Explore project <span aria-hidden="true">↗</span></a>
+              </div>
+            </article>
+          ))}
         </div>
       </motion.section>
 
@@ -7605,7 +7599,7 @@ function HomePage({
           </a>
         </div>
       </motion.section>
-    </>
+    </div>
   );
 }
 
@@ -13949,7 +13943,10 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 function App() {
   const isScrolled = useScrolled();
   useScrollHeaderVisibility(true);
-  const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState(() => {
+    const requested = Number(new URLSearchParams(window.location.search).get("project"));
+    return Number.isInteger(requested) && requested >= 0 && requested < projects.length ? requested : 0;
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isCompactNav, setIsCompactNav] = useState(() =>
