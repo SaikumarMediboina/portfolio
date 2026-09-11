@@ -11092,63 +11092,17 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
   const isScrolled = useScrolled();
   const recentUpdates = getRecentSiteUpdates(siteUpdates);
 
-  return (
-    <>
-      <a className="skip-link" href="#main-content">
-        Skip to what's new
-      </a>
+  return <>
+    <a className="skip-link" href="#main-content">Skip to what's new</a>
+    <SiteNavigation><PageBackButton fallbackHref="/" label="Back" /></SiteNavigation>
+    <main className="studio-page studio-updates" id="main-content">
+      <header className="studio-intro"><p className="studio-label">The changelog</p><h1>What's <span>new.</span></h1><p className="studio-description">New writing, useful additions, and improvements to this site.</p></header>
+      <section className="studio-section" aria-labelledby="studio-updates-title"><div className="studio-section-heading"><div><p className="studio-label">Last 30 days</p><h2 id="studio-updates-title">Recently added.</h2></div><span className="studio-count">{recentUpdates.length} {recentUpdates.length === 1 ? "update" : "updates"}</span></div>
+        {recentUpdates.length ? <div className="studio-update-list">{recentUpdates.map(update=><article className="studio-update" key={`${update.date}-${update.title}`}><div className="studio-update-date"><time dateTime={update.date}>{formatUpdateDate(update.date)}</time><span>{update.category}</span></div><div><h3><a href={update.href}>{update.title}</a></h3><p>{update.summary}</p>{update.details?.length ? <details className="studio-update-details"><summary>What changed <span aria-hidden="true">+</span></summary><ul>{update.details.map(detail=><li key={detail}>{detail}</li>)}</ul></details> : null}<a className="studio-text-link" href={update.href}>Explore update <span aria-hidden="true">↗</span></a></div></article>)}</div> : <div className="studio-empty"><h3>No updates in the last 30 days.</h3><p>Explore the existing writing, or subscribe below for the next addition.</p><a className="studio-text-link" href="/blogs">Browse the writing <span aria-hidden="true">↗</span></a></div>}
+      </section>
+    </main>
+  </>;
 
-      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
-      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
-
-      <SiteNavigation>
-<PageBackButton fallbackHref="/" label="Back" />
-      </SiteNavigation>
-
-      <main className="guide-page shell" id="main-content">
-        <section className="guide-hero">
-          <p className="eyebrow">What's New</p>
-          <h1>Recent headlines from the last 30 days.</h1>
-          <p>
-            A clean changelog for new articles, shelf additions, page improvements, and useful
-            content updates added to this site.
-          </p>
-        </section>
-
-        <section className="whats-new-list" aria-label="Recent updates">
-          {recentUpdates.length ? (
-            recentUpdates.map((update) => (
-              <article className="whats-new-item" key={`${update.date}-${update.title}`}>
-                <div>
-                  <span>{update.category}</span>
-                  <time dateTime={update.date}>{formatUpdateDate(update.date)}</time>
-                </div>
-                <h2>{update.title}</h2>
-                <p>{update.summary}</p>
-                {update.details?.length ? (
-                  <ul className="whats-new-details">
-                    {update.details.map((detail) => (
-                      <li key={detail}>{detail}</li>
-                    ))}
-                  </ul>
-                ) : null}
-                <a href={update.href}>Open update</a>
-              </article>
-            ))
-          ) : (
-            <div className="whats-new-empty">
-              <ReaderMenuGlyph type="spark" />
-              <h2>No new headlines in the last 30 days.</h2>
-              <p>
-                Quiet weeks are allowed. Subscribe below and the next useful update will find you
-                without any refresh-button cardio.
-              </p>
-            </div>
-          )}
-        </section>
-      </main>
-    </>
-  );
 }
 
 type AiRadarPageProps = {
@@ -11692,45 +11646,28 @@ function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
     { href: "/work-with-me", label: "Work With Me", note: "Collaboration and contact" },
   ];
 
-  return (
-    <>
-      <a className="skip-link" href="#main-content">
-        Skip to About page
-      </a>
+  return <>
+    <a className="skip-link" href="#main-content">Skip to About</a>
+    <SiteNavigation><PageBackButton fallbackHref="/" label="Back" /></SiteNavigation>
+    <main className="studio-page studio-about" id="main-content">
+      <section className="studio-about-intro" aria-labelledby="studio-about-title">
+        <div>
+          <p className="studio-label">About / The person behind the work</p>
+          <h1 id="studio-about-title">Sai Kumar<br /><span>Mediboina.</span></h1>
+          <p className="studio-role">{profile.currentTitle} at {profile.company}</p>
+          <p className="studio-lead">I build backend systems where scale, search quality, and reliability matter.</p>
+          <p className="studio-description">My recent work includes high-throughput screening, matching engines, and AI-assisted workflows. This site is where I share the work and the thinking behind it.</p>
+          <div className="studio-actions"><a className="studio-primary" href="/portfolio">Explore my work <span aria-hidden="true">↗</span></a><a className="studio-text-link" href="/work-with-me">Get in touch <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <figure className="studio-portrait"><img src="/about-sai.jpg" alt="Sai Kumar Mediboina smiling at a workspace" width="600" height="720" /><figcaption><span>{profile.name}</span><span>Engineer & builder</span></figcaption></figure>
+      </section>
+      <section className="studio-section studio-split" aria-labelledby="studio-explore-title">
+        <div><p className="studio-label">Explore</p><h2 id="studio-explore-title">A little more<br />of my world.</h2><p className="studio-description">Projects, notes, experiments, and the ideas I keep coming back to.</p></div>
+        <nav className="studio-link-list" aria-label="Explore key portfolio pages">{aboutLinks.map((link,index)=><a href={link.href} key={link.label}><span className="studio-number">{String(index+1).padStart(2,"0")}</span><span><strong>{link.label}</strong><small>{link.note}</small></span><span aria-hidden="true">↗</span></a>)}</nav>
+      </section>
+    </main>
+  </>;
 
-      <SiteNavigation>
-<PageBackButton fallbackHref="/" label="Back" />
-      </SiteNavigation>
-
-      <main className="about-page shell" id="main-content">
-        <section className="about-hero" aria-labelledby="about-page-title">
-          <div className="about-hero-copy">
-            <p className="eyebrow">About Me</p>
-            <h1 id="about-page-title">Sai Kumar Mediboina</h1>
-            <div className="about-intro-lines">
-              <p>I am a {profile.currentTitle} at {profile.company}.</p>
-              <p>I work on backend systems where scale, search quality, and reliability matter.</p>
-              <p>My recent focus includes high-throughput screening, matching engines, and AI-assisted workflows.</p>
-              <p>I use this site to share my work, engineering notes, active builds, and useful AI updates.</p>
-            </div>
-          </div>
-
-          <div className="about-portrait-card">
-            <img src="/about-sai.jpg" alt="Sai Kumar Mediboina smiling at a workspace" />
-          </div>
-        </section>
-
-        <nav className="about-link-grid" aria-label="Explore key portfolio pages">
-          {aboutLinks.map((link) => (
-            <a href={link.href} key={link.label}>
-              <strong>{link.label}</strong>
-              <span>{link.note}</span>
-            </a>
-          ))}
-        </nav>
-      </main>
-    </>
-  );
 }
 
 function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
@@ -11790,143 +11727,20 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
     { value: "100+ TPS", label: "Runtime scale" },
   ];
 
-  return (
-    <>
-      <a className="skip-link" href="#main-content">
-        Skip to Work With Me page
-      </a>
+  return <>
+    <a className="skip-link" href="#main-content">Skip to contact</a>
+    <SiteNavigation><PageBackButton fallbackHref="/" label="Back" /></SiteNavigation>
+    <main className="studio-page studio-contact" id="main-content">
+      <section className="studio-contact-intro" aria-labelledby="studio-contact-title">
+        <div><p className="studio-label">Work with me / Contact</p><h1 id="studio-contact-title">Good systems start<br />with a <span>conversation.</span></h1><p className="studio-lead">Backend performance, search, and applied AI.</p><p className="studio-description">I enjoy work where speed, correctness, and trust need to hold together. Share the problem, your goals, and the constraints.</p><a className="studio-text-link" href="/portfolio">See my experience & work <span aria-hidden="true">↗</span></a></div>
+        <aside className="studio-contact-card" aria-label="Contact details"><p className="studio-label">Let's connect</p><h2>Have something<br />in mind?</h2><p>A short note is a good place to start.</p><a className="studio-contact-email" href={`mailto:${profile.email}`}>{profile.email}<span aria-hidden="true">↗</span></a><a className="studio-contact-social" href={profile.linkedin} target="_blank" rel="noreferrer">Connect on LinkedIn <span aria-hidden="true">↗</span></a></aside>
+      </section>
+      <section className="studio-section" aria-labelledby="studio-areas-title"><div className="studio-section-heading"><div><p className="studio-label">01 / Where I can help</p><h2 id="studio-areas-title">Engineering with purpose.</h2></div></div><div className="studio-area-grid">{collaborationAreas.map((area,index)=><article key={area.title}><span className="studio-number">{String(index+1).padStart(2,"0")}</span><h3>{area.title}</h3><p>{area.summary}</p><ul>{area.points.map(point=><li key={point}>{point}</li>)}</ul></article>)}</div></section>
+      <section className="studio-section studio-split" aria-labelledby="studio-results-title"><div><p className="studio-label">02 / Selected project results</p><h2 id="studio-results-title">Grounded in<br />measurable work.</h2><a className="studio-text-link" href="/portfolio#work">Read the case studies <span aria-hidden="true">↗</span></a></div><dl className="studio-proof">{proofSignals.map(signal=><div key={signal.label}><dt>{signal.label}</dt><dd>{signal.value}</dd></div>)}</dl></section>
+      <section className="studio-section studio-split" aria-labelledby="studio-process-title"><div><p className="studio-label">03 / The approach</p><h2 id="studio-process-title">From context<br />to a clear next step.</h2></div><ol className="studio-process">{collaborationSteps.map(step=><li key={step.label}><span className="studio-number">{step.label}</span><div><h3>{step.title}</h3><p>{step.detail}</p></div></li>)}</ol></section>
+    </main>
+  </>;
 
-      <SiteNavigation>
-<PageBackButton fallbackHref="/" label="Back" />
-      </SiteNavigation>
-
-      <main className="collaboration-page" id="main-content">
-        <section className="collaboration-hero shell">
-          <div className="collaboration-hero-copy">
-            <p className="collaboration-pill">Available for meaningful engineering conversations</p>
-            <h1>Turn complex backend workflows into reliable, scalable product systems.</h1>
-            <p>
-              I enjoy conversations around performance engineering, search-heavy architectures,
-              AI-assisted relevance, and backend systems where speed, correctness, and trust all
-              need to hold together.
-            </p>
-            <div className="collaboration-actions">
-              <a className="button collaboration-primary" href={`mailto:${profile.email}`}>
-                Start a conversation
-              </a>
-              <a
-                className="button collaboration-secondary"
-                href={profile.linkedin}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Connect on LinkedIn
-              </a>
-            </div>
-          </div>
-
-          <aside className="collaboration-signal-card" aria-label="Collaboration signals">
-            <p className="collaboration-card-kicker">Engineering focus</p>
-            <h2>Performance, search, and practical AI.</h2>
-            <div className="collaboration-radar" aria-hidden="true">
-              <span className="radar-ring radar-ring-one" />
-              <span className="radar-ring radar-ring-two" />
-              <span className="radar-line radar-line-one" />
-              <span className="radar-line radar-line-two" />
-              <span className="radar-dot radar-dot-one" />
-              <span className="radar-dot radar-dot-two" />
-              <span className="radar-dot radar-dot-three" />
-            </div>
-            <dl className="collaboration-contact-list">
-              <div>
-                <dt>Email</dt>
-                <dd>{profile.email}</dd>
-              </div>
-            </dl>
-          </aside>
-        </section>
-
-        <section className="collaboration-section shell">
-          <div className="collaboration-section-heading">
-            <p className="collaboration-eyebrow">Collaboration areas</p>
-            <h2>Where I can bring the strongest value.</h2>
-            <p>
-              The best fit is work that needs thoughtful backend design, measurable performance
-              improvement, and clean technical storytelling.
-            </p>
-          </div>
-
-          <div className="collaboration-card-grid">
-            {collaborationAreas.map((area) => (
-              <article className="collaboration-area-card" key={area.title}>
-                <span className="collaboration-card-icon" aria-hidden="true">
-                  <ReaderMenuGlyph type={area.icon} />
-                </span>
-                <h3>{area.title}</h3>
-                <p>{area.summary}</p>
-                <ul>
-                  {area.points.map((point) => (
-                    <li key={point}>{point}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="collaboration-section collaboration-proof shell">
-          <div>
-            <p className="collaboration-eyebrow">Outcome-oriented</p>
-            <h2>Conversations stay grounded in measurable engineering signal.</h2>
-            <p>
-              I like working from evidence: latency numbers, query behavior, throughput patterns,
-              reliability constraints, and the product outcome behind the technical work.
-            </p>
-          </div>
-
-          <div className="collaboration-proof-grid">
-            {proofSignals.map((signal) => (
-              <article key={signal.label}>
-                <strong>{signal.value}</strong>
-                <span>{signal.label}</span>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="collaboration-section shell">
-          <div className="collaboration-section-heading">
-            <p className="collaboration-eyebrow">How we work together</p>
-            <h2>A simple path from problem to useful result.</h2>
-          </div>
-
-          <div className="collaboration-process">
-            {collaborationSteps.map((step) => (
-              <article className="collaboration-step" key={step.label}>
-                <span>{step.label}</span>
-                <div>
-                  <h3>{step.title}</h3>
-                  <p>{step.detail}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="collaboration-cta shell">
-          <p className="collaboration-eyebrow">Ready to connect</p>
-          <h2>Have a backend, search, or AI workflow worth improving?</h2>
-          <p>
-            Send a short note with the context, goal, and any constraints. I will respond with the
-            clearest next step.
-          </p>
-          <a className="button collaboration-primary" href={`mailto:${profile.email}`}>
-            {profile.email}
-          </a>
-        </section>
-      </main>
-    </>
-  );
 }
 
 type BlogArticlePageProps = {
@@ -12387,55 +12201,16 @@ function ShelfPage({ theme, onThemeToggle }: ShelfPageProps) {
     },
   ];
 
-  return (
-    <>
-      <a className="skip-link" href="#main-content">
-        Skip to Sai's Shelf
-      </a>
+  return <>
+    <a className="skip-link" href="#main-content">Skip to Sai's Shelf</a>
+    <SiteNavigation><PageBackButton fallbackHref="/" label="Back" /></SiteNavigation>
+    <main className="studio-page studio-shelf" id="main-content">
+      <header className="studio-intro"><p className="studio-label">A personal collection</p><h1>Sai's <span>Shelf.</span></h1><p className="studio-description">Useful references, small explainers, and engineering ideas worth keeping.</p></header>
+      <section className="studio-shelf-note" aria-labelledby="studio-shelf-status"><span className="studio-status">In progress</span><div><h2 id="studio-shelf-status">Good things take a little arranging.</h2><p>This collection is being prepared. In the meantime, explore the engineering notes already published.</p></div><a className="studio-text-link" href="/blogs">Read the notes <span aria-hidden="true">↗</span></a></section>
+      <section className="studio-section" aria-labelledby="studio-shelf-title"><div className="studio-section-heading"><div><p className="studio-label">On the way</p><h2 id="studio-shelf-title">Room for useful ideas.</h2></div><span className="studio-count">03 collections planned</span></div><div className="studio-shelf-list">{shelfPlans.map((item,index)=><article key={item.title}><span className="studio-shelf-number" aria-hidden="true">{String(index+1).padStart(2,"0")}</span><div><h3>{item.title}</h3><p>{item.detail}</p></div><span className="studio-status">Coming soon</span></article>)}</div></section>
+    </main>
+  </>;
 
-      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
-      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
-
-      <SiteNavigation>
-<PageBackButton fallbackHref="/" label="Back" />
-      </SiteNavigation>
-
-      <main className="shelf-page shell" id="main-content">
-        <section className="shelf-panel">
-          <div className="shelf-hero">
-            <p className="eyebrow">Sai's Shelf</p>
-            <h1>A growing shelf for useful engineering content.</h1>
-            <p>
-              This space will collect practical references, short explainers, diagrams, tools,
-              and notes that are worth keeping close. I will add content one useful piece at a
-              time, so the shelf grows without becoming noisy.
-            </p>
-          </div>
-
-          <div className="shelf-coming-soon">
-            <ReaderMenuGlyph type="shelf" />
-            <div>
-              <h2>The shelf is being arranged.</h2>
-              <p>
-                Nothing dusty here yet. Soon this will become a neat corner for the kind of
-                content you want to bookmark before future-you starts searching frantically.
-              </p>
-            </div>
-          </div>
-
-          <div className="shelf-plan-grid" aria-label="Planned shelf topics">
-            {shelfPlans.map((item) => (
-              <article className="shelf-plan-card" key={item.title}>
-                <span>Coming soon</span>
-                <h3>{item.title}</h3>
-                <p>{item.detail}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      </main>
-    </>
-  );
 }
 
 type DashboardPageProps = {
