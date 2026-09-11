@@ -40,9 +40,11 @@ html[data-header-visibility] .unified-header:is(.is-open, :has(:focus-visible), 
 .landing-intro { padding-block: 72px 52px; }
 .editorial-home .landing-intro > .design-label { display: flex; align-items: center; gap: 14px; color: #92452f; }
 .landing-intro > .design-label::before { content: ""; width: 32px; height: 2px; background: #b5422d; flex-shrink: 0; }
-.editorial-home h1 { font-size: clamp(50px, 6.8vw, 84px); line-height: 1.03; letter-spacing: -.065em; color: var(--design-ink); margin: 24px 0; }
+.editorial-home h1 { font-size: clamp(50px, 6.8vw, 84px); line-height: 1.03; letter-spacing: -.065em; color: var(--design-ink); font-weight: 700; margin: 25px 0; }
 .editorial-home h1 span { color: var(--design-orange); }
 .landing-role { font-size: 15px; }
+.landing-role span { color: var(--design-muted); }
+@media(max-width: 760px) { .landing-role span { display: block; } }
 .editorial-home .landing-description { font-size: clamp(20px, 2.3vw, 26px); line-height: 1.5; max-width: 650px; margin-top: 20px; color: var(--design-muted); }
 .design-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
 .design-primary, .design-secondary { display: inline-flex; align-items: center; min-height: 48px; padding: 12px 20px; border: 1px solid var(--design-line); border-radius: 5px; font: 600 14px/1.5 Arial, sans-serif; }
