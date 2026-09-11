@@ -1,0 +1,80 @@
+/* Build catalog and assistant case study share the personal page design. */
+.studio-builds [id] { scroll-margin-top: 104px; }
+.build-catalog { border-top: 1px solid #242421; }
+.build-entry { display: grid; grid-template-columns: 54px minmax(0,1fr) 140px; gap: 28px; padding: 30px 0; border-bottom: 1px solid #deded5; align-items: start; }
+.build-entry-number { font: 12px/1.7 ui-monospace,Consolas,monospace; color: #77776a; padding-top: 3px; }
+.build-entry h3 { margin-top: 12px; font-size: 25px; max-width: 40ch; }
+.studio-builds .build-entry-description { color: #63635d; font-size: 14px; line-height: 1.8; max-width: 70ch; margin-top: 12px; }
+.build-entry-action { align-self: center; justify-self: end; }
+.build-tags { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; padding: 0; }
+.studio-builds .build-tags { margin-top: 18px; }
+.build-tags li { color: #63635d; font: 11px/1.5 Arial,sans-serif; border: 1px solid #deded5; border-radius: 3px; padding: 4px 7px; }
+.build-entry.is-live .studio-label { display: flex; align-items: center; gap: 8px; }
+.build-entry.is-live .studio-label::before { content: ""; width: 6px; height: 6px; background: #b5422d; border-radius: 50%; }
+.build-catalog-note { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding-top: 4px; }
+.build-catalog-note p { color: #63635d; font-size: 14px; }
+.build-assistant-intro { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,.8fr); gap: 72px; align-items: center; padding: 48px 0 40px; }
+.build-assistant-intro .studio-text-link { margin-top: 20px; }
+.build-brief { padding: 28px; background: #242421; border-top: 3px solid #b5422d; border-radius: 4px; color: #fffdf8; }
+.build-brief .studio-label { color: #f2aa85; }
+.build-brief dl { margin-top: 20px; }
+.build-brief dl > div { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-top: 1px solid #53524b; padding: 14px 0; }
+.build-brief dt { font-size: 12px; color: #c7c5bd; }
+.build-brief dd { margin: 0; font-size: 14px; font-weight: 600; }
+.studio-builds .build-brief-foot { margin-top: 18px; font: 10px/1.8 ui-monospace,Consolas,monospace; color: #f2aa85; }
+.build-section-nav { display: flex; flex-wrap: wrap; gap: 6px 28px; padding: 12px 0; border-top: 1px solid #242421; }
+.build-section-nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; color: #63635d; }
+.studio-builds .build-section-description { margin: -12px 0 26px; font-size: 14px; color: #63635d; max-width: 76ch; }
+.build-flow { padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border-top: 1px solid #deded5; border-left: 1px solid #deded5; }
+.build-flow li { padding: 24px; background: #f4f3ec; border-right: 1px solid #deded5; border-bottom: 1px solid #deded5; }
+.build-flow h3 { margin-top: 14px; font-size: 19px; }
+.build-flow p { margin-top: 12px; font-size: 13px; color: #63635d; line-height: 1.8; }
+.build-flow .build-flow-route { font: 10px/1.8 ui-monospace,Consolas,monospace; color: #92452f; }
+.build-stack article { display: grid; grid-template-columns: 180px minmax(0,1fr) minmax(0,.9fr); gap: 28px; padding: 26px 0; border-top: 1px solid #deded5; align-items: start; }
+.build-stack h3 { margin-top: 12px; font-size: 19px; }
+.build-stack article > p { color: #63635d; font-size: 14px; }
+.build-stack .build-tags { margin-top: 0; }
+.build-disclosures { border-top: 1px solid #242421; }
+.build-disclosures > details { border-bottom: 1px solid #deded5; }
+.build-disclosures summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 0; list-style: none; cursor: pointer; font-size: 19px; font-weight: 600; letter-spacing: -.02em; }
+.build-disclosures summary::-webkit-details-marker { display: none; }
+.build-disclosures summary small { display: block; font: 10px/1.7 ui-monospace,Consolas,monospace; color: #63635d; letter-spacing: .06em; margin-bottom: 6px; }
+.build-disclosures summary > span:last-child { color: #b5422d; font-size: 23px; font-weight: 400; }
+.build-disclosures details[open] summary > span:last-child { transform: rotate(45deg); }
+.build-detail-steps { padding: 8px 0 8px 20px; list-style: none; }
+.build-detail-steps li { display: grid; grid-template-columns: 24px minmax(0,1fr); gap: 20px; padding-bottom: 24px; }
+.build-detail-steps h3, .build-detail-grid h3 { font-size: 17px; margin-top: 8px; }
+.build-detail-steps p:not(.studio-label), .build-detail-grid p:not(.studio-label) { color: #63635d; font-size: 14px; margin-top: 10px; max-width: 78ch; line-height: 1.8; }
+.build-detail-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 28px; padding: 0 0 28px; }
+.build-facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; padding-bottom: 28px; }
+.build-facts > div { padding: 16px; background: #f4f3ec; }
+.build-facts dt { font-size: 11px; color: #63635d; }
+.build-facts dd { margin: 8px 0 0; font-size: 14px; }
+.build-principles article { padding: 20px 0; border-bottom: 1px solid #deded5; }
+.build-principles article:first-child { padding-top: 0; }
+.build-principles h3 { font-size: 18px; }
+.build-principles p { color: #63635d; font-size: 14px; margin-top: 10px; }
+.build-roadmap { padding: 0; list-style: none; }
+.build-roadmap li { display: grid; grid-template-columns: 24px minmax(0,1fr); gap: 20px; padding: 20px 0; border-bottom: 1px solid #deded5; }
+.build-roadmap li:first-child { padding-top: 0; }
+.build-roadmap p { font-size: 14px; color: #63635d; }
+@media(max-width:900px) {
+ .build-assistant-intro { gap: 32px; }
+ .build-flow { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .build-stack article { grid-template-columns: 160px minmax(0,1fr); }
+ .build-stack .build-tags { grid-column: 2; }
+ .build-entry { grid-template-columns: 32px minmax(0,1fr) 120px; gap: 20px; }
+}
+@media(max-width:760px) {
+ .build-assistant-intro { grid-template-columns: 1fr; padding: 32px 0; gap: 28px; }
+ .build-entry { grid-template-columns: 24px minmax(0,1fr); gap: 14px; padding: 26px 0; }
+ .build-entry h3 { font-size: 22px; }
+ .build-entry-action { grid-column: 2; justify-self: start; }
+ .build-section-nav { gap: 4px 20px; }
+ .build-flow, .build-stack article, .build-detail-grid, .build-facts { grid-template-columns: 1fr; }
+ .build-stack article { gap: 14px; }
+ .build-stack .build-tags { grid-column: 1; }
+ .build-flow li { padding: 22px; }
+ .build-detail-steps { padding-left: 0; }
+ .build-disclosures summary { font-size: 17px; }
+}
