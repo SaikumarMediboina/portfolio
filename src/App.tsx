@@ -17,6 +17,8 @@ import {
   signOut,
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
+import EngineeringDemo from "./components/EngineeringDemo";
+import ArticleIndex from "./components/ArticleIndex";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
@@ -7508,6 +7510,7 @@ function HomePage({
         </div>
       </motion.section>
 
+      <EngineeringDemo />
       <motion.section className="home-section shell home-writing" {...sectionAnimationProps}>
         <div className="home-section-heading">
           <p className="eyebrow">Latest Notes</p>
@@ -8975,10 +8978,10 @@ function DistributedMarkdown({ markdown }: { markdown: string }) {
           >
             {needsWhiteCanvas ? (
               <span className="distributed-article-white-canvas">
-                <img src={src} alt={alt} className="distributed-article-img" />
+                <img src={src} alt={alt} className="distributed-article-img" loading="lazy" decoding="async" />
               </span>
             ) : (
-              <img src={src} alt={alt} className="distributed-article-img" />
+              <img src={src} alt={alt} className="distributed-article-img" loading="lazy" decoding="async" />
             )}
             <p className="distributed-image-caption">{alt}</p>
           </div>,
@@ -12793,11 +12796,10 @@ function BlogArticlePage({
             ref={articleRef}
           >
             <div className="standalone-blog-hero">
-              <p className="eyebrow">Unlocked Article</p>
+              <p className="eyebrow">{post.category}</p>
               <h1>{post.title}</h1>
               <BlogMetaLine status="Unlocked" post={post} />
               <p>{post.summary}</p>
-              <BlogTagList limit={6} post={post} />
               <div className="blog-action-row">
                 <SavePostButton
                   isBusy={savedPostsBusySlug === post.slug}
@@ -12809,6 +12811,7 @@ function BlogArticlePage({
               </div>
             </div>
 
+            <ArticleIndex articleRef={articleRef} articleKey={post.slug} />
             {post.slug !== MCP_EXPENSE_TRACKER_SLUG && post.slug !== AI_FAILS_TIMELINE_SLUG && post.slug !== GPT_6_ASTRA_SLUG ? <BlogArchitectureDiagram post={post} /> : null}
             <BlogArticleBody post={post} />
             <RelatedPosts
