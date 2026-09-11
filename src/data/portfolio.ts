@@ -372,9 +372,20 @@ export type Certification = {
   year: string;
   category: CertificationCategory;
   credentialId?: string;
+  issued?: string;
+  credentialUrl?: string;
 };
 
 export const certifications: Certification[] = [
+  {
+    title: "Advanced RAG System Implementation",
+    issuer: "Coursera",
+    year: "2026",
+    issued: "Aug 2026",
+    category: "AI & LLMs",
+    credentialId: "A60MC0ZW3CFK",
+    credentialUrl: "https://www.coursera.org/account/accomplishments/certificate/A60MC0ZW3CFK",
+  },
   {
     title: "Model Context Protocol: Introduction and Advanced Topics",
     issuer: "Anthropic",

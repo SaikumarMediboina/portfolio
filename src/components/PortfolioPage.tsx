@@ -4,7 +4,7 @@ import "./PortfolioPage.css";
 const selectedSlugs = ["enterprise-rag-knowledge-assistant", "high-volume-batch-processing", "core-search-engine-migration"];
 const featured = selectedSlugs.map((slug) => projects.find((project) => project.slug === slug)!).filter(Boolean);
 const disciplines = [
-  { title: "Backend", detail: "Java, Spring Boot, WebFlux, REST APIs, microservices and parallel processing." },
+  { title: "Backend Engineering", detail: "Java, Spring Boot, WebFlux, REST APIs, microservices and parallel processing." },
   { title: "Search & AI", detail: "Oracle Text, OpenSearch, hybrid retrieval, RAG, vector search and LLM workflows." },
   { title: "Cloud & Data", detail: "OCI, Kubernetes, Oracle, SQL, PL/SQL, Kafka and production observability." },
 ];
@@ -60,8 +60,20 @@ export default function PortfolioPage() {
         <div className="folio-section-title"><p className="folio-kicker">02 / Experience & foundation</p><h2 id="folio-experience-title">Engineering in practice.</h2></div>
         <div className="folio-career"><div><h3>Oracle</h3><p>Aug 2023 — Present</p></div><div className="folio-timeline">{experience[0].roles.map((role) => <article key={role.title}><p className="folio-date">{role.period}</p><h4>{role.title}</h4><p>{role.detail}</p></article>)}</div></div>
         <div className="folio-credibility"><div id="about"><h3>Education</h3>{education.map((item) => <p key={item.degree}><strong>{item.degree} · {item.school}</strong><span>{item.period} · {item.score}</span></p>)}</div><div id="recognition"><h3>Recognition</h3>{recognitions.map((item) => <p key={item.title}><strong>{item.title}</strong><span>{item.highlight}</span></p>)}</div></div>
-        <div className="folio-disciplines" id="skills">{disciplines.map((item) => <div key={item.title}><h3>{item.title}</h3><p>{item.detail}</p></div>)}</div>
-        <details className="folio-certifications" id="credentials"><summary><span>Certifications & professional learning</span><span>{certifications.length} entries</span></summary><ul>{certifications.map((item) => <li key={`${item.title}-${item.year}`}><span>{item.title}<small>{item.issuer}</small></span><span>{item.year}</span></li>)}</ul></details>
+        <section className="folio-skills" id="skills" aria-labelledby="folio-skills-title">
+          <h3 id="folio-skills-title">Technical Skills</h3>
+          <div className="folio-disciplines">{disciplines.map((item) => <div key={item.title}><h4>{item.title}</h4><p>{item.detail}</p></div>)}</div>
+        </section>
+        <details className="folio-certifications" id="credentials">
+          <summary><span>Licenses & certifications</span><span>{certifications.length} entries</span></summary>
+          <ul>{certifications.map((item) => <li key={`${item.title}-${item.year}`}>
+            <span>{item.title}<small>{item.issuer}</small>
+              {item.credentialId && <small>Credential ID: {item.credentialId}</small>}
+              {item.credentialUrl && <a className="folio-credential-link" href={item.credentialUrl} target="_blank" rel="noreferrer">Show credential ↗</a>}
+            </span>
+            <span>{item.issued ? `Issued ${item.issued}` : item.year}</span>
+          </li>)}</ul>
+        </details>
       </section>
 
       <section className="folio-contact" id="contact" aria-labelledby="folio-contact-title"><p className="folio-kicker">03 / Get in touch</p><h2 id="folio-contact-title">Discuss a backend<br />or applied AI role.</h2><p>Happy to talk through the systems, decisions, and trade-offs behind my work.</p><div className="folio-actions"><a className="folio-primary" href={`mailto:${profile.email}`}>Email Sai <span aria-hidden="true">↗</span></a><a className="folio-secondary" href="/SaiKumarResume.pdf" download>Download résumé</a></div></section>
