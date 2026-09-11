@@ -11454,23 +11454,14 @@ function BlogArticlePage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <SiteNavigation>
-{post && !isAccessChecking && !isLocked ? (
-              <SavePostButton
-                isBusy={savedPostsBusySlug === post.slug}
-                isSaved={isPostSaved(post.slug)}
-                post={post}
-                subscriberUser={subscriberUser}
-                onToggle={onToggleSavedPost}
-              />
-            ) : null}
-            <button
-              className="button button-secondary article-back-button"
-              type="button"
-              onClick={() => returnToPortfolioBlog(post?.slug)}
-            >
-              Back to blogs
-            </button>
+      <SiteNavigation minimal>
+        <button
+          className="button button-secondary article-back-button"
+          type="button"
+          onClick={() => returnToPortfolioBlog(post?.slug)}
+        >
+          Back to blogs
+        </button>
       </SiteNavigation>
 
       {post && !isAccessChecking && !isLocked ? (
