@@ -6833,7 +6833,7 @@ type BlogIndexSectionProps = {
 function BlogIndexSection({
   blogCategories,
   featuredBlog,
-  featuredBlogIsLocked,
+
   isPostSaved,
   remainingBlogPosts,
   savedPostsBusySlug,
@@ -6844,28 +6844,30 @@ function BlogIndexSection({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: BlogIndexSectionProps) {
-  const renderStory = (post: BlogPost, featured = false, index = 0) => {
-    const isLocked = featured ? featuredBlogIsLocked : !canReadBlogPost(post, subscriberUser);
+  const orderedPosts = [featuredBlog, ...remainingBlogPosts].filter((post): post is BlogPost => Boolean(post));
+  const renderStory = (post: BlogPost, index: number) => {
+    const isLocked = !canReadBlogPost(post, subscriberUser);
     const href = isLocked ? getSignInHref(post.slug) : getBlogArticleHref(post.slug);
 
     return (
-      <article className={`journal-story${featured ? " journal-featured" : ""}${isLocked ? " is-locked" : ""}`}
+      <article className={`journal-story${isLocked ? " is-locked" : ""}`}
         id={getBlogAnchorId(post.slug)} key={post.slug}>
         <span className="journal-story-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
         <div className="journal-story-copy">
-          {featured && <p className="journal-kicker">Start here / Featured note</p>}
+
           <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
           <h3><a href={href} onClick={() => {
-            if (!isLocked) onTrackBlogOpen(post, featured ? "featured_title" : "list_title");
+            if (!isLocked) onTrackBlogOpen(post, "list_title");
           }}>{post.title}</a></h3>
           <p className="journal-summary">{getBlogCardSummary(post)}</p>
           <BlogTagList post={post} limit={2} />
           {isLocked && <BlogLockNote />}
+        </div>
           <div className="journal-story-actions">
             <a className="journal-read" href={href}
               aria-label={`${isLocked ? "Unlock" : "Read"} ${post.title}`}
               onClick={() => {
-                if (!isLocked) onTrackBlogOpen(post, featured ? "featured_cta" : "list_cta");
+                if (!isLocked) onTrackBlogOpen(post, "list_cta");
               }}>
               {isLocked ? "Unlock article" : "Read article"} <span aria-hidden="true">↗</span>
             </a>
@@ -6873,14 +6875,6 @@ function BlogIndexSection({
               isSaved={isPostSaved(post.slug)} post={post} subscriberUser={subscriberUser}
               onToggle={onToggleSavedPost} />}
           </div>
-        </div>
-        {featured && <aside className="journal-margin" aria-label="Featured article topics">
-          <p className="journal-kicker">In this note</p>
-          <ul>{getBlogPostTags(post).slice(0, 3).map((tag, tagIndex) => (
-            <li key={tag}><span aria-hidden="true">{String(tagIndex + 1).padStart(2, "0")}</span>{tag}</li>
-          ))}</ul>
-          <p className="journal-margin-footer">{getEstimatedReadTimeLabel(post)}<span>By Sai Kumar Mediboina</span></p>
-        </aside>}
       </article>
     );
   };
@@ -6896,9 +6890,7 @@ function BlogIndexSection({
         <div className="journal-intro-aside"><span className="journal-edition">THE ENGINEERING JOURNAL</span><p>From hands-on work<br />to useful ideas.</p><a className="journal-intro-link" href="#journal-library">Browse the notes <span aria-hidden="true">↓</span></a></div>
       </header>
 
-      {featuredBlog && <section className="journal-featured-section" aria-label="Featured article">
-        {renderStory(featuredBlog, true)}
-      </section>}
+
 
       <section className="journal-library" id="journal-library" aria-labelledby="journal-library-title">
         <div className="journal-library-heading">
@@ -6915,15 +6907,13 @@ function BlogIndexSection({
           </div>
           <p className="blog-count" role="status" aria-live="polite">
             {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
-            {featuredBlog ? " · 1 featured above" : ""}
+
           </p>
         </div>
-        {remainingBlogPosts.length > 0 ? (
-          <div className="journal-grid">{remainingBlogPosts.map((post, index) => renderStory(post, false, index + 1))}</div>
+        {orderedPosts.length > 0 ? (
+          <div className="journal-list" aria-label="Articles">{orderedPosts.map((post, index) => renderStory(post, index))}</div>
         ) : (
-          <div className="journal-empty"><p>{featuredBlog
-            ? "The article in this collection is featured above. Explore another topic for more notes."
-            : "No articles in this category yet. Explore another topic."}</p></div>
+          <div className="journal-empty"><p>No articles in this category yet. Explore another topic.</p></div>
         )}
       </section>
     </section>
