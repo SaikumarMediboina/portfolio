@@ -5,17 +5,6 @@ body:has(.blogs-page) { background: #fafaf6; }
 .journal :is(h1,h2,h3,p,ul) { margin: 0; }
 .journal :is(h1,h2,h3) { font-family: Arial, Helvetica, sans-serif; color: var(--journal-ink); text-wrap: balance; }
 .journal a { text-decoration: none; }
-.journal .journal-kicker, .journal-edition { font: 500 10px/1.7 ui-monospace, Consolas, monospace; text-transform: uppercase; letter-spacing: .13em; color: var(--journal-muted); }
-.journal-intro { display: grid; grid-template-columns: 1fr 240px; align-items: end; gap: 64px; padding: 52px 0 40px; }
-.journal-intro > div > .journal-kicker { display: flex; align-items: center; gap: 12px; color: #92452f; }
-.journal-intro > div > .journal-kicker::before { content: ""; width: 30px; height: 2px; background: var(--journal-accent); }
-.journal-intro h1 { font-size: clamp(44px,5.4vw,66px); line-height: 1.03; letter-spacing: -.065em; font-weight: 700; margin-top: 26px; }
-.journal-intro h1 span { color: var(--journal-accent); }
-.journal .journal-intro-description { font-size: 18px; line-height: 1.7; max-width: 49ch; margin-top: 26px; color: var(--journal-muted); }
-.journal-intro-aside { border-left: 1px solid var(--journal-line); padding-left: 24px; padding-bottom: 4px; }
-.journal .journal-intro-aside > p { margin-top: 16px; font-size: 17px; line-height: 1.55; color: var(--journal-muted); }
-.journal-intro-link { display: inline-flex; align-items: center; gap: 24px; min-height: 44px; margin-top: 16px; font-size: 12px; color: var(--journal-ink); }
-.journal-intro-link:hover { color: var(--journal-accent); }
 .journal-story { position: relative; min-width: 0; display: grid; grid-template-columns: 44px minmax(0,1fr) 132px; gap: 28px; padding: 30px 0; border-bottom: 1px solid var(--journal-line); scroll-margin-top: 104px; }
 .journal-story-number { color: #77776a; font: 12px/1.6 ui-monospace,Consolas,monospace; padding-top: 3px; }
 .journal-story-copy { min-width: 0; }
@@ -55,18 +44,11 @@ body:has(.blogs-page) { background: #fafaf6; }
 .unified-back-action .button { display: inline-flex; min-height: 44px; gap: 10px; padding: 8px 0 8px 16px; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #242421; font: 13px/1.5 Arial,sans-serif; }
 .unified-back-action .button:hover { transform: none; color: #b5422d; background: transparent; box-shadow: none; }
 @media(max-width: 900px) {
-  .journal-intro { grid-template-columns: 1fr; gap: 28px; padding-top: 56px; }
-  .journal-intro-aside { display: flex; align-items: center; gap: 24px; border: 0; padding: 0; }
-  .journal-intro-aside > p, .journal-intro-aside .journal-edition { display: none; }
-  .journal-intro-link { margin: 0; }
   .journal-story { grid-template-columns: 28px minmax(0,1fr) 112px; gap: 18px; }
 }
 @media(max-width: 760px) {
   .blogs-page .journal, .unified-minimal .unified-bar { width: calc(100% - 40px); }
   .unified-minimal .unified-bar { min-height: 72px; }
-  .journal-intro { padding: 44px 0 36px; }
-  .journal-intro h1 { font-size: clamp(42px,8vw,62px); }
-  .journal .journal-intro-description { font-size: 16px; }
   .journal-library { margin-top: 0; padding-top: 24px; }
   .journal-library-heading { flex-wrap: wrap; gap: 12px; }
   .journal-story h3 { max-width: 100%; }
@@ -81,4 +63,14 @@ body:has(.blogs-page)::before, body:has(.blogs-page)::after { display: none !imp
   .journal-story { grid-template-columns: 24px minmax(0,1fr); gap: 12px; padding: 26px 0; }
   .journal-story-actions { grid-column: 2; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; }
   .journal-story h3 { font-size: 23px; }
+}
+
+/* Compact introduction keeps the article list close to the top. */
+.journal .journal-kicker { font: 500 10px/1.7 ui-monospace, Consolas, monospace; text-transform: uppercase; letter-spacing: .13em; color: var(--journal-muted); }
+.journal-intro { padding: 36px 0 28px; }
+.journal-intro h1 { font-size: 36px; line-height: 1.15; letter-spacing: -.04em; font-weight: 600; }
+.journal .journal-intro-description { margin-top: 10px; color: var(--journal-muted); font-size: 15px; line-height: 1.7; }
+@media(max-width:760px) {
+  .journal-intro { padding: 28px 0 24px; }
+  .journal-intro h1 { font-size: 30px; }
 }

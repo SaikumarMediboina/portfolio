@@ -6882,12 +6882,8 @@ function BlogIndexSection({
   return (
     <section className="section shell blog-section journal" id="blogs" aria-labelledby="journal-title">
       <header className="journal-intro">
-        <div>
-          <p className="journal-kicker">Writing / Sai Kumar Mediboina</p>
-          <h1 id="journal-title">Behind the build.<br /><span>Beyond the code.</span></h1>
-          <p className="journal-intro-description">Notes on backend systems, search, and applied AI. What works, what breaks, and the decisions in between.</p>
-        </div>
-        <div className="journal-intro-aside"><span className="journal-edition">THE ENGINEERING JOURNAL</span><p>From hands-on work<br />to useful ideas.</p><a className="journal-intro-link" href="#journal-library">Browse the notes <span aria-hidden="true">↓</span></a></div>
+        <h1 id="journal-title">Writing</h1>
+        <p className="journal-intro-description">Notes on backend systems, search, and applied AI.</p>
       </header>
 
 
