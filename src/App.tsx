@@ -13955,14 +13955,18 @@ function App() {
     let frame = 0;
     const syncProjectLink = () => {
       const value = new URLSearchParams(window.location.search).get("project");
-      if (value === null || !/^\d+$/.test(value)) return;
-      const index = Number(value);
-      if (index >= projects.length) return;
-      setSelectedProjectIndex(index);
+      const hasProject = value !== null && /^\d+$/.test(value) && Number(value) < projects.length;
+      const targetId = hasProject ? "project-case-study" : window.location.hash.slice(1);
+      if (!targetId) return;
+      if (hasProject) setSelectedProjectIndex(Number(value));
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
         frame = window.requestAnimationFrame(() => {
-          document.getElementById("project-case-study")?.scrollIntoView({ block: "start", behavior: "auto" });
+          const target = document.getElementById(targetId);
+          if (target) {
+            const top = target.getBoundingClientRect().top + window.scrollY - 96;
+            window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+          }
         });
       });
     };
