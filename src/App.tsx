@@ -7497,8 +7497,9 @@ function HomePage({
               </div>
               <div className="studio-project-copy">
                 <h3>{project.name}</h3>
-                <p>{project.summary}</p>
-                <div className="studio-project-outcome"><span>Outcome</span><p>{project.impact}</p></div>
+                <p><strong>Problem</strong><br />{project.problem}</p>
+                <p><strong>My contribution</strong><br />{project.contribution}</p>
+                <div className="studio-project-outcome"><span>Reported result</span><p>{project.result}</p></div>
                 <ul aria-label="Technology stack">{project.stack.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
                 <a href={`/portfolio?project=${index}#work`}>Explore project <span aria-hidden="true">↗</span></a>
               </div>
@@ -15479,10 +15480,22 @@ function App() {
                     <p>{selectedProject.summary}</p>
                   </div>
 
+                  <div className="case-study-context">
+                    <section><p className="impact-label">01 / The problem</p><p>{selectedProject.problem}</p></section>
+                    <section><p className="impact-label">02 / My contribution</p><p>{selectedProject.contribution}</p></section>
+                  </div>
+                  <figure className="case-study-architecture">
+                    <figcaption>03 / Architecture overview <small>Simplified logical flow</small></figcaption>
+                    <ol>{selectedProject.architecture.map((step, index) => (
+                      <li key={step}><span>{String(index + 1).padStart(2, "0")}</span><strong>{step}</strong></li>
+                    ))}</ol>
+                  </figure>
+
                   <div className="project-spotlight-grid">
                     <div className="project-impact-card">
-                      <p className="impact-label">Outcome</p>
-                      <p className="impact-value">{selectedProject.impact}</p>
+                      <p className="impact-label">04 / Reported result</p>
+                      <p className="impact-value">{selectedProject.result}</p>
+                      <p className="case-study-evidence">{selectedProject.evidenceNote}</p>
                     </div>
 
                     <div className="project-stack-card">
@@ -15496,7 +15509,7 @@ function App() {
                   </div>
 
                   <div className="project-highlights">
-                    <p className="impact-label">Highlights</p>
+                    <p className="impact-label">Implementation details</p>
                     <ul className="bullet-list">
                       {selectedProject.highlights.map((highlight) => (
                         <li key={highlight}>{highlight}</li>

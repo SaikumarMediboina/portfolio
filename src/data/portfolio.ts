@@ -138,6 +138,11 @@ export const experience: ExperienceEntry[] = [
 ];
 
 export type Project = {
+  problem: string;
+  contribution: string;
+  architecture: string[];
+  result: string;
+  evidenceNote: string;
   name: string;
   impact: string;
   summary: string;
@@ -148,6 +153,11 @@ export type Project = {
 export const projects: Project[] = [
   {
     name: "Matching and Scoring Engine",
+    problem: "Customer and transaction screening had to support interactive requests and nightly batches against very large watchlists.",
+    contribution: "Designed secure REST APIs and resilient ingestion for real-time and batch screening.",
+    architecture: ["Input","Screening APIs","Watchlist matching","Results"],
+    result: "100+ TPS with average latency below 2.5 seconds across 23,000-message runs.",
+    evidenceNote: "Reported workload: 23,000 messages; eight simultaneous watchlists. These are existing portfolio figures, not independently audited benchmarks.",
     impact: "Scaled screening to millions of transactions against billions of records.",
     summary:
       "A compliance screening platform for customer screening and transaction filtering, built to handle both interactive lookups and high-volume nightly processing.",
@@ -160,6 +170,11 @@ export const projects: Project[] = [
   },
   {
     name: "Core Search Engine Migration",
+    problem: "Heavy search paths required a simpler architecture with matching closer to stored data.",
+    contribution: "Led the backend transition from OpenSearch to Oracle Text and moved core matching toward storage-level computation.",
+    architecture: ["Search requests","Backend matching","Oracle Text","Matches"],
+    result: "Reduced infrastructure cost while maintaining production throughput.",
+    evidenceNote: "Qualitative outcome from the existing project record; no cost percentage or benchmark dataset is published.",
     impact: "Reduced infrastructure cost while improving scale and search locality.",
     summary:
       "Spearheaded the backend transition from OpenSearch to Oracle Text to move more matching work closer to storage and simplify heavy search paths.",
@@ -172,6 +187,11 @@ export const projects: Project[] = [
   },
   {
     name: "Advanced Hybrid Scoring Engine",
+    problem: "Noisy global watchlist records could not be resolved reliably with string equality alone.",
+    contribution: "Built a configurable scoring microservice combining AI similarity with exact, fuzzy and deterministic matching rules.",
+    architecture: ["Candidate records","AI + rule signals","Combined scoring","Ranked matches"],
+    result: "Improved entity resolution quality and reduced false positives.",
+    evidenceNote: "Qualitative outcome from the existing project record; no precision/recall evaluation is published.",
     impact: "Improved entity resolution quality while reducing false positives.",
     summary:
       "Developed a configurable scoring microservice that blended AI similarity signals with deterministic matching rules for global watchlist data.",
@@ -184,6 +204,11 @@ export const projects: Project[] = [
   },
   {
     name: "High-Volume Batch Processing",
+    problem: "A 5,000-transaction screening batch took 2 hours 5 minutes, with bottlenecks in database access and processing.",
+    contribution: "Removed N+1 access patterns, added targeted indexes and improved parallel processing.",
+    architecture: ["Batch input","Aggregated queries","Indexed matching","Batch results"],
+    result: "5,000-transaction batch: 2 hours 5 minutes → 3 minutes.",
+    evidenceNote: "Existing portfolio measurement for a 5K batch; hardware, dataset and reproducible test report are not published.",
     impact: "Cut a 5K batch screening run from 2 hours 5 minutes to 3 minutes.",
     summary:
       "Improved batch screening by attacking the largest bottlenecks across indexing, query patterns, and multi-threaded processing.",
@@ -196,6 +221,11 @@ export const projects: Project[] = [
   },
   {
     name: "Real-Time Screening Optimization",
+    problem: "A synchronous screening path took roughly 2 seconds and needed better responsiveness under concurrent traffic.",
+    contribution: "Parallelized database work using dedicated thread pools and replaced JSON aggregation bottlenecks with incremental result streaming.",
+    architecture: ["Request","Parallel DB work","Incremental results","Response"],
+    result: "Reported real-time latency: roughly 2 seconds → 300 milliseconds.",
+    evidenceNote: "Existing portfolio measurement; the latency percentile and concurrency level are not published.",
     impact: "Reduced real-time latency from roughly 2 seconds to 300 milliseconds.",
     summary:
       "Redesigned a synchronous screening path into an asynchronous pipeline to improve responsiveness under concurrent production traffic.",
@@ -208,6 +238,11 @@ export const projects: Project[] = [
   },
   {
     name: "Narrative Text Extraction Engine",
+    problem: "Unstructured narrative text needed candidate entities extracted before the main screening stage.",
+    contribution: "Built a configurable parser and ranked candidate substrings using match quality, token length and gap penalties.",
+    architecture: ["Narrative text","Tokenization","Candidate ranking","Screening input"],
+    result: "Improved precision in candidate extraction from noisy text.",
+    evidenceNote: "Qualitative outcome from the existing project record; no labelled evaluation dataset or accuracy score is published.",
     impact: "Improved precision when extracting candidate entities from noisy text.",
     summary:
       "Built an intelligent parser that tokenizes unstructured input and ranks candidate matches using configurable exact and fuzzy logic.",
