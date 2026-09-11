@@ -17,6 +17,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
+import HeroSculpture from "./components/HeroSculpture";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
@@ -7301,6 +7302,7 @@ function HomePage({
     <>
       <motion.section className="home-hero shell" id="top" {...sectionAnimationProps}>
         <div className="home-hero-copy">
+          <HeroSculpture />
           <h1 className="home-hero-greeting">Hey, Sai here.</h1>
           <div className="home-hero-credentials" aria-label="Professional and education credentials">
             <p className="eyebrow home-hero-role">Software Application Engineer @ Oracle</p>
