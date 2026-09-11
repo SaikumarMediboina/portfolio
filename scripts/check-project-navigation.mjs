@@ -8,7 +8,7 @@ const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.Modu
 const module = { exports: {} };
 new Function("exports", "module", compiled)(module.exports, module);
 const { projects } = module.exports;
-assert.equal(projects.length, 6);
+assert.equal(projects.length, 7);
 assert.equal(new Set(projects.map((project) => project.slug)).size, projects.length);
 for (const project of projects) {
   assert.match(project.slug, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
@@ -29,4 +29,4 @@ for (const file of ["src/App.tsx", "src/components/ProjectPage.tsx", "src/data/p
   const parsed = ts.createSourceFile(file, fs.readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
   assert.equal(parsed.parseDiagnostics.length, 0, `Syntax: ${file}`);
 }
-console.log("PASS: six unique project routes, case-study data, links, Vercel rewrites, sitemap registration, resume PDF and TypeScript syntax.");
+console.log("PASS: seven unique project routes, case-study data, links, Vercel rewrites, sitemap registration, resume PDF and TypeScript syntax.");

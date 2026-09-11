@@ -45,7 +45,7 @@ export const metrics: Metric[] = [
   },
   {
     value: "85%",
-    label: "Real-time speedup",
+    label: "Real-time latency reduction",
     detail: "Brought synchronous screening down from 2 seconds to about 300 milliseconds.",
   },
   {
@@ -260,6 +260,24 @@ export const projects: Project[] = [
       "Made the matching behavior configurable so teams could tune it without rewriting the engine.",
     ],
   },
+  {
+    name: "Enterprise RAG Knowledge Assistant",
+    slug: "enterprise-rag-knowledge-assistant",
+    problem: "An enterprise knowledge assistant needed to answer questions from curated material and make its supporting sources visible.",
+    contribution: "Built and deployed the React/TypeScript interface, Spring Boot WebFlux backend, and Oracle 23ai vector-ready retrieval layer with LLM integration.",
+    architecture: ["Question and history", "Hybrid retrieval", "Evidence reranking", "Streamed answer + sources"],
+    result: "Delivered a source-cited assistant using 7 curated knowledge sources and up to 5 evidence chunks per query.",
+    evidenceNote: "Implementation details reported in my updated resume; these configuration values are not an accuracy or latency benchmark.",
+    impact: "Built a deployed, source-cited assistant with hybrid retrieval and streaming responses.",
+    summary: "A full-stack knowledge assistant combining curated ingestion, exact-text and vector retrieval, reranking, and source-cited LLM responses.",
+    stack: ["React", "TypeScript", "Spring Boot 3", "WebFlux", "Oracle 23ai", "Vector Search", "Vercel", "Render"],
+    highlights: [
+      "Created admin-controlled ingestion for 7 curated sources, using 2,200-character chunks with 220-character overlap and metadata enrichment.",
+      "Retrieved up to 5 evidence chunks and reranked them using vector similarity, source metadata, category, title, and keyword-intent signals.",
+      "Added Server-Sent Events for token streaming, session-aware chat history, response caching, and a 24-second request timeout.",
+      "Included source citations with generated responses so readers can inspect the supporting material.",
+    ],
+  },
 ];
 
 export type Recognition = {
@@ -357,6 +375,12 @@ export type Certification = {
 };
 
 export const certifications: Certification[] = [
+  {
+    title: "Model Context Protocol: Introduction and Advanced Topics",
+    issuer: "Anthropic",
+    year: "2026",
+    category: "AI & LLMs",
+  },
   {
     title: "Generative AI with Large Language Models",
     issuer: "DeepLearning.AI",
