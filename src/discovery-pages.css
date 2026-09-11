@@ -1,0 +1,87 @@
+/* Shared paper, orange, and ink for the site guide and AI reading list. */
+.wayfinder-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; padding: 52px 0 48px; }
+.wayfinder-intro .studio-lead { font-size: clamp(23px,2.8vw,32px); letter-spacing: -.035em; line-height: 1.3; }
+.wayfinder-facts { display: flex; flex-wrap: wrap; gap: 24px; font-size: 12px; color: #63635d; margin-top: 24px; }
+.wayfinder-facts strong { color: #242421; font-weight: 600; margin-right: 5px; }
+.wayfinder-route { background: #242421; color: #fafaf6; border-radius: 4px; padding: 28px; }
+.wayfinder-route .studio-label { color: #efa885; }
+.wayfinder-route h2 { color: #fafaf6; font-size: 25px; margin: 14px 0 24px; }
+.wayfinder-route a { display: grid; grid-template-columns: 20px 1fr 16px; gap: 16px; align-items: baseline; padding: 20px 0; border-top: 1px solid #4b4b44; }
+.wayfinder-route a:last-child { padding-bottom: 0; }
+.wayfinder-route strong { font-size: 15px; font-weight: 500; }
+.wayfinder-route small { display: block; color: #cfcec4; font-size: 12px; margin-top: 5px; }
+.wayfinder-number, .wayfinder-route a > span:last-child { color: #efa885; font-size: 11px; }
+.wayfinder-route a:hover { color: #efa885; }
+.wayfinder-route a:focus-visible { outline-color: #efa885; }
+.wayfinder-caption { font-size: 12px; color: #63635d; }
+.wayfinder-directory { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 40px; }
+.wayfinder-directory h3 { margin-top: 12px; font-size: 21px; }
+.wayfinder-group-note { color: #63635d; font-size: 13px; line-height: 1.7; margin: 10px 0 22px !important; min-height: 44px; }
+.wayfinder-directory a { display: flex; align-items: center; justify-content: space-between; min-height: 48px; gap: 16px; border-top: 1px solid #deded5; font-size: 13px; }
+.wayfinder-directory a > span:last-child, .wayfinder-update > span { color: #b5422d; }
+.wayfinder-update { display: grid; grid-template-columns: 110px minmax(0,1fr) 20px; gap: 28px; padding: 22px 0; align-items: baseline; border-top: 1px solid #deded5; }
+.wayfinder-update time, .wayfinder-update small { font-size: 11px; color: #63635d; }
+.wayfinder-update h3 { font-size: 18px; margin-top: 6px; font-weight: 500; }
+.wayfinder-footer { border-top: 1px solid #deded5; display: flex; justify-content: space-between; gap: 24px; align-items: center; padding: 32px 0 0; }
+.wayfinder-footer h2 { font-size: 24px; }
+.wayfinder-footer p, .wayfinder-empty { color: #63635d; font-size: 13px; margin-top: 12px; }
+.radar-journal-intro { display: flex; align-items: end; justify-content: space-between; gap: 28px; }
+.radar-refresh { text-align: right; }
+.radar-refresh button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; border: 1px solid #deded5; border-radius: 4px; padding: 10px 16px; min-height: 44px; background: transparent; color: #242421; cursor: pointer; font: 13px/1.5 Arial,sans-serif; }
+.radar-refresh button > span { color: #b5422d; font-size: 20px; line-height: 1; }
+.radar-refresh button:hover { border-color: #b5422d; }
+.radar-refresh button:disabled { opacity: .6; cursor: wait; }
+.radar-refresh p { font-size: 11px; color: #63635d; margin-top: 10px; }
+.radar-journal-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 32px; border-block: 1px solid #deded5; padding: 16px 0; font-size: 12px; color: #63635d; }
+.radar-journal-summary strong { color: #242421; font-weight: 500; margin-right: 5px; }
+.radar-journal-summary > a { margin-left: auto; display: inline-flex; align-items: center; gap: 12px; min-height: 32px; }
+.radar-journal-summary > a > span { color: #b5422d; }
+.radar-journal .radar-fallback { border-left: 2px solid #b5422d; padding: 10px 16px; margin-top: 24px; color: #63635d; font-size: 13px; }
+.radar-journal-library { padding: 36px 0 24px; }
+.radar-filter-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; }
+.radar-filter-heading h2 { font-size: 25px; }
+.radar-filter-heading > span { color: #63635d; font-size: 12px; }
+.radar-journal-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
+.radar-journal-filters button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 15px; border: 1px solid #deded5; border-radius: 3px; background: transparent; color: #63635d; font: 12px/1.5 Arial,sans-serif; cursor: pointer; }
+.radar-journal-filters button[aria-pressed="true"] { background: #242421; border-color: #242421; color: #fafaf6; }
+.radar-journal-filters button:hover { border-color: #b5422d; }
+.radar-journal-story { display: grid; grid-template-columns: 40px minmax(0,1fr); gap: 20px; border-top: 1px solid #deded5; padding: 28px 0; }
+.radar-journal-number { padding-top: 2px; font: 11px/1.7 ui-monospace,Consolas,monospace; color: #63635d; }
+.radar-journal-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; color: #63635d; font-size: 11px; }
+.radar-journal-meta > span:first-child { color: #b5422d; font-weight: 500; }
+.radar-journal-meta time, .radar-journal-meta > span:last-child { margin-left: auto; }
+.radar-journal-story h3 { font-size: clamp(20px,2.3vw,25px); font-weight: 500; line-height: 1.4; letter-spacing: -.025em; text-wrap: pretty; margin-top: 10px; max-width: 48ch; overflow-wrap: anywhere; }
+.radar-journal-description { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 14px; line-height: 1.8; color: #63635d; margin-top: 12px !important; max-width: 85ch; }
+.radar-journal-actions { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+.radar-journal .radar-journal-save .save-post-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: auto; min-width: 70px; min-height: 44px; height: auto; padding: 8px 12px; border: 1px solid #deded5; border-radius: 3px; background: transparent; box-shadow: none; color: #63635d; font: 12px/1.5 Arial,sans-serif; text-transform: none; letter-spacing: 0; transform: none; }
+.radar-journal-save .save-post-button::before, .radar-journal-save .save-post-button::after { display: none; }
+.radar-journal .radar-journal-save .save-post-button.is-saved { border-color: #b5422d; color: #b5422d; }
+.radar-journal .radar-journal-save .save-post-button:hover { border-color: #b5422d; }
+.radar-journal-save .reader-menu-icon { width: 16px; height: 16px; }
+.radar-journal-save button:disabled { opacity: .6; cursor: wait; }
+.radar-journal-method { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; border-top: 1px solid #deded5; padding-block: 32px; }
+.radar-journal-method h2 { font-size: 25px; margin-top: 12px; }
+.radar-journal-method > div > p:not(.studio-label) { color: #63635d; font-size: 13px; line-height: 1.8; margin-bottom: 12px; }
+.radar-journal-empty { padding: 44px 0; border-top: 1px solid #deded5; }
+.radar-journal-empty p { margin-top: 12px; font-size: 14px; color: #63635d; }
+@media(max-width:900px) { .wayfinder-intro { gap: 36px; } .wayfinder-directory { gap: 24px; } }
+@media(max-width:640px) {
+ .wayfinder-intro { grid-template-columns: 1fr; gap: 32px; padding-block: 36px; }
+ .wayfinder-route { padding: 24px 20px; }
+ .wayfinder-directory { grid-template-columns: 1fr; gap: 32px; }
+ .wayfinder-group-note { min-height: auto; margin-bottom: 16px !important; }
+ .wayfinder-update { grid-template-columns: minmax(0,1fr) 16px; gap: 8px 16px; }
+ .wayfinder-update time { grid-column: 1/-1; }
+ .wayfinder-footer, .radar-journal-intro { flex-direction: column; align-items: start; }
+ .radar-refresh { text-align: left; }
+ .radar-journal-summary { gap: 8px 20px; }
+ .radar-journal-summary > a { margin-left: 0; flex-basis: 100%; }
+ .radar-journal-filters { gap: 6px; }
+ .radar-journal-filters button { padding-inline: 12px; }
+ .radar-journal-story { grid-template-columns: 22px minmax(0,1fr); gap: 12px; padding-block: 24px; }
+ .radar-journal-meta { gap: 6px 14px; }
+ .radar-journal-meta time, .radar-journal-meta > span:last-child { margin-left: 0; }
+ .radar-journal-actions .studio-text-link { gap: 10px; font-size: 12px; }
+ .radar-journal .radar-journal-save .save-post-button { padding-inline: 10px; font-size: 11px; }
+ .radar-journal-method { grid-template-columns: 1fr; gap: 24px; }
+}
