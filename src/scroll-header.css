@@ -1,0 +1,25 @@
+/* Shared navigation behavior; content headings and modal headers are not affected. */
+html :is(.site-header, .article-site-header, .folio-header, .project-page-nav, .expense-topbar, .solar-tracker-header) {
+  transition: transform 180ms ease, opacity 180ms ease !important;
+}
+html :is(.folio-header, .project-page-nav, .expense-topbar, .solar-tracker-header) {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-elevated, #fffbf6);
+}
+html .folio-header { background: #fafaf6; }
+html[data-header-visibility="hidden"] :is(.site-header, .article-site-header, .folio-header, .project-page-nav, .expense-topbar, .solar-tracker-header) {
+  transform: translateY(calc(-100% - 3rem)) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+html[data-header-visibility="visible"] :is(.site-header, .article-site-header, .folio-header, .project-page-nav, .expense-topbar, .solar-tracker-header),
+html[data-header-visibility] :is(.site-header, .article-site-header, .folio-header, .project-page-nav, .expense-topbar, .solar-tracker-header):has(:focus-visible) {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html :is(.site-header, .article-site-header, .folio-header, .project-page-nav, .expense-topbar, .solar-tracker-header) { transition: none !important; }
+}

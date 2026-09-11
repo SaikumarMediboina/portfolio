@@ -18,6 +18,8 @@ import {
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import ProjectPage from "./components/ProjectPage";
+import PortfolioPage from "./components/PortfolioPage";
+import { advanceHeaderScroll } from "./lib/headerScroll";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
@@ -145,9 +147,11 @@ function useScrollHeaderVisibility(syncDocument = false) {
   useEffect(() => {
     let frameId = 0;
 
+    let scrollState = { anchor: Math.max(0, window.scrollY), previous: Math.max(0, window.scrollY), direction: 0, visible: window.scrollY <= 24 };
     const updateVisibility = () => {
-      const currentScrollY = window.scrollY;
-      setIsVisible(currentScrollY <= 24);
+      const maximum = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      scrollState = advanceHeaderScroll(scrollState, Math.min(window.scrollY, maximum));
+      setIsVisible(scrollState.visible);
       frameId = 0;
     };
 
@@ -13961,19 +13965,18 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
 function App() {
   const isScrolled = useScrolled();
   useScrollHeaderVisibility(true);
-  const [selectedProjectIndex, setSelectedProjectIndex] = useState(() => {
-    const requested = Number(new URLSearchParams(window.location.search).get("project"));
-    return Number.isInteger(requested) && requested >= 0 && requested < projects.length ? requested : 0;
-  });
   useEffect(() => {
     if (window.location.pathname.replace(/\/$/, "") !== "/portfolio") return;
     let frame = 0;
     const syncProjectLink = () => {
       const value = new URLSearchParams(window.location.search).get("project");
       const hasProject = value !== null && /^\d+$/.test(value) && Number(value) < projects.length;
-      const targetId = hasProject ? "project-case-study" : window.location.hash.slice(1);
+      if (hasProject) {
+        window.location.replace(`/projects/${projects[Number(value)].slug}`);
+        return;
+      }
+      const targetId = window.location.hash.slice(1);
       if (!targetId) return;
-      if (hasProject) setSelectedProjectIndex(Number(value));
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
         frame = window.requestAnimationFrame(() => {
@@ -14021,8 +14024,6 @@ function App() {
   const moreMenuRef = useRef<HTMLDetailsElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const selectedProject = projects[selectedProjectIndex];
-  const selectedProjectNumber = String(selectedProjectIndex + 1).padStart(2, "0");
   const blogCategories = [
     ALL_BLOG_CATEGORIES,
     ...Array.from(new Set(blogPosts.map((post) => post.category))),
@@ -14191,7 +14192,6 @@ function App() {
     isWhatsNewPage,
     savedPostSlugs.length,
     selectedBlogCategory,
-    selectedProjectIndex,
     standaloneBlogSlug,
     subscriberUser?.uid,
   ]);
@@ -14943,6 +14943,10 @@ function App() {
     </>
   );
 
+  if (isPortfolioPage) {
+    return <PortfolioPage />;
+  }
+
   if (currentPathname.startsWith("/projects/")) {
     return renderWithAssistant(<ProjectPage slug={currentPathname.slice("/projects/".length)} />);
   }
@@ -15354,385 +15358,7 @@ function App() {
       />
 
       <main id="main-content">
-        {isPortfolioPage ? (
-          <>
-        <motion.section className="hero shell" id="top" {...sectionAnimationProps}>
-          <div className="hero-copy">
-            <p className="eyebrow">
-              {profile.currentTitle} at {profile.company}
-            </p>
-            <h1>Backend systems for search, AI, and LLM-enabled enterprise workflows.</h1>
-            <p className="hero-lead">{profile.tagline}</p>
-            <p className="hero-body">{profile.summary}</p>
-
-            <div className="hero-actions">
-              <a className="button button-primary" href={isPortfolioPage ? "#work" : "/portfolio#work"}>
-                Explore selected work
-              </a>
-              <a className="button button-secondary" href="/work-with-me">
-                Work with me
-              </a>
-            </div>
-
-            <ul className="hero-signal-list" aria-label="Core technology areas">
-              <li>Java</li>
-              <li>Oracle Text</li>
-              <li>Semantic Search</li>
-              <li>AI Scoring</li>
-              <li>LLM Workflows</li>
-              <li>OCI</li>
-            </ul>
-          </div>
-
-          <aside className="hero-panel">
-            <div className="hero-panel-primary">
-              <p className="eyebrow">Profile Snapshot</p>
-              <h2>{profile.name}</h2>
-              <p>{profile.focus}</p>
-            </div>
-
-            <dl className="profile-facts">
-              <div>
-                <dt>Current role</dt>
-                <dd>{profile.currentTitle}</dd>
-              </div>
-              <div>
-                <dt>Company</dt>
-                <dd>{profile.currentCompany}</dd>
-              </div>
-              <div>
-                <dt>Core domains</dt>
-                <dd>Backend engineering, semantic search, AI relevance, and LLM workflows</dd>
-              </div>
-              <div>
-                <dt>Email</dt>
-                <dd>{profile.email}</dd>
-              </div>
-            </dl>
-          </aside>
-        </motion.section>
-
-        {isPortfolioPage ? (
-          <motion.section className="shell portfolio-metrics-section" aria-label="Key career metrics" style={{ padding: "4rem 2rem 0" }} {...sectionAnimationProps}>
-            <div className="section-heading" style={{ marginBottom: "2rem" }}>
-              <p className="eyebrow">Impact</p>
-              <h2>Measurable Engineering Impact</h2>
-            </div>
-            <div className="metric-grid">
-              {metrics.map((metric) => (
-                <article className="metric-card" key={metric.label}>
-                  <p className="metric-value">{metric.value}</p>
-                  <h2>{metric.label}</h2>
-                  <p>{metric.detail}</p>
-                </article>
-              ))}
-            </div>
-          </motion.section>
-        ) : null}
-
-        <motion.section className="section shell portfolio-about-section" id="about" {...sectionAnimationProps}>
-          <SectionHeading
-            eyebrow="About"
-            title="Backend systems where speed, search quality, and explainable AI meet."
-            description="I focus on reliable services, practical ranking logic, and AI workflows that stay clear enough to operate."
-          />
-
-          <div className="focus-grid">
-            {currentFocus.map((focus) => (
-              <article className="focus-card" key={focus.title}>
-                <p className="focus-caption">{focus.caption}</p>
-                <h3>{focus.title}</h3>
-                <p>{focus.detail}</p>
-              </article>
-            ))}
-          </div>
-        </motion.section>
-
-        {isPortfolioPage ? (
-          <>
-            <motion.section className="section shell" id="experience" {...sectionAnimationProps}>
-              <SectionHeading
-                eyebrow="Experience"
-                title="Most of my recent experience is deep backend work inside high-volume compliance and intelligence systems."
-                description="Cloud-native platform work and latency reduction."
-              />
-
-              <div className="timeline">
-                {experience.map((item) => (
-                  <article className="timeline-card" key={item.company}>
-                    <div className="timeline-meta">
-                      <p className="timeline-company">{item.company}</p>
-                      <p>{item.employmentType}</p>
-                      <p>{item.location}</p>
-                    </div>
-
-                    <div className="timeline-body">
-                      <div className="role-stack" aria-label={`${item.company} role progression`}>
-                        {item.roles.map((role) => (
-                          <article className="role-entry" key={`${item.company}-${role.title}`}>
-                            <div className="role-entry-marker" aria-hidden="true" />
-                            <div>
-                              <p className="timeline-role">{role.title}</p>
-                              <p className="role-period">{role.period}</p>
-                              <p className="role-detail">{role.detail}</p>
-                            </div>
-                          </article>
-                        ))}
-                      </div>
-
-                      <p>{item.summary}</p>
-                      <ul className="bullet-list">
-                        {item.achievements.map((achievement) => (
-                          <li key={achievement}>{achievement}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </motion.section>
-
-            <motion.section className="section shell" id="work" {...sectionAnimationProps}>
-              <SectionHeading
-                eyebrow="Selected Work"
-                title="A few backend and AI-flavored case studies that represent the kind of problems I enjoy solving."
-                description="Explore one case study at a time."
-              />
-
-              <div className="work-layout">
-                <div className="project-selector" role="tablist" aria-label="Project case studies">
-                  {projects.map((project, index) => {
-                    const isActive = index === selectedProjectIndex;
-
-                    return (
-                      <button
-                        key={project.name}
-                        className={`project-tab${isActive ? " is-active" : ""}`}
-                        role="tab"
-                        aria-selected={isActive}
-                        type="button"
-                        onClick={() => setSelectedProjectIndex(index)}
-                      >
-                        <span className="project-tab-number">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span className="project-tab-copy">
-                          <strong>{project.name}</strong>
-                          <span>{project.impact}</span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <article className="project-spotlight" id="project-case-study" style={{ scrollMarginTop: 96 }} aria-live="polite">
-                  <div className="project-spotlight-heading">
-                    <p className="eyebrow">Case Study {selectedProjectNumber}</p>
-                    <h3>{selectedProject.name}</h3>
-                    <a href={`/projects/${selectedProject.slug}`}>Open full case study ↗</a>
-                    <p>{selectedProject.summary}</p>
-                  </div>
-
-                  <div className="case-study-context">
-                    <section><p className="impact-label">01 / The problem</p><p>{selectedProject.problem}</p></section>
-                    <section><p className="impact-label">02 / My contribution</p><p>{selectedProject.contribution}</p></section>
-                  </div>
-                  <figure className="case-study-architecture">
-                    <figcaption>03 / Architecture overview</figcaption>
-                    <ol>{selectedProject.architecture.map((step, index) => (
-                      <li key={step}><span>{String(index + 1).padStart(2, "0")}</span><strong>{step}</strong></li>
-                    ))}</ol>
-                  </figure>
-
-                  <div className="project-spotlight-grid">
-                    <div className="project-impact-card">
-                      <p className="impact-label">04 / Reported result</p>
-                      <p className="impact-value">{selectedProject.result}</p>
-                      <p className="case-study-evidence">{selectedProject.evidenceNote}</p>
-                    </div>
-
-                    <div className="project-stack-card">
-                      <p className="impact-label">Stack</p>
-                      <ul className="stack-list">
-                        {selectedProject.stack.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="project-highlights">
-                    <p className="impact-label">Implementation details</p>
-                    <ul className="bullet-list">
-                      {selectedProject.highlights.map((highlight) => (
-                        <li key={highlight}>{highlight}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
-              </div>
-            </motion.section>
-
-            <motion.section className="section shell" id="skills" {...sectionAnimationProps}>
-              <SectionHeading
-                eyebrow="Skills"
-                title="The strongest part of my stack is where backend services meet search, databases, and AI-enabled workflows."
-                description="Java backend, Oracle systems, search, and AI."
-              />
-
-              <div className="skill-grid">
-                {skills.map((group) => (
-                  <article className="skill-card" key={group.title}>
-                    <h3>{group.title}</h3>
-                    <ul className="chip-list">
-                      {group.items.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </article>
-                ))}
-              </div>
-            </motion.section>
-          </>
-        ) : null}
-
-        {isPortfolioPage ? (
-          <>
-            <motion.section className="section shell" id="recognition" {...sectionAnimationProps}>
-              <SectionHeading
-                eyebrow="Recognition"
-                title="A couple of external signals that back up the delivery story."
-                description="Recognition tied to measurable execution."
-              />
-
-              <div className="recognition-grid">
-                {recognitions.map((item) => (
-                  <article className="recognition-card" key={item.title}>
-                    <p className="recognition-highlight">{item.highlight}</p>
-                    <h3>{item.title}</h3>
-                    <p className="recognition-issuer">{item.issuer}</p>
-                    <p>{item.detail}</p>
-                  </article>
-                ))}
-              </div>
-            </motion.section>
-
-            <motion.section className="section shell" id="credentials" {...sectionAnimationProps}>
-              <SectionHeading
-                eyebrow="Credentials"
-                title="Credentials mapped to backend, AI, and database engineering."
-                description="A curated view of Sai's academic foundation and professional learning signals."
-              />
-
-              <div className="credentials-showcase">
-                <div className="credentials-hero-panel">
-                  <div className="credentials-hero-copy">
-                    <p className="credentials-kicker">Professional learning stack</p>
-                    <h3>Graduate engineering foundation, current AI systems practice.</h3>
-                    <p>
-                      Certifications are organized by the skills they reinforce: AI-enabled software design,
-                      backend architecture, and Oracle database platforms.
-                    </p>
-                  </div>
-
-                  <div className="credentials-stat-strip" aria-label="Credential summary">
-                    {credentialOverviewStats.map((stat) => (
-                      <div className="credentials-stat" key={stat.label}>
-                        <strong>{stat.value}</strong>
-                        <span>{stat.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="credentials-grid">
-                <div className="credential-panel education-panel">
-                  <div className="credential-panel-heading">
-                    <div>
-                      <p className="credential-panel-label">Academic base</p>
-                      <h3>Education</h3>
-                    </div>
-                    <span>{education.length} degrees</span>
-                  </div>
-
-                  <div className="education-timeline">
-                    {education.map((item, index) => (
-                      <article className="education-item" key={`${item.school}-${item.degree}`}>
-                        <span className="education-node" aria-hidden="true">
-                          {index + 1}
-                        </span>
-                        <div>
-                          <p className="credential-title">{item.degree}</p>
-                          <p className="credential-subtitle">{item.school}</p>
-                          <p className="credential-detail">{item.score}</p>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="credential-panel certification-panel">
-                  <div className="credential-panel-heading">
-                    <div>
-                      <p className="credential-panel-label">Verified learning</p>
-                      <h3>Certifications</h3>
-                    </div>
-                    <span>{certifications.length} credentials</span>
-                  </div>
-
-                  <div className="certification-groups">
-                    {certificationGroups.map((group) => {
-                      const detail = certificationCategoryDetails[group.category];
-
-                      return (
-                        <section
-                          className="certification-group"
-                          key={group.category}
-                          aria-label={`${group.category} certifications`}
-                        >
-                          <div className="certification-group-heading">
-                            <span className="certification-group-icon" aria-hidden="true">
-                              <ReaderMenuGlyph type={detail.icon} />
-                            </span>
-                            <div>
-                              <p>{group.category}</p>
-                              <small>{detail.summary}</small>
-                            </div>
-                            <span className="certification-group-count">
-                              {group.items.length} {detail.label}
-                            </span>
-                          </div>
-
-                          <div className="certification-list">
-                            {group.items.map((item, itemIndex) => (
-                              <article className="credential-item certification-item" key={`${item.title}-${item.year}`}>
-                                <span className="certification-number">
-                                  {String(itemIndex + 1).padStart(2, "0")}
-                                </span>
-                                <div className="certification-item-main">
-                                  <p className="credential-title">{item.title}</p>
-                                  <p className="credential-subtitle">{item.issuer}</p>
-                                  {item.credentialId ? (
-                                    <p className="credential-detail">Credential ID: {item.credentialId}</p>
-                                  ) : null}
-                                </div>
-                                <span className="credential-year">{item.year}</span>
-                              </article>
-                            ))}
-                          </div>
-                        </section>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </motion.section>
-          </>
-        ) : null}
-
-          </>
-        ) : (
+        {(
           <HomePage
             featuredBlog={featuredBlog}
             isPostSaved={isPostSaved}

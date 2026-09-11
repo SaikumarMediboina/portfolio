@@ -4,6 +4,7 @@ import App from "./App";
 import "./index.css";
 import "./home-studio.css";
 import "./editorial-polish.css";
+import "./scroll-header.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

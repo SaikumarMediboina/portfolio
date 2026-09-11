@@ -17,15 +17,23 @@ for (const project of projects) {
 }
 const app = fs.readFileSync("src/App.tsx", "utf8");
 assert.ok(app.includes('href={`/projects/${project.slug}`}'));
-assert.ok(app.includes('href={`/projects/${selectedProject.slug}`}'));
-assert.ok(app.includes('id="work"'));
+const portfolioPage = fs.readFileSync("src/components/PortfolioPage.tsx", "utf8");
+assert.ok(app.includes('return <PortfolioPage />'));
+assert.ok(portfolioPage.includes('id="work"'));
+assert.ok(portfolioPage.includes('href={`/projects/${project.slug}`}'));
+assert.ok(portfolioPage.includes('<details className="folio-certifications"'));
+assert.ok(app.includes('window.location.replace(`/projects/${projects[Number(value)].slug}`)'));
+assert.ok(!app.includes('className="project-tabs"'));
+for (const id of ["experience", "contact", "skills", "credentials", "about", "recognition"]) {
+  assert.ok(portfolioPage.includes(`id="${id}"`), `Legacy anchor: ${id}`);
+}
 assert.ok(app.includes('currentPathname.startsWith("/projects/")'));
 const rewrites = JSON.parse(fs.readFileSync("vercel.json", "utf8")).rewrites;
 assert.ok(rewrites.some((route) => route.source === "/projects/:slug" && route.destination === "/index.html"));
 assert.ok(rewrites.some((route) => route.source === "/portfolio"));
 assert.equal(fs.readFileSync("public/SaiKumarResume.pdf").subarray(0, 5).toString(), "%PDF-");
 assert.ok(fs.readFileSync("scripts/generate-static-seo.mjs", "utf8").includes("...projectRoutes"));
-for (const file of ["src/App.tsx", "src/components/ProjectPage.tsx", "src/data/portfolio.ts"]) {
+for (const file of ["src/App.tsx", "src/components/PortfolioPage.tsx", "src/components/ProjectPage.tsx", "src/data/portfolio.ts"]) {
   const parsed = ts.createSourceFile(file, fs.readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
   assert.equal(parsed.parseDiagnostics.length, 0, `Syntax: ${file}`);
 }
