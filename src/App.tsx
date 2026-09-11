@@ -6844,15 +6844,16 @@ function BlogIndexSection({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: BlogIndexSectionProps) {
-  const renderStory = (post: BlogPost, featured = false) => {
+  const renderStory = (post: BlogPost, featured = false, index = 0) => {
     const isLocked = featured ? featuredBlogIsLocked : !canReadBlogPost(post, subscriberUser);
     const href = isLocked ? getSignInHref(post.slug) : getBlogArticleHref(post.slug);
 
     return (
       <article className={`journal-story${featured ? " journal-featured" : ""}${isLocked ? " is-locked" : ""}`}
         id={getBlogAnchorId(post.slug)} key={post.slug}>
+        <span className="journal-story-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
         <div className="journal-story-copy">
-          {featured && <p className="journal-kicker">Featured essay <span aria-hidden="true">↗</span></p>}
+          {featured && <p className="journal-kicker">Start here / Featured note</p>}
           <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
           <h3><a href={href} onClick={() => {
             if (!isLocked) onTrackBlogOpen(post, featured ? "featured_title" : "list_title");
@@ -6873,23 +6874,13 @@ function BlogIndexSection({
               onToggle={onToggleSavedPost} />}
           </div>
         </div>
-        {featured && <div className="journal-art" aria-hidden="true">
-          <span className="journal-art-label">THE ENGINEERING NOTEBOOK</span>
-          <svg viewBox="0 0 320 260" fill="none" focusable="false">
-            <circle cx="160" cy="130" r="104" stroke="currentColor" opacity=".16" />
-            <circle cx="160" cy="130" r="70" stroke="currentColor" opacity=".24" strokeDasharray="3 8" />
-            <path d="M58 65L160 130 261 60M160 130L72 208M160 130L264 206M160 130V25" stroke="currentColor" opacity=".45" />
-            <rect x="120" y="90" width="80" height="80" rx="22" fill="#b5422d" />
-            <path d="M148 117L135 130 148 143M172 117L185 130 172 143M164 113L156 147" stroke="#fff8ef" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            <rect x="36" y="43" width="44" height="44" rx="12" fill="#e7ede2" stroke="#6f8067" />
-            <rect x="239" y="38" width="44" height="44" rx="12" fill="#f4e4d2" stroke="#b98761" />
-            <rect x="50" y="186" width="44" height="44" rx="12" fill="#f4e4d2" stroke="#b98761" />
-            <rect x="242" y="184" width="44" height="44" rx="12" fill="#e7ede2" stroke="#6f8067" />
-            <circle cx="160" cy="25" r="5" fill="#b5422d" />
-            <path d="M50 59H66M50 66H61M253 54H269M253 61H264M64 202H80M64 209H75M256 200H272M256 207H267" stroke="#645d52" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          <span className="journal-art-caption">Ideas. Trade-offs. Systems.</span>
-        </div>}
+        {featured && <aside className="journal-margin" aria-label="Featured article topics">
+          <p className="journal-kicker">In this note</p>
+          <ul>{getBlogPostTags(post).slice(0, 3).map((tag, tagIndex) => (
+            <li key={tag}><span aria-hidden="true">{String(tagIndex + 1).padStart(2, "0")}</span>{tag}</li>
+          ))}</ul>
+          <p className="journal-margin-footer">{getEstimatedReadTimeLabel(post)}<span>By Sai Kumar Mediboina</span></p>
+        </aside>}
       </article>
     );
   };
@@ -6898,11 +6889,11 @@ function BlogIndexSection({
     <section className="section shell blog-section journal" id="blogs" aria-labelledby="journal-title">
       <header className="journal-intro">
         <div>
-          <p className="journal-kicker">From the notebook / Sai Kumar</p>
-          <h1 id="journal-title">Engineering notes.<br /><span>Ideas worth exploring.</span></h1>
-          <p className="journal-intro-description">Practical perspectives on backend performance, search architecture, and AI. The thinking behind the systems.</p>
+          <p className="journal-kicker">Writing / Sai Kumar Mediboina</p>
+          <h1 id="journal-title">Behind the build.<br /><span>Beyond the code.</span></h1>
+          <p className="journal-intro-description">Notes on backend systems, search, and applied AI. What works, what breaks, and the decisions in between.</p>
         </div>
-        <a className="journal-intro-link" href="#journal-library">Explore the writing <span aria-hidden="true">↓</span></a>
+        <div className="journal-intro-aside"><span className="journal-edition">THE ENGINEERING JOURNAL</span><p>From hands-on work<br />to useful ideas.</p><a className="journal-intro-link" href="#journal-library">Browse the notes <span aria-hidden="true">↓</span></a></div>
       </header>
 
       {featuredBlog && <section className="journal-featured-section" aria-label="Featured article">
@@ -6911,7 +6902,7 @@ function BlogIndexSection({
 
       <section className="journal-library" id="journal-library" aria-labelledby="journal-library-title">
         <div className="journal-library-heading">
-          <div><p className="journal-kicker">Browse the notebook</p><h2 id="journal-library-title">The article collection.</h2></div>
+          <div><p className="journal-kicker">The archive</p><h2 id="journal-library-title">Find your next read.</h2></div>
           <a className="journal-read" href="#newsletter">Get new notes <span aria-hidden="true">↗</span></a>
         </div>
         <div className="blog-toolbar">
@@ -6928,7 +6919,7 @@ function BlogIndexSection({
           </p>
         </div>
         {remainingBlogPosts.length > 0 ? (
-          <div className="journal-grid">{remainingBlogPosts.map((post) => renderStory(post))}</div>
+          <div className="journal-grid">{remainingBlogPosts.map((post, index) => renderStory(post, false, index + 1))}</div>
         ) : (
           <div className="journal-empty"><p>{featuredBlog
             ? "The article in this collection is featured above. Explore another topic for more notes."
@@ -6955,7 +6946,7 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <SiteNavigation>
+      <SiteNavigation minimal>
 <PageBackButton fallbackHref="/" label="Back" />
       </SiteNavigation>
 

@@ -11,7 +11,7 @@ const explore = [
   ["/about", "About"],
 ];
 
-export default function SiteNavigation({ children, inlineActions = false }: { children?: ReactNode; inlineActions?: boolean }) {
+export default function SiteNavigation({ children, inlineActions = false, minimal = false }: { children?: ReactNode; inlineActions?: boolean; minimal?: boolean }) {
   const [open, setOpen] = useState(false);
   const header = useRef<HTMLElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
@@ -36,7 +36,7 @@ export default function SiteNavigation({ children, inlineActions = false }: { ch
     document.addEventListener("pointerdown", outside);
     return () => document.removeEventListener("pointerdown", outside);
   }, []);
-  return <header ref={header} className={`unified-header${open ? " is-open" : ""}`} onKeyDown={(event) => {
+  return <header ref={header} className={`unified-header${open ? " is-open" : ""}${minimal ? " unified-minimal" : ""}`} onKeyDown={(event) => {
     if (event.key === "Escape") {
       if (details.current?.open) {
         details.current.open = false;
@@ -46,6 +46,7 @@ export default function SiteNavigation({ children, inlineActions = false }: { ch
   }}>
     <div className="unified-bar">
       <a className="unified-brand" href="/" aria-label="Sai Kumar Mediboina home">SKM<span aria-hidden="true">.</span></a>
+      {minimal ? <nav className="unified-back-action" aria-label="Back navigation">{children}</nav> : <>
       <button ref={toggle} className="unified-toggle" type="button" aria-expanded={open} aria-controls="unified-navigation" onClick={() => setOpen(!open)}>{open ? "Close ×" : "Menu ☰"}</button>
       <nav id="unified-navigation" className="unified-links" aria-label="Main navigation" onClick={(event) => {
         if ((event.target as HTMLElement).closest("a")) setOpen(false);
@@ -55,7 +56,8 @@ export default function SiteNavigation({ children, inlineActions = false }: { ch
         <details className="unified-explore" ref={details}><summary>Explore</summary><div>{explore.map(([href, label]) => <a key={href} href={href}>{label}</a>)}</div></details>
         {inlineActions && children && <div className="unified-context unified-inline-actions">{children}</div>}
       </nav>
+      </>}
     </div>
-    {!inlineActions && children && <div className="unified-context">{children}</div>}
+    {!minimal && !inlineActions && children && <div className="unified-context">{children}</div>}
   </header>;
 }
