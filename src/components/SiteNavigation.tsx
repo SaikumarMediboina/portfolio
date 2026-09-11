@@ -5,6 +5,7 @@ const primary = [
   ["/portfolio", "Portfolio"], ["/blogs", "Writing"], ["/active-builds", "Active Builds"], ["/work-with-me", "Contact"],
 ];
 const explore = [
+  ["/ai-radar", "AI Radar"],
   ["/learn-with-me", "Learn With Me"],
   ["/whats-new", "What's New"],
   ["/shelf", "Sai's Shelf"],

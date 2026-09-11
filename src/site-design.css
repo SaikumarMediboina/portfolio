@@ -122,3 +122,27 @@ html[data-header-visibility] .unified-header:is(.is-open, :has(:focus-visible), 
 .unified-back-action .button:hover { transform: none; color: #b5422d; background: transparent; box-shadow: none; }
 .learn-session-actions { display: flex; justify-content: flex-end; }
 @media(max-width:760px) { .unified-minimal .unified-bar { width: calc(100% - 40px); min-height: 72px; } }
+
+/* A quiet, chronological preview of the AI Radar feed. */
+.landing-radar { border-top: 1px solid var(--design-line); padding-block: 40px 48px; }
+.landing-radar-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.editorial-home .landing-radar h2 { font-size: clamp(26px, 3vw, 32px); line-height: 1.2; letter-spacing: -.04em; margin: 0; }
+.landing-radar h2 > span { color: var(--design-orange); }
+.landing-radar-heading p { margin: 8px 0 0; font-size: 14px; color: var(--design-muted); }
+.editorial-home .landing-radar-all { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; color: var(--design-orange); white-space: nowrap; }
+.landing-radar-list { list-style: none; margin: 24px 0 0; padding: 0; }
+.landing-radar-list > li { border-top: 1px solid var(--design-line); }
+.landing-radar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 28px; padding: 20px 0; }
+.editorial-home .landing-radar-row h3 { color: var(--design-ink); margin: 0; font-size: 17px; font-weight: 500; line-height: 1.5; letter-spacing: -.015em; overflow-wrap: anywhere; }
+.landing-radar-arrow { color: var(--design-orange); white-space: nowrap; }
+.landing-radar-meta { display: flex; gap: 20px; font-size: 12px; line-height: 1.6; color: var(--design-muted); }
+.landing-radar-meta time { white-space: nowrap; }
+.landing-radar-row:hover h3 { color: var(--design-orange); }
+.landing-radar a:focus-visible { outline: 2px solid var(--design-orange); outline-offset: 5px; border-radius: 2px; }
+@media (max-width: 760px) {
+  .landing-radar { padding-block: 32px 36px; }
+  .landing-radar-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .landing-radar-list { margin-top: 12px; }
+  .landing-radar-row { grid-template-columns: minmax(0, 1fr); gap: 8px; padding-block: 18px; }
+  .landing-radar-meta { flex-wrap: wrap; gap: 4px 16px; }
+}

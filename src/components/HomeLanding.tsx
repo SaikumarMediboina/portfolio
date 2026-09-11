@@ -1,3 +1,4 @@
+import HomeAiRadar from "./HomeAiRadar";
 import type { BlogPost } from "../data/blogs";
 import { profile, projects } from "../data/portfolio";
 
@@ -21,6 +22,7 @@ export default function HomeLanding({ post, onRead }: { post?: BlogPost; onRead:
       })}</div>
     </section>
     {post && <section className="landing-writing design-container" aria-labelledby="landing-writing-title"><div><p className="design-label">From the notebook</p><h2 id="landing-writing-title">Engineering, explained.</h2><a href="/blogs">All writing ↗</a></div><article><p className="design-label">{post.category}</p><h3><a href={`/blog/${post.slug}`} onClick={() => onRead(post)}>{post.title}</a></h3><p>{post.summary}</p><a href={`/blog/${post.slug}`} onClick={() => onRead(post)}>Read article ↗</a></article></section>}
+    <HomeAiRadar />
     <section className="landing-contact design-container"><p className="design-label">Get in touch</p><h2>Good systems start<br />with a conversation.</h2><p>For backend, search, and applied AI opportunities.</p><div className="design-actions"><a className="design-primary" href={`mailto:${profile.email}`}>Email Sai ↗</a><a className="design-secondary" href="/work-with-me">Contact details</a></div></section>
   </div>;
 }

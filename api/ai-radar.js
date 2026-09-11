@@ -505,7 +505,12 @@ export default async function handler(request, response) {
         rank: scoreItem(item),
       }))
       .sort((left, right) => right.rank - left.rank);
-    const items = applySourceDiversity(rankedItems, limit)
+    const selectedItems = request.query?.sort === "latest"
+      ? [...rankedItems].sort((left, right) =>
+          (Date.parse(right.publishedAt) || 0) - (Date.parse(left.publishedAt) || 0),
+        ).slice(0, limit)
+      : applySourceDiversity(rankedItems, limit);
+    const items = selectedItems
       .map(({ sourceWeight, ...item }) => item);
 
     return jsonResponse(response, 200, {
