@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const primary = [
-  ["/portfolio", "Portfolio"], ["/blogs", "Writing"], ["/about", "About"], ["/work-with-me", "Contact"],
+  ["/portfolio", "Portfolio"], ["/blogs", "Writing"], ["/active-builds", "Active Builds"], ["/about", "About"], ["/work-with-me", "Contact"],
 ];
 const explore = [
   ["/learn-with-me", "Learn With Me"],
