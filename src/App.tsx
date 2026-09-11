@@ -6844,114 +6844,97 @@ function BlogIndexSection({
   onTrackBlogOpen,
   onToggleSavedPost,
 }: BlogIndexSectionProps) {
-  const orderedBlogPosts = [featuredBlog, ...remainingBlogPosts].filter(
-    (post): post is BlogPost => Boolean(post),
-  );
+  const renderStory = (post: BlogPost, featured = false) => {
+    const isLocked = featured ? featuredBlogIsLocked : !canReadBlogPost(post, subscriberUser);
+    const href = isLocked ? getSignInHref(post.slug) : getBlogArticleHref(post.slug);
+
+    return (
+      <article className={`journal-story${featured ? " journal-featured" : ""}${isLocked ? " is-locked" : ""}`}
+        id={getBlogAnchorId(post.slug)} key={post.slug}>
+        <div className="journal-story-copy">
+          {featured && <p className="journal-kicker">Featured essay <span aria-hidden="true">↗</span></p>}
+          <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
+          <h3><a href={href} onClick={() => {
+            if (!isLocked) onTrackBlogOpen(post, featured ? "featured_title" : "list_title");
+          }}>{post.title}</a></h3>
+          <p className="journal-summary">{getBlogCardSummary(post)}</p>
+          <BlogTagList post={post} limit={2} />
+          {isLocked && <BlogLockNote />}
+          <div className="journal-story-actions">
+            <a className="journal-read" href={href}
+              aria-label={`${isLocked ? "Unlock" : "Read"} ${post.title}`}
+              onClick={() => {
+                if (!isLocked) onTrackBlogOpen(post, featured ? "featured_cta" : "list_cta");
+              }}>
+              {isLocked ? "Unlock article" : "Read article"} <span aria-hidden="true">↗</span>
+            </a>
+            {!isLocked && <SavePostButton isBusy={savedPostsBusySlug === post.slug}
+              isSaved={isPostSaved(post.slug)} post={post} subscriberUser={subscriberUser}
+              onToggle={onToggleSavedPost} />}
+          </div>
+        </div>
+        {featured && <div className="journal-art" aria-hidden="true">
+          <span className="journal-art-label">THE ENGINEERING NOTEBOOK</span>
+          <svg viewBox="0 0 320 260" fill="none" focusable="false">
+            <circle cx="160" cy="130" r="104" stroke="currentColor" opacity=".16" />
+            <circle cx="160" cy="130" r="70" stroke="currentColor" opacity=".24" strokeDasharray="3 8" />
+            <path d="M58 65L160 130 261 60M160 130L72 208M160 130L264 206M160 130V25" stroke="currentColor" opacity=".45" />
+            <rect x="120" y="90" width="80" height="80" rx="22" fill="#b5422d" />
+            <path d="M148 117L135 130 148 143M172 117L185 130 172 143M164 113L156 147" stroke="#fff8ef" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <rect x="36" y="43" width="44" height="44" rx="12" fill="#e7ede2" stroke="#6f8067" />
+            <rect x="239" y="38" width="44" height="44" rx="12" fill="#f4e4d2" stroke="#b98761" />
+            <rect x="50" y="186" width="44" height="44" rx="12" fill="#f4e4d2" stroke="#b98761" />
+            <rect x="242" y="184" width="44" height="44" rx="12" fill="#e7ede2" stroke="#6f8067" />
+            <circle cx="160" cy="25" r="5" fill="#b5422d" />
+            <path d="M50 59H66M50 66H61M253 54H269M253 61H264M64 202H80M64 209H75M256 200H272M256 207H267" stroke="#645d52" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span className="journal-art-caption">Ideas. Trade-offs. Systems.</span>
+        </div>}
+      </article>
+    );
+  };
 
   return (
-    <section className="section shell blog-section" id="blogs">
-      <SectionHeading
-        eyebrow="Blogs"
-        title="Engineering notes, kept easy to scan."
-        description="Short reads on backend performance, search architecture, and practical AI systems."
-      />
-
-      <div className="blog-toolbar">
-        <div className="blog-controls" aria-label="Blog categories">
-          {blogCategories.map((category) => (
-            <button
-              className={`blog-filter${selectedBlogCategory === category ? " is-active" : ""}`}
-              key={category}
-              type="button"
-              onClick={() => onSelectBlogCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
+    <section className="section shell blog-section journal" id="blogs" aria-labelledby="journal-title">
+      <header className="journal-intro">
+        <div>
+          <p className="journal-kicker">From the notebook / Sai Kumar</p>
+          <h1 id="journal-title">Engineering notes.<br /><span>Ideas worth exploring.</span></h1>
+          <p className="journal-intro-description">Practical perspectives on backend performance, search architecture, and AI. The thinking behind the systems.</p>
         </div>
-        <div className="blog-toolbar-actions">
-          <p className="blog-count">
+        <a className="journal-intro-link" href="#journal-library">Explore the writing <span aria-hidden="true">↓</span></a>
+      </header>
+
+      {featuredBlog && <section className="journal-featured-section" aria-label="Featured article">
+        {renderStory(featuredBlog, true)}
+      </section>}
+
+      <section className="journal-library" id="journal-library" aria-labelledby="journal-library-title">
+        <div className="journal-library-heading">
+          <div><p className="journal-kicker">Browse the notebook</p><h2 id="journal-library-title">The article collection.</h2></div>
+          <a className="journal-read" href="#newsletter">Get new notes <span aria-hidden="true">↗</span></a>
+        </div>
+        <div className="blog-toolbar">
+          <div className="blog-controls" role="group" aria-label="Filter articles by category">
+            {blogCategories.map((category) => (
+              <button className={`blog-filter${selectedBlogCategory === category ? " is-active" : ""}`}
+                key={category} type="button" aria-pressed={selectedBlogCategory === category}
+                onClick={() => onSelectBlogCategory(category)}>{category}</button>
+            ))}
+          </div>
+          <p className="blog-count" role="status" aria-live="polite">
             {visibleBlogPosts.length} {visibleBlogPosts.length === 1 ? "article" : "articles"}
+            {featuredBlog ? " · 1 featured above" : ""}
           </p>
-          <a className="blog-updates-link" href="#newsletter">
-            Get updates
-          </a>
         </div>
-      </div>
-
-      <div className="blog-index">
-        {orderedBlogPosts.length > 0 ? (
-          <div className="blog-list" aria-label="Latest blog articles" style={{ gridTemplateColumns: "1fr" }}>
-            {orderedBlogPosts.map((post, index) => {
-              const isLocked = !canReadBlogPost(post, subscriberUser);
-
-              return (
-                <article
-                  className={`blog-list-item${isLocked ? " is-locked" : ""}`}
-                  id={getBlogAnchorId(post.slug)}
-                  key={post.slug}
-                >
-                  <span className="blog-list-number">{String(index + 1).padStart(2, "0")}</span>
-                  <div className="blog-list-copy">
-                    <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
-                    <h3>
-                      {isLocked ? (
-                        <span>{post.title}</span>
-                      ) : (
-                        <a
-                          href={getBlogArticleHref(post.slug)}
-                          target="_blank"
-                          rel="opener"
-                          onClick={() => onTrackBlogOpen(post, "list_title")}
-                        >
-                          {post.title}
-                        </a>
-                      )}
-                    </h3>
-                    <p>{getBlogCardSummary(post)}</p>
-                    <BlogTagList post={post} />
-                    {isLocked ? <BlogLockNote /> : null}
-                  </div>
-                  {isLocked ? (
-                    <a
-                      className="blog-list-link"
-                      href={getSignInHref(post.slug)}
-                      target="_blank"
-                      rel="opener"
-                    >
-                      Unlock
-                    </a>
-                  ) : (
-                    <div className="blog-list-actions">
-                      <a
-                        className="blog-list-link"
-                        href={getBlogArticleHref(post.slug)}
-                        target="_blank"
-                        rel="opener"
-                        aria-label={`Read ${post.title}`}
-                        onClick={() => onTrackBlogOpen(post, "list_cta")}
-                      >
-                        Read full post
-                      </a>
-                      <SavePostButton
-                        isBusy={savedPostsBusySlug === post.slug}
-                        isSaved={isPostSaved(post.slug)}
-                        post={post}
-                        subscriberUser={subscriberUser}
-                        onToggle={onToggleSavedPost}
-                      />
-                    </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
+        {remainingBlogPosts.length > 0 ? (
+          <div className="journal-grid">{remainingBlogPosts.map((post) => renderStory(post))}</div>
         ) : (
-          <div className="blog-empty">
-            <p>No articles are available for this category yet.</p>
-          </div>
+          <div className="journal-empty"><p>{featuredBlog
+            ? "The article in this collection is featured above. Explore another topic for more notes."
+            : "No articles in this category yet. Explore another topic."}</p></div>
         )}
-      </div>
+      </section>
     </section>
   );
 }
