@@ -17,7 +17,6 @@ import {
   signOut,
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
-import EngineeringDemo from "./components/EngineeringDemo";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
 import loadBalancerTypesMarkdown from "./content/load-balancer-types.md?raw";
@@ -7509,7 +7508,6 @@ function HomePage({
         </div>
       </motion.section>
 
-      <EngineeringDemo />
       <motion.section className="home-section shell home-writing" {...sectionAnimationProps}>
         <div className="home-section-heading">
           <p className="eyebrow">Latest Notes</p>
