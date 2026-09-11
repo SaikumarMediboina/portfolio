@@ -5,6 +5,7 @@ import "./index.css";
 import "./home-studio.css";
 import "./editorial-polish.css";
 import "./scroll-header.css";
+import "./site-design.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

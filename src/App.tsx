@@ -19,6 +19,8 @@ import {
 import { blogPosts, type BlogPost } from "./data/blogs";
 import ProjectPage from "./components/ProjectPage";
 import PortfolioPage from "./components/PortfolioPage";
+import SiteNavigation from "./components/SiteNavigation";
+import HomeLanding from "./components/HomeLanding";
 import { advanceHeaderScroll } from "./lib/headerScroll";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
@@ -6970,33 +6972,9 @@ function BlogIndexPage({ theme, onThemeToggle, ...blogIndexProps }: BlogIndexPag
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Engineering notes</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/" label="Back" />
+      </SiteNavigation>
 
       <main className="blogs-page" id="main-content">
         <BlogIndexSection {...blogIndexProps} />
@@ -7187,442 +7165,8 @@ type HomePageProps = Pick<
   | "onToggleSavedPost"
 >;
 
-function HomePage({
-  featuredBlog,
-  isPostSaved,
-  remainingBlogPosts,
-  savedPostsBusySlug,
-  subscriberUser,
-  onTrackBlogOpen,
-  onToggleSavedPost,
-}: HomePageProps) {
-  const isScrolled = useScrolled();
-  const [homeRadarSignals, setHomeRadarSignals] = useState<AiRadarSignal[]>(
-    aiRadarSignals.slice(0, 5),
-  );
-  const [homeRadarStatus, setHomeRadarStatus] = useState<"loading" | "live" | "fallback">(
-    "loading",
-  );
-  const [homeRadarActiveIndex, setHomeRadarActiveIndex] = useState(0);
-  const homeLanes = [
-    {
-      cta: "View work",
-      detail: "Projects, skills, role story, and proof.",
-      href: "/portfolio",
-      icon: "briefcase" as const,
-      meta: "Work",
-      title: "Portfolio",
-    },
-    {
-      cta: "Read notes",
-      detail: "Backend lessons with clean diagrams.",
-      href: "/blogs",
-      icon: "pen" as const,
-      meta: `${blogPosts.length} field notes`,
-      title: "Blogs",
-    },
-    {
-      cta: "Scan updates",
-      detail: "AI stories worth tracking today.",
-      href: "/ai-radar",
-      icon: "radar" as const,
-      meta: "Live signals",
-      title: "AI Radar",
-    },
-    {
-      cta: "Open cockpit",
-      detail: "Content, analytics, and saved signals.",
-      href: "/dashboard",
-      icon: "news" as const,
-      meta: "Dashboard",
-      title: "Dashboard",
-    },
-  ];
-  const homeProof = [
-    { label: "Batch runs", value: metrics[0]?.value ?? "97%", text: "2h 5m to 3m" },
-    { label: "Real-time path", value: metrics[1]?.value ?? "85%", text: "2s to 300ms" },
-    { label: "Runtime scale", value: metrics[2]?.value ?? "100+ TPS", text: "Sub-2.5s latency" },
-  ];
-  const homeWritingPreview = [featuredBlog, ...remainingBlogPosts]
-    .filter((post): post is BlogPost => Boolean(post))
-    .slice(0, 3);
-  const highlightedArticle = featuredBlog;
-  const latestUpdate = getRecentSiteUpdates(siteUpdates)[0];
-  const homeRadarPreviewSignals = (homeRadarSignals.length ? homeRadarSignals : aiRadarSignals).slice(
-    0,
-    5,
-  );
-  const homeRadarActiveSignal =
-    homeRadarPreviewSignals[homeRadarActiveIndex % homeRadarPreviewSignals.length] ??
-    aiRadarSignals[0];
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    const loadHomeRadar = async () => {
-      setHomeRadarStatus("loading");
-
-      try {
-        const response = await fetch("/api/ai-radar?limit=7&surface=home", {
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error("AI Radar feed is unavailable.");
-        }
-
-        const nextSignals = normalizeAiRadarApiItems((await response.json()) as AiRadarApiResponse);
-
-        if (!isCurrent) {
-          return;
-        }
-
-        if (nextSignals.length) {
-          setHomeRadarSignals(nextSignals);
-          setHomeRadarStatus("live");
-        } else {
-          setHomeRadarSignals(aiRadarSignals.slice(0, 5));
-          setHomeRadarStatus("fallback");
-        }
-      } catch {
-        if (!isCurrent) {
-          return;
-        }
-
-        setHomeRadarSignals(aiRadarSignals.slice(0, 5));
-        setHomeRadarStatus("fallback");
-      }
-    };
-
-    loadHomeRadar();
-
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    setHomeRadarActiveIndex(0);
-  }, [homeRadarSignals]);
-
-  useEffect(() => {
-    if (homeRadarPreviewSignals.length <= 1) {
-      return undefined;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setHomeRadarActiveIndex((index) => (index + 1) % homeRadarPreviewSignals.length);
-    }, 4600);
-
-    return () => window.clearInterval(intervalId);
-  }, [homeRadarPreviewSignals.length]);
-
-  return (
-    <div className="home-studio">
-      <motion.section className="home-hero shell" id="top" {...sectionAnimationProps}>
-        <div className="home-hero-copy">
-          <p className="eyebrow studio-intro">Hello, I'm</p>
-          <h1 className="home-hero-greeting">Sai Kumar<br /><span>Mediboina.</span></h1>
-          <p className="studio-intro-tagline">Reliable systems. Thoughtful engineering.</p>
-          <div className="home-hero-credentials" aria-label="Professional and education credentials">
-            <p className="eyebrow home-hero-role">Software Application Engineer @ Oracle</p>
-            <span className="home-hero-credential-divider" aria-hidden="true" />
-            <p className="eyebrow home-hero-alumni">NITK Surathkal alumnus</p>
-          </div>
-          <p className="home-hero-lede">
-            I build reliable backend systems, search workflows, and practical AI experiments for
-            high-volume products.
-          </p>
-
-          <div className="home-hero-actions">
-            <a className="button button-primary" href="/portfolio">
-              View portfolio
-            </a>
-            <a className="button button-secondary" href="/work-with-me">
-              Work with me
-            </a>
-            <a className="home-text-link" href="/blogs">
-              Read engineering notes
-            </a>
-          </div>
-
-          <div className="home-trust-strip" aria-label="Core strengths">
-            <a href="/active-builds">Active builds</a>
-            <a href="/learn-with-me">Learn with me</a>
-          </div>
-        </div>
-
-        <aside
-          className="home-radar-board"
-          aria-label="AI Radar live preview"
-          style={getAiRadarVisualStyle(homeRadarActiveSignal)}
-        >
-          <article className="home-radar-briefing-card">
-            <div className="home-radar-briefing-top">
-              <span className="home-radar-live-pill">
-                <span aria-hidden="true" />
-                {homeRadarStatus === "live" ? "Live Radar" : "Curated Radar"}
-              </span>
-              <a href="/ai-radar">Open radar</a>
-            </div>
-
-            <div className="home-radar-briefing-body" aria-live="polite">
-              <div className="home-radar-briefing-art" aria-hidden="true">
-                {homeRadarActiveSignal.imageUrl ? (
-                  <img
-                    src={homeRadarActiveSignal.imageUrl}
-                    alt=""
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <AiRadarSourceMark className="is-large" source={homeRadarActiveSignal.source} />
-                )}
-              </div>
-
-              <div className="home-radar-briefing-copy">
-                <div className="home-radar-briefing-meta">
-                  <span>
-                    {String((homeRadarActiveIndex % homeRadarPreviewSignals.length) + 1).padStart(
-                      2,
-                      "0",
-                    )}
-                    /{String(homeRadarPreviewSignals.length).padStart(2, "0")}
-                  </span>
-                  <AiRadarSourceBadge source={homeRadarActiveSignal.source} />
-                  <span>{homeRadarActiveSignal.category}</span>
-                </div>
-                <h2>{homeRadarActiveSignal.title}</h2>
-                <p>{homeRadarActiveSignal.summary || homeRadarActiveSignal.whyItMatters}</p>
-                <div className="home-radar-briefing-actions">
-                  <AiRadarFreshness
-                    className="home-radar-feed-freshness"
-                    publishedAt={homeRadarActiveSignal.publishedAt}
-                  />
-                  <a
-                    href={homeRadarActiveSignal.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() =>
-                      trackAnalyticsEvent("ai_radar_open", {
-                        category: homeRadarActiveSignal.category,
-                        source: "home_rotating_card",
-                        title: homeRadarActiveSignal.title,
-                      })
-                    }
-                  >
-                    Read signal
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="home-radar-briefing-controls" aria-label="Top AI Radar stories">
-              {homeRadarPreviewSignals.map((signal, index) => (
-                <button
-                  className={
-                    index === homeRadarActiveIndex % homeRadarPreviewSignals.length
-                      ? "is-active"
-                      : ""
-                  }
-                  key={`${signal.source}-${signal.href}`}
-                  type="button"
-                  aria-label={`Show AI Radar story ${index + 1}`}
-                  onClick={() => setHomeRadarActiveIndex(index)}
-                />
-              ))}
-            </div>
-          </article>
-        </aside>
-      </motion.section>
-
-      {highlightedArticle ? (
-        <motion.section className="home-section shell home-mcp-banner" {...sectionAnimationProps}>
-          <a
-            className="home-mcp-banner-card"
-            href={getBlogArticleHref(highlightedArticle.slug)}
-            onClick={() => onTrackBlogOpen(highlightedArticle, "home_featured_banner")}
-          >
-            <div className="home-mcp-banner-mark" aria-hidden="true">AI</div>
-            <div className="home-mcp-banner-copy">
-              <p className="eyebrow">Featured article · {highlightedArticle.category}</p>
-              <h2>{highlightedArticle.title}</h2>
-              <p>{highlightedArticle.summary}</p>
-              <div className="home-mcp-banner-tags" aria-label="Article topics">
-                {highlightedArticle.tags.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}
-              </div>
-            </div>
-            <span className="home-mcp-banner-cta">Read article <b aria-hidden="true">→</b></span>
-          </a>
-        </motion.section>
-      ) : null}
-
-      <motion.section className="home-section shell home-lanes" id="about" {...sectionAnimationProps}>
-        <div className="home-section-heading">
-          <p className="eyebrow">Start Fast</p>
-          <h2>Get value in the first five minutes.</h2>
-          <p>
-            Pick a lane based on what you need: proof of work, backend notes, AI updates, or a quick
-            view of what is active.
-          </p>
-        </div>
-
-        <div className="home-lane-grid">
-          {homeLanes.map((lane) => (
-            <article className="home-lane-card" key={lane.title}>
-              <div className="home-lane-icon">
-                <ReaderMenuGlyph type={lane.icon} />
-              </div>
-              <span>{lane.meta}</span>
-              <h3>{lane.title}</h3>
-              <p>{lane.detail}</p>
-              <a href={lane.href}>{lane.cta}</a>
-            </article>
-          ))}
-        </div>
-      </motion.section>
-
-      <motion.section className="home-section shell home-proof" {...sectionAnimationProps}>
-        <div className="home-proof-copy">
-          <p className="eyebrow">Current Signal</p>
-          <h2>Backend work with measurable outcomes.</h2>
-          <p>Performance, search quality, and reliability.</p>
-        </div>
-
-        <div className="home-proof-grid">
-          {homeProof.map((item) => (
-            <article className="home-proof-card" key={item.label}>
-              <span>{item.label}</span>
-              <strong>{item.value}</strong>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </motion.section>
-
-      <motion.section className="home-section shell studio-projects" id="featured-work" {...sectionAnimationProps}>
-        <div className="studio-section-title">
-          <div><p className="eyebrow">01 / Selected work</p><h2>Built for real-world complexity.</h2></div>
-          <a href="/portfolio#work">All project case studies <span aria-hidden="true">↗</span></a>
-        </div>
-        <div className="studio-project-grid">
-          {projects.slice(0, 3).map((project, index) => (
-            <article className="studio-project-card" key={project.name}>
-              <div className="studio-project-visual" aria-hidden="true">
-                <span className="studio-project-number">0{index + 1}</span>
-                <div className="studio-flow">
-                  {(index === 0 ? ["Ingest", "Match", "Screen"] : index === 1 ? ["Search", "Migrate", "Oracle Text"] : ["AI signals", "Rules", "Ranking"]).map((step) => <span key={step}>{step}</span>)}
-                </div>
-                <span className="studio-visual-caption">{["SCREENING AT SCALE", "SEARCH INFRASTRUCTURE", "EXPLAINABLE RELEVANCE"][index]}</span>
-              </div>
-              <div className="studio-project-copy">
-                <h3>{project.name}</h3>
-                <p><strong>Problem</strong><br />{project.problem}</p>
-                <p><strong>My contribution</strong><br />{project.contribution}</p>
-                <div className="studio-project-outcome"><span>Reported result</span><p>{project.result}</p></div>
-                <ul aria-label="Technology stack">{project.stack.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
-                <a href={`/projects/${project.slug}`}>Explore project <span aria-hidden="true">↗</span></a>
-              </div>
-            </article>
-          ))}
-        </div>
-      </motion.section>
-
-      <motion.section className="home-section shell home-writing" {...sectionAnimationProps}>
-        <div className="home-section-heading">
-          <p className="eyebrow">Latest Notes</p>
-          <h2>Short reads. Real systems.</h2>
-          <p>Backend notes with diagrams, metrics, and practical takeaways.</p>
-        </div>
-
-        <div className="home-writing-carousel-card">
-          <div className="home-writing-carousel-top">
-            <div>
-              <span>Engineering blog</span>
-              <strong>{blogPosts.length} practical notes</strong>
-            </div>
-            <a href="/blogs">View all</a>
-          </div>
-
-          <div className="home-writing-carousel-window" aria-label="Latest blog previews">
-            <div
-              className={`home-writing-carousel-track${
-                homeWritingPreview.length > 2 ? " is-animated" : ""
-              }`}
-            >
-              {homeWritingPreview.map((post) => {
-                const isLocked = !canReadBlogPost(post, subscriberUser);
-
-                return (
-                  <article
-                    className={`home-writing-row${isLocked ? " is-locked" : ""}`}
-                    key={post.slug}
-                  >
-                    <div className="home-writing-row-copy">
-                      <BlogMetaLine status={isLocked ? "Locked" : "Unlocked"} post={post} />
-                      <h3>{post.title}</h3>
-                      <p>{getBlogCardSummary(post)}</p>
-                    </div>
-                    <div className="home-writing-row-actions">
-                      {isLocked ? (
-                        <a href={getSignInHref(post.slug)} target="_blank" rel="opener">
-                          Unlock
-                        </a>
-                      ) : (
-                        <>
-                          <a
-                            href={getBlogArticleHref(post.slug)}
-                            target="_blank"
-                            rel="opener"
-                            onClick={() => onTrackBlogOpen(post, "home_preview")}
-                          >
-                            Read
-                          </a>
-                          <SavePostButton
-                            isBusy={savedPostsBusySlug === post.slug}
-                            isSaved={isPostSaved(post.slug)}
-                            post={post}
-                            subscriberUser={subscriberUser}
-                            onToggle={onToggleSavedPost}
-                          />
-                        </>
-                      )}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="home-writing-footer">
-          <a className="button button-secondary" href="/blogs">
-            View all blogs
-          </a>
-          <a className="home-text-link" href="#newsletter">
-            Get updates
-          </a>
-        </div>
-      </motion.section>
-
-      <motion.section className="home-section shell home-final-cta" {...sectionAnimationProps}>
-        <p className="eyebrow">Work With Me</p>
-        <h2>Have a backend, search, performance, or AI workflow problem worth untangling?</h2>
-        <p>
-          Bring the messy system, the slow path, or the idea that needs sharper architecture. I will
-          meet it with practical engineering, clear thinking, and a bias toward measurable outcomes.
-        </p>
-        <div className="home-hero-actions">
-          <a className="button button-primary" href="/work-with-me">
-            Start a conversation
-          </a>
-          <a className="button button-secondary" href={profile.linkedin} target="_blank" rel="noreferrer">
-            LinkedIn
-          </a>
-        </div>
-      </motion.section>
-    </div>
-  );
+function HomePage({ featuredBlog, onTrackBlogOpen }: HomePageProps) {
+  return <HomeLanding post={featuredBlog} onRead={(post) => onTrackBlogOpen(post, "home_featured_article")} />;
 }
 
 type StartHerePageProps = {
@@ -7797,33 +7341,9 @@ function StartHerePage({ theme, onThemeToggle }: StartHerePageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Start here</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/" label="Back" />
+      </SiteNavigation>
 
       <main className="guide-page start-page shell" id="main-content">
         <section className="start-hero">
@@ -10628,21 +10148,8 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
       {!isDistributedArticlePage ? (
-        <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-          <div className="shell article-header-shell">
-            <a className="brand" href="/">
-              <span className="brand-mark">SK</span>
-              <span className="brand-copy">
-                <strong>{profile.name}</strong>
-                <span>Learn with me</span>
-              </span>
-            </a>
-
-            <div className="article-header-actions">
-              <a className="button button-secondary" href="/">
-                Home
-              </a>
-              <PageBackButton fallbackHref={learnBackHref} label="Back" />
+      <SiteNavigation>
+<PageBackButton fallbackHref={learnBackHref} label="Back" />
               {accessGranted ? (
                 <button
                   className="button button-secondary"
@@ -10652,18 +10159,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
                   Logout
                 </button>
               ) : null}
-              <button
-                className="theme-toggle"
-                type="button"
-                aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-                aria-pressed={theme === "dark"}
-                onClick={onThemeToggle}
-              >
-                <ThemeToggleIcon theme={theme} />
-              </button>
-            </div>
-          </div>
-        </header>
+      </SiteNavigation>
       ) : null}
 
       <main
@@ -11224,33 +10720,9 @@ function ActiveBuildsPage({ activeBuildSlug = "", theme, onThemeToggle }: Active
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>{isSaiAssistantBuildPage ? "Sai's Assistant" : "Active builds"}</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref={isSaiAssistantBuildPage ? "/active-builds" : "/"} label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref={isSaiAssistantBuildPage ? "/active-builds" : "/"} label="Back" />
+      </SiteNavigation>
 
       <main className="guide-page active-builds-page shell" id="main-content">
         {!isSaiAssistantBuildPage ? (
@@ -11672,33 +11144,9 @@ function WhatsNewPage({ theme, onThemeToggle }: WhatsNewPageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>What's new</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/" label="Back" />
+      </SiteNavigation>
 
       <main className="guide-page shell" id="main-content">
         <section className="guide-hero">
@@ -12066,33 +11514,9 @@ function AiRadarPage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>AI Radar</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/" label="Back" />
+      </SiteNavigation>
 
       <main className="ai-radar-page shell" id="main-content">
         <section
@@ -12317,33 +11741,9 @@ function AboutPage({ theme, onThemeToggle }: AboutPageProps) {
         Skip to About page
       </a>
 
-      <header className={`article-site-header about-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>About</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/" label="Back" />
+      </SiteNavigation>
 
       <main className="about-page shell" id="main-content">
         <section className="about-hero" aria-labelledby="about-page-title">
@@ -12439,33 +11839,9 @@ function ContactPage({ theme, onThemeToggle }: ContactPageProps) {
         Skip to Work With Me page
       </a>
 
-      <header className={`article-site-header collaboration-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Work With Me</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/" label="Back" />
+      </SiteNavigation>
 
       <main className="collaboration-page" id="main-content">
         <section className="collaboration-hero shell">
@@ -12692,22 +12068,8 @@ function BlogArticlePage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header
-        className={`article-site-header ${isScrolled ? "nav-scrolled" : ""} ${
-          isArticleHeaderVisible ? "" : "is-scroll-hidden"
-        }`}
-      >
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Engineering notes</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            {post && !isAccessChecking && !isLocked ? (
+      <SiteNavigation>
+{post && !isAccessChecking && !isLocked ? (
               <SavePostButton
                 isBusy={savedPostsBusySlug === post.slug}
                 isSaved={isPostSaved(post.slug)}
@@ -12716,9 +12078,6 @@ function BlogArticlePage({
                 onToggle={onToggleSavedPost}
               />
             ) : null}
-            <a className="button button-secondary article-home-button" href="/">
-              Home
-            </a>
             <button
               className="button button-secondary article-back-button"
               type="button"
@@ -12726,18 +12085,7 @@ function BlogArticlePage({
             >
               Back to blogs
             </button>
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      </SiteNavigation>
 
       {post && !isAccessChecking && !isLocked ? (
         <aside className={`article-reading-dock${isArticleHeaderVisible ? " is-below-header" : " is-pinned"}`} aria-label="Reading progress and time remaining">
@@ -12910,33 +12258,9 @@ function SavedPostsPage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Saved reading shelf</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/blogs" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/blogs" label="Back" />
+      </SiteNavigation>
 
       <main className="saved-posts-page shell" id="main-content">
         <section className="saved-posts-panel">
@@ -13115,33 +12439,9 @@ function ShelfPage({ theme, onThemeToggle }: ShelfPageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Sai's Shelf</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/" label="Back" />
+      </SiteNavigation>
 
       <main className="shelf-page shell" id="main-content">
         <section className="shelf-panel">
@@ -13336,33 +12636,9 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Creator dashboard</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/portfolio#top" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/portfolio#top" label="Back" />
+      </SiteNavigation>
 
       <main className="dashboard-page" id="main-content">
         <section className="dashboard-shell">
@@ -13724,21 +13000,8 @@ function SignInPage({
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Subscriber access</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            {portfolioReturnBlogSlug ? (
+      <SiteNavigation>
+{portfolioReturnBlogSlug ? (
               <button
                 className="button button-secondary"
                 type="button"
@@ -13754,18 +13017,7 @@ function SignInPage({
             ) : (
               <PageBackButton fallbackHref="/portfolio#top" label="Back" />
             )}
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      </SiteNavigation>
 
       <main className="signin-page shell" id="main-content">
         <section className="signin-hero">
@@ -13849,33 +13101,9 @@ function AdminUpdatePage({ theme, onThemeToggle }: AdminUpdatePageProps) {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`article-site-header ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell article-header-shell">
-          <a className="brand" href="/">
-            <span className="brand-mark">SK</span>
-            <span className="brand-copy">
-              <strong>{profile.name}</strong>
-              <span>Email updates</span>
-            </span>
-          </a>
-
-          <div className="article-header-actions">
-            <a className="button button-secondary" href="/">
-              Home
-            </a>
-            <PageBackButton fallbackHref="/portfolio#top" label="Back" />
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={onThemeToggle}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteNavigation>
+<PageBackButton fallbackHref="/portfolio#top" label="Back" />
+      </SiteNavigation>
 
       <main className="admin-update-page shell" id="main-content">
         <section className="admin-update-panel">
@@ -14924,7 +14152,7 @@ function App() {
           {page}
         </motion.div>
       </AnimatePresence>
-      <div className="site-newsletter-footer shell">
+      {currentPathname !== "/" && !currentPathname.startsWith("/projects/") && <div className="site-newsletter-footer shell">
         <NewsletterCallout
           isSubscribed={isSubscribed}
           subscriberEmail={subscriberEmail}
@@ -14932,7 +14160,7 @@ function App() {
           subscriptionBusy={subscriptionBusy}
           onSubscribe={handleSubscribe}
         />
-      </div>
+      </div>}
       <SiteFooter />
       <SiteAssistant
         currentPathname={currentPathname}
@@ -15151,162 +14379,9 @@ function App() {
       <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
       <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
-      <header className={`site-header${headerDocked ? " is-docked" : ""} ${isScrolled ? "nav-scrolled" : ""}`}>
-        <div className="shell header-shell">
-          <div className="brand-cluster">
-            <button
-              className="reader-menu-trigger"
-              type="button"
-              aria-expanded={readerMenuOpen}
-              aria-label="Open reader menu"
-              onClick={() => {
-                setReaderMenuOpen((open) => !open);
-                setMenuOpen(false);
-                setMoreMenuOpen(false);
-                setProfileMenuOpen(false);
-              }}
-            >
-              <ReaderMenuGlyph type="menu" />
-            </button>
-
-            <a className="brand brand-mark-link" href="#top" onClick={closeMenu} aria-label="Go to home">
-              <span className="brand-mark">SK</span>
-            </a>
-
-            <a className="brand brand-name-link" href="#top" onClick={closeMenu}>
-              <span className="brand-copy">
-                <strong>{profile.name}</strong>
-                <span>{profile.role}</span>
-              </span>
-            </a>
-          </div>
-
-          <button
-            className={`site-nav-backdrop${menuOpen ? " is-open" : ""}`}
-            type="button"
-            aria-label="Close main menu"
-            onClick={closeMenu}
-          />
-
-          <nav
-            className={`site-nav${menuOpen ? " is-open" : ""}`}
-            id="site-navigation"
-            aria-label="Primary"
-            aria-hidden={compactNavIsHidden}
-            inert={compactNavIsHidden}
-          >
-            <div className="site-nav-drawer-heading">
-              <div>
-                <p className="impact-label">Main Menu</p>
-                <h2>Explore the site</h2>
-              </div>
-              <button className="reader-menu-close" type="button" onClick={closeMenu}>
-                Close
-              </button>
-            </div>
-
-            {currentNavLinks.map((link) => {
-              const linkHref = "href" in link ? link.href : `#${link.id}`;
-
-              return (
-                <a
-                  key={link.label}
-                  className={isNavLinkActive(link) ? "is-active" : ""}
-                  href={linkHref}
-                  onClick={() => {
-                    rememberCurrentNavigationFlow(linkHref);
-                    closeMenu();
-                  }}
-                >
-                  {link.label}
-                </a>
-              );
-            })}
-            {currentMoreNavLinks.length && isCompactNav
-              ? currentMoreNavLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    className={isNavLinkActive(link) ? "is-active" : ""}
-                    href={link.href}
-                    onClick={() => {
-                      rememberCurrentNavigationFlow(link.href);
-                      closeMenu();
-                    }}
-                  >
-                    {link.label}
-                  </a>
-                ))
-              : null}
-            {currentMoreNavLinks.length && !isCompactNav ? (
-              <details
-                className={`site-nav-more${moreMenuOpen ? " is-open" : ""}${
-                  currentMoreNavLinks.some(isNavLinkActive) ? " has-active" : ""
-                }`}
-                open={moreMenuOpen}
-                ref={moreMenuRef}
-                onToggle={(event) => {
-                  setMoreMenuOpen(event.currentTarget.open);
-                  setProfileMenuOpen(false);
-                }}
-              >
-                <summary
-                  className="site-nav-more-button"
-                  aria-controls="site-navigation-more"
-                  aria-expanded={moreMenuOpen}
-                >
-                  <span className="site-nav-more-label">
-                    <span>More</span>
-                  </span>
-                  <span className="site-nav-more-caret" aria-hidden="true" />
-                </summary>
-
-                <div className="site-nav-more-panel" id="site-navigation-more">
-                  {currentMoreNavLinks.map((link) => (
-                    <a
-                      key={link.label}
-                      className={isNavLinkActive(link) ? "is-active" : ""}
-                      href={link.href}
-                      onClick={() => {
-                        rememberCurrentNavigationFlow(link.href);
-                        closeMenu();
-                      }}
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-              </details>
-            ) : null}
-            <MobileAccountPanel
-              canUseSubscriptions={canUseSubscriptions}
-              isSubscribed={isSubscribed}
-              subscriberEmail={subscriberEmail}
-              subscriberInitial={subscriberInitial}
-              subscriberName={subscriberName}
-              subscriberUser={subscriberUser}
-              subscriptionBusy={subscriptionBusy}
-              subscriptionError={subscriptionError}
-              subscriptionMessage={subscriptionMessage}
-              onGoogleSignIn={handleGoogleSignIn}
-              onSignOut={handleSignOut}
-              onSubscribe={handleSubscribe}
-              onUnsubscribe={handleUnsubscribe}
-            />
-          </nav>
-
-          <div className="header-actions">
-            <a className="resume-nav-link" href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Resume ↗</a>
-            <button
-              className="theme-toggle"
-              type="button"
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
-              aria-pressed={theme === "dark"}
-              onClick={() => setTheme((current) => (current === "light" ? "dark" : "light"))}
-            >
-              <ThemeToggleIcon theme={theme} />
-            </button>
-
-            <div ref={profileMenuRef}>
+      <SiteNavigation>
+        <button className="button button-secondary" type="button" onClick={() => setReaderMenuOpen(true)}>Reader tools</button>
+<div ref={profileMenuRef}>
               <ProfileMenu
                 canUseSubscriptions={canUseSubscriptions}
                 isOpen={profileMenuOpen}
@@ -15328,26 +14403,7 @@ function App() {
                 onUnsubscribe={handleUnsubscribe}
               />
             </div>
-
-            <button
-              className="menu-toggle"
-              type="button"
-              aria-controls="site-navigation"
-              aria-expanded={menuOpen}
-              aria-label="Toggle navigation"
-              onClick={() => {
-                setMenuOpen((open) => !open);
-                setMoreMenuOpen(false);
-                setProfileMenuOpen(false);
-              }}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
-          </div>
-        </div>
-      </header>
+      </SiteNavigation>
 
       <ReaderMenu
         isOpen={readerMenuOpen}

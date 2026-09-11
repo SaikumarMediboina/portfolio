@@ -16,7 +16,7 @@ for (const project of projects) {
   assert.equal(project.architecture.length, 4);
 }
 const app = fs.readFileSync("src/App.tsx", "utf8");
-assert.ok(app.includes('href={`/projects/${project.slug}`}'));
+assert.ok(fs.readFileSync("src/components/HomeLanding.tsx", "utf8").includes('href={`/projects/${project.slug}`}'));
 const portfolioPage = fs.readFileSync("src/components/PortfolioPage.tsx", "utf8");
 assert.ok(app.includes('return <PortfolioPage />'));
 assert.ok(portfolioPage.includes('id="work"'));
@@ -33,7 +33,7 @@ assert.ok(rewrites.some((route) => route.source === "/projects/:slug" && route.d
 assert.ok(rewrites.some((route) => route.source === "/portfolio"));
 assert.equal(fs.readFileSync("public/SaiKumarResume.pdf").subarray(0, 5).toString(), "%PDF-");
 assert.ok(fs.readFileSync("scripts/generate-static-seo.mjs", "utf8").includes("...projectRoutes"));
-for (const file of ["src/App.tsx", "src/components/PortfolioPage.tsx", "src/components/ProjectPage.tsx", "src/data/portfolio.ts"]) {
+for (const file of ["src/App.tsx", "src/components/PortfolioPage.tsx", "src/components/ProjectPage.tsx", "src/components/HomeLanding.tsx", "src/components/SiteNavigation.tsx", "src/data/portfolio.ts"]) {
   const parsed = ts.createSourceFile(file, fs.readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
   assert.equal(parsed.parseDiagnostics.length, 0, `Syntax: ${file}`);
 }
