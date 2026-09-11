@@ -1,6 +1,5 @@
 import { certifications, education, experience, profile, projects, recognitions } from "../data/portfolio";
 import "./PortfolioPage.css";
-import SiteNavigation from "./SiteNavigation";
 
 const selectedSlugs = ["enterprise-rag-knowledge-assistant", "high-volume-batch-processing", "core-search-engine-migration"];
 const featured = selectedSlugs.map((slug) => projects.find((project) => project.slug === slug)!).filter(Boolean);
@@ -13,7 +12,13 @@ const disciplines = [
 export default function PortfolioPage() {
   return <div className="folio">
     <a className="folio-skip" href="#main-content">Skip to content</a>
-    <SiteNavigation />
+    <header className="folio-header folio-container">
+      <a className="folio-wordmark" href="/" aria-label="Sai Kumar Mediboina home">SKM<span aria-hidden="true">.</span></a>
+      <nav aria-label="Portfolio navigation">
+        <a href="#work">Work</a><a href="#experience">Experience</a><a href="#contact">Contact</a>
+        <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Résumé ↗</a>
+      </nav>
+    </header>
     <main id="main-content" className="folio-container">
       <section className="folio-intro" id="top" aria-labelledby="folio-name">
         <p className="folio-kicker">Backend engineering · Search · Applied AI</p>
