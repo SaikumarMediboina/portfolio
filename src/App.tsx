@@ -22,6 +22,7 @@ import PortfolioPage from "./components/PortfolioPage";
 import SiteNavigation from "./components/SiteNavigation";
 import { HeaderAccountContext } from "./components/HeaderAccount";
 import HomeLanding from "./components/HomeLanding";
+import DashboardView from "./components/DashboardView";
 import { advanceHeaderScroll } from "./lib/headerScroll";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
@@ -11912,18 +11913,15 @@ function getAnalyticsEventTitle(event: AnalyticsDashboardEvent) {
   return event.title || event.path || ANALYTICS_EVENT_LABELS[event.type];
 }
 
-function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
-  const isScrolled = useScrolled();
+function DashboardPage(_props: DashboardPageProps) {
   const topics = getDashboardTopics(blogPosts);
   const [analyticsSnapshot, setAnalyticsSnapshot] = useState(getCachedAnalyticsSnapshot);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
-  const totalBlogCount = Math.max(blogPosts.length, 1);
   const totalReadMinutes = blogPosts.reduce(
     (total, post) => total + getEstimatedReadMinutes(post),
     0,
   );
   const averageReadMinutes = blogPosts.length ? Math.round(totalReadMinutes / blogPosts.length) : 0;
-  const maxTopicScore = Math.max(...topics.map((topic) => topic.score), 1);
   const topArticles = [...blogPosts]
     .map((post) => ({
       ...post,
@@ -11932,17 +11930,16 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
     }))
     .sort((left, right) => right.contentScore - left.contentScore)
     .slice(0, 8);
-  const maxArticleScore = Math.max(...topArticles.map((post) => post.contentScore), 1);
   const totalTrackedSignals = dashboardSignalMetrics.reduce(
     (total, metric) => total + analyticsSnapshot.counters[metric.type],
     0,
   );
   const latestAnalyticsEvents = analyticsSnapshot.events.slice(0, 6);
-  const analyticsSourceText = analyticsSnapshot.configured
-    ? "Synced from Firestore"
+  const analyticsSourceText = analyticsSnapshot.configured && analyticsSnapshot.source === "api"
+    ? "Site-wide activity"
     : analyticsSnapshot.events.length
-      ? "Local preview until cloud signals connect"
-      : "Waiting for the first visitor signals";
+      ? "Local activity only"
+      : "No site-wide activity available";
 
   useEffect(() => {
     let isCurrent = true;
@@ -11966,301 +11963,20 @@ function DashboardPage({ theme, onThemeToggle }: DashboardPageProps) {
     };
   }, []);
 
-  return (
-    <>
-      <a className="skip-link" href="#main-content">
-        Skip to dashboard
-      </a>
-
-      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
-      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
-
-      <SiteNavigation>
-<PageBackButton fallbackHref="/portfolio#top" label="Back" />
-      </SiteNavigation>
-
-      <main className="dashboard-page" id="main-content">
-        <section className="dashboard-shell">
-          <div className="dashboard-hero">
-            <p className="eyebrow">Creator Dashboard</p>
-            <h1>Content cockpit for portfolio momentum.</h1>
-            <p>
-              A compact view of engineering notes, topic coverage, portfolio signals, and the
-              writing pipeline behind this site.
-            </p>
-            <div className="dashboard-chip-row" aria-label="Dashboard lenses">
-              <span>Reader journey</span>
-              <span>Engineering notes</span>
-              <span>Portfolio signal</span>
-            </div>
-          </div>
-
-          <div className="dashboard-note">
-            <span>At a glance</span>
-            <p>
-              This dashboard summarizes the content already published on the site. It is designed
-              for editorial clarity, not inflated vanity metrics.
-            </p>
-          </div>
-
-          <div className="dashboard-email-callout">
-            <div>
-              <span>Content updates</span>
-              <h2>Get the signal without refreshing the dashboard.</h2>
-              <p>
-                Subscribe once and useful engineering notes, dashboard additions, and portfolio
-                updates land in your inbox only when there is something worth opening.
-              </p>
-            </div>
-            <a className="button button-primary" href="#newsletter">
-              Get updates
-            </a>
-          </div>
-
-          <section className="dashboard-signal-panel" aria-label="Live portfolio analytics">
-            <div className="dashboard-signal-head">
-              <div>
-                <p className="eyebrow">Live Site Signals</p>
-                <h2>What visitors actually use.</h2>
-                <p>
-                  A clean interaction layer for page views, article opens, saved posts, AI Radar
-                  reads, newsletter joins, and assistant questions.
-                </p>
-              </div>
-              <div className="dashboard-signal-total">
-                <span>Tracked signals</span>
-                <strong>{formatCompactNumber(totalTrackedSignals)}</strong>
-                <small>{analyticsLoading ? "Refreshing..." : analyticsSourceText}</small>
-              </div>
-            </div>
-
-            <div className="dashboard-signal-grid">
-              {dashboardSignalMetrics.map((metric) => (
-                <article className={`dashboard-signal-card ${metric.tone}`} key={metric.type}>
-                  <span>{ANALYTICS_EVENT_LABELS[metric.type]}</span>
-                  <strong>{formatCompactNumber(analyticsSnapshot.counters[metric.type])}</strong>
-                  <small>{metric.detail}</small>
-                </article>
-              ))}
-            </div>
-
-            <div className="dashboard-signal-stream">
-              <div className="dashboard-signal-stream-heading">
-                <h3>Recent activity</h3>
-                <span>{analyticsSnapshot.configured ? "Live feed" : "Preview feed"}</span>
-              </div>
-              {latestAnalyticsEvents.length ? (
-                <div className="dashboard-signal-events">
-                  {latestAnalyticsEvents.map((event, index) => (
-                    <article
-                      className="dashboard-signal-event"
-                      key={`${event.type}-${event.createdAt ?? index}-${event.title ?? event.path ?? index}`}
-                    >
-                      <span>{event.label}</span>
-                      <strong>{getAnalyticsEventTitle(event)}</strong>
-                      <small>{formatAnalyticsSignalTime(event.createdAt)}</small>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p className="dashboard-signal-empty">
-                  Signals will appear here as visitors read, save, subscribe, and ask Sai's bot
-                  questions.
-                </p>
-              )}
-            </div>
-          </section>
-
-          <div className="dashboard-stat-grid" aria-label="Dashboard summary">
-            <article className="dashboard-stat-card">
-              <ReaderMenuGlyph type="pen" />
-              <span>Total Blogs</span>
-              <strong>{blogPosts.length}</strong>
-            </article>
-            <article className="dashboard-stat-card">
-              <ReaderMenuGlyph type="bookmark" />
-              <span>Topic Lanes</span>
-              <strong>{topics.length}</strong>
-            </article>
-            <article className="dashboard-stat-card">
-              <ReaderMenuGlyph type="briefcase" />
-              <span>Projects</span>
-              <strong>{projects.length}</strong>
-            </article>
-            <article className="dashboard-stat-card">
-              <ReaderMenuGlyph type="home" />
-              <span>Avg. Read Time</span>
-              <strong>{averageReadMinutes} min</strong>
-            </article>
-          </div>
-
-          <div className="dashboard-grid dashboard-grid-two">
-            <article className="dashboard-card">
-              <div className="dashboard-card-heading">
-                <h2>Topic Performance</h2>
-                <span>Metric comparison</span>
-              </div>
-              <p className="dashboard-card-helper">
-                Depth score combines read time, structure, and takeaways. Articles shows how many
-                posts exist in that topic, while the dot keeps the topic identity clear.
-              </p>
-              <div className="dashboard-topic-chart">
-                {topics.map((topic) => (
-                  <div className="dashboard-topic-column" key={topic.category}>
-                    <div className="dashboard-topic-bars">
-                      <span
-                        className="dashboard-topic-bar is-depth"
-                        style={
-                          {
-                            "--bar-height": `${Math.max((topic.score / maxTopicScore) * 100, 12)}%`,
-                          } as CSSProperties
-                        }
-                        title={`${topic.category} depth score: ${topic.score}`}
-                      />
-                      <span
-                        className="dashboard-topic-bar is-posts"
-                        style={
-                          {
-                            "--bar-height": `${Math.max((topic.posts / totalBlogCount) * 100, 12)}%`,
-                          } as CSSProperties
-                        }
-                        title={`${topic.category} articles: ${topic.posts}`}
-                      />
-                    </div>
-                    <small>
-                      <i style={{ background: topic.color }} aria-hidden="true" />
-                      {topic.category}
-                    </small>
-                  </div>
-                ))}
-              </div>
-              <div className="dashboard-legend">
-                <span><i className="is-depth" /> Depth score</span>
-                <span><i className="is-posts" /> Articles</span>
-              </div>
-            </article>
-
-            <article className="dashboard-card dashboard-donut-card">
-              <div className="dashboard-card-heading">
-                <h2>Content Distribution</h2>
-                <span>By topic</span>
-              </div>
-              <div
-                className="dashboard-donut"
-                style={{ background: getDashboardDonutGradient(topics) }}
-                aria-hidden="true"
-              >
-                <span />
-              </div>
-              <div className="dashboard-legend is-wrapped">
-                {topics.map((topic) => (
-                  <span key={topic.category}>
-                    <i style={{ background: topic.color }} /> {topic.category}
-                  </span>
-                ))}
-              </div>
-            </article>
-          </div>
-
-          <article className="dashboard-card dashboard-depth-card">
-            <div className="dashboard-card-heading">
-              <h2>Top Content by Reading Depth</h2>
-              <span>Derived from article length and structure</span>
-            </div>
-            <div className="dashboard-article-bars">
-              {topArticles.map((post, index) => (
-                <a
-                  className="dashboard-article-bar"
-                  href={getBlogArticleHref(post.slug)}
-                  key={post.slug}
-                  target="_blank"
-                  rel="opener"
-                  onClick={() =>
-                    trackAnalyticsEvent("blog_open", {
-                      category: post.category,
-                      slug: post.slug,
-                      source: "dashboard_depth",
-                      title: post.title,
-                    })
-                  }
-                  style={
-                    {
-                      "--article-bar": `${Math.max((post.contentScore / maxArticleScore) * 100, 10)}%`,
-                    } as CSSProperties
-                  }
-                >
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <strong>{post.title}</strong>
-                </a>
-              ))}
-            </div>
-          </article>
-
-          <article className="dashboard-card">
-            <div className="dashboard-card-heading">
-              <h2>Most Useful Content</h2>
-              <span>Structured list format</span>
-            </div>
-            <div className="dashboard-table-wrap">
-              <table className="dashboard-table">
-                <thead>
-                  <tr>
-                    <th>Blog title</th>
-                    <th>Topic</th>
-                    <th>Length</th>
-                    <th>Signal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topArticles.slice(0, 5).map((post, index) => (
-                    <tr key={post.slug}>
-                      <td>
-                        <span>{index + 1}</span>
-                        <a
-                          href={getBlogArticleHref(post.slug)}
-                          target="_blank"
-                          rel="opener"
-                          onClick={() =>
-                            trackAnalyticsEvent("blog_open", {
-                              category: post.category,
-                              slug: post.slug,
-                              source: "dashboard_table",
-                              title: post.title,
-                            })
-                          }
-                        >
-                          {post.title}
-                        </a>
-                      </td>
-                      <td>{post.category}</td>
-                      <td>{getEstimatedReadTimeLabel(post)}</td>
-                      <td>{post.stats[0]?.value ?? "Ready"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </article>
-
-          <article className="dashboard-card">
-            <div className="dashboard-card-heading">
-              <h2>Topic Breakdown</h2>
-              <span>Coverage map</span>
-            </div>
-            <div className="dashboard-topic-breakdown">
-              {topics.map((topic) => (
-                <section key={topic.category}>
-                  <h3>{topic.category}</h3>
-                  <p>Blogs: <strong>{topic.posts}</strong></p>
-                  <p>Total read time: <strong>{topic.readMinutes} min</strong></p>
-                </section>
-              ))}
-            </div>
-          </article>
-        </section>
-      </main>
-    </>
-  );
+  return <DashboardView
+    summary={{ articles: blogPosts.length, topics: topics.length, projects: projects.length, averageReadMinutes }}
+    signals={dashboardSignalMetrics.map(metric => ({ label: ANALYTICS_EVENT_LABELS[metric.type], value: formatCompactNumber(analyticsSnapshot.counters[metric.type]), detail: metric.detail }))}
+    totalSignals={formatCompactNumber(totalTrackedSignals)}
+    status={analyticsSourceText}
+    loading={analyticsLoading}
+    events={latestAnalyticsEvents.map(event => ({ label: event.label, title: getAnalyticsEventTitle(event), time: formatAnalyticsSignalTime(event.createdAt) }))}
+    topics={topics}
+    articles={topArticles.map(post => ({ slug: post.slug, title: post.title, category: post.category, href: getBlogArticleHref(post.slug), minutes: getEstimatedReadTimeLabel(post), signal: post.stats[0] ? [post.stats[0].value, post.stats[0].label].join(" ") : "", score: post.contentScore }))}
+    onArticleOpen={slug => {
+      const post = blogPosts.find(item => item.slug === slug);
+      if (post) trackAnalyticsEvent("blog_open", { category: post.category, slug, source: "dashboard_depth", title: post.title });
+    }}
+  />;
 }
 
 type SignInPageProps = SubscriptionAccessCardProps & {
