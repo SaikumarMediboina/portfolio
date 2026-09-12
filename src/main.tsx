@@ -17,6 +17,7 @@ import "./signin-design.css";
 import "./home-refresh.css";
 import "./projects-index.css";
 import "./reader-experience.css";
+import "./expense/expense-studio.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

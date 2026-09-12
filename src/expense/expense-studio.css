@@ -1,0 +1,127 @@
+/* Expense workspace presentation. Data and accounting logic remain in the existing module. */
+:root .expense-page-shell,:root .expense-access-shell{
+ --page-background:#fafaf6;--ink-strong:#242421;--ink:#242421;--ink-soft:#63635d;--accent:#b5422d;--panel-border:#deded5;--panel-soft:#fff;--panel-strong:#fff;
+ background:#fafaf6;color:#242421;font-family:Arial,sans-serif;line-height:1.5;
+}
+.expense-page-shell *,.expense-access-shell *{box-sizing:border-box}
+:root .expense-page{width:min(1120px,calc(100% - 80px));padding:0 0 40px}
+:root .expense-topbar{padding:28px 0;margin:0;border-bottom:1px solid #deded5;gap:24px}
+:root .expense-brand-mark{background:#242421;color:#fafaf6;border:0;border-radius:4px;box-shadow:none;width:44px;height:44px;font-size:17px;flex-shrink:0}
+:root .expense-brand-mark span{color:#ffa58e}
+:root .expense-title-group{min-width:0;gap:16px}
+:root .expense-title-group h1{font:500 clamp(22px,2.4vw,30px)/1.2 Arial;letter-spacing:-.035em;color:#242421;margin:4px 0}
+:root .expense-title-group p{font:12px/1.6 Arial;color:#63635d;overflow-wrap:anywhere;margin:4px 0 0}
+:root .expense-live-line{font:10px/1.5 monospace;letter-spacing:.08em;text-transform:uppercase;color:#63635d}
+:root .expense-live-dot{background:#b5422d;box-shadow:none;width:6px;height:6px;animation:none}
+:root .expense-eyebrow{font:10px/1.5 monospace;letter-spacing:.13em;color:#b5422d;text-transform:uppercase}
+:root .expense-period-bar{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;padding:36px 0 28px;margin:0;background:none;border:0;box-shadow:none;border-radius:0}
+:root .expense-period-bar h2{font:500 clamp(30px,3.5vw,42px)/1.1 Arial;letter-spacing:-.045em;margin:10px 0 0;color:#242421}
+:root .expense-period-actions{display:flex;align-items:flex-end;gap:10px}
+:root .expense-month-control{font:11px/1.5 Arial;color:#63635d;gap:6px}
+:root .expense-period-bar input{height:44px;background:#fff;border:1px solid #d6d5cb;border-radius:3px;padding:8px 10px;color:#242421;font:14px Arial;min-width:0}
+:root .expense-period-action{display:flex;min-height:44px;padding:11px 15px;border:1px solid #d6d5cb;border-radius:3px;background:transparent;color:#242421;box-shadow:none;transform:none;gap:8px}
+:root .expense-period-action span{display:inline;width:auto;height:auto;background:none;color:inherit;font:18px Arial;border:0;border-radius:0}
+:root .expense-period-action strong{font:600 12px Arial}
+:root .expense-period-action.expense-add-trigger{background:#b5422d;border-color:#b5422d;color:#fff}
+:root .expense-button,:root .expense-icon-button{min-height:44px;border-radius:3px;box-shadow:none;transform:none;font:600 12px/1.4 Arial;padding:11px 16px}
+:root .expense-button-primary{background:#b5422d;border:1px solid #b5422d;color:#fff}
+:root .expense-button-secondary,:root .expense-icon-button{background:transparent;border:1px solid #d6d5cb;color:#242421}
+:root .expense-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid #deded5;border-radius:4px;overflow:hidden;margin:0 0 32px;background:#fff}
+:root .expense-summary-grid article{padding:28px;border:0;border-left:1px solid #deded5;background:none;border-radius:0;box-shadow:none;min-width:0}
+:root .expense-summary-grid article:first-child{background:#242421;border-left:0;color:#fafaf6}
+:root .expense-summary-grid article>span{font:11px/1.5 monospace;letter-spacing:.05em;text-transform:uppercase;color:#63635d}
+:root .expense-summary-grid strong{display:block;font:500 clamp(26px,3vw,38px)/1.2 Arial;letter-spacing:-.04em;color:#242421;margin:12px 0;overflow-wrap:anywhere}
+:root .expense-summary-grid small{font:12px/1.6 Arial;color:#63635d}
+:root .expense-summary-grid article:first-child strong{color:#fff}
+:root .expense-summary-grid article:first-child>span,:root .expense-summary-grid article:first-child small{color:#d0d0c6}
+:root .expense-panel{padding:30px;background:#fff;border:1px solid #deded5;border-radius:4px;box-shadow:none}
+:root .expense-panel-heading{border-bottom:1px solid #deded5;padding-bottom:22px;margin-bottom:22px;gap:16px}
+:root .expense-panel-heading h2,:root .expense-invite-banner h2{font:500 26px/1.2 Arial;letter-spacing:-.035em;color:#242421;margin:8px 0}
+:root .expense-panel-heading>span{background:#f3f2eb;color:#63635d;border:0;border-radius:3px;font-size:12px}
+:root .expense-spend-toggle{display:flex;gap:4px;background:#f3f2eb;padding:4px;border:1px solid #deded5;border-radius:4px;box-shadow:none}
+:root .expense-spend-toggle button{min-height:40px;border:0;border-radius:2px;color:#63635d;background:none;font:600 12px Arial;box-shadow:none}
+:root .expense-spend-toggle button.is-active{background:#242421;color:#fff;box-shadow:none}
+:root .expense-chart-layout{grid-template-columns:minmax(220px,.75fr) minmax(0,1.25fr);gap:40px;align-items:center;padding:20px 0}
+:root .expense-pie-visual{padding:20px;background:#fafaf6;border:1px solid #e7e6de;border-radius:4px;box-shadow:none}
+:root .expense-pie-chart{width:min(100%,240px);filter:none}
+:root .expense-pie-outline{stroke:#fafaf6}
+:root .expense-pie-caption strong{font:500 30px/1.2 Arial;color:#242421;letter-spacing:-.04em}
+:root .expense-pie-caption span,:root .expense-pie-caption small{font:12px/1.6 Arial;color:#63635d}
+:root .expense-category-bars{gap:8px;min-width:0}
+:root .expense-category-row{padding:16px 12px;border:1px solid transparent;border-bottom-color:#e7e6de;border-radius:3px;background:none;box-shadow:none;transform:none}
+:root .expense-category-row:hover,:root .expense-category-row.is-active{background:#f3f2eb;border-color:#deded5}
+:root .expense-category-label{gap:12px;color:#242421;font:13px/1.5 Arial}
+:root .expense-category-name{min-width:0;overflow-wrap:anywhere}
+:root .expense-bar-track{height:5px;background:#eeede5;border-radius:2px}
+:root .expense-bar-track i{border-radius:2px;box-shadow:none}
+:root .expense-category-row small,:root .expense-category-click-hint,:root .expense-private-view-note{color:#63635d;font-size:12px}
+:root .expense-private-view-note{background:#f3f2eb;border-radius:3px;border:0}
+:root .expense-invite-banner{padding:24px;margin:24px 0;border:1px solid #deded5;background:#f3f2eb;border-radius:4px;box-shadow:none}
+:root .expense-invite-banner p:not(.expense-eyebrow){color:#63635d;font-size:14px}
+:root .expense-empty-state{padding:48px 24px;background:#fafaf6;border:1px dashed #d6d5cb;border-radius:4px;color:#63635d;box-shadow:none}
+:root .expense-empty-state h3{font:500 24px/1.25 Arial;letter-spacing:-.03em;color:#242421}
+:root .expense-footer{margin-top:28px;padding-top:20px;border-top:1px solid #deded5;font:11px/1.6 Arial;color:#63635d;gap:16px}
+:root .expense-footer a,:root .expense-footer-invite{color:#b5422d}
+:root .expense-access-shell{padding:40px 20px}
+:root .expense-access-card{width:min(100%,560px);padding:40px;border:1px solid #deded5;border-top:3px solid #b5422d;border-radius:4px;background:#fff;box-shadow:none}
+:root .expense-access-card .expense-brand-mark{margin-bottom:28px}
+:root .expense-access-card h1{font:500 clamp(32px,5vw,44px)/1.08 Arial;letter-spacing:-.04em;color:#242421;margin:12px 0 20px}
+:root .expense-access-copy{font:15px/1.7 Arial;color:#63635d}
+:root .expense-access-card .expense-text-link{font-size:13px;color:#b5422d}
+:root .expense-modal-overlay,:root .expense-category-detail{background:#24242166;backdrop-filter:blur(3px);padding:24px}
+:root .expense-modal-sheet,:root .expense-category-detail-sheet{border:1px solid #deded5;border-radius:6px;background:#fafaf6;color:#242421;box-shadow:0 20px 70px #0002;max-height:calc(100dvh - 48px);font-family:Arial,sans-serif}
+:root .expense-modal-header,:root .expense-category-detail-heading{padding:24px 28px;border-bottom:1px solid #deded5;background:#fafaf6}
+:root .expense-modal-header h2,:root .expense-category-detail-heading h3{font:500 28px/1.2 Arial;letter-spacing:-.035em;color:#242421;margin:8px 0}
+:root .expense-modal-header p:not(.expense-eyebrow){color:#63635d;font-size:13px}
+:root .expense-modal-close{min-width:44px;min-height:44px;border:1px solid #d6d5cb;border-radius:3px;background:none;color:#242421}
+:root .expense-modal-content{padding:28px}
+:root .expense-form label,:root .expense-category-form label,:root .expense-recent-filters label{font:12px/1.5 Arial;color:#63635d;min-width:0}
+:root .expense-page-shell input,:root .expense-page-shell select,:root .expense-page-shell textarea,:root .expense-access-shell input{background:#fff;color:#242421;border:1px solid #d6d5cb;border-radius:3px;box-shadow:none;min-height:44px;font:16px/1.5 Arial;max-width:100%}
+:root .expense-amount-field{border:1px solid #d6d5cb;border-radius:3px;background:#fff;box-shadow:none;color:#63635d}
+:root .expense-amount-field input{border:0;background:none}
+:root .expense-category-form{border-top:1px solid #deded5;padding-top:24px;margin-top:28px}
+:root .expense-budget-row{border:1px solid #deded5;border-radius:3px;background:#fff;box-shadow:none;padding:16px}
+:root .expense-budget-intro,:root .expense-invite-explanation{color:#63635d;font-size:14px;line-height:1.7}
+:root .expense-budget-progress{background:#eeede5;border-radius:2px}
+:root .expense-budget-progress i{background:#b5422d}
+:root .expense-table-wrap{border:1px solid #deded5;border-radius:3px;background:#fff}
+:root .expense-table-wrap table{color:#242421;font:13px/1.5 Arial}
+:root .expense-table-wrap th{background:#f3f2eb;color:#63635d;font:10px/1.5 monospace;text-transform:uppercase;letter-spacing:.05em}
+:root .expense-table-wrap td{border-color:#e7e6de;padding:16px 12px}
+:root .expense-category-chip{background:#f3f2eb;color:#63635d;border:1px solid #e7e6de;border-radius:3px;font:11px Arial}
+:root .expense-row-action button{min-width:40px;min-height:40px;border-radius:3px;box-shadow:none}
+:root .expense-message{border-radius:3px;font:13px/1.6 Arial;box-shadow:none}
+:root .expense-page-shell :focus-visible,:root .expense-access-shell :focus-visible{outline:2px solid #b5422d;outline-offset:3px}
+@media(max-width:900px){:root .expense-period-bar{align-items:stretch;flex-direction:column}:root .expense-period-actions{justify-content:flex-start;flex-wrap:wrap}:root .expense-chart-layout{gap:24px}:root .expense-summary-grid article{padding:22px}}
+@media(max-width:600px){
+ :root .expense-page{width:calc(100% - 32px)}
+ :root .expense-topbar{align-items:flex-start;flex-direction:column;padding:24px 0;gap:16px}
+ :root .expense-topbar-actions{display:flex;width:100%;justify-content:flex-end}
+ :root .expense-period-bar{padding:28px 0 24px}
+ :root .expense-period-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+ :root .expense-month-control{grid-column:1/-1;width:100%}
+ :root .expense-period-bar input{width:100%}
+ :root .expense-period-action.expense-add-trigger{grid-column:1/-1;justify-content:center}
+ :root .expense-period-action{justify-content:center}
+ :root .expense-summary-grid{grid-template-columns:1fr 1fr;margin-bottom:24px}
+ :root .expense-summary-grid article{padding:20px 16px}
+ :root .expense-summary-grid article:first-child{grid-column:1/-1;padding:24px}
+ :root .expense-summary-grid strong{font-size:27px}
+ :root .expense-summary-grid article:first-child strong{font-size:40px}
+ :root .expense-summary-grid article:nth-child(2){border-left:0}
+ :root .expense-panel{padding:20px 16px}
+ :root .expense-panel-heading h2{font-size:24px}
+ :root .expense-chart-layout{grid-template-columns:1fr;gap:20px;padding:16px 0}
+ :root .expense-pie-visual{padding:20px}
+ :root .expense-pie-chart{width:190px}
+ :root .expense-invite-banner{padding:20px;align-items:stretch;flex-direction:column}
+ :root .expense-footer{flex-direction:column;align-items:flex-start}
+ :root .expense-access-card{padding:28px 22px}
+ :root .expense-modal-overlay,:root .expense-category-detail{padding:12px}
+ :root .expense-modal-sheet,:root .expense-category-detail-sheet{width:100%;max-height:calc(100dvh - 24px);border-radius:4px}
+ :root .expense-modal-header,:root .expense-category-detail-heading{padding:20px}
+ :root .expense-modal-content{padding:20px}
+ :root .expense-form,:root .expense-recent-filters{grid-template-columns:1fr}
+ :root .expense-field-wide,:root .expense-search-field{grid-column:auto}
+}
+:root .expense-brand-mark{display:flex;align-items:center;justify-content:center;gap:2px}:root .expense-pie-chart{filter:none!important;box-shadow:none!important}:root .expense-pie-slice,:root .expense-category-dot,:root .expense-bar-track i{filter:saturate(.6)}
