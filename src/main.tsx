@@ -14,6 +14,7 @@ import "./reader-menu-design.css";
 import "./dashboard-design.css";
 import "./discovery-pages.css";
 import "./signin-design.css";
+import "./home-refresh.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

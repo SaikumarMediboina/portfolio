@@ -19,7 +19,7 @@ export function selectHomeRadarUpdates(data: unknown, now = Date.now()): Update[
     if (seen.has(item.href)) return false;
     seen.add(item.href);
     return true;
-  }).slice(0, 3);
+  }).slice(0, 2);
 }
 
 export default function HomeAiRadar() {
@@ -40,10 +40,10 @@ export default function HomeAiRadar() {
     return () => { controller.abort(); window.clearTimeout(timeout); };
   }, []);
 
-  return <section className="landing-radar design-container" aria-labelledby="landing-radar-title">
+  return <section className="landing-radar landing-radar-compact" aria-labelledby="landing-radar-title">
     <div className="landing-radar-heading">
       <div><h2 id="landing-radar-title">AI Radar<span aria-hidden="true">.</span></h2><p>AI updates worth your time.</p></div>
-      <a className="landing-radar-all" href="/ai-radar">{updates.length ? "View all updates" : "Explore AI Radar"} <span aria-hidden="true">↗</span></a>
+
     </div>
     {updates.length > 0 && <ul className="landing-radar-list">{updates.map(update => <li key={update.href}>
       <a className="landing-radar-row" href={update.href} target="_blank" rel="noreferrer">
@@ -51,5 +51,6 @@ export default function HomeAiRadar() {
         <span className="landing-radar-meta"><span>{update.source}</span><time dateTime={update.publishedAt}>{new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(update.publishedAt))}</time></span>
       </a>
     </li>)}</ul>}
+      <a className="landing-radar-all" href="/ai-radar">{updates.length ? "View all updates" : "Explore AI Radar"} <span aria-hidden="true">↗</span></a>
   </section>;
 }

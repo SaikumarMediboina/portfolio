@@ -1,0 +1,31 @@
+/* Introduction and a quiet Radar preview; work details live in Portfolio. */
+.landing-hero { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(0,1fr); gap: 64px; align-items: center; padding-block: 64px 56px; }
+.landing-hero .landing-intro { padding: 0; min-width: 0; }
+.landing-hero .landing-intro h1 { font-size: clamp(50px,6.1vw,78px); }
+.landing-hero .landing-description { font-size: clamp(19px,1.9vw,23px); max-width: 44ch; }
+.landing-hero .landing-radar-compact { min-width: 0; width: auto; margin: 0; padding: 8px 0 8px 32px; border: 0; border-left: 1px solid var(--design-line); }
+.landing-radar-compact .landing-radar-heading { display: block; }
+.editorial-home .landing-radar-compact h2 { color: var(--design-orange); font-size: 18px; letter-spacing: -.02em; }
+.landing-radar-compact .landing-radar-heading p { font-size: 12px; margin-top: 8px; }
+.landing-radar-compact .landing-radar-list { margin-top: 20px; }
+.landing-radar-compact .landing-radar-row { display: block; padding: 18px 0; }
+.editorial-home .landing-radar-compact .landing-radar-row h3 { font-size: 16px; font-weight: 500; line-height: 1.5; }
+.landing-radar-compact .landing-radar-meta { margin-top: 10px; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; }
+.editorial-home .landing-radar-compact .landing-radar-all { margin-top: 8px; font-size: 12px; }
+.editorial-home .landing-current { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 40px; align-items: center; padding: 32px; margin-bottom: 48px; background: #242421; color: #fafaf6; border-radius: 4px; box-sizing: border-box; }
+.editorial-home .landing-current .design-label { color: #efa885; }
+.editorial-home .landing-current h2 { color: #fafaf6; margin-top: 12px; font-size: clamp(27px,3vw,34px); }
+.landing-current h2 > span { color: #efa885; }
+.editorial-home .landing-current-description { color: #cfcec4; font-size: 14px; line-height: 1.8; max-width: 64ch; margin-top: 14px; }
+.landing-current-actions { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.editorial-home .landing-current-actions a { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; font-size: 13px; color: #efa885; }
+.landing-current-actions a:first-child { border-bottom: 1px solid #55544c; }
+.landing-current-actions a:focus-visible { outline: 2px solid #efa885; outline-offset: 4px; }
+@media(max-width:900px) {
+ .landing-hero { grid-template-columns: minmax(0,1fr); gap: 32px; padding-block: 40px; }
+ .landing-hero .landing-intro h1 { font-size: clamp(50px,8vw,72px); }
+ .landing-hero .landing-radar-compact { border-left: 0; border-top: 1px solid var(--design-line); padding: 28px 0 0; }
+ .landing-radar-compact .landing-radar-list { margin-top: 16px; }
+ .editorial-home .landing-current { grid-template-columns: minmax(0,1fr); gap: 20px; padding: 28px 24px; margin-bottom: 36px; }
+ .landing-current-actions { align-items: flex-start; }
+}
