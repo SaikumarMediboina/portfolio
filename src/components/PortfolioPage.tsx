@@ -61,9 +61,7 @@ export default function PortfolioPage() {
           <summary><span>Licenses & certifications</span><span>{certifications.length} entries</span></summary>
           <ul>{certifications.map((item) => <li key={`${item.title}-${item.year}`}>
             <span>{item.title}<small>{item.issuer}</small>
-              {item.credentialId && <small>Credential ID: {item.credentialId}</small>}
             </span>
-            <span>{item.issued ? `Issued ${item.issued}` : item.year}</span>
           </li>)}</ul>
         </details>
       </section>
