@@ -37,22 +37,15 @@ export default function PortfolioPage() {
 
       <section className="folio-work" id="work" aria-labelledby="folio-work-title">
         <div className="folio-section-title"><p className="folio-kicker">01 / Selected work</p><h2 id="folio-work-title">The systems behind the results.</h2><p>Three projects across applied AI, performance, and search architecture.</p></div>
-        {featured.map((project, index) => <article className="folio-project" key={project.slug}>
-          <figure className="folio-diagram">
-            <figcaption><span>0{index + 1}</span>{["Grounded answers", "Faster batch screening", "Search closer to data"][index]}</figcaption>
-            <ol>{project.architecture.map((step, stepIndex) => <li key={step}><span className="folio-node-index">0{stepIndex + 1}</span><span>{step}</span></li>)}</ol>
-            <p>{["Retrieve → rank → respond", "Less waiting. More throughput.", "From OpenSearch to Oracle Text"][index]}</p>
-          </figure>
-          <div className="folio-project-copy">
-            <p className="folio-kicker">{["Applied AI / Full stack", "Backend / Performance", "Search / Architecture"][index]}</p>
+        <div className="folio-project-grid">
+          {featured.map((project, index) => <article className="folio-work-card" key={project.slug}>
+            <p className="folio-kicker">0{index + 1} / {["Applied AI", "Performance", "Search architecture"][index]}</p>
             <h3><a href={`/projects/${project.slug}`}>{project.name}</a></h3>
-            <p>{project.problem}</p>
-            <p><strong>My contribution.</strong> {project.contribution}</p>
-            <p className="folio-result">{project.result}</p>
-            <p className="folio-stack">{project.stack.slice(0, 4).join(" · ")}</p>
-            <a className="folio-project-link" href={`/projects/${project.slug}`}>Read case study <span aria-hidden="true">↗</span></a>
-          </div>
-        </article>)}
+            <p className="folio-work-summary">{project.summary}</p>
+            <p className="folio-work-outcome">{project.result}</p>
+            <a className="folio-work-link" href={`/projects/${project.slug}`}>Read case study <span aria-hidden="true">↗</span></a>
+          </article>)}
+        </div>
         <div className="folio-more"><h3>More engineering work</h3><ul>{projects.filter((project) => !selectedSlugs.includes(project.slug)).map((project) => <li key={project.slug}><a href={`/projects/${project.slug}`}><span>{project.name}</span><span aria-hidden="true">↗</span></a></li>)}</ul></div>
       </section>
 
