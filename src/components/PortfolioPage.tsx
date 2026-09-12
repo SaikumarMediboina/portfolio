@@ -16,7 +16,7 @@ export default function PortfolioPage() {
       <a className="folio-wordmark" href="/" aria-label="Sai Kumar Mediboina home">SKM<span aria-hidden="true">.</span></a>
       <nav aria-label="Portfolio navigation">
         <a href="#work">Work</a><a href="#experience">Experience</a><a href="#contact">Contact</a>
-        <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Résumé ↗</a>
+        <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Resume ↗</a>
       </nav>
     </header>
     <main id="main-content" className="folio-container">
@@ -25,7 +25,7 @@ export default function PortfolioPage() {
         <h1 id="folio-name">Sai Kumar<br />Mediboina<span>.</span></h1>
         <p className="folio-position">Software Application Engineer at Oracle <span>· NITK alumnus</span></p>
         <p className="folio-statement">Building reliable backend systems, search platforms, and practical AI applications.</p>
-        <div className="folio-actions"><a className="folio-primary" href="#work">View work <span aria-hidden="true">↓</span></a><a className="folio-secondary" href="/SaiKumarResume.pdf" download>Download résumé <span aria-hidden="true">↗</span></a></div>
+        <div className="folio-actions"><a className="folio-primary" href="#work">View work <span aria-hidden="true">↓</span></a><a className="folio-secondary" href="/SaiKumarResume.pdf" download>Download Resume <span aria-hidden="true">↗</span></a></div>
         <div className="folio-social"><a href={`mailto:${profile.email}`}>Email</a><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a></div>
       </section>
 
@@ -69,7 +69,7 @@ export default function PortfolioPage() {
         </details>
       </section>
 
-      <section className="folio-contact" id="contact" aria-labelledby="folio-contact-title"><p className="folio-kicker">03 / Get in touch</p><h2 id="folio-contact-title">Discuss a backend<br />or applied AI role.</h2><p>Happy to talk through the systems, decisions, and trade-offs behind my work.</p><div className="folio-actions"><a className="folio-primary" href={`mailto:${profile.email}`}>Email Sai <span aria-hidden="true">↗</span></a><a className="folio-secondary" href="/SaiKumarResume.pdf" download>Download résumé</a></div></section>
+      <section className="folio-contact" id="contact" aria-labelledby="folio-contact-title"><p className="folio-kicker">03 / Get in touch</p><h2 id="folio-contact-title">Discuss a backend<br />or applied AI role.</h2><p>Happy to talk through the systems, decisions, and trade-offs behind my work.</p><div className="folio-actions"><a className="folio-primary" href={`mailto:${profile.email}`}>Email Sai <span aria-hidden="true">↗</span></a><a className="folio-secondary" href="/SaiKumarResume.pdf" download>Download Resume</a></div></section>
     </main>
     <footer className="folio-footer folio-container"><a href="/">Sai Kumar Mediboina</a><nav aria-label="Explore more"><a href="/blogs">Writing</a><a href="/learn-with-me">Learning</a><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a><a href="#top">Back to top ↑</a></nav></footer>
   </div>;

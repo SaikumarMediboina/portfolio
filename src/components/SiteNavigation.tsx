@@ -69,7 +69,7 @@ export default function SiteNavigation({ children, inlineActions = false, minima
         if ((event.target as HTMLElement).closest("a")) setOpen(false);
       }}>
         {primary.map(([href, label]) => <a key={href} href={href} aria-current={path === href ? "page" : undefined}>{label}</a>)}
-        <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Résumé ↗</a>
+        <a href="/SaiKumarResume.pdf" target="_blank" rel="noreferrer">Resume ↗</a>
         <details className="unified-explore" ref={details}><summary>Explore</summary><div>{explore.map(([href, label]) => <a key={href} href={href}>{label}</a>)}</div></details>
         {normalizedPath === "/" && <HeaderAccount />}
         {inlineActions && children && <div className="unified-context unified-inline-actions">{children}</div>}

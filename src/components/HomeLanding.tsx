@@ -10,7 +10,7 @@ export default function HomeLanding({ post, onRead }: { post?: BlogPost; onRead:
       <h1>Sai Kumar<br />Mediboina<span>.</span></h1>
       <p className="landing-role">Software Application Engineer at Oracle <span>· NITK alumnus</span></p>
       <p className="landing-description">I build reliable backend systems, search platforms, and practical AI applications.</p>
-      <div className="design-actions"><a className="design-primary" href="/portfolio">View portfolio ↗</a><a className="design-secondary" href="/SaiKumarResume.pdf" download>Download résumé</a></div>
+      <div className="design-actions"><a className="design-primary" href="/portfolio">View portfolio ↗</a><a className="design-secondary" href="/SaiKumarResume.pdf" download>Download Resume</a></div>
       <div className="landing-social"><a href={`mailto:${profile.email}`}>Email</a><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a></div>
     </section>
     <HomeAiRadar />
