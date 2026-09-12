@@ -1442,26 +1442,11 @@ export default function ExpenseTrackerPage({
           </div>
         </header>
 
+        <div className="expense-navigation-actions">
         <nav className="expense-workspace-tabs" aria-label="Expense workspace">{(["overview", "compare", "transactions"] as const).map(tab=><button type="button" key={tab} aria-current={activeTab === tab ? "page" : undefined} onClick={()=>setActiveTab(tab)}>{tab[0].toUpperCase()+tab.slice(1)}</button>)}</nav>
-        <section className="expense-period-bar">
-          <div>
-            <p className="expense-eyebrow">
-              {isSharedWorkspace ? "Household overview" : "Personal overview"}
-            </p>
-            <h2>{activeTab === "overview" ? monthLabel(selectedMonth) : activeTab === "compare" ? "Compare months" : "Transactions"}</h2>
-          </div>
-          <div className="expense-period-actions">
-            {activeTab === "overview" && <label className="expense-month-control">
-              View month
-              <input
-                max={currentMonth()}
-                onChange={(event) => setSelectedMonth(event.target.value)}
-                type="month"
-                value={selectedMonth}
-              />
-            </label>}
+          <div className="expense-global-action" hidden={Boolean(expenseDialog) || Boolean(selectedCategoryName)}>
             <button
-              className="expense-period-action expense-add-trigger"
+              className="expense-button expense-button-primary expense-global-add"
               onClick={() => {
                 setError("");
                 setFeedback("");
@@ -1472,15 +1457,34 @@ export default function ExpenseTrackerPage({
               <span aria-hidden="true">+</span>
               <strong>Add expense</strong>
             </button>
+          </div>
+        </div>
+        <section className="expense-period-bar">
+          <div>
+            <p className="expense-eyebrow">
+              {isSharedWorkspace ? "Shared workspace" : "Personal workspace"}
+            </p>
+            <h2>{activeTab === "overview" ? monthLabel(selectedMonth) : activeTab === "compare" ? "Compare months" : "Transactions"}</h2>
+          </div>
+          {activeTab === "overview" && <div className="expense-period-actions">
+            {activeTab === "overview" && <label className="expense-month-control">
+              View month
+              <input
+                max={currentMonth()}
+                onChange={(event) => setSelectedMonth(event.target.value)}
+                type="month"
+                value={selectedMonth}
+              />
+            </label>}
+
             <button
-              className="expense-period-action"
+              className="expense-manage-budgets"
               onClick={openBudgets}
               type="button"
             >
-              <span aria-hidden="true">₹</span>
-              <strong>Budgets</strong>
+              Manage budgets
             </button>
-          </div>
+          </div>}
         </section>
 
         <div hidden={activeTab !== "overview"}>
