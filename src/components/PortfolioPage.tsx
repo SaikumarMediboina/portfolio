@@ -62,7 +62,6 @@ export default function PortfolioPage() {
           <ul>{certifications.map((item) => <li key={`${item.title}-${item.year}`}>
             <span>{item.title}<small>{item.issuer}</small>
               {item.credentialId && <small>Credential ID: {item.credentialId}</small>}
-              {item.credentialUrl && <a className="folio-credential-link" href={item.credentialUrl} target="_blank" rel="noreferrer">Show credential ↗</a>}
             </span>
             <span>{item.issued ? `Issued ${item.issued}` : item.year}</span>
           </li>)}</ul>

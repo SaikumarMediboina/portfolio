@@ -16,6 +16,7 @@ import "./discovery-pages.css";
 import "./signin-design.css";
 import "./home-refresh.css";
 import "./projects-index.css";
+import "./reader-experience.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

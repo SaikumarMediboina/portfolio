@@ -207,18 +207,18 @@ function AnimatedStat({ value, label }: { value: string; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
   const [displayValue, setDisplayValue] = useState(value);
-  
+
   useEffect(() => {
     if (shouldReduceMotion) return;
-    
+
     const match = value.match(/^([\d,.]+)(.*)$/);
     if (!match) return;
-    
+
     const numericPart = parseFloat(match[1].replace(/,/g, ''));
     const suffix = match[2];
-    
+
     if (isNaN(numericPart)) return;
-    
+
     if (isInView) {
       const controls = animate(0, numericPart, {
         duration: 1.2,
@@ -5107,12 +5107,13 @@ function SiteAssistant({
 
   return (
     <div
-      className={`site-assistant${isOpen ? " is-open" : ""}${isSuppressed ? " is-suppressed" : ""}`}
+      className={`site-assistant assistant-studio${isOpen ? " is-open" : ""}${isSuppressed ? " is-suppressed" : ""}`}
     >
       <button
         className="assistant-launcher"
         type="button"
         aria-expanded={isOpen}
+        aria-controls="sai-assistant-panel"
         aria-label={isOpen ? "Close portfolio assistant" : "Open portfolio assistant"}
         onClick={toggleAssistant}
       >
@@ -5121,6 +5122,7 @@ function SiteAssistant({
 
       <section
         className="assistant-panel"
+        id="sai-assistant-panel"
         aria-label="Portfolio assistant"
         aria-hidden={!isOpen}
         inert={!isOpen}
@@ -5138,7 +5140,7 @@ function SiteAssistant({
               <h2>
                 Sai&apos;s Assistant <span className="assistant-beta-badge">BETA</span>
               </h2>
-              <p>Always here to help</p>
+              <p>Projects, writing & engineering</p>
             </div>
           </div>
           <div className="assistant-header-actions">
@@ -5185,7 +5187,7 @@ function SiteAssistant({
                   ) : null}
                   {message.role === "assistant" && typeof message.responseTimeMs === "number" ? (
                     <small className="assistant-response-time">
-                      Time taken: {formatAssistantResponseTime(message.responseTimeMs)}
+                      Answered in {formatAssistantResponseTime(message.responseTimeMs)}
                     </small>
                   ) : null}
                   {message.citations?.length ? (
@@ -5273,11 +5275,11 @@ function SiteAssistant({
           <input
             type="text"
             value={input}
-            placeholder="Ask about Sai, projects, blogs, or AI..."
+            placeholder="Ask a question…"
             aria-label="Ask the portfolio assistant"
             onChange={(event) => setInput(event.target.value)}
           />
-          <button type="submit" aria-label="Send assistant message">
+          <button type="submit" aria-label="Send assistant message" disabled={!input.trim()}>
             <AssistantSendIcon />
           </button>
         </form>
@@ -6776,14 +6778,14 @@ function NewsletterCallout({
       ? newsletterAlreadySubscribed
         ? "You're already on the list"
         : "You're subscribed"
-      : "Join the Newsletter";
+      : "Good notes. In your inbox.";
   const newsletterDescription = subscriberUser
     ? isSubscribed
-      ? `Updates will go to ${subscriberEmail}. You can unsubscribe from your profile menu or from any email.`
+      ? `Updates will go to ${subscriberEmail}. You can unsubscribe from Reader tools or from any email.`
       : `Use ${subscriberEmail} for selected deep dives, engineering notes, and meaningful portfolio updates.`
     : newsletterIsConfirmed
       ? "Future deep dives and engineering notes will land in your inbox when there is something worth opening."
-      : "Get notified when new deep dives, engineering notes, and meaningful portfolio updates are published. No spam.";
+      : "Get notified when new deep dives, engineering notes, and meaningful portfolio updates are published. Unsubscribe anytime.";
 
   const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -6844,10 +6846,8 @@ function NewsletterCallout({
   };
 
   return (
-    <section className="newsletter-callout" id="newsletter" aria-label="Subscribe to updates">
-      <div className="newsletter-icon" aria-hidden="true">
-        <ReaderMenuGlyph type="mail" />
-      </div>
+    <section className="newsletter-callout newsletter-studio" id="newsletter" aria-label="Subscribe to updates">
+
       <div>
         <p className="eyebrow">Newsletter</p>
         <h2>{newsletterTitle}</h2>
@@ -9524,7 +9524,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
         "A tiered HLD path covering scaling, storage, databases, messaging, failures, coordination, and availability.",
       href: DISTRIBUTED_CONCEPTS_PATH,
       icon: "spark",
-      label: "Track 02 · Open",
+      label: "Track 02 · Available",
       title: "Distributed Concepts",
     },
     {
@@ -9624,8 +9624,6 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
         Skip to learn with me
       </a>
 
-      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
-      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
       {!isDistributedArticlePage ? (
       <SiteNavigation>
@@ -9635,19 +9633,19 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
       ) : null}
 
       <main
-        className={`guide-page learn-page shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page routing-course-page" : ""}`}
+        className={`guide-page learn-page learning-studio shell${isDistributedHubPage ? " distributed-hub-page" : ""}${isDistributedArticlePage ? " distributed-article-page routing-course-page" : ""}`}
         id="main-content"
       >
         {accessGranted && !isDistributedArticlePage && (
           <div className="learn-session-actions">
-            <button className="button button-secondary" type="button" onClick={handleLearnAccessLogout}>Logout</button>
+            <button className="button button-secondary" type="button" onClick={handleLearnAccessLogout}>Lock learning room</button>
           </div>
         )}
         {!accessGranted ? (
           <section className="learn-access-panel" aria-labelledby="learn-access-title">
             <div className="learn-access-copy">
-              <p className="eyebrow">Protected Learning Room</p>
-              <h1 id="learn-access-title">Enter the password to open Learn With Me.</h1>
+              <p className="eyebrow">Learn With Me / Early access</p>
+              <h1 id="learn-access-title">Build your understanding. One concept at a time.</h1>
               <p>
                 This space is reserved for selected learning notes, experiments, and early drafts.
                 Once the password is verified, the room opens for this browser session.
@@ -9779,7 +9777,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
           <>
             <section className="guide-hero learn-hero">
               <p className="eyebrow">Learn With Me</p>
-              <h1>Small lessons for strong computer science foundations.</h1>
+              <h1>Understand the idea. Build with it.</h1>
               <p>
                 A learning space for simple, practical explanations of backend systems, CS
                 fundamentals, search architecture, and AI workflows. The goal is clarity first,
@@ -9797,7 +9795,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
                     <span>{track.label}</span>
                     <h2>{track.title}</h2>
                     <p>{track.detail}</p>
-                    {track.href ? <small>Open learning path <b aria-hidden="true">→</b></small> : null}
+                    {track.href ? <small>Explore lessons <b aria-hidden="true">↗</b></small> : <small>In development</small>}
                   </>
                 );
 
@@ -9814,7 +9812,7 @@ function LearnWithMePage({ theme, onThemeToggle }: LearnWithMePageProps) {
             <section className="learn-flow-panel" aria-label="Learning format">
               <div>
                 <p className="eyebrow">Format</p>
-                <h2>Each topic will stay simple, visual, and useful.</h2>
+                <h2>From first principles to working systems.</h2>
                 <p>
                   I will keep this section friendly for new learners while still connecting concepts
                   to real backend engineering work.
@@ -10868,21 +10866,18 @@ function SavedPostsPage({
         Skip to saved posts
       </a>
 
-      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
-      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
 
       <SiteNavigation>
 <PageBackButton fallbackHref="/blogs" label="Back" />
       </SiteNavigation>
 
-      <main className="saved-posts-page shell" id="main-content">
+      <main className="saved-posts-page reader-studio shell" id="main-content">
         <section className="saved-posts-panel">
           <div className="saved-posts-hero">
             <p className="eyebrow">Saved Posts</p>
-            <h1>Your private reading shelf, minus the dust.</h1>
+            <h1>Keep the ideas worth returning to.</h1>
             <p>
-              Articles and AI Radar stories you save appear here in a clean list, with tags that
-              make each useful note easy to reopen when the coffee is ready.
+              Engineering notes and AI Radar stories, saved in one place. Pick up where you left off.
             </p>
             {subscriberUser ? (
               <div className="saved-posts-count" aria-label={`${savedPostCount} saved posts`}>
@@ -10903,15 +10898,14 @@ function SavedPostsPage({
             <div className="saved-posts-empty">
               <ReaderMenuGlyph type="bookmark" />
               <h2>Checking your reader shelf.</h2>
-              <p>The bookmarks are putting on their shoes. One second.</p>
+              <p>Loading your saved articles and updates.</p>
             </div>
           ) : !subscriberUser ? (
             <div className="saved-posts-empty">
               <ReaderMenuGlyph type="bookmark" />
-              <h2>Sign in to open your saved-posts shelf.</h2>
+              <h2>Your reading list starts here.</h2>
               <p>
-                Your private list lives behind sign-in, so bookmarks do not wander off into the
-                internet wearing someone else&apos;s jacket.
+                Sign in to keep useful articles and AI updates together, ready for your next visit.
               </p>
               <a className="button button-primary" href={getSavedPostsSignInHref()}>
                 Sign in to view saved posts
@@ -10960,7 +10954,7 @@ function SavedPostsPage({
                           ))}
                           {item.date ? <span>{item.date}</span> : null}
                         </div>
-                        <h2>{item.title}</h2>
+                        <h2><a href={item.href}>{item.title}</a></h2>
                         <p>{item.summary}</p>
                       </div>
                       <div className="saved-posts-actions">
@@ -10968,7 +10962,7 @@ function SavedPostsPage({
                           className="button button-primary"
                           href={item.href}
                           target="_blank"
-                          rel="opener"
+                          rel="noopener noreferrer"
                         >
                           {item.actionLabel}
                         </a>
@@ -10989,8 +10983,7 @@ function SavedPostsPage({
                   <ReaderMenuGlyph type="bookmark" />
                   <h2>No saved posts under {selectedSavedTag} yet.</h2>
                   <p>
-                    That tag shelf is still waiting for its first resident. Switch back to All or
-                    save something new from Blogs or AI Radar.
+                    Choose another topic or show all your saved articles and updates.
                   </p>
                   <button
                     className="button button-primary"
@@ -11005,14 +10998,13 @@ function SavedPostsPage({
           ) : (
             <div className="saved-posts-empty">
               <ReaderMenuGlyph type="bookmark" />
-              <h2>Your saved shelf is impressively empty.</h2>
+              <h2>A little space for your next good read.</h2>
               <p>
-                Go rescue one sharp engineering note from the blog section, and this quiet little
-                shelf will instantly look productive.
+                Save an article from Writing or an update from AI Radar. Find it here whenever you need it.
               </p>
               <a className="button button-primary" href="/blogs">
-                Browse blogs
-              </a>
+                Browse writing ↗
+              </a><a className="reader-secondary-link" href="/ai-radar">Explore AI Radar ↗</a>
             </div>
           )}
         </section>
