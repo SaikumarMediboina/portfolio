@@ -2,7 +2,7 @@ import HeaderAccount from "./HeaderAccount";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const primary = [
-  ["/start-here", "Start Here"],
+  ["/start", "Start Here"],
   ["/portfolio", "Portfolio"], ["/blogs", "Writing"], ["/active-builds", "Active Builds"], ["/work-with-me", "Contact"],
 ];
 const explore = [
