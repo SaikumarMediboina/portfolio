@@ -182,3 +182,5 @@
 }
 :root .expense-topbar{position:static!important;top:auto!important}:root .expense-workspace-tabs{position:static;min-height:58px}
 @media(max-width:600px){:root .expense-topbar{flex-direction:row;align-items:center;gap:12px}:root .expense-title-group{flex:1}:root .expense-topbar-actions{width:auto;flex:0 0 auto}:root .expense-period-actions>.expense-period-action{grid-column:1/-1}}
+
+.expense-reminders{margin-top:28px;border:1px solid #deded5;border-radius:4px;background:#fff;color:#242421;font:14px/1.7 Arial}.expense-reminders summary{padding:20px;cursor:pointer;display:flex;justify-content:space-between;gap:16px;font-weight:600}.expense-reminders summary span{font-weight:400;color:#63635d}.expense-reminders>div{padding:0 20px 20px;max-width:700px}.expense-reminders label{display:flex;align-items:center;gap:10px}.expense-reminders input[type=checkbox]{width:18px!important;min-height:18px!important;accent-color:#b5422d}.expense-reminder-actions{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.expense-reminders small{color:#63635d}

@@ -1,0 +1,16 @@
+{
+  "id": "/expenses",
+  "name": "Expense Tracker",
+  "short_name": "Expenses",
+  "start_url": "/expenses",
+  "scope": "/expenses",
+  "display": "standalone",
+  "background_color": "#fafaf6",
+  "theme_color": "#fafaf6",
+  "icons": [
+    {
+      "src": "/profile-avatar.png",
+      "type": "image/png", "sizes": "512x512"
+    }
+  ]
+}

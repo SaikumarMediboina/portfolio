@@ -25,6 +25,7 @@ import {
 } from "./firestore";
 import "./ExpenseTrackerPage.css";
 import ExpenseCompare from "./ExpenseCompare";
+import ExpenseReminders from "./ExpenseReminders";
 
 type ExpenseTrackerPageProps = {
   authBusy: boolean;
@@ -269,6 +270,12 @@ export default function ExpenseTrackerPage({
   onSignOut,
   user,
 }: ExpenseTrackerPageProps) {
+  useEffect(() => {
+    const manifest = document.createElement("link");
+    manifest.rel = "manifest"; manifest.href = "/expense-manifest.webmanifest";
+    document.head.appendChild(manifest);
+    return () => manifest.remove();
+  }, []);
   const inviteToken = useMemo(getInviteToken, []);
   const personalInviteToken = useMemo(getPersonalInviteToken, []);
   const [access, setAccess] = useState<ExpenseAccessState | null>(null);
@@ -312,6 +319,15 @@ export default function ExpenseTrackerPage({
       ? { kind: "personal", userId: access.personalProfile.id }
       : null;
   }, [access?.member, access?.personalProfile]);
+  useEffect(() => {
+    if (!dataReady || !workspace) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("add") === "1") {
+      setExpenseDialog("add");
+      url.searchParams.delete("add");
+      window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    }
+  }, [dataReady, workspace]);
   const currentMember = access?.member ?? access?.personalProfile ?? null;
   const isSharedWorkspace = workspace?.kind === "shared";
 
@@ -1968,6 +1984,7 @@ export default function ExpenseTrackerPage({
           </section>
         ) : null}
 
+        <ExpenseReminders user={user} />
         <footer className="expense-footer">
           <span>
             <i className="expense-live-dot" /> Firestore real-time sync
