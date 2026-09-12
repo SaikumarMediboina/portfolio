@@ -12322,7 +12322,7 @@ function App() {
           {page}
         </motion.div>
       </AnimatePresence>
-      {currentPathname !== "/" && !currentPathname.startsWith("/projects/") && <div className="site-newsletter-footer shell">
+      {!currentPathname.startsWith("/projects/") && <div className="site-newsletter-footer shell">
         <NewsletterCallout
           isSubscribed={isSubscribed}
           subscriberEmail={subscriberEmail}
