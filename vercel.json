@@ -42,6 +42,7 @@
   ],
   "redirects": [{ "source": "/start-here", "destination": "/start", "permanent": true }],
   "rewrites": [
+    { "source": "/projects", "destination": "/index.html" },
     {
       "source": "/projects/:slug",
       "destination": "/index.html"

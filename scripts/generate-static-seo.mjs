@@ -258,6 +258,7 @@ const baseMetadata = {
 };
 
 const staticRoutes = [
+  withStructuredData({ ...baseMetadata, canonicalPath: "/projects", title: getSeoTitle("Projects"), description: "Engineering case studies across backend systems, search, performance, and applied AI. Explore the problems, decisions, and reported outcomes.", priority: "0.9", type: "website" }),
   withStructuredData(baseMetadata),
   withStructuredData({
     ...baseMetadata,

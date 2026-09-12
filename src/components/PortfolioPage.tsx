@@ -46,7 +46,7 @@ export default function PortfolioPage() {
             <a className="folio-work-link" href={`/projects/${project.slug}`}>Read case study <span aria-hidden="true">↗</span></a>
           </article>)}
         </div>
-        <div className="folio-more"><h3>More engineering work</h3><ul>{projects.filter((project) => !selectedSlugs.includes(project.slug)).map((project) => <li key={project.slug}><a href={`/projects/${project.slug}`}><span>{project.name}</span><span aria-hidden="true">↗</span></a></li>)}</ul></div>
+        <div className="folio-project-index"><p>Explore all {projects.length} engineering case studies.</p><a href="/projects">View all projects <span aria-hidden="true">↗</span></a></div>
       </section>
 
       <section className="folio-experience" id="experience" aria-labelledby="folio-experience-title">

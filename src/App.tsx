@@ -18,6 +18,7 @@ import {
 } from "firebase/auth";
 import { blogPosts, type BlogPost } from "./data/blogs";
 import ProjectPage from "./components/ProjectPage";
+import ProjectsIndex from "./components/ProjectsIndex";
 import PortfolioPage from "./components/PortfolioPage";
 import SiteNavigation from "./components/SiteNavigation";
 import { HeaderAccountContext } from "./components/HeaderAccount";
@@ -798,6 +799,9 @@ function getSeoMetadata({
   standaloneBlog?: BlogPost;
 }): SeoMetadata {
   const projectPath = typeof window === "undefined" ? "" : window.location.pathname.replace(/\/$/, "");
+  if (projectPath === "/projects") {
+    return { analyticsTitle: "Projects", canonicalPath: "/projects", description: "Engineering case studies across backend systems, search, performance, and applied AI. Explore the problems, decisions, and reported outcomes.", imageAlt: "Engineering projects by Sai Kumar Mediboina", imagePath: DEFAULT_SEO_IMAGE_PATH, structuredData: [getPersonStructuredData(), getWebsiteStructuredData()], title: getSeoTitle("Projects"), type: "website" };
+  }
   if (projectPath.startsWith("/projects/")) {
     const project = projects.find((item) => `/projects/${item.slug}` === projectPath);
     return {
@@ -12347,6 +12351,10 @@ function App() {
 
   if (isPortfolioPage) {
     return renderWithHeaderAccount(<PortfolioPage />);
+  }
+
+  if (currentPathname.replace(/\/$/, "") === "/projects") {
+    return renderWithAssistant(<ProjectsIndex />);
   }
 
   if (currentPathname.startsWith("/projects/")) {

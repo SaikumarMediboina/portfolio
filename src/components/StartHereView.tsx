@@ -2,7 +2,7 @@ import SiteNavigation from "./SiteNavigation";
 
 type StartHereViewProps = { articleCount: number; projectCount: number; updates: { href: string; title: string; category: string; date: string; dateLabel: string }[] };
 const directory = [
-  { title: "The work", note: "Experience and systems built in practice.", links: [["/portfolio", "Portfolio"], ["/portfolio#work", "Selected projects"], ["/portfolio#experience", "Experience"], ["/portfolio#credentials", "Education & credentials"], ["/about", "About Sai"]] },
+  { title: "The work", note: "Experience and systems built in practice.", links: [["/portfolio", "Portfolio"], ["/projects", "All case studies"], ["/portfolio#experience", "Experience"], ["/portfolio#credentials", "Education & credentials"], ["/about", "About Sai"]] },
   { title: "Ideas & experiments", note: "Learn something. See it put to work.", links: [["/blogs", "Writing"], ["/ai-radar", "AI Radar"], ["/active-builds", "Active Builds"], ["/active-builds/sai-assistant", "Sai’s Assistant"], ["/learn-with-me", "Learn With Me"]] },
   { title: "Your next stop", note: "Keep reading, follow along, or get in touch.", links: [["/saved-posts", "Saved Posts"], ["/shelf", "Sai’s Shelf"], ["/dashboard", "Dashboard"], ["/whats-new", "What’s New"], ["/work-with-me", "Work With Me"]] },
 ];
