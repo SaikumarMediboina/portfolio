@@ -12438,7 +12438,6 @@ function App() {
   if (isExpenseTrackerPage) {
     return renderWithHeaderAccount(
       <>
-      <SiteNavigation minimal />
       <ExpenseTrackerPage
         authBusy={subscriptionBusy}
         authError={subscriptionError}

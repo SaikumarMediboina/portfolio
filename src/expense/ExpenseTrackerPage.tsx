@@ -24,6 +24,7 @@ import {
   type ExpenseWorkspace,
 } from "./firestore";
 import "./ExpenseTrackerPage.css";
+import ExpenseCompare from "./ExpenseCompare";
 
 type ExpenseTrackerPageProps = {
   authBusy: boolean;
@@ -285,6 +286,9 @@ export default function ExpenseTrackerPage({
   const [expenseDate, setExpenseDate] = useState(today);
   const [newCategory, setNewCategory] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [activeTab, setActiveTab] = useState<"overview" | "compare" | "transactions">("overview");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [spendView, setSpendView] = useState<SpendView>("all");
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
   const [expenseDialog, setExpenseDialog] = useState<ExpenseDialog>(null);
@@ -477,7 +481,7 @@ export default function ExpenseTrackerPage({
       (category) => category.id === expenseCategoryFilter,
     );
 
-    return visibleEntries
+    return (activeTab === "transactions" ? liveData.entries : visibleEntries)
       .filter((entry) => {
         const matchesSearch =
           !search ||
@@ -491,10 +495,13 @@ export default function ExpenseTrackerPage({
         const matchesPayer =
           expensePayerFilter === "all" || entry.paidByUid === expensePayerFilter;
 
-        return matchesSearch && matchesCategory && matchesPayer;
+        const matchesDates = activeTab !== "transactions" || ((!dateFrom || entry.expenseDate >= dateFrom) && (!dateTo || entry.expenseDate <= dateTo));
+        return matchesSearch && matchesCategory && matchesPayer && matchesDates;
       })
-      .slice(0, 20);
+      .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate) || b.createdAtMillis - a.createdAtMillis)
+      .slice(0, activeTab === "transactions" ? undefined : 20);
   }, [
+    activeTab, dateFrom, dateTo, liveData.entries,
     expenseCategoryFilter,
     expensePayerFilter,
     expenseSearch,
@@ -502,7 +509,7 @@ export default function ExpenseTrackerPage({
     visibleEntries,
   ]);
   const filtersActive = Boolean(
-    expenseSearch.trim() || expenseCategoryFilter !== "all" || expensePayerFilter !== "all",
+    expenseSearch.trim() || expenseCategoryFilter !== "all" || expensePayerFilter !== "all" || (activeTab === "transactions" && (dateFrom || dateTo)),
   );
 
   useEffect(() => {
@@ -1268,6 +1275,7 @@ export default function ExpenseTrackerPage({
     <div className="expense-modal-content">
       {error ? <p className="expense-message is-error">{error}</p> : null}
       {feedback ? <p className="expense-message is-success">{feedback}</p> : null}
+      {activeTab === "transactions" && <div className="expense-date-range"><label>From date<input type="date" value={dateFrom} max={dateTo || today()} onChange={e=>setDateFrom(e.target.value)} /></label><label>To date<input type="date" value={dateTo} min={dateFrom} max={today()} onChange={e=>setDateTo(e.target.value)} /></label></div>}
       <div className="expense-recent-filters" aria-label="Filter recent expenses">
         <label className="expense-search-field">
           Search
@@ -1310,6 +1318,8 @@ export default function ExpenseTrackerPage({
           className="expense-button expense-button-secondary expense-filter-reset"
           disabled={!filtersActive}
           onClick={() => {
+            setDateFrom("");
+            setDateTo("");
             setExpenseSearch("");
             setExpenseCategoryFilter("all");
             setExpensePayerFilter("all");
@@ -1354,7 +1364,7 @@ export default function ExpenseTrackerPage({
                   <td className="expense-row-action">
                     <button
                       aria-label={`Edit ${entry.description}`}
-                      onClick={() => startEditingExpense(entry)}
+                      onClick={() => startEditingExpense(entry, activeTab === "transactions" ? null : "recent")}
                       type="button"
                     >
                       Edit
@@ -1375,7 +1385,7 @@ export default function ExpenseTrackerPage({
         </div>
       ) : (
         <div className="expense-empty-state is-compact">
-          <h3>{filtersActive ? "No matching expenses" : "No expenses for this month"}</h3>
+          <h3>{filtersActive ? "No matching expenses" : activeTab === "transactions" ? "No expenses yet" : "No expenses for this month"}</h3>
           <p>
             {filtersActive
               ? "Try a different search or reset the filters."
@@ -1391,20 +1401,16 @@ export default function ExpenseTrackerPage({
       <main className="expense-page">
         <header className="expense-topbar">
           <div className="expense-title-group">
-            <div className="expense-brand-mark" aria-hidden="true">
-              {isSharedWorkspace ? "S" : currentMember.displayName.slice(0, 1).toUpperCase()}
-              <span>{isSharedWorkspace ? "N" : "P"}</span>
-            </div>
             <div>
               <div className="expense-live-line">
                 <span className="expense-live-dot" />
-                Live on Firestore
+                Expense tracker
               </div>
               <h1>
                 {isSharedWorkspace ? "Sai & Naveen" : `${currentMember.displayName}'s Expenses`}
               </h1>
               <p>
-                Signed in as {currentMember.displayName} · {user.email}
+                {isSharedWorkspace ? "Shared workspace" : "Personal workspace"} · {currentMember.displayName}
               </p>
             </div>
           </div>
@@ -1420,15 +1426,16 @@ export default function ExpenseTrackerPage({
           </div>
         </header>
 
+        <nav className="expense-workspace-tabs" aria-label="Expense workspace">{(["overview", "compare", "transactions"] as const).map(tab=><button type="button" key={tab} aria-current={activeTab === tab ? "page" : undefined} onClick={()=>setActiveTab(tab)}>{tab[0].toUpperCase()+tab.slice(1)}</button>)}</nav>
         <section className="expense-period-bar">
           <div>
             <p className="expense-eyebrow">
               {isSharedWorkspace ? "Household overview" : "Personal overview"}
             </p>
-            <h2>{monthLabel(selectedMonth)}</h2>
+            <h2>{activeTab === "overview" ? monthLabel(selectedMonth) : activeTab === "compare" ? "Compare months" : "Transactions"}</h2>
           </div>
           <div className="expense-period-actions">
-            <label className="expense-month-control">
+            {activeTab === "overview" && <label className="expense-month-control">
               View month
               <input
                 max={currentMonth()}
@@ -1436,7 +1443,7 @@ export default function ExpenseTrackerPage({
                 type="month"
                 value={selectedMonth}
               />
-            </label>
+            </label>}
             <button
               className="expense-period-action expense-add-trigger"
               onClick={() => {
@@ -1457,17 +1464,10 @@ export default function ExpenseTrackerPage({
               <span aria-hidden="true">₹</span>
               <strong>Budgets</strong>
             </button>
-            <button
-              className="expense-period-action"
-              onClick={() => setExpenseDialog("recent")}
-              type="button"
-            >
-              <span aria-hidden="true">↻</span>
-              <strong>Recent</strong>
-            </button>
           </div>
         </section>
 
+        <div hidden={activeTab !== "overview"}>
         <section className="expense-summary-grid" aria-label="Monthly expense summary">
           <article>
             <span>Total spent</span>
@@ -1583,42 +1583,6 @@ export default function ExpenseTrackerPage({
             )}
             {breakdown.length ? (
               <div className="expense-chart-layout">
-                <div className="expense-pie-visual">
-                  <svg
-                    aria-label={`${chartViewLabel} category spending pie chart for ${monthLabel(selectedMonth)}`}
-                    className="expense-pie-chart"
-                    role="img"
-                    shapeRendering="geometricPrecision"
-                    viewBox="0 0 100 100"
-                  >
-                    <circle className="expense-pie-surface" cx="50" cy="50" r="46.5" />
-                    {pieSlices.map((slice) =>
-                      slice.fullCircle ? (
-                        <circle
-                          className="expense-pie-slice"
-                          cx="50"
-                          cy="50"
-                          fill={slice.color}
-                          key={slice.name}
-                          r="46.5"
-                        />
-                      ) : (
-                        <path
-                          className="expense-pie-slice"
-                          d={slice.path}
-                          fill={slice.color}
-                          key={slice.name}
-                        />
-                      ),
-                    )}
-                    <circle className="expense-pie-outline" cx="50" cy="50" r="46.5" />
-                  </svg>
-                  <div className="expense-pie-caption">
-                    <span>{chartViewLabel} total</span>
-                    <strong>{money(chartTotalPaise)}</strong>
-                    <small>{chartEntries.length} expenses</small>
-                  </div>
-                </div>
                 <div className="expense-category-bars">
                   {breakdown.map(([name, value]) => {
                     const budget =
@@ -1784,6 +1748,10 @@ export default function ExpenseTrackerPage({
           </section>
 
         </div>
+
+        </div>
+        {activeTab === "compare" && <ExpenseCompare entries={liveData.entries} members={liveData.members} shared={isSharedWorkspace} />}
+        {activeTab === "transactions" && <section className="expense-transactions-panel" aria-label="Transactions">{recentExpenseContent}</section>}
 
         {expenseDialog === "add" ? (
           <section
