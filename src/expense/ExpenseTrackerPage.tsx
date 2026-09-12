@@ -64,7 +64,8 @@ const percentage = (part: number, total: number) =>
   total > 0 ? ((part / total) * 100).toFixed(1) : "0.0";
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
 function currentMonth() {
@@ -588,6 +589,11 @@ export default function ExpenseTrackerPage({
 
   const addExpense = async (event: FormEvent) => {
     event.preventDefault();
+    if (!expenseDate || expenseDate > today()) {
+      setError("Choose today or an earlier date.");
+      return;
+    }
+
     const amountPaise = parseRupees(amount);
     const category = liveData.categories.find((item) => item.id === categoryId);
     const paidBy = liveData.members.find((item) => item.id === paidByUid);
@@ -719,6 +725,11 @@ export default function ExpenseTrackerPage({
 
   const saveEditedExpense = async (event: FormEvent) => {
     event.preventDefault();
+
+    if (!editExpenseDate || editExpenseDate > today()) {
+      setError("Choose today or an earlier date.");
+      return;
+    }
 
     const amountPaise = parseRupees(editAmount);
     const category = liveData.categories.find((item) => item.id === editCategoryId);
@@ -1444,9 +1455,17 @@ export default function ExpenseTrackerPage({
 
         <div className="expense-navigation-actions">
         <nav className="expense-workspace-tabs" aria-label="Expense workspace">{(["overview", "compare", "transactions"] as const).map(tab=><button type="button" key={tab} aria-current={activeTab === tab ? "page" : undefined} onClick={()=>setActiveTab(tab)}>{tab[0].toUpperCase()+tab.slice(1)}</button>)}</nav>
-          <div className="expense-global-action" hidden={Boolean(expenseDialog) || Boolean(selectedCategoryName)}>
+
+        </div>
+        <section className="expense-period-bar">
+          <div>
+            <p className="expense-eyebrow">
+              {isSharedWorkspace ? "Shared workspace" : "Personal workspace"}
+            </p>
+            <div className="expense-period-heading">
+            {activeTab === "overview" && (<div className="expense-overview-action" hidden={Boolean(expenseDialog) || Boolean(selectedCategoryName)}>
             <button
-              className="expense-button expense-button-primary expense-global-add"
+              className="expense-button expense-button-primary expense-overview-add"
               onClick={() => {
                 setError("");
                 setFeedback("");
@@ -1455,16 +1474,11 @@ export default function ExpenseTrackerPage({
               type="button"
             >
               <span aria-hidden="true">+</span>
-              <strong>Add expense</strong>
+              <strong>Add</strong>
             </button>
-          </div>
-        </div>
-        <section className="expense-period-bar">
-          <div>
-            <p className="expense-eyebrow">
-              {isSharedWorkspace ? "Shared workspace" : "Personal workspace"}
-            </p>
+          </div>)}
             <h2>{activeTab === "overview" ? monthLabel(selectedMonth) : activeTab === "compare" ? "Compare months" : "Transactions"}</h2>
+            </div>
           </div>
           {activeTab === "overview" && <div className="expense-period-actions">
             {activeTab === "overview" && <label className="expense-month-control">

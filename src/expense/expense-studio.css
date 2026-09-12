@@ -188,17 +188,19 @@
 .expense-reminder-schedule{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 0;margin:8px 0 18px;border-block:1px solid #deded5}.expense-reminder-schedule>span{color:#63635d;font-size:13px}.expense-reminder-schedule strong{font-size:18px;font-weight:500}.expense-reminder-schedule small{font-size:12px;font-weight:400}.expense-reminder-help{margin:20px 0;color:#63635d}.expense-reminders .expense-reminder-help summary{display:list-item;padding:0;font-size:12px;font-weight:400;color:#63635d}.expense-reminder-help p{font-size:12px;line-height:1.6}
 
 /* A single primary action shared by the workspace tabs. */
-.expense-navigation-actions{display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid #deded5}
-:root .expense-navigation-actions .expense-workspace-tabs{border:0;flex:1;min-width:0}
-.expense-global-action{flex-shrink:0}
-:root .expense-global-add{display:flex;align-items:center;justify-content:center;gap:8px}
+
+.expense-navigation-actions{border-bottom:1px solid #deded5}
+:root .expense-navigation-actions .expense-workspace-tabs{border:0}
+.expense-period-heading{display:flex;align-items:center;gap:16px;min-width:0;margin-top:10px}
+:root .expense-period-heading h2{margin:0;white-space:nowrap}
+.expense-overview-action{flex:0 0 auto}
+:root .expense-overview-add{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;width:76px;padding:10px}
 .expense-manage-budgets{background:none;border:0;border-radius:0;color:#b5422d;text-decoration:underline;text-underline-offset:4px;font:600 12px Arial;min-height:44px;padding:10px 0;cursor:pointer}
-:root .expense-period-actions{align-items:flex-end}
+:root .expense-amount-field input,:root .expense-amount-field input:focus,:root .expense-amount-field input:focus-visible{border:0!important;outline:none!important;box-shadow:none!important;background:transparent;border-radius:0}
+:root .expense-amount-field:focus-within{border-color:#b5422d;box-shadow:0 0 0 2px #b5422d26}
 @media(max-width:600px){
- :root .expense-page{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
- .expense-navigation-actions{display:block}
- .expense-global-action{position:fixed;bottom:0;left:0;right:0;z-index:50;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#fafaf6;border-top:1px solid #deded5}
- :root .expense-global-add{width:100%;min-height:48px}
+ .expense-period-heading{gap:12px}
+ :root .expense-period-heading h2{font-size:clamp(22px,6vw,30px);letter-spacing:-.04em}
  :root .expense-period-actions{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
  :root .expense-period-actions .expense-month-control{width:auto;flex:1;min-width:0}
  .expense-manage-budgets{flex-shrink:0}
