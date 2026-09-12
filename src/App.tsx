@@ -26,6 +26,7 @@ import DashboardView from "./components/DashboardView";
 import ReaderMenu from "./components/ReaderMenu";
 import StartHereView from "./components/StartHereView";
 import AiRadarView from "./components/AiRadarView";
+import SignInView from "./components/SignInView";
 import { advanceHeaderScroll } from "./lib/headerScroll";
 import loadBalancerBasicsMarkdown from "./content/load-balancer-basics.md?raw";
 import loadBalancerRoundRobinMarkdown from "./content/load-balancer-round-robin.md?raw";
@@ -11216,76 +11217,10 @@ type SignInPageProps = SubscriptionAccessCardProps & {
   onThemeToggle: () => void;
 };
 
-function SignInPage({
-  portfolioReturnBlogSlug,
-  signInReturnTarget,
-  subscriberName,
-  subscriberView,
-  theme,
-  onThemeToggle,
-  ...subscriptionProps
-}: SignInPageProps) {
-  const isScrolled = useScrolled();
-  const firstName = subscriberName.split(" ")[0] || "there";
+function SignInPage({ portfolioReturnBlogSlug, signInReturnTarget, subscriberName, subscriberView, theme, onThemeToggle, ...subscriptionProps }: SignInPageProps) {
   const returnTargetConfig = getReturnTargetConfig(signInReturnTarget ?? "");
-  const heroCopy = {
-    guest: {
-      title: "Sign in to follow new engineering notes and portfolio updates.",
-      body: "Subscribe to practical notes on backend performance, search systems, AI and LLM workflows, and selected portfolio updates. You stay in control and can unsubscribe anytime.",
-    },
-    newSignedIn: {
-      title: "Nice, you made it in. Want the good stuff delivered?",
-      body: `Welcome, ${firstName}. You are signed in, but not subscribed yet. Tap subscribe if you want the useful engineering notes to find your inbox instead of playing hide-and-seek.`,
-    },
-    newSubscribed: {
-      title: "You joined the signal. The inbox just got smarter.",
-      body: `Welcome aboard, ${firstName}. Future write-ups and selected portfolio updates will land in your inbox. Useful notes only, no newsletter confetti cannon.`,
-    },
-    newUnsubscribed: {
-      title: "No worries. Your inbox gets a quiet little vacation.",
-      body: `You are unsubscribed, ${firstName}. No updates will be sent unless you subscribe again. The notes will be here, looking mildly dramatic, whenever you come back.`,
-    },
-    newSignedOutSubscribed: {
-      title: "Signed out, but the update bridge is still open.",
-      body: "See you around. Your subscription is active, so the next useful engineering note still knows where to go.",
-    },
-    newSignedOutUnsubscribed: {
-      title: "Signed out and off the list. The inbox rests.",
-      body: "No emails will be sent. The door stays open, the lights stay warm, and the engineering notes will behave until you return.",
-    },
-    returningSubscribed: {
-      title: "Welcome back. Your update radar is still switched on.",
-      body: `Good to see you again, ${firstName}. You are already subscribed, so new engineering notes and portfolio updates will keep finding their way to you.`,
-    },
-    returningUnsubscribed: {
-      title: "Welcome back. Your updates are still paused.",
-      body: `Good to see you again, ${firstName}. Your inbox is safe from me for now. If curiosity starts tapping on the window, subscribe again anytime.`,
-    },
-    returningResubscribed: {
-      title: "Back on the list. The comeback arc begins.",
-      body: `Nice move, ${firstName}. Updates are active again, and the next useful engineering note gets a proper boarding pass to your inbox.`,
-    },
-    returningSignedOutSubscribed: {
-      title: "Signed out, but still on the good-stuff route.",
-      body: "You are logged out, but your subscription stays active. The portfolio will keep sending selected engineering notes when they are worth your time.",
-    },
-    returningSignedOutUnsubscribed: {
-      title: "Signed out and still unsubscribed. Peace restored.",
-      body: "No updates will be sent. Your inbox is now wearing noise-cancelling headphones, and we respect that.",
-    },
-  }[subscriberView];
-
-  return (
-    <>
-      <a className="skip-link" href="#main-content">
-        Skip to sign in
-      </a>
-
-      <div className="backdrop-orb backdrop-orb-left" aria-hidden="true" />
-      <div className="backdrop-orb backdrop-orb-right" aria-hidden="true" />
-
-      <SiteNavigation>
-{portfolioReturnBlogSlug ? (
+  const destination = portfolioReturnBlogSlug ? { href: getBlogArticleHref(portfolioReturnBlogSlug), label: "Continue reading" } : returnTargetConfig ? { href: returnTargetConfig.href, label: signInReturnTarget === "saved-posts" ? "Open saved posts" : signInReturnTarget === "ai-radar" ? "Open AI Radar" : "Continue" } : { href: "/saved-posts", label: "Open saved posts" };
+  return <SignInView backAction={portfolioReturnBlogSlug ? (
               <button
                 className="button button-secondary"
                 type="button"
@@ -11301,21 +11236,13 @@ function SignInPage({
             ) : (
               <PageBackButton fallbackHref="/portfolio#top" label="Back" />
             )}
-      </SiteNavigation>
-
-      <main className="signin-page shell" id="main-content">
-        <section className="signin-hero">
-          <div className="signin-copy">
-            <p className="eyebrow">Subscriber Access</p>
-            <h1>{heroCopy.title}</h1>
-            <p>{heroCopy.body}</p>
-          </div>
-
-          <SubscriptionAccessCard subscriberName={subscriberName} {...subscriptionProps} />
-        </section>
-      </main>
-    </>
-  );
+    signedIn={Boolean(subscriptionProps.subscriberUser)} subscribed={subscriptionProps.isSubscribed}
+    available={subscriptionProps.canUseSubscriptions} busy={subscriptionProps.subscriptionBusy}
+    name={subscriberName} email={subscriptionProps.subscriberEmail} initial={subscriptionProps.subscriberInitial}
+    error={subscriptionProps.subscriptionError} message={subscriptionProps.subscriptionMessage}
+    signedOutNotice={subscriberView.includes("SignedOutSubscribed") ? "You’re signed out. Your email subscription remains active." : subscriberView.includes("SignedOutUnsubscribed") ? "You’re signed out. Email updates are turned off." : ""}
+    destination={destination} context={portfolioReturnBlogSlug ? "article" : signInReturnTarget === "saved-posts" ? "saved-posts" : signInReturnTarget === "ai-radar" ? "ai-radar" : "general"}
+    onSignIn={subscriptionProps.onGoogleSignIn} onSignOut={subscriptionProps.onSignOut} onSubscribe={subscriptionProps.onSubscribe} onUnsubscribe={subscriptionProps.onUnsubscribe} />;
 }
 
 type SendUpdateResult = {

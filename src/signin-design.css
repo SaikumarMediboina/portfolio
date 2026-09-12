@@ -1,0 +1,46 @@
+.access-layout { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); align-items: start; gap: 96px; padding: 64px 0 56px; }
+.access-intro h1 { max-width: 12ch; font-size: clamp(36px,4.5vw,56px); }
+.access-intro .studio-description { max-width: 47ch; }
+.access-benefits { list-style: none; padding: 0; margin-top: 32px !important; }
+.access-benefits li { display: grid; grid-template-columns: 24px 1fr; gap: 16px; border-top: 1px solid #deded5; padding: 18px 0; }
+.access-benefits li > span { font: 11px/1.8 ui-monospace,Consolas,monospace; color: #b5422d; }
+.access-benefits h2 { font-size: 16px; font-weight: 500; line-height: 1.5; letter-spacing: -.01em; }
+.access-benefits p { color: #63635d; font-size: 12px; margin-top: 4px; }
+.access-card { min-width: 0; background: #fffefb; border: 1px solid #deded5; border-top: 3px solid #b5422d; border-radius: 4px; padding: 32px; margin-top: 8px; }
+.access-card h2 { font-size: 27px; margin-top: 14px; }
+.access-card .access-card-copy { font-size: 14px; color: #63635d; margin-top: 16px; }
+.access-page .access-continue { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-height: 48px; padding: 13px 16px; margin-top: 28px; border: 1px solid #b5422d; border-radius: 3px; background: #b5422d; color: #fff; cursor: pointer; font: 500 13px/1.5 Arial,sans-serif; text-align: left; }
+.access-page .access-continue:hover { background: #913622; color: #fff; }
+.access-card button:disabled { opacity: .6; cursor: default; }
+.access-card .access-next { font-size: 11px; color: #63635d; margin-top: 12px; }
+.access-card .access-optional { border-top: 1px solid #deded5; padding-top: 18px; margin-top: 24px; font-size: 12px; color: #63635d; }
+.access-identity { display: flex; align-items: center; gap: 14px; margin-top: 24px; }
+.access-identity > span { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; background: #242421; color: #fafaf6; border-radius: 50%; font-size: 16px; }
+.access-identity > div { min-width: 0; }
+.access-identity strong { display: block; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.access-identity small { display: block; font-size: 11px; color: #63635d; overflow-wrap: anywhere; }
+.access-preference { border-top: 1px solid #deded5; margin-top: 24px; padding-top: 20px; }
+.access-preference > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.access-preference h3 { font-size: 15px; font-weight: 500; }
+.access-preference span { font-size: 10px; color: #63635d; }
+.access-preference p { font-size: 12px; color: #63635d; margin-top: 10px; }
+.access-secondary { width: 100%; min-height: 44px; border: 1px solid #deded5; border-radius: 3px; padding: 10px 14px; margin-top: 16px; background: transparent; color: #242421; font: 12px/1.5 Arial,sans-serif; cursor: pointer; }
+.access-secondary:hover { border-color: #b5422d; }
+.access-signout { min-height: 44px; padding: 8px 0; margin-top: 12px; border: 0; background: transparent; color: #63635d; font: 12px/1.5 Arial,sans-serif; cursor: pointer; }
+.access-card .access-status { font-size: 12px; color: #63635d; border-top: 1px solid #deded5; padding-top: 14px; margin-top: 16px; overflow-wrap: anywhere; }
+.access-card .access-error { color: #a12f22; }
+.access-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; align-items: center; border-top: 1px solid #deded5; padding-top: 24px; color: #63635d; font-size: 12px; }
+.access-footer a { display: inline-flex; gap: 12px; align-items: center; min-height: 44px; }
+.access-footer a > span { color: #b5422d; }
+@media(max-width:900px) { .access-layout { gap: 40px; grid-template-columns: 1fr 1fr; } .access-card { padding: 24px; } }
+@media(max-width:640px) {
+ .access-layout { display: flex; flex-direction: column; gap: 28px; padding-block: 36px; }
+ .access-intro { display: contents; }
+ .access-intro > .studio-label { order: 0; }
+ .access-intro h1 { order: 1; margin-top: -14px; }
+ .access-intro > .studio-description { order: 2; margin-top: -10px; }
+ .access-card { order: 3; width: 100%; margin-top: 0; padding: 24px 20px; }
+ .access-benefits { order: 4; width: 100%; margin-top: 0 !important; }
+ .access-intro > .studio-text-link { order: 5; margin-top: -16px; }
+ .access-footer { align-items: start; flex-direction: column; }
+}

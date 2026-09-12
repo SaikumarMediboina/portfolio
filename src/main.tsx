@@ -13,6 +13,7 @@ import "./header-account.css";
 import "./reader-menu-design.css";
 import "./dashboard-design.css";
 import "./discovery-pages.css";
+import "./signin-design.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
